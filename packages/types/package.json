@@ -1,0 +1,23 @@
+{
+  "name": "@cssfn/types",
+  "version": "2.0.0",
+  "description": "Common typescript definitions.",
+  "keywords": [
+    "typescript",
+    "types",
+    "common"
+  ],
+  "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
+  "homepage": "https://nodestrap.org",
+  "license": "ISC",
+  "main": "dist/types.js",
+  "types": "dist/types.d.ts",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  }
+}

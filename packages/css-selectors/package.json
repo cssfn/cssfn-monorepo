@@ -1,0 +1,28 @@
+{
+  "name": "@cssfn/css-selectors",
+  "version": "2.0.0",
+  "description": "Manipulates css selector - parse, transform, calculate specificity, and more.",
+  "keywords": [
+    "css",
+    "stylesheet",
+    "selector",
+    "combinator",
+    "attributes"
+  ],
+  "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
+  "homepage": "https://nodestrap.org",
+  "license": "ISC",
+  "main": "dist/css-selectors.js",
+  "types": "dist/css-selectors.d.ts",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "dependencies": {
+    "@cssfn/types": "^2.0.0"
+  }
+}
