@@ -470,6 +470,104 @@ test(`parseSelectors(':foo(2n+(3a+b)+c+(de+fg)+((hi+(jk+lmn)))+opq)')`, () => {
         ),
     ));
 });
+['is', 'not', 'where', 'has'].forEach((group) => {
+    test(`parseSelectors(':${group}(.great)')`, () => {
+        expect(parseSelectors(`:${group}(.great)`))
+        .toEqual(selectorGroup(
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                        ),
+                    ),
+                ),
+            ),
+        ));
+    });
+    test(`parseSelectors(':${group}(.great.okay:valid, .awesome)')`, () => {
+        expect(parseSelectors(`:${group}(.great.okay:valid, .awesome)`))
+        .toEqual(selectorGroup(
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            classSelector('okay'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                        ),
+                    ),
+                ),
+            ),
+        ));
+    });
+    test(`parseSelectors(':${group}(.great .okay>:valid, .awesome+:nth-child(2n+3))')`, () => {
+        expect(parseSelectors(`:${group}(.great .okay>:valid, .awesome+:nth-child(2n+3))`))
+        .toEqual(selectorGroup(
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            combinator(' '),
+                            classSelector('okay'),
+                            combinator('>'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                            combinator('+'),
+                            pseudoClassSelector('nth-child', '2n+3'),
+                        ),
+                    ),
+                ),
+            ),
+        ));
+    });
+    ['is', 'not', 'where', 'has'].forEach((group2) => {
+        test(`parseSelectors(':${group}(.great, :${group2}(#okay), :${group2}(:valid:first-child>:nth-child(2n+3), ::backdrop))')`, () => {
+            expect(parseSelectors(`:${group}(.great, :${group2}(#okay), :${group2}(:valid:first-child>:nth-child(2n+3), ::backdrop))`))
+            .toEqual(selectorGroup(
+                selector(
+                    pseudoClassSelector(group,
+                        selectorGroup(
+                            selector(
+                                classSelector('great'),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            idSelector('okay'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            pseudoClassSelector('valid'),
+                                            pseudoClassSelector('first-child'),
+                                            combinator('>'),
+                                            pseudoClassSelector('nth-child', '2n+3'),
+                                        ),
+                                        selector(
+                                            pseudoElementSelector('backdrop'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ));
+        });
+    });
+});
 //#endregion test PseudoClassSelector
 //#region test PseudoClassSelector with excess spaces
 test(`parseSelectors('  :disabled  ')`, () => {
@@ -524,6 +622,104 @@ test(`parseSelectors(':foo  (2n+(3a+b)+c+(de+fg)+((hi+(jk+lmn)))+opq)  ')`, () =
 test(`parseSelectors(':foo  (  2n  +  (  3a  +  b  )  +  c  +  (  de  +  fg  )  +  (  (  hi  +  (  jk  +  lmn  )  )  )  +  opq  )')`, () => {
     expect(parseSelectors(':foo  (  2n  +  (  3a  +  b  )  +  c  +  (  de  +  fg  )  +  (  (  hi  +  (  jk  +  lmn  )  )  )  +  opq  )'))
     .toBe(null)
+});
+['is', 'not', 'where', 'has'].forEach((group) => {
+    test(`parseSelectors('   :${group}(  .great  )  ')`, () => {
+        expect(parseSelectors(`   :${group}(  .great  )  `))
+        .toEqual(selectorGroup(
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                        ),
+                    ),
+                ),
+            ),
+        ));
+    });
+    test(`parseSelectors('   :${group}(  .great.okay:valid   ,   .awesome  )   ')`, () => {
+        expect(parseSelectors(`   :${group}(  .great.okay:valid   ,   .awesome  )   `))
+        .toEqual(selectorGroup(
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            classSelector('okay'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                        ),
+                    ),
+                ),
+            ),
+        ));
+    });
+    test(`parseSelectors('   :${group}(  .great   .okay  >  :valid   ,   .awesome  +  :nth-child( 2n + 3 )  )   ')`, () => {
+        expect(parseSelectors(`   :${group}(  .great   .okay  >  :valid   ,   .awesome  +  :nth-child( 2n + 3 )  )   `))
+        .toEqual(selectorGroup(
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            combinator(' '),
+                            classSelector('okay'),
+                            combinator('>'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                            combinator('+'),
+                            pseudoClassSelector('nth-child', '2n+3'),
+                        ),
+                    ),
+                ),
+            ),
+        ));
+    });
+    ['is', 'not', 'where', 'has'].forEach((group2) => {
+        test(`parseSelectors('   :${group}(  .great   ,   :${group2}(  #okay  )   ,   :${group2}(  :valid:first-child  >  :nth-child( 2n + 3 )   ,   ::backdrop  )  )   ')`, () => {
+            expect(parseSelectors(`   :${group}(  .great   ,   :${group2}(  #okay  )   ,   :${group2}(  :valid:first-child  >  :nth-child( 2n + 3 )   ,   ::backdrop  )  )   `))
+            .toEqual(selectorGroup(
+                selector(
+                    pseudoClassSelector(group,
+                        selectorGroup(
+                            selector(
+                                classSelector('great'),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            idSelector('okay'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            pseudoClassSelector('valid'),
+                                            pseudoClassSelector('first-child'),
+                                            combinator('>'),
+                                            pseudoClassSelector('nth-child', '2n+3'),
+                                        ),
+                                        selector(
+                                            pseudoElementSelector('backdrop'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ));
+        });
+    });
 });
 //#endregion test PseudoClassSelector with excess spaces
 
@@ -833,6 +1029,144 @@ test(`parseSelectors('.boo :foo(a+b)>#bleh,::charlie')`, () => {
         ),
     ));
 });
+['is', 'not', 'where', 'has'].forEach((group) => {
+    test(`parseSelectors('.boo :foo(a+b)>#bleh,::charlie,:${group}(.great)')`, () => {
+        expect(parseSelectors(`.boo :foo(a+b)>#bleh,::charlie,:${group}(.great)`))
+        .toEqual(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                        ),
+                    ),
+                ),
+            ),
+        ));
+    });
+    test(`parseSelectors('.boo :foo(a+b)>#bleh,::charlie,:${group}(.great.okay:valid, .awesome)')`, () => {
+        expect(parseSelectors(`.boo :foo(a+b)>#bleh,::charlie,:${group}(.great.okay:valid, .awesome)`))
+        .toEqual(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            classSelector('okay'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                        ),
+                    ),
+                ),
+            ),
+        ));
+    });
+    test(`parseSelectors('.boo :foo(a+b)>#bleh,::charlie,:${group}(.great .okay>:valid, .awesome+:nth-child(2n+3))')`, () => {
+        expect(parseSelectors(`.boo :foo(a+b)>#bleh,::charlie,:${group}(.great .okay>:valid, .awesome+:nth-child(2n+3))`))
+        .toEqual(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            combinator(' '),
+                            classSelector('okay'),
+                            combinator('>'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                            combinator('+'),
+                            pseudoClassSelector('nth-child', '2n+3'),
+                        ),
+                    ),
+                ),
+            ),
+        ));
+    });
+    ['is', 'not', 'where', 'has'].forEach((group2) => {
+        test(`parseSelectors('.boo :foo(a+b)>#bleh,::charlie,:${group}(.great, :${group2}(#okay), :${group2}(:valid:first-child>:nth-child(2n+3), ::backdrop))')`, () => {
+            expect(parseSelectors(`.boo :foo(a+b)>#bleh,::charlie,:${group}(.great, :${group2}(#okay), :${group2}(:valid:first-child>:nth-child(2n+3), ::backdrop))`))
+            .toEqual(selectorGroup(
+                selector(
+                    classSelector('boo'),
+                    combinator(' '),
+                    pseudoClassSelector('foo', 'a+b'),
+                    combinator('>'),
+                    idSelector('bleh'),
+                ),
+                selector(
+                    pseudoElementSelector('charlie'),
+                ),
+                selector(
+                    pseudoClassSelector(group,
+                        selectorGroup(
+                            selector(
+                                classSelector('great'),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            idSelector('okay'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            pseudoClassSelector('valid'),
+                                            pseudoClassSelector('first-child'),
+                                            combinator('>'),
+                                            pseudoClassSelector('nth-child', '2n+3'),
+                                        ),
+                                        selector(
+                                            pseudoElementSelector('backdrop'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ));
+        });
+    });
+});
 //#endregion test SelectorGroup
 //#region test SelectorGroup with excess spaces
 test(`parseSelectors('   .boo  ,  :foo( a + b )  ,  #bleh  ,  ::charlie   ')`, () => {
@@ -907,5 +1241,143 @@ test(`parseSelectors('   .boo   :foo( a + b )  >  #bleh  ,  ::charlie   ')`, () 
             pseudoElementSelector('charlie'),
         ),
     ));
+});
+['is', 'not', 'where', 'has'].forEach((group) => {
+    test(`parseSelectors('   .boo   :foo( a + b )  >  #bleh  ,  ::charlie   ,   :${group}(  .great  )  ')`, () => {
+        expect(parseSelectors(`   .boo   :foo( a + b )  >  #bleh  ,  ::charlie   ,   :${group}(  .great  )  `))
+        .toEqual(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                        ),
+                    ),
+                ),
+            ),
+        ));
+    });
+    test(`parseSelectors('   .boo   :foo( a + b )  >  #bleh  ,  ::charlie   ,   :${group}(  .great.okay:valid   ,   .awesome  )   ')`, () => {
+        expect(parseSelectors(`   .boo   :foo( a + b )  >  #bleh  ,  ::charlie   ,   :${group}(  .great.okay:valid   ,   .awesome  )   `))
+        .toEqual(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            classSelector('okay'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                        ),
+                    ),
+                ),
+            ),
+        ));
+    });
+    test(`parseSelectors('   .boo   :foo( a + b )  >  #bleh  ,  ::charlie   ,   :${group}(  .great   .okay  >  :valid   ,   .awesome  +  :nth-child( 2n + 3 )  )   ')`, () => {
+        expect(parseSelectors(`   .boo   :foo( a + b )  >  #bleh  ,  ::charlie   ,   :${group}(  .great   .okay  >  :valid   ,   .awesome  +  :nth-child( 2n + 3 )  )   `))
+        .toEqual(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            combinator(' '),
+                            classSelector('okay'),
+                            combinator('>'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                            combinator('+'),
+                            pseudoClassSelector('nth-child', '2n+3'),
+                        ),
+                    ),
+                ),
+            ),
+        ));
+    });
+    ['is', 'not', 'where', 'has'].forEach((group2) => {
+        test(`parseSelectors('   .boo   :foo( a + b )  >  #bleh  ,  ::charlie   ,   :${group}(  .great   ,   :${group2}(  #okay  )   ,   :${group2}(  :valid:first-child  >  :nth-child( 2n + 3 )   ,   ::backdrop  )  )   ')`, () => {
+            expect(parseSelectors(`   .boo   :foo( a + b )  >  #bleh  ,  ::charlie   ,   :${group}(  .great   ,   :${group2}(  #okay  )   ,   :${group2}(  :valid:first-child  >  :nth-child( 2n + 3 )   ,   ::backdrop  )  )   `))
+            .toEqual(selectorGroup(
+                selector(
+                    classSelector('boo'),
+                    combinator(' '),
+                    pseudoClassSelector('foo', 'a+b'),
+                    combinator('>'),
+                    idSelector('bleh'),
+                ),
+                selector(
+                    pseudoElementSelector('charlie'),
+                ),
+                selector(
+                    pseudoClassSelector(group,
+                        selectorGroup(
+                            selector(
+                                classSelector('great'),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            idSelector('okay'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            pseudoClassSelector('valid'),
+                                            pseudoClassSelector('first-child'),
+                                            combinator('>'),
+                                            pseudoClassSelector('nth-child', '2n+3'),
+                                        ),
+                                        selector(
+                                            pseudoElementSelector('backdrop'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ));
+        });
+    });
 });
 //#endregion test SelectorGroup with excess spaces

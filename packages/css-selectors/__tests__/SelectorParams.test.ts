@@ -330,6 +330,144 @@ test(`isWildParams(SelectorGroup)`, () => {
     ))
     .toBe(false);
 });
+['is', 'not', 'where', 'has'].forEach((group) => {
+    test(`isWildParams(SelectorGroup)`, () => {
+        expect(isWildParams(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                        ),
+                    ),
+                ),
+            ),
+        )))
+        .toBe(false);
+    });
+    test(`isWildParams(SelectorGroup)`, () => {
+        expect(isWildParams(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            classSelector('okay'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                        ),
+                    ),
+                ),
+            ),
+        )))
+        .toBe(false);
+    });
+    test(`isWildParams(SelectorGroup)`, () => {
+        expect(isWildParams(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            combinator(' '),
+                            classSelector('okay'),
+                            combinator('>'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                            combinator('+'),
+                            pseudoClassSelector('nth-child', '2n+3'),
+                        ),
+                    ),
+                ),
+            ),
+        )))
+        .toBe(false);
+    });
+    ['is', 'not', 'where', 'has'].forEach((group2) => {
+        test(`isWildParams(SelectorGroup)`, () => {
+            expect(isWildParams(selectorGroup(
+                selector(
+                    classSelector('boo'),
+                    combinator(' '),
+                    pseudoClassSelector('foo', 'a+b'),
+                    combinator('>'),
+                    idSelector('bleh'),
+                ),
+                selector(
+                    pseudoElementSelector('charlie'),
+                ),
+                selector(
+                    pseudoClassSelector(group,
+                        selectorGroup(
+                            selector(
+                                classSelector('great'),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            idSelector('okay'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            pseudoClassSelector('valid'),
+                                            pseudoClassSelector('first-child'),
+                                            combinator('>'),
+                                            pseudoClassSelector('nth-child', '2n+3'),
+                                        ),
+                                        selector(
+                                            pseudoElementSelector('backdrop'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            )))
+            .toBe(false);
+        });
+    });
+});
 //#endregion test with SelectorGroup
 
 //#region test with WildParams
@@ -663,6 +801,144 @@ test(`isAttrSelectorParams(SelectorGroup)`, () => {
     ))
     .toBe(false);
 });
+['is', 'not', 'where', 'has'].forEach((group) => {
+    test(`isAttrSelectorParams(SelectorGroup)`, () => {
+        expect(isAttrSelectorParams(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                        ),
+                    ),
+                ),
+            ),
+        )))
+        .toBe(false);
+    });
+    test(`isAttrSelectorParams(SelectorGroup)`, () => {
+        expect(isAttrSelectorParams(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            classSelector('okay'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                        ),
+                    ),
+                ),
+            ),
+        )))
+        .toBe(false);
+    });
+    test(`isAttrSelectorParams(SelectorGroup)`, () => {
+        expect(isAttrSelectorParams(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            combinator(' '),
+                            classSelector('okay'),
+                            combinator('>'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                            combinator('+'),
+                            pseudoClassSelector('nth-child', '2n+3'),
+                        ),
+                    ),
+                ),
+            ),
+        )))
+        .toBe(false);
+    });
+    ['is', 'not', 'where', 'has'].forEach((group2) => {
+        test(`isAttrSelectorParams(SelectorGroup)`, () => {
+            expect(isAttrSelectorParams(selectorGroup(
+                selector(
+                    classSelector('boo'),
+                    combinator(' '),
+                    pseudoClassSelector('foo', 'a+b'),
+                    combinator('>'),
+                    idSelector('bleh'),
+                ),
+                selector(
+                    pseudoElementSelector('charlie'),
+                ),
+                selector(
+                    pseudoClassSelector(group,
+                        selectorGroup(
+                            selector(
+                                classSelector('great'),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            idSelector('okay'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            pseudoClassSelector('valid'),
+                                            pseudoClassSelector('first-child'),
+                                            combinator('>'),
+                                            pseudoClassSelector('nth-child', '2n+3'),
+                                        ),
+                                        selector(
+                                            pseudoElementSelector('backdrop'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            )))
+            .toBe(false);
+        });
+    });
+});
 //#endregion test with SelectorGroup
 
 //#region test with WildParams
@@ -995,6 +1271,144 @@ test(`isSelectors(SelectorGroup)`, () => {
         )
     ))
     .toBe(true);
+});
+['is', 'not', 'where', 'has'].forEach((group) => {
+    test(`isSelectors(SelectorGroup)`, () => {
+        expect(isSelectors(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                        ),
+                    ),
+                ),
+            ),
+        )))
+        .toBe(true);
+    });
+    test(`isSelectors(SelectorGroup)`, () => {
+        expect(isSelectors(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            classSelector('okay'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                        ),
+                    ),
+                ),
+            ),
+        )))
+        .toBe(true);
+    });
+    test(`isSelectors(SelectorGroup)`, () => {
+        expect(isSelectors(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            combinator(' '),
+                            classSelector('okay'),
+                            combinator('>'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                            combinator('+'),
+                            pseudoClassSelector('nth-child', '2n+3'),
+                        ),
+                    ),
+                ),
+            ),
+        )))
+        .toBe(true);
+    });
+    ['is', 'not', 'where', 'has'].forEach((group2) => {
+        test(`isSelectors(SelectorGroup)`, () => {
+            expect(isSelectors(selectorGroup(
+                selector(
+                    classSelector('boo'),
+                    combinator(' '),
+                    pseudoClassSelector('foo', 'a+b'),
+                    combinator('>'),
+                    idSelector('bleh'),
+                ),
+                selector(
+                    pseudoElementSelector('charlie'),
+                ),
+                selector(
+                    pseudoClassSelector(group,
+                        selectorGroup(
+                            selector(
+                                classSelector('great'),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            idSelector('okay'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            pseudoClassSelector('valid'),
+                                            pseudoClassSelector('first-child'),
+                                            combinator('>'),
+                                            pseudoClassSelector('nth-child', '2n+3'),
+                                        ),
+                                        selector(
+                                            pseudoElementSelector('backdrop'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            )))
+            .toBe(true);
+        });
+    });
 });
 //#endregion test with SelectorGroup
 

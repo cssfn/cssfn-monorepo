@@ -1,8 +1,4 @@
 import {
-    // parses:
-    parseSelectors,
-    
-    
     // SelectorEntry creates & tests:
     ParentSelector,
     parentSelector,
@@ -19,9 +15,13 @@ import {
     classSelector,
     PseudoClassSelector,
     pseudoClassSelector,
+    PseudoElementSelector,
     pseudoElementSelector,
+    Combinator,
     combinator,
+    Selector,
     selector,
+    SelectorGroup,
     selectorGroup,
 } from '../src/css-selectors'
 
@@ -243,4 +243,390 @@ test(`PseudoClassSelector`, () => {
         'foo',
         '2n+(3a+b)+c+(de+fg)+((hi+(jk+lmn)))+opq'
     ])());
+});
+['is', 'not', 'where', 'has'].forEach((group) => {
+    test(`isSelectors(SelectorGroup)`, () => {
+        expect(pseudoClassSelector(group, selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                        ),
+                    ),
+                ),
+            ),
+        )))
+        .toEqual(((): PseudoClassSelector => [
+            ':',
+            group,
+            ((): SelectorGroup => [
+                ((): Selector => [
+                    ((): ClassSelector => [
+                        '.',
+                        'boo'
+                    ])(),
+                    ((): Combinator => ' ')(),
+                    ((): PseudoClassSelector => [
+                        ':',
+                        'foo',
+                        'a+b'
+                    ])(),
+                    ((): Combinator => '>')(),
+                    ((): IdSelector => [
+                        '#',
+                        'bleh'
+                    ])(),
+                ])(),
+                ((): Selector => [
+                    ((): PseudoElementSelector => [
+                        '::',
+                        'charlie'
+                    ])(),
+                ])(),
+                ((): Selector => [
+                    ((): PseudoClassSelector => [
+                        ':',
+                        group,
+                        ((): SelectorGroup => [
+                            ((): Selector => [
+                                ((): ClassSelector => [
+                                    '.',
+                                    'great'
+                                ])(),
+                            ])(),
+                        ])(),
+                    ])(),
+                ])(),
+            ])(),
+        ])());
+    });
+    test(`isSelectors(SelectorGroup)`, () => {
+        expect(pseudoClassSelector(group, selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            classSelector('okay'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                        ),
+                    ),
+                ),
+            ),
+        )))
+        .toEqual(((): PseudoClassSelector => [
+            ':',
+            group,
+            ((): SelectorGroup => [
+                ((): Selector => [
+                    ((): ClassSelector => [
+                        '.',
+                        'boo'
+                    ])(),
+                    ((): Combinator => ' ')(),
+                    ((): PseudoClassSelector => [
+                        ':',
+                        'foo',
+                        'a+b'
+                    ])(),
+                    ((): Combinator => '>')(),
+                    ((): IdSelector => [
+                        '#',
+                        'bleh'
+                    ])(),
+                ])(),
+                ((): Selector => [
+                    ((): PseudoElementSelector => [
+                        '::',
+                        'charlie'
+                    ])(),
+                ])(),
+                ((): Selector => [
+                    ((): PseudoClassSelector => [
+                        ':',
+                        group,
+                        ((): SelectorGroup => [
+                            ((): Selector => [
+                                ((): ClassSelector => [
+                                    '.',
+                                    'great'
+                                ])(),
+                                ((): ClassSelector => [
+                                    '.',
+                                    'okay'
+                                ])(),
+                                ((): PseudoClassSelector => [
+                                    ':',
+                                    'valid'
+                                ])(),
+                            ])(),
+                            ((): Selector => [
+                                ((): ClassSelector => [
+                                    '.',
+                                    'awesome'
+                                ])(),
+                            ])(),
+                        ])(),
+                    ])(),
+                ])(),
+            ])(),
+        ])());
+    });
+    test(`isSelectors(SelectorGroup)`, () => {
+        expect(pseudoClassSelector(group, selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            combinator(' '),
+                            classSelector('okay'),
+                            combinator('>'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                            combinator('+'),
+                            pseudoClassSelector('nth-child', '2n+3'),
+                        ),
+                    ),
+                ),
+            ),
+        )))
+        .toEqual(((): PseudoClassSelector => [
+            ':',
+            group,
+            ((): SelectorGroup => [
+                ((): Selector => [
+                    ((): ClassSelector => [
+                        '.',
+                        'boo'
+                    ])(),
+                    ((): Combinator => ' ')(),
+                    ((): PseudoClassSelector => [
+                        ':',
+                        'foo',
+                        'a+b'
+                    ])(),
+                    ((): Combinator => '>')(),
+                    ((): IdSelector => [
+                        '#',
+                        'bleh'
+                    ])(),
+                ])(),
+                ((): Selector => [
+                    ((): PseudoElementSelector => [
+                        '::',
+                        'charlie'
+                    ])(),
+                ])(),
+                ((): Selector => [
+                    ((): PseudoClassSelector => [
+                        ':',
+                        group,
+                        ((): SelectorGroup => [
+                            ((): Selector => [
+                                ((): ClassSelector => [
+                                    '.',
+                                    'great'
+                                ])(),
+                                ((): Combinator => ' ')(),
+                                ((): ClassSelector => [
+                                    '.',
+                                    'okay'
+                                ])(),
+                                ((): Combinator => '>')(),
+                                ((): PseudoClassSelector => [
+                                    ':',
+                                    'valid'
+                                ])(),
+                            ])(),
+                            ((): Selector => [
+                                ((): ClassSelector => [
+                                    '.',
+                                    'awesome'
+                                ])(),
+                                ((): Combinator => '+')(),
+                                ((): PseudoClassSelector => [
+                                    ':',
+                                    'nth-child',
+                                    '2n+3'
+                                ])(),
+                            ])(),
+                        ])(),
+                    ])(),
+                ])(),
+            ])(),
+        ])());
+    });
+    ['is', 'not', 'where', 'has'].forEach((group2) => {
+        test(`isSelectors(SelectorGroup)`, () => {
+            expect(pseudoClassSelector(group, selectorGroup(
+                selector(
+                    classSelector('boo'),
+                    combinator(' '),
+                    pseudoClassSelector('foo', 'a+b'),
+                    combinator('>'),
+                    idSelector('bleh'),
+                ),
+                selector(
+                    pseudoElementSelector('charlie'),
+                ),
+                selector(
+                    pseudoClassSelector(group,
+                        selectorGroup(
+                            selector(
+                                classSelector('great'),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            idSelector('okay'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            pseudoClassSelector('valid'),
+                                            pseudoClassSelector('first-child'),
+                                            combinator('>'),
+                                            pseudoClassSelector('nth-child', '2n+3'),
+                                        ),
+                                        selector(
+                                            pseudoElementSelector('backdrop'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            )))
+            .toEqual(((): PseudoClassSelector => [
+                ':',
+                group,
+                ((): SelectorGroup => [
+                    ((): Selector => [
+                        ((): ClassSelector => [
+                            '.',
+                            'boo'
+                        ])(),
+                        ((): Combinator => ' ')(),
+                        ((): PseudoClassSelector => [
+                            ':',
+                            'foo',
+                            'a+b'
+                        ])(),
+                        ((): Combinator => '>')(),
+                        ((): IdSelector => [
+                            '#',
+                            'bleh'
+                        ])(),
+                    ])(),
+                    ((): Selector => [
+                        ((): PseudoElementSelector => [
+                            '::',
+                            'charlie'
+                        ])(),
+                    ])(),
+                    ((): Selector => [
+                        ((): PseudoClassSelector => [
+                            ':',
+                            group,
+                            ((): SelectorGroup => [
+                                ((): Selector => [
+                                    ((): ClassSelector => [
+                                        '.',
+                                        'great'
+                                    ])(),
+                                ])(),
+                                ((): Selector => [
+                                    ((): PseudoClassSelector => [
+                                        ':',
+                                        group2,
+                                        ((): SelectorGroup => [
+                                            ((): Selector => [
+                                                ((): IdSelector => [
+                                                    '#',
+                                                    'okay'
+                                                ])(),
+                                            ])(),
+                                        ])(),
+                                    ])(),
+                                ])(),
+                                ((): Selector => [
+                                    ((): PseudoClassSelector => [
+                                        ':',
+                                        group2,
+                                        ((): SelectorGroup => [
+                                            ((): Selector => [
+                                                ((): PseudoClassSelector => [
+                                                    ':',
+                                                    'valid'
+                                                ])(),
+                                                ((): PseudoClassSelector => [
+                                                    ':',
+                                                    'first-child'
+                                                ])(),
+                                                ((): Combinator => '>')(),
+                                                ((): PseudoClassSelector => [
+                                                    ':',
+                                                    'nth-child',
+                                                    '2n+3'
+                                                ])(),
+                                            ])(),
+                                            ((): Selector => [
+                                                ((): PseudoElementSelector => [
+                                                    '::',
+                                                    'backdrop'
+                                                ])(),
+                                            ])(),
+                                        ])(),
+                                    ])(),
+                                ])(),
+                            ])(),
+                        ])(),
+                    ])(),
+                ])(),
+            ])());
+        });
+    });
 });
