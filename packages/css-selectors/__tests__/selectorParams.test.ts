@@ -5,11 +5,7 @@ import {
     isSelectors,
     
     
-    // SelectorEntry creates & tests:
-    parentSelector,
-    universalSelector,
     attrSelector,
-    elementSelector,
     idSelector,
     classSelector,
     pseudoClassSelector,
@@ -178,6 +174,86 @@ test(`isWildParams(SelectorGroup)`, () => {
                 pseudoClassSelector('foo', 'a+b'),
                 combinator('>'),
                 idSelector('bleh'),
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(false);
+});
+test(`isWildParams(SelectorGroup)`, () => {
+    expect(isWildParams(
+        selectorGroup(
+            undefined,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(false);
+});
+test(`isWildParams(SelectorGroup)`, () => {
+    expect(isWildParams(
+        selectorGroup(
+            null,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(false);
+});
+test(`isWildParams(SelectorGroup)`, () => {
+    expect(isWildParams(
+        selectorGroup(
+            false,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(false);
+});
+test(`isWildParams(SelectorGroup)`, () => {
+    expect(isWildParams(
+        selectorGroup(
+            true,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
                 pseudoElementSelector('charlie'),
             ),
         )
@@ -434,6 +510,86 @@ test(`isAttrSelectorParams(SelectorGroup)`, () => {
 test(`isAttrSelectorParams(SelectorGroup)`, () => {
     expect(isAttrSelectorParams(
         selectorGroup(
+            undefined,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(false);
+});
+test(`isAttrSelectorParams(SelectorGroup)`, () => {
+    expect(isAttrSelectorParams(
+        selectorGroup(
+            null,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(false);
+});
+test(`isAttrSelectorParams(SelectorGroup)`, () => {
+    expect(isAttrSelectorParams(
+        selectorGroup(
+            false,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(false);
+});
+test(`isAttrSelectorParams(SelectorGroup)`, () => {
+    expect(isAttrSelectorParams(
+        selectorGroup(
+            true,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(false);
+});
+test(`isAttrSelectorParams(SelectorGroup)`, () => {
+    expect(isAttrSelectorParams(
+        selectorGroup(
             selector(
                 undefined,
                 classSelector('boo'),
@@ -672,6 +828,86 @@ test(`isSelectors(SelectorGroup)`, () => {
                 pseudoClassSelector('foo', 'a+b'),
                 combinator('>'),
                 idSelector('bleh'),
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(true);
+});
+test(`isSelectors(SelectorGroup)`, () => {
+    expect(isSelectors(
+        selectorGroup(
+            undefined,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(true);
+});
+test(`isSelectors(SelectorGroup)`, () => {
+    expect(isSelectors(
+        selectorGroup(
+            null,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(true);
+});
+test(`isSelectors(SelectorGroup)`, () => {
+    expect(isSelectors(
+        selectorGroup(
+            false,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(true);
+});
+test(`isSelectors(SelectorGroup)`, () => {
+    expect(isSelectors(
+        selectorGroup(
+            true,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
                 pseudoElementSelector('charlie'),
             ),
         )
