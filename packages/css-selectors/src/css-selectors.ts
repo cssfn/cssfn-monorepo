@@ -34,7 +34,7 @@ export type AttrSelectorParams         = | readonly [AttrSelectorName           
                                          | readonly [AttrSelectorName, AttrSelectorOperator, AttrSelectorValue, AttrSelectorOptions]
 
 export type WildParams                 = string & {}
-export type SelectorParams             = AttrSelectorParams | SelectorList | WildParams
+export type SelectorParams             = AttrSelectorParams | SelectorGroup | WildParams
 export type PseudoClassSelectorParams  = Exclude<SelectorParams, AttrSelectorParams>
 
 
@@ -65,20 +65,20 @@ export type Combinator                 = DescendantCombinator | ChildCombinator 
 
 export type SelectorEntry              = SimpleSelector | Combinator
 export type Selector                   = OptionalOrBoolean<SelectorEntry>[]
-export type SelectorList               = OptionalOrBoolean<Selector>[]
+export type SelectorGroup              = OptionalOrBoolean<Selector>[]
 
 export type PureSelector               = SelectorEntry[]
-export type PureSelectorList           = Selector[]
+export type PureSelectorGroup          = Selector[]
 
 
 
-const whitespaceList              = [' ', '\n', '\r', '\t', '\f', '\v'];
-const specialPseudoClassList      = ['is', 'not', 'where', 'has'];
+const whitespaceList                   = [' ', '\n', '\r', '\t', '\f', '\v'];
+const specialPseudoClassList           = ['is', 'not', 'where', 'has'];
 
 
 
 // parses:
-export const parseSelectors = (expressions: SingleOrDeepArray<OptionalOrBoolean<string>>): SelectorList|null => {
+export const parseSelectors = (expressions: SingleOrDeepArray<OptionalOrBoolean<string>>): SelectorGroup|null => {
     const expression = [expressions].flat(Infinity).filter((exp) => !!exp && (exp !== true)).join(',');
     const expressionLength = expression.length;
     let pos = 0;
@@ -283,10 +283,10 @@ export const parseSelectors = (expressions: SingleOrDeepArray<OptionalOrBoolean<
         
         return true;
     };
-    const parseSelectors = (): SelectorList|null => {
+    const parseSelectors = (): SelectorGroup|null => {
         const originPos = pos;
         
-        const selectors : SelectorList = [];
+        const selectors : SelectorGroup = [];
         
         while (!isEof()) {
             skipWhitespace();
@@ -354,7 +354,7 @@ export const parseSelectors = (expressions: SingleOrDeepArray<OptionalOrBoolean<
         
         return taken.join('');
     };
-    const parseSelectorParams = (): SelectorList|null => {
+    const parseSelectorParams = (): SelectorGroup|null => {
         const originPos = pos;
         
         if (!eatOpeningBracket()) return null; // syntax error: missing `(` => no changes made & return null
@@ -526,7 +526,7 @@ export const isAttrSelectorParams = (selectorParams: SelectorParams): selectorPa
         &&
         /*
             AttrSelectorParams : readonly array : [ AttrSelectorName, AttrSelectorOperator, AttrSelectorValue, AttrSelectorOptions ]
-            SelectorList       : mutable  array : [ undefined|null|false...Selector...Selector...[undefined|null|false...SimpleSelector|Combinator]... ]
+            SelectorGroup      : mutable  array : [ undefined|null|false...Selector...Selector...[undefined|null|false...SimpleSelector|Combinator]... ]
             
             [0]                : AttrSelectorName | undefined|null|false | Selector
             [0]                : -----string----- | -------others------- | -array--
@@ -534,18 +534,18 @@ export const isAttrSelectorParams = (selectorParams: SelectorParams): selectorPa
         (typeof(selectorParams[0]) === 'string') // AttrSelectorParams : the first element (AttrSelectorName) must be a string
     );
 };
-export const isSelectors          = (selectorParams: SelectorParams): selectorParams is SelectorList => {
+export const isSelectors          = (selectorParams: SelectorParams): selectorParams is SelectorGroup => {
     return (
         !isWildParams(selectorParams)
         &&
         /*
             AttrSelectorParams : readonly array : [ AttrSelectorName, AttrSelectorOperator, AttrSelectorValue, AttrSelectorOptions ]
-            SelectorList       : mutable  array : [ undefined|null|false...Selector...Selector...[undefined|null|false...SimpleSelector|Combinator]... ]
+            SelectorGroup      : mutable  array : [ undefined|null|false...Selector...Selector...[undefined|null|false...SimpleSelector|Combinator]... ]
             
             [0]                : AttrSelectorName | undefined|null|false | Selector
             [0]                : -----string----- | -------others------- | -array--
         */
-        (typeof(selectorParams[0]) !== 'string') // SelectorList : the first element (Selector) must be a NON-string or undefined|null|false
+        (typeof(selectorParams[0]) !== 'string') // SelectorGroup : the first element (Selector) must be a NON-string or undefined|null|false
     );
 };
 
@@ -683,23 +683,23 @@ export const isCombinator                        = (selectorEntry: OptionalOrBoo
 export const isCombinatorOf                      = (selectorEntry: OptionalOrBoolean<SelectorEntry>, combinator: SingleOrArray<Combinator>) : boolean => isCombinator(selectorEntry)                     && [combinator].flat().includes(selectorEntry);
 
 // SimpleSelector & Selector creates & tests:
-export const selector         = <TSelector         extends Selector         = Selector        >(...selectorEntries : TSelector        ): TSelector         => selectorEntries;
-export const pureSelector     = <TPureSelector     extends PureSelector     = PureSelector    >(...selectorEntries : TPureSelector    ): TPureSelector     => selectorEntries;
-export const selectorList     = <TSelectorList     extends SelectorList     = SelectorList    >(...selectors       : TSelectorList    ): TSelectorList     => selectors;
-export const pureSelectorList = <TPureSelectorList extends PureSelectorList = PureSelectorList>(...selectors       : TPureSelectorList): TPureSelectorList => selectors;
+export const selector          = <TSelector          extends Selector          = Selector         >(...selectorEntries : TSelector         ): TSelector          => selectorEntries;
+export const pureSelector      = <TPureSelector      extends PureSelector      = PureSelector     >(...selectorEntries : TPureSelector     ): TPureSelector      => selectorEntries;
+export const selectorGroup     = <TSelectorGroup     extends SelectorGroup     = SelectorGroup    >(...selectors       : TSelectorGroup    ): TSelectorGroup     => selectors;
+export const pureSelectorGroup = <TPureSelectorGroup extends PureSelectorGroup = PureSelectorGroup>(...selectors       : TPureSelectorGroup): TPureSelectorGroup => selectors;
 //#region aliases
 export const [
     createSelector,
     createPureSelector,
     
-    createSelectorList,
-    createPureSelectorList,
+    createSelectorGroup,
+    createPureSelectorGroup,
 ] = [
     selector,
     pureSelector,
     
-    selectorList,
-    pureSelectorList,
+    selectorGroup,
+    pureSelectorGroup,
 ];
 //#endregion aliases
 
@@ -717,10 +717,10 @@ export const isSelector = (test: OptionalOrBoolean<SimpleSelector|Selector>): te
     */
     return !!test && (test !== true) && (typeof(test[0]) !== 'string'); // Selector : the first element (SelectorEntry) must be a NON-string, the Combinator is guaranteed NEVER be the first element
 };
-export const isNotEmptySelector   = (selector  : OptionalOrBoolean<Selector    >): selector  is PureSelector     =>  !!selector  && (selector  !== true) &&  selector.some(  isNotEmptySelectorEntry);
-export const isNotEmptySelectors  = (selectors : OptionalOrBoolean<SelectorList>): selectors is PureSelectorList =>  !!selectors && (selectors !== true) && selectors.some(  isNotEmptySelector     );
-export const countSelectorEntries = (selector  : OptionalOrBoolean<Selector    >): number                        => (!!selector  && (selector  !== true) &&  selector.filter(isNotEmptySelectorEntry).length) || 0;
-export const countSelectors       = (selectors : OptionalOrBoolean<SelectorList>): number                        => (!!selectors && (selectors !== true) && selectors.filter(isNotEmptySelector     ).length) || 0;
+export const isNotEmptySelector   = (selector  : OptionalOrBoolean<Selector     >): selector  is PureSelector      =>  !!selector  && (selector  !== true) &&  selector.some(  isNotEmptySelectorEntry);
+export const isNotEmptySelectors  = (selectors : OptionalOrBoolean<SelectorGroup>): selectors is PureSelectorGroup =>  !!selectors && (selectors !== true) && selectors.some(  isNotEmptySelector     );
+export const countSelectorEntries = (selector  : OptionalOrBoolean<Selector     >): number                         => (!!selector  && (selector  !== true) &&  selector.filter(isNotEmptySelectorEntry).length) || 0;
+export const countSelectors       = (selectors : OptionalOrBoolean<SelectorGroup>): number                         => (!!selectors && (selectors !== true) && selectors.filter(isNotEmptySelector     ).length) || 0;
 
 
 
@@ -781,10 +781,10 @@ export const selectorToString       = (selector: Selector): string => {
         .join('')
     );
 };
-export const selectorsToString      = (selectors: SelectorList): string => {
+export const selectorsToString      = (selectors: SelectorGroup): string => {
     return (
         selectors
-        .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorList, we don't want to join some rendered empty string '' => `.boo , , #foo`
+        .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup, we don't want to join some rendered empty string '' => `.boo , , #foo`
         .map(selectorToString)
         .join(', ')
     );
@@ -795,18 +795,18 @@ export const selectorsToString      = (selectors: SelectorList): string => {
 // transforms:
 export type MapSelectorsCallback = (selector: SimpleSelector) => OptionalOrBoolean<SimpleSelector|Selector>
 /**
- * Creates a new `SelectorList` populated with the results of calling a provided `callbackFn` on every `SimpleSelector` in the `selectors`.  
+ * Creates a new `SelectorGroup` populated with the results of calling a provided `callbackFn` on every `SimpleSelector` in the `selectors`.  
  * The nested `SimpleSelector` (if any) will also be passed to `callbackFn`.  
  * The `Combinator` and its nested (if any) will not be passed to `callbackFn`.
- * @param selectors The input `SelectorList`.
+ * @param selectors The input `SelectorGroup`.
  * @param callbackFn A function that is called for every `SimpleSelector` in the `selectors`.  
- * Each time `callbackFn` executes, the returned value is added to the output `SelectorList`.
- * @returns The output `SelectorList`.
+ * Each time `callbackFn` executes, the returned value is added to the output `SelectorGroup`.
+ * @returns The output `SelectorGroup`.
  */
-export const flatMapSelectors = (selectors: SelectorList, callbackFn: MapSelectorsCallback): SelectorList => {
+export const flatMapSelectors = (selectors: SelectorGroup, callbackFn: MapSelectorsCallback): SelectorGroup => {
     return (
         selectors
-        .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorList
+        .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
         .map((selector: Selector): Selector => // mutates a `Selector` to another `Selector`
             selector
             .filter(isNotEmptySelectorEntry) // remove empty SelectorEntry(es) in Selector
@@ -860,12 +860,12 @@ const defaultGroupSelectorOptions : Required<GroupSelectorOptions> = {
     selectorName           : 'is',
     cancelGroupIfSingular  : false
 };
-export const groupSelectors = (selectors: OptionalOrBoolean<SelectorList>, options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorList & { 0: Selector } => {
-    if (!isNotEmptySelectors(selectors)) return pureSelectorList(
+export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorGroup & { 0: Selector } => {
+    if (!isNotEmptySelectors(selectors)) return pureSelectorGroup(
         selector(
             ...[] // an empty Selector
         ),
-    ); // empty selectors => nothing to group => return a SelectorList with an empty Selector
+    ); // empty selectors => nothing to group => return a SelectorGroup with an empty Selector
     
     
     
@@ -874,13 +874,13 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorList>, optio
     
     
     
-    if (!isNotEmptySelectors(selectorsWithoutPseudoElm)) return pureSelectorList(
+    if (!isNotEmptySelectors(selectorsWithoutPseudoElm)) return pureSelectorGroup(
         selector(
             ...[] // an empty Selector
         ),
         
         ...selectorsOnlyPseudoElm,
-    ); // empty selectors => nothing to group => return a SelectorList with an empty Selector
+    ); // empty selectors => nothing to group => return a SelectorGroup with an empty Selector
     
     
     
@@ -891,7 +891,7 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorList>, optio
     
     
     
-    return pureSelectorList(
+    return pureSelectorGroup(
         (
             (cancelGroupIfSingular && (selectorsWithoutPseudoElm.length < 2))
             ?
@@ -905,8 +905,8 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorList>, optio
         ...selectorsOnlyPseudoElm,
     );
 }
-export const groupSelector  = (selector: OptionalOrBoolean<Selector>     , options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorList & { 0: Selector } => {
-    return groupSelectors(selectorList(selector), options);
+export const groupSelector  = (selector: OptionalOrBoolean<Selector>     , options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorGroup & { 0: Selector } => {
+    return groupSelectors(selectorGroup(selector), options);
 }
 
 // ungroups:
@@ -916,8 +916,8 @@ export interface UngroupSelectorOptions {
 const defaultUngroupSelectorOptions : Required<UngroupSelectorOptions> = {
     selectorName  : ['is', 'where'],
 };
-export const ungroupSelector  = (selector: OptionalOrBoolean<Selector>     , options: UngroupSelectorOptions = defaultUngroupSelectorOptions): PureSelectorList => {
-    if (!selector || (selector === true)) return pureSelectorList(...[]); // nothing to ungroup => return an empty SelectorList
+export const ungroupSelector  = (selector: OptionalOrBoolean<Selector>     , options: UngroupSelectorOptions = defaultUngroupSelectorOptions): PureSelectorGroup => {
+    if (!selector || (selector === true)) return pureSelectorGroup(...[]); // nothing to ungroup => return an empty SelectorGroup
     
     
     
@@ -954,9 +954,9 @@ export const ungroupSelector  = (selector: OptionalOrBoolean<Selector>     , opt
                 
                 /*
                     selector parameter(s):
-                    string       = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
-                    array        = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
-                    SelectorList = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
+                    string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
+                    array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
+                    SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
                 */
                 selectorParams,
             ] = selectorEntry;
@@ -972,12 +972,12 @@ export const ungroupSelector  = (selector: OptionalOrBoolean<Selector>     , opt
     
     
     
-    return pureSelectorList(
+    return pureSelectorGroup(
         filteredSelector, // no changes - just cleaned up
     );
 }
-export const ungroupSelectors = (selectors: OptionalOrBoolean<SelectorList>, options: UngroupSelectorOptions = defaultUngroupSelectorOptions): PureSelectorList => {
-    if (!selectors || (selectors === true)) return pureSelectorList(...[]); // nothing to ungroup => return an empty SelectorList
+export const ungroupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, options: UngroupSelectorOptions = defaultUngroupSelectorOptions): PureSelectorGroup => {
+    if (!selectors || (selectors === true)) return pureSelectorGroup(...[]); // nothing to ungroup => return an empty SelectorGroup
     
     
     
@@ -1015,9 +1015,9 @@ export const calculateSpecificity = (selector: Selector): Specificity => {
                 
                 /*
                     selector parameter(s):
-                    string       = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
-                    array        = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
-                    SelectorList = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
+                    string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
+                    array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
+                    SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
                 */
                 selectorParams,
             ] = simpleSelector;
@@ -1032,7 +1032,7 @@ export const calculateSpecificity = (selector: Selector): Specificity => {
                         if (!selectorParams || !isSelectors(selectorParams)) return accum; // no changes
                         const moreSpecificities = (
                             selectorParams
-                            .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorList
+                            .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
                             .map((selectorParam) => calculateSpecificity(selectorParam))
                         );
                         const maxSpecificity    = moreSpecificities.reduce((accum, current): Specificity => {
