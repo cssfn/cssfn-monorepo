@@ -526,10 +526,10 @@ export const isAttrSelectorParams = (selectorParams: SelectorParams): selectorPa
         &&
         /*
             AttrSelectorParams : readonly array : [ AttrSelectorName, AttrSelectorOperator, AttrSelectorValue, AttrSelectorOptions ]
-            SelectorGroup      : mutable  array : [ undefined|null|false...Selector...Selector...[undefined|null|false...SimpleSelector|Combinator]... ]
+            SelectorGroup      : mutable  array : [ undefined|null|false|true...Selector...Selector...[undefined|null|false|true...SimpleSelector|Combinator]... ]
             
-            [0]                : AttrSelectorName | undefined|null|false | Selector
-            [0]                : -----string----- | -------others------- | -array--
+            [0]                : AttrSelectorName | undefined|null|false|true | Selector
+            [0]                : -----string----- | ---------others---------- | -array--
         */
         (typeof(selectorParams[0]) === 'string') // AttrSelectorParams : the first element (AttrSelectorName) must be a string
     );
@@ -540,12 +540,12 @@ export const isSelectors          = (selectorParams: SelectorParams): selectorPa
         &&
         /*
             AttrSelectorParams : readonly array : [ AttrSelectorName, AttrSelectorOperator, AttrSelectorValue, AttrSelectorOptions ]
-            SelectorGroup      : mutable  array : [ undefined|null|false...Selector...Selector...[undefined|null|false...SimpleSelector|Combinator]... ]
+            SelectorGroup      : mutable  array : [ undefined|null|false|true...Selector...Selector...[undefined|null|false|true...SimpleSelector|Combinator]... ]
             
-            [0]                : AttrSelectorName | undefined|null|false | Selector
-            [0]                : -----string----- | -------others------- | -array--
+            [0]                : AttrSelectorName | undefined|null|false|true | Selector
+            [0]                : -----string----- | ---------others---------- | -array--
         */
-        (typeof(selectorParams[0]) !== 'string') // SelectorGroup : the first element (Selector) must be a NON-string or undefined|null|false
+        (typeof(selectorParams[0]) !== 'string') // SelectorGroup : the first element (Selector) must be a NON-string (an array) or undefined|null|false|true
     );
 };
 
@@ -715,7 +715,7 @@ export const isSelector = (test: OptionalOrBoolean<SimpleSelector|Selector>): te
         SimpleSelector : [ SelectorToken, SelectorName, SelectorParams ]
         Selector       : [ SimpleSelector...(SimpleSelector|Combinator)... ]
     */
-    return !!test && (test !== true) && (typeof(test[0]) !== 'string'); // Selector : the first element (SelectorEntry) must be a NON-string, the Combinator is guaranteed NEVER be the first element
+    return !!test && (test !== true) && (typeof(test[0]) !== 'string'); // Selector : the first element (SelectorEntry) must be a NON-string (an array), the Combinator is guaranteed NEVER be the first element
 };
 export const isNotEmptySelector   = (selector  : OptionalOrBoolean<Selector     >): selector  is PureSelector      =>  !!selector  && (selector  !== true) &&  selector.some(  isNotEmptySelectorEntry);
 export const isNotEmptySelectors  = (selectors : OptionalOrBoolean<SelectorGroup>): selectors is PureSelectorGroup =>  !!selectors && (selectors !== true) && selectors.some(  isNotEmptySelector     );
@@ -726,7 +726,7 @@ export const countSelectors       = (selectors : OptionalOrBoolean<SelectorGroup
 
 // renders:
 export const selectorParamsToString = (selectorParams: OptionalOrBoolean<SelectorParams>): string => {
-    if ((!selectorParams || (selectorParams === true)) && (selectorParams !== '')) return ''; // filter out undefined|null|false
+    if ((!selectorParams || (selectorParams === true)) && (selectorParams !== '')) return ''; // filter out undefined|null|false|true
     // note: an empty string (selectorParams === '') is considered a valid WildParams
     
     if (isWildParams(selectorParams)) {
