@@ -252,6 +252,7 @@ export const parseSelectors = (expressions: SingleOrDeepArray<OptionalOrBoolean<
             //#endregion SelectorSequence
         } // while
         
+        if (!selector.length) { pos = originPos; return null; }; // syntax error: no any simpleSelector => revert changes & return null
         return selector;
     };
     
@@ -299,6 +300,7 @@ export const parseSelectors = (expressions: SingleOrDeepArray<OptionalOrBoolean<
             selectors.push(selector);
         } // while
         
+        if (!selectors.length) { pos = originPos; return null; }; // syntax error: no any selector => revert changes & return null
         return selectors;
     };
     const parseWildParams = (): WildParams|null => {
@@ -471,8 +473,12 @@ export const parseSelectors = (expressions: SingleOrDeepArray<OptionalOrBoolean<
     
     
     const allSelectors = parseSelectors();
-    if (!allSelectors) return null; // syntax error: no recognized selector(s)
-    if (!isEof()) return null;      // syntax error: not all expression are valid selector
+    skipWhitespace();
+    if (!allSelectors) {
+        if (isEof()) return []; // empty selector
+        return null;            // syntax error: not all expression are valid selector
+    } // if
+    if (!isEof()) return null;  // syntax error: not all expression are valid selector
     return allSelectors;
 };
 
