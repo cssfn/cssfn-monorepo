@@ -33,49 +33,55 @@ test(`isWildParams(AttrSelectorParams)`, () => {
 });
 test(`isWildParams(AttrSelectorParams)`, () => {
     expect(isWildParams(
-        attrSelector('title', '~=', 'hello world')[2]
+        attrSelector('title', '~=', 'hello')[2]
     ))
     .toBe(false);
 });
 test(`isWildParams(AttrSelectorParams)`, () => {
     expect(isWildParams(
-        attrSelector('lang', '|=', 'en-us')[2]
+        attrSelector('lang', '|=', 'en')[2]
     ))
     .toBe(false);
 });
 test(`isWildParams(AttrSelectorParams)`, () => {
     expect(isWildParams(
-        attrSelector('title', '^=', 'hello world')[2]
+        attrSelector('title', '^=', 'hello')[2]
     ))
     .toBe(false);
 });
 test(`isWildParams(AttrSelectorParams)`, () => {
     expect(isWildParams(
-        attrSelector('title', '$=', 'hello world')[2]
+        attrSelector('title', '$=', 'hello')[2]
     ))
     .toBe(false);
 });
 test(`isWildParams(AttrSelectorParams)`, () => {
     expect(isWildParams(
-        attrSelector('title', '=', 'hello world', 'i')[2]
+        attrSelector('title', '*=', 'hello')[2]
     ))
     .toBe(false);
 });
 test(`isWildParams(AttrSelectorParams)`, () => {
     expect(isWildParams(
-        attrSelector('title', '=', 'hello world', 'I')[2]
+        attrSelector('title', '=', 'hello', 'i')[2]
     ))
     .toBe(false);
 });
 test(`isWildParams(AttrSelectorParams)`, () => {
     expect(isWildParams(
-        attrSelector('title', '=', 'hello world', 's')[2]
+        attrSelector('title', '=', 'hello', 'I')[2]
     ))
     .toBe(false);
 });
 test(`isWildParams(AttrSelectorParams)`, () => {
     expect(isWildParams(
-        attrSelector('title', '=', 'hello world', 'S')[2]
+        attrSelector('title', '=', 'hello', 's')[2]
+    ))
+    .toBe(false);
+});
+test(`isWildParams(AttrSelectorParams)`, () => {
+    expect(isWildParams(
+        attrSelector('title', '=', 'hello', 'S')[2]
     ))
     .toBe(false);
 });
@@ -360,49 +366,55 @@ test(`isAttrSelectorParams(AttrSelectorParams)`, () => {
 });
 test(`isAttrSelectorParams(AttrSelectorParams)`, () => {
     expect(isAttrSelectorParams(
-        attrSelector('title', '~=', 'hello world')[2]
+        attrSelector('title', '~=', 'hello')[2]
     ))
     .toBe(true);
 });
 test(`isAttrSelectorParams(AttrSelectorParams)`, () => {
     expect(isAttrSelectorParams(
-        attrSelector('lang', '|=', 'en-us')[2]
+        attrSelector('lang', '|=', 'en')[2]
     ))
     .toBe(true);
 });
 test(`isAttrSelectorParams(AttrSelectorParams)`, () => {
     expect(isAttrSelectorParams(
-        attrSelector('title', '^=', 'hello world')[2]
+        attrSelector('title', '^=', 'hello')[2]
     ))
     .toBe(true);
 });
 test(`isAttrSelectorParams(AttrSelectorParams)`, () => {
     expect(isAttrSelectorParams(
-        attrSelector('title', '$=', 'hello world')[2]
+        attrSelector('title', '$=', 'hello')[2]
     ))
     .toBe(true);
 });
 test(`isAttrSelectorParams(AttrSelectorParams)`, () => {
     expect(isAttrSelectorParams(
-        attrSelector('title', '=', 'hello world', 'i')[2]
+        attrSelector('title', '*=', 'hello')[2]
     ))
     .toBe(true);
 });
 test(`isAttrSelectorParams(AttrSelectorParams)`, () => {
     expect(isAttrSelectorParams(
-        attrSelector('title', '=', 'hello world', 'I')[2]
+        attrSelector('title', '=', 'hello', 'i')[2]
     ))
     .toBe(true);
 });
 test(`isAttrSelectorParams(AttrSelectorParams)`, () => {
     expect(isAttrSelectorParams(
-        attrSelector('title', '=', 'hello world', 's')[2]
+        attrSelector('title', '=', 'hello', 'I')[2]
     ))
     .toBe(true);
 });
 test(`isAttrSelectorParams(AttrSelectorParams)`, () => {
     expect(isAttrSelectorParams(
-        attrSelector('title', '=', 'hello world', 'S')[2]
+        attrSelector('title', '=', 'hello', 's')[2]
+    ))
+    .toBe(true);
+});
+test(`isAttrSelectorParams(AttrSelectorParams)`, () => {
+    expect(isAttrSelectorParams(
+        attrSelector('title', '=', 'hello', 'S')[2]
     ))
     .toBe(true);
 });
@@ -687,49 +699,55 @@ test(`isSelectors(AttrSelectorParams)`, () => {
 });
 test(`isSelectors(AttrSelectorParams)`, () => {
     expect(isSelectors(
-        attrSelector('title', '~=', 'hello world')[2]
+        attrSelector('title', '~=', 'hello')[2]
     ))
     .toBe(false);
 });
 test(`isSelectors(AttrSelectorParams)`, () => {
     expect(isSelectors(
-        attrSelector('lang', '|=', 'en-us')[2]
+        attrSelector('lang', '|=', 'en')[2]
     ))
     .toBe(false);
 });
 test(`isSelectors(AttrSelectorParams)`, () => {
     expect(isSelectors(
-        attrSelector('title', '^=', 'hello world')[2]
+        attrSelector('title', '^=', 'hello')[2]
     ))
     .toBe(false);
 });
 test(`isSelectors(AttrSelectorParams)`, () => {
     expect(isSelectors(
-        attrSelector('title', '$=', 'hello world')[2]
+        attrSelector('title', '$=', 'hello')[2]
     ))
     .toBe(false);
 });
 test(`isSelectors(AttrSelectorParams)`, () => {
     expect(isSelectors(
-        attrSelector('title', '=', 'hello world', 'i')[2]
+        attrSelector('title', '*=', 'hello')[2]
     ))
     .toBe(false);
 });
 test(`isSelectors(AttrSelectorParams)`, () => {
     expect(isSelectors(
-        attrSelector('title', '=', 'hello world', 'I')[2]
+        attrSelector('title', '=', 'hello', 'i')[2]
     ))
     .toBe(false);
 });
 test(`isSelectors(AttrSelectorParams)`, () => {
     expect(isSelectors(
-        attrSelector('title', '=', 'hello world', 's')[2]
+        attrSelector('title', '=', 'hello', 'I')[2]
     ))
     .toBe(false);
 });
 test(`isSelectors(AttrSelectorParams)`, () => {
     expect(isSelectors(
-        attrSelector('title', '=', 'hello world', 'S')[2]
+        attrSelector('title', '=', 'hello', 's')[2]
+    ))
+    .toBe(false);
+});
+test(`isSelectors(AttrSelectorParams)`, () => {
+    expect(isSelectors(
+        attrSelector('title', '=', 'hello', 'S')[2]
     ))
     .toBe(false);
 });

@@ -29,12 +29,14 @@ test(`ParentSelector`, () => {
         '&',
     ])());
 });
+
 test(`UniversalSelector`, () => {
     expect(universalSelector())
     .toEqual(((): UniversalSelector => [
         '*',
     ])());
 });
+
 test(`AttrSelector`, () => {
     expect(attrSelector('disabled'))
     .toEqual(((): AttrSelector => [
@@ -45,4 +47,128 @@ test(`AttrSelector`, () => {
         ])(),
     ])());
 });
+test(`AttrSelector`, () => {
+    expect(attrSelector('aria-role', '=', 'button'))
+    .toEqual(((): AttrSelector => [
+        '[',
+        null,
+        ((): AttrSelectorParams => [
+            'aria-role',
+            '=',
+            'button',
+        ])(),
+    ])());
+});
+test(`AttrSelector`, () => {
+    expect(attrSelector('title', '~=', 'hello'))
+    .toEqual(((): AttrSelector => [
+        '[',
+        null,
+        ((): AttrSelectorParams => [
+            'title',
+            '~=',
+            'hello',
+        ])(),
+    ])());
+});
+test(`AttrSelector`, () => {
+    expect(attrSelector('lang', '|=', 'en'))
+    .toEqual(((): AttrSelector => [
+        '[',
+        null,
+        ((): AttrSelectorParams => [
+            'lang',
+            '|=',
+            'en',
+        ])(),
+    ])());
+});
+test(`AttrSelector`, () => {
+    expect(attrSelector('title', '^=', 'hello'))
+    .toEqual(((): AttrSelector => [
+        '[',
+        null,
+        ((): AttrSelectorParams => [
+            'title',
+            '^=',
+            'hello',
+        ])(),
+    ])());
+});
+test(`AttrSelector`, () => {
+    expect(attrSelector('title', '$=', 'hello'))
+    .toEqual(((): AttrSelector => [
+        '[',
+        null,
+        ((): AttrSelectorParams => [
+            'title',
+            '$=',
+            'hello',
+        ])(),
+    ])());
+});
+test(`AttrSelector`, () => {
+    expect(attrSelector('title', '*=', 'hello'))
+    .toEqual(((): AttrSelector => [
+        '[',
+        null,
+        ((): AttrSelectorParams => [
+            'title',
+            '*=',
+            'hello',
+        ])(),
+    ])());
+});
 
+test(`AttrSelector`, () => {
+    expect(attrSelector('title', '~=', 'hello', 'i'))
+    .toEqual(((): AttrSelector => [
+        '[',
+        null,
+        ((): AttrSelectorParams => [
+            'title',
+            '~=',
+            'hello',
+            'i'
+        ])(),
+    ])());
+});
+test(`AttrSelector`, () => {
+    expect(attrSelector('title', '~=', 'hello', 'I'))
+    .toEqual(((): AttrSelector => [
+        '[',
+        null,
+        ((): AttrSelectorParams => [
+            'title',
+            '~=',
+            'hello',
+            'I'
+        ])(),
+    ])());
+});
+test(`AttrSelector`, () => {
+    expect(attrSelector('title', '~=', 'hello', 's'))
+    .toEqual(((): AttrSelector => [
+        '[',
+        null,
+        ((): AttrSelectorParams => [
+            'title',
+            '~=',
+            'hello',
+            's'
+        ])(),
+    ])());
+});
+test(`AttrSelector`, () => {
+    expect(attrSelector('title', '~=', 'hello', 'S'))
+    .toEqual(((): AttrSelector => [
+        '[',
+        null,
+        ((): AttrSelectorParams => [
+            'title',
+            '~=',
+            'hello',
+            'S'
+        ])(),
+    ])());
+});

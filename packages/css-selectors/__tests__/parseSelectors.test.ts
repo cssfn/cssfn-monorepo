@@ -144,67 +144,75 @@ test(`parseSelectors('[aria-role="button"]')`, () => {
         ),
     ));
 });
-test(`parseSelectors('[title~="hello world"]')`, () => {
-    expect(parseSelectors('[title~="hello world"]'))
+test(`parseSelectors('[title~="hello"]')`, () => {
+    expect(parseSelectors('[title~="hello"]'))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('title', '~=', 'hello world'),
+            attrSelector('title', '~=', 'hello'),
         ),
     ));
 });
-test(`parseSelectors('[lang|="en-us"]')`, () => {
-    expect(parseSelectors('[lang|="en-us"]'))
+test(`parseSelectors('[lang|="en"]')`, () => {
+    expect(parseSelectors('[lang|="en"]'))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('lang', '|=', 'en-us'),
+            attrSelector('lang', '|=', 'en'),
         ),
     ));
 });
-test(`parseSelectors('[title^="hello world"]')`, () => {
-    expect(parseSelectors('[title^="hello world"]'))
+test(`parseSelectors('[title^="hello"]')`, () => {
+    expect(parseSelectors('[title^="hello"]'))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('title', '^=', 'hello world'),
+            attrSelector('title', '^=', 'hello'),
         ),
     ));
 });
-test(`parseSelectors('[title$="hello world"]')`, () => {
-    expect(parseSelectors('[title$="hello world"]'))
+test(`parseSelectors('[title$="hello"]')`, () => {
+    expect(parseSelectors('[title$="hello"]'))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('title', '$=', 'hello world'),
+            attrSelector('title', '$=', 'hello'),
         ),
     ));
 });
-test(`parseSelectors('[title="hello world" i]')`, () => {
-    expect(parseSelectors('[title="hello world" i]'))
+test(`parseSelectors('[title*="hello"]')`, () => {
+    expect(parseSelectors('[title*="hello"]'))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('title', '=', 'hello world', 'i'),
+            attrSelector('title', '*=', 'hello'),
         ),
     ));
 });
-test(`parseSelectors('[title="hello world" I]')`, () => {
-    expect(parseSelectors('[title="hello world" I]'))
+test(`parseSelectors('[title="hello" i]')`, () => {
+    expect(parseSelectors('[title="hello" i]'))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('title', '=', 'hello world', 'I'),
+            attrSelector('title', '=', 'hello', 'i'),
         ),
     ));
 });
-test(`parseSelectors('[title="hello world" s]')`, () => {
-    expect(parseSelectors('[title="hello world" s]'))
+test(`parseSelectors('[title="hello" I]')`, () => {
+    expect(parseSelectors('[title="hello" I]'))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('title', '=', 'hello world', 's'),
+            attrSelector('title', '=', 'hello', 'I'),
         ),
     ));
 });
-test(`parseSelectors('[title="hello world" S]')`, () => {
-    expect(parseSelectors('[title="hello world" S]'))
+test(`parseSelectors('[title="hello" s]')`, () => {
+    expect(parseSelectors('[title="hello" s]'))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('title', '=', 'hello world', 'S'),
+            attrSelector('title', '=', 'hello', 's'),
+        ),
+    ));
+});
+test(`parseSelectors('[title="hello" S]')`, () => {
+    expect(parseSelectors('[title="hello" S]'))
+    .toEqual(selectorGroup(
+        selector(
+            attrSelector('title', '=', 'hello', 'S'),
         ),
     ));
 });
@@ -227,67 +235,75 @@ test(`parseSelectors('  [  aria-role  =  "button"  ]  ')`, () => {
         ),
     ));
 });
-test(`parseSelectors('  [  title  ~=  "hello world"  ]  ')`, () => {
-    expect(parseSelectors('  [  title  ~=  "hello world"  ]  '))
+test(`parseSelectors('  [  title  ~=  "hello"  ]  ')`, () => {
+    expect(parseSelectors('  [  title  ~=  "hello"  ]  '))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('title', '~=', 'hello world'),
+            attrSelector('title', '~=', 'hello'),
         ),
     ));
 });
-test(`parseSelectors('  [  lang  |=  "en-us"  ]  ')`, () => {
-    expect(parseSelectors('  [  lang  |=  "en-us"  ]  '))
+test(`parseSelectors('  [  lang  |=  "en"  ]  ')`, () => {
+    expect(parseSelectors('  [  lang  |=  "en"  ]  '))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('lang', '|=', 'en-us'),
+            attrSelector('lang', '|=', 'en'),
         ),
     ));
 });
-test(`parseSelectors('  [  title  ^=  "hello world"  ]  ')`, () => {
-    expect(parseSelectors('  [  title  ^=  "hello world"  ]  '))
+test(`parseSelectors('  [  title  ^=  "hello"  ]  ')`, () => {
+    expect(parseSelectors('  [  title  ^=  "hello"  ]  '))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('title', '^=', 'hello world'),
+            attrSelector('title', '^=', 'hello'),
         ),
     ));
 });
-test(`parseSelectors('  [  title  $=  "hello world"  ]  ')`, () => {
-    expect(parseSelectors('  [  title  $=  "hello world"  ]  '))
+test(`parseSelectors('  [  title  $=  "hello"  ]  ')`, () => {
+    expect(parseSelectors('  [  title  $=  "hello"  ]  '))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('title', '$=', 'hello world'),
+            attrSelector('title', '$=', 'hello'),
         ),
     ));
 });
-test(`parseSelectors('  [  title  =  "hello world"   i  ]  ')`, () => {
-    expect(parseSelectors('  [  title  =  "hello world"   i  ]  '))
+test(`parseSelectors('  [  title  *=  "hello"  ]  ')`, () => {
+    expect(parseSelectors('  [  title  *=  "hello"  ]  '))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('title', '=', 'hello world', 'i'),
+            attrSelector('title', '*=', 'hello'),
         ),
     ));
 });
-test(`parseSelectors('  [  title  =  "hello world"   I  ]  ')`, () => {
-    expect(parseSelectors('  [  title  =  "hello world"   I  ]  '))
+test(`parseSelectors('  [  title  =  "hello"   i  ]  ')`, () => {
+    expect(parseSelectors('  [  title  =  "hello"   i  ]  '))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('title', '=', 'hello world', 'I'),
+            attrSelector('title', '=', 'hello', 'i'),
         ),
     ));
 });
-test(`parseSelectors('  [  title  =  "hello world"   s  ]  ')`, () => {
-    expect(parseSelectors('  [  title  =  "hello world"   s  ]  '))
+test(`parseSelectors('  [  title  =  "hello"   I  ]  ')`, () => {
+    expect(parseSelectors('  [  title  =  "hello"   I  ]  '))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('title', '=', 'hello world', 's'),
+            attrSelector('title', '=', 'hello', 'I'),
         ),
     ));
 });
-test(`parseSelectors('  [  title  =  "hello world"   S  ]  ')`, () => {
-    expect(parseSelectors('  [  title  =  "hello world"   S  ]  '))
+test(`parseSelectors('  [  title  =  "hello"   s  ]  ')`, () => {
+    expect(parseSelectors('  [  title  =  "hello"   s  ]  '))
     .toEqual(selectorGroup(
         selector(
-            attrSelector('title', '=', 'hello world', 'S'),
+            attrSelector('title', '=', 'hello', 's'),
+        ),
+    ));
+});
+test(`parseSelectors('  [  title  =  "hello"   S  ]  ')`, () => {
+    expect(parseSelectors('  [  title  =  "hello"   S  ]  '))
+    .toEqual(selectorGroup(
+        selector(
+            attrSelector('title', '=', 'hello', 'S'),
         ),
     ));
 });
