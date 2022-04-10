@@ -88,6 +88,9 @@ export const parseSelectors = (expressions: SingleOrDeepArray<OptionalOrBoolean<
     const isEof = (): boolean => {
         return (pos >= expressionLength);
     };
+    const isWhitespace = (): boolean => {
+        return whitespaceList.includes(expression[pos]);
+    }
     const skipWhitespace = (): void => {
         while (!isEof() && whitespaceList.includes(expression[pos])) pos++;
     };
@@ -272,10 +275,10 @@ export const parseSelectors = (expressions: SingleOrDeepArray<OptionalOrBoolean<
         if (expression[pos] !== ']') return false;
         pos++; return true; // move forward & return true
     };
-    const eatNonBrackets = (): boolean => {
+    const eatNonBracketsOrSpaces = (): boolean => {
         const originPos = pos;
         
-        while (!isEof() && (expression[pos] !== '(') && (expression[pos] !== ')')) pos++; // move forward until unmatch
+        while (!isEof() && !isWhitespace() && (expression[pos] !== '(') && (expression[pos] !== ')')) pos++; // move forward until unmatch
         if (pos === originPos) return false; // pos was not moved => nothing to eat => no changes made & return false
         
         return true;
@@ -307,22 +310,49 @@ export const parseSelectors = (expressions: SingleOrDeepArray<OptionalOrBoolean<
         const originPos = pos;
         
         if (!eatOpeningBracket()) return null; // syntax error: missing `(` => no changes made & return null
+        skipWhitespace();
         
+        const taken : string[] = [];
         while (!isEof()) {
-            let eaten = eatNonBrackets();
+            //#region eat non_nested value
+            const startPos = pos;
+            let eaten = eatNonBracketsOrSpaces();
+            if (eaten) {
+                const endPos = pos;
+                taken.push(
+                    expression.slice(startPos, endPos)
+                );
+                
+                skipWhitespace();
+            } // if
+            //#endregion eat non_nested value
             
+            // -or- //
+            
+            //#region eat nested value
             const nestedWildParams = parseWildParams();
             if (nestedWildParams !== null) {
                 eaten = true;
-                eatNonBrackets();
+                
+                taken.push(
+                    '(',
+                    nestedWildParams,
+                    ')'
+                );
+                
+                skipWhitespace();
             } // if
+            //#endregion eat nested value
+            
+            
             
             if (!eaten) break; // nothing more to eat => break
         } // while
         
+        skipWhitespace();
         if (!eatClosingBracket()) { pos = originPos; return null; } // syntax error: missing `)` => revert changes & return null
         
-        return expression.slice(originPos + 1, pos - 1);
+        return taken.join('');
     };
     const parseSelectorParams = (): SelectorList|null => {
         const originPos = pos;

@@ -1,7 +1,11 @@
 import {
     attrSelector,
+    classSelector,
+    elementSelector,
+    idSelector,
     parentSelector,
     parseSelectors,
+    pseudoClassSelector,
     selector,
     universalSelector,
 } from '../src/css-selectors'
@@ -263,3 +267,224 @@ test(`parseSelectors('  [  title  =  "hello world"   S  ]  ')`, () => {
     ])
 });
 //#endregion test attributes with excess spaces
+
+//#region test element selectors
+test(`parseSelectors('div')`, () => {
+    expect(parseSelectors('div'))
+    .toEqual([
+        selector(
+            elementSelector('div'),
+        ),
+    ])
+});
+test(`parseSelectors('span')`, () => {
+    expect(parseSelectors('span'))
+    .toEqual([
+        selector(
+            elementSelector('span'),
+        ),
+    ])
+});
+test(`parseSelectors('custom-element')`, () => {
+    expect(parseSelectors('custom-element'))
+    .toEqual([
+        selector(
+            elementSelector('custom-element'),
+        ),
+    ])
+});
+//#endregion test element selectors
+
+//#region test element selectors with excess spaces
+test(`parseSelectors('  div  ')`, () => {
+    expect(parseSelectors('  div  '))
+    .toEqual([
+        selector(
+            elementSelector('div'),
+        ),
+    ])
+});
+test(`parseSelectors('  span  ')`, () => {
+    expect(parseSelectors('  span  '))
+    .toEqual([
+        selector(
+            elementSelector('span'),
+        ),
+    ])
+});
+test(`parseSelectors('  custom-element  ')`, () => {
+    expect(parseSelectors('  custom-element  '))
+    .toEqual([
+        selector(
+            elementSelector('custom-element'),
+        ),
+    ])
+});
+//#endregion test element selectors with excess spaces
+
+//#region test id selectors
+test(`parseSelectors('#login')`, () => {
+    expect(parseSelectors('#login'))
+    .toEqual([
+        selector(
+            idSelector('login'),
+        ),
+    ])
+});
+test(`parseSelectors('#login-form')`, () => {
+    expect(parseSelectors('#login-form'))
+    .toEqual([
+        selector(
+            idSelector('login-form'),
+        ),
+    ])
+});
+//#endregion test id selectors
+
+//#region test id selectors with excess spaces
+test(`parseSelectors('  #login  ')`, () => {
+    expect(parseSelectors('  #login  '))
+    .toEqual([
+        selector(
+            idSelector('login'),
+        ),
+    ])
+});
+test(`parseSelectors('  #login-form  ')`, () => {
+    expect(parseSelectors('  #login-form  '))
+    .toEqual([
+        selector(
+            idSelector('login-form'),
+        ),
+    ])
+});
+//#endregion test id selectors with excess spaces
+
+//#region test class selectors
+test(`parseSelectors('.login')`, () => {
+    expect(parseSelectors('.login'))
+    .toEqual([
+        selector(
+            classSelector('login'),
+        ),
+    ])
+});
+test(`parseSelectors('.login-form')`, () => {
+    expect(parseSelectors('.login-form'))
+    .toEqual([
+        selector(
+            classSelector('login-form'),
+        ),
+    ])
+});
+//#endregion test class selectors
+
+//#region test class selectors with excess spaces
+test(`parseSelectors('  .login  ')`, () => {
+    expect(parseSelectors('  .login  '))
+    .toEqual([
+        selector(
+            classSelector('login'),
+        ),
+    ])
+});
+test(`parseSelectors('  .login-form  ')`, () => {
+    expect(parseSelectors('  .login-form  '))
+    .toEqual([
+        selector(
+            classSelector('login-form'),
+        ),
+    ])
+});
+//#endregion test class selectors with excess spaces
+
+//#region test pseudo class selectors
+test(`parseSelectors(':disabled')`, () => {
+    expect(parseSelectors(':disabled'))
+    .toEqual([
+        selector(
+            pseudoClassSelector('disabled'),
+        ),
+    ])
+});
+test(`parseSelectors(':first-child')`, () => {
+    expect(parseSelectors(':first-child'))
+    .toEqual([
+        selector(
+            pseudoClassSelector('first-child'),
+        ),
+    ])
+});
+test(`parseSelectors(':nth-child(2n+3)')`, () => {
+    expect(parseSelectors(':nth-child(2n+3)'))
+    .toEqual([
+        selector(
+            pseudoClassSelector('nth-child', '2n+3'),
+        ),
+    ])
+});
+test(`parseSelectors(':foo(2n+(3a+b)+c+(de+fg)+((hi+(jk+lmn)))+opq)')`, () => {
+    expect(parseSelectors(':foo(2n+(3a+b)+c+(de+fg)+((hi+(jk+lmn)))+opq)'))
+    .toEqual([
+        selector(
+            pseudoClassSelector('foo', '2n+(3a+b)+c+(de+fg)+((hi+(jk+lmn)))+opq'),
+        ),
+    ])
+});
+//#endregion test pseudo class selectors
+
+//#region test pseudo class selectors with excess spaces
+test(`parseSelectors('  :disabled  ')`, () => {
+    expect(parseSelectors('  :disabled  '))
+    .toEqual([
+        selector(
+            pseudoClassSelector('disabled'),
+        ),
+    ])
+});
+test(`parseSelectors('  :first-child  ')`, () => {
+    expect(parseSelectors('  :first-child  '))
+    .toEqual([
+        selector(
+            pseudoClassSelector('first-child'),
+        ),
+    ])
+});
+test(`parseSelectors('  :nth-child(  2n+3  )  ')`, () => {
+    expect(parseSelectors('  :nth-child(  2n+3  )  '))
+    .toEqual([
+        selector(
+            pseudoClassSelector('nth-child', '2n+3'),
+        ),
+    ])
+});
+test(`parseSelectors(':foo(  2n  +  (  3a  +  b  )  +  c  +  (  de  +  fg  )  +  (  (  hi  +  (  jk  +  lmn  )  )  )  +  opq  )')`, () => {
+    expect(parseSelectors(':foo(  2n  +  (  3a  +  b  )  +  c  +  (  de  +  fg  )  +  (  (  hi  +  (  jk  +  lmn  )  )  )  +  opq  )'))
+    .toEqual([
+        selector(
+            pseudoClassSelector('foo', '2n+(3a+b)+c+(de+fg)+((hi+(jk+lmn)))+opq'),
+        ),
+    ])
+});
+
+test(`parseSelectors(':nth-child  (2n+3)')`, () => {
+    expect(parseSelectors(':nth-child  (2n+3)'))
+    .toBe(null)
+});
+test(`parseSelectors(':nth-child  (2n+3)  ')`, () => {
+    expect(parseSelectors(':nth-child  (2n+3)  '))
+    .toBe(null)
+});
+test(`parseSelectors(':foo  (2n+(3a+b)+c+(de+fg)+((hi+(jk+lmn)))+opq)')`, () => {
+    expect(parseSelectors(':foo  (2n+(3a+b)+c+(de+fg)+((hi+(jk+lmn)))+opq)'))
+    .toBe(null)
+});
+test(`parseSelectors(':foo  (2n+(3a+b)+c+(de+fg)+((hi+(jk+lmn)))+opq)  ')`, () => {
+    expect(parseSelectors(':foo  (2n+(3a+b)+c+(de+fg)+((hi+(jk+lmn)))+opq)  '))
+    .toBe(null)
+});
+test(`parseSelectors(':foo  (  2n  +  (  3a  +  b  )  +  c  +  (  de  +  fg  )  +  (  (  hi  +  (  jk  +  lmn  )  )  )  +  opq  )')`, () => {
+    expect(parseSelectors(':foo  (  2n  +  (  3a  +  b  )  +  c  +  (  de  +  fg  )  +  (  (  hi  +  (  jk  +  lmn  )  )  )  +  opq  )'))
+    .toBe(null)
+});
+//#endregion test pseudo class selectors with excess spaces
