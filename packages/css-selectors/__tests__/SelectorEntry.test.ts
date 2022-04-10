@@ -11,9 +11,13 @@ import {
     AttrSelector,
     AttrSelectorParams,
     attrSelector,
+    ElementSelector,
     elementSelector,
+    IdSelector,
     idSelector,
+    ClassSelector,
     classSelector,
+    PseudoClassSelector,
     pseudoClassSelector,
     pseudoElementSelector,
     combinator,
@@ -119,7 +123,6 @@ test(`AttrSelector`, () => {
         ])(),
     ])());
 });
-
 test(`AttrSelector`, () => {
     expect(attrSelector('title', '~=', 'hello', 'i'))
     .toEqual(((): AttrSelector => [
@@ -170,5 +173,74 @@ test(`AttrSelector`, () => {
             'hello',
             'S'
         ])(),
+    ])());
+});
+
+test(`ElementSelector`, () => {
+    expect(elementSelector('div'))
+    .toEqual(((): ElementSelector => [
+        '',
+        'div',
+    ])());
+});
+test(`ElementSelector`, () => {
+    expect(elementSelector('custom-element'))
+    .toEqual(((): ElementSelector => [
+        '',
+        'custom-element',
+    ])());
+});
+
+test(`IdSelector`, () => {
+    expect(idSelector('login'))
+    .toEqual(((): IdSelector => [
+        '#',
+        'login',
+    ])());
+});
+test(`IdSelector`, () => {
+    expect(idSelector('login-form'))
+    .toEqual(((): IdSelector => [
+        '#',
+        'login-form',
+    ])());
+});
+
+test(`ClassSelector`, () => {
+    expect(classSelector('login'))
+    .toEqual(((): ClassSelector => [
+        '.',
+        'login',
+    ])());
+});
+test(`ClassSelector`, () => {
+    expect(classSelector('login-form'))
+    .toEqual(((): ClassSelector => [
+        '.',
+        'login-form',
+    ])());
+});
+
+test(`PseudoClassSelector`, () => {
+    expect(pseudoClassSelector('disabled'))
+    .toEqual(((): PseudoClassSelector => [
+        ':',
+        'disabled',
+    ])());
+});
+test(`PseudoClassSelector`, () => {
+    expect(pseudoClassSelector('nth-child', '2n+3'))
+    .toEqual(((): PseudoClassSelector => [
+        ':',
+        'nth-child',
+        '2n+3'
+    ])());
+});
+test(`PseudoClassSelector`, () => {
+    expect(pseudoClassSelector('foo', '2n+(3a+b)+c+(de+fg)+((hi+(jk+lmn)))+opq'))
+    .toEqual(((): PseudoClassSelector => [
+        ':',
+        'foo',
+        '2n+(3a+b)+c+(de+fg)+((hi+(jk+lmn)))+opq'
     ])());
 });
