@@ -428,3 +428,9 @@ allSampleSelectors.forEach((sampleSelector) => {
         .toBe(true)
     });
 });
+allSampleStrangeSelectors.forEach((sampleSelector) => {
+    test(`isSelector`, () => {
+        expect(isSelector(sampleSelector))
+        .toBe(true)
+    });
+});

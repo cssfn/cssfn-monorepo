@@ -74,6 +74,7 @@ export type PureSelectorGroup          = Selector[]
 
 const whitespaceList                   = [' ', '\n', '\r', '\t', '\f', '\v'];
 const specialPseudoClassList           = ['is', 'not', 'where', 'has'];
+const combinatorList                   = [' ', '>', '~', '+'];
 
 
 
@@ -716,7 +717,7 @@ export const isSelector = (test: OptionalOrBoolean<SimpleSelector|Selector>): te
         SimpleSelector : [ SelectorToken, SelectorName, SelectorParams ]
         Selector       : [ SimpleSelector...(SimpleSelector|Combinator)... ]
     */
-    return !!test && (test !== true) && (typeof(test[0]) !== 'string'); // Selector : the first element (SelectorEntry) must be a NON-string (an array), the Combinator is guaranteed NEVER be the first element
+    return !!test && (test !== true) && ((typeof(test[0]) !== 'string') || combinatorList.includes(test[0])); // Selector : the first element (SelectorEntry) must be a NON-string (an array) -or- a string of Combinator
 };
 export const isNotEmptySelector   = (selector  : OptionalOrBoolean<Selector     >): selector  is PureSelector      =>  !!selector  && (selector  !== true) &&  selector.some(  isNotEmptySelectorEntry);
 export const isNotEmptySelectors  = (selectors : OptionalOrBoolean<SelectorGroup>): selectors is PureSelectorGroup =>  !!selectors && (selectors !== true) && selectors.some(  isNotEmptySelector     );
