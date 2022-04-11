@@ -407,19 +407,19 @@ const allSampleStrangeSelectors : Selector[] = [
 
 
 allBasicFalsies.forEach((basicFalsy) => {
-    test(`isSelector`, () => {
+    test(`isSelector(falsy)`, () => {
         expect(isSelector(basicFalsy))
         .toBe(false)
     });
 });
 allSampleSelectors.forEach((sampleSelector) => {
-    test(`isSelector`, () => {
+    test(`isSelector(Selector)`, () => {
         expect(isSelector(sampleSelector))
         .toBe(true)
     });
 });
 allSampleStrangeSelectors.forEach((sampleSelector) => {
-    test(`isSelector`, () => {
+    test(`isSelector(Selector)`, () => {
         expect(isSelector(sampleSelector))
         .toBe(true)
     });
@@ -428,19 +428,19 @@ allSampleStrangeSelectors.forEach((sampleSelector) => {
 
 
 allBasicFalsies.forEach((basicFalsy) => {
-    test(`isNotEmptySelector`, () => {
+    test(`isNotEmptySelector(falsy)`, () => {
         expect(isNotEmptySelector(basicFalsy))
         .toBe(false)
     });
 });
 allSampleSelectors.forEach((sampleSelector) => {
-    test(`isNotEmptySelector`, () => {
+    test(`isNotEmptySelector(Selector)`, () => {
         expect(isNotEmptySelector(sampleSelector))
         .toBe(true)
     });
 });
 allSampleStrangeSelectors.forEach((sampleSelector) => {
-    test(`isNotEmptySelector`, () => {
+    test(`isNotEmptySelector(EmptySelector)`, () => {
         expect(isNotEmptySelector(sampleSelector))
         .toBe(
             sampleSelector.some((selectorEntry) =>
@@ -459,19 +459,19 @@ allSampleStrangeSelectors.forEach((sampleSelector) => {
 
 
 allBasicFalsies.forEach((basicFalsy) => {
-    test(`countSelectorEntries`, () => {
+    test(`countSelectorEntries(falsy)`, () => {
         expect(countSelectorEntries(basicFalsy))
         .toBe(0)
     });
 });
 allSampleSelectors.forEach((sampleSelector) => {
-    test(`countSelectorEntries`, () => {
+    test(`countSelectorEntries(Selector)`, () => {
         expect(countSelectorEntries(sampleSelector))
         .toBe(sampleSelector.length)
     });
 });
 allSampleStrangeSelectors.forEach((sampleSelector) => {
-    test(`countSelectorEntries`, () => {
+    test(`countSelectorEntries(EmptySelector)`, () => {
         expect(countSelectorEntries(sampleSelector))
         .toBe(
             sampleSelector.filter((selectorEntry) =>
@@ -490,114 +490,69 @@ allSampleStrangeSelectors.forEach((sampleSelector) => {
 
 
 
-expect(selectorToString(
-    selector(
-        /* empty */
-    )
-))
-.toBe(
-    ''
-);
-
-expect(selectorToString(
-    selector(
-        undefined,
-        null,
-        false,
-        true,
-    )
-))
-.toBe(
-    ''
-);
-
-expect(selectorToString(
-    selector(
-        classSelector('boo'),
-    )
-))
-.toBe(
-    '.boo'
-);
-
-expect(selectorToString(
-    selector(
-        classSelector('boo'),
-        pseudoClassSelector('foo', 'a+b'),
-        pseudoClassSelector('wehh'),
-        pseudoClassSelector('bleh', ''),
-        attrSelector('title', '*=', 'hello', 'i'),
-    )
-))
-.toBe(
-    '.boo:foo(a+b):wehh:bleh()[title*="hello" i]'
-);
-
-expect(selectorToString(
-    selector(
-        classSelector('boo'),
-        combinator(' '),
-        pseudoClassSelector('foo', 'a+b'),
-        combinator('>'),
-        idSelector('bleh'),
-    )
-))
-.toBe(
-    '.boo :foo(a+b)>#bleh'
-);
-
+test(`selectorToString(empty)`, () => {
+    expect(selectorToString(
+        selector(
+            /* empty */
+        )
+    ))
+    .toBe(
+        ''
+    );
+});
+test(`selectorToString(falsy)`, () => {
+    expect(selectorToString(
+        selector(
+            undefined,
+            null,
+            false,
+            true,
+        )
+    ))
+    .toBe(
+        ''
+    );
+});
+test(`selectorToString(Selector)`, () => {
+    expect(selectorToString(
+        selector(
+            classSelector('boo'),
+        )
+    ))
+    .toBe(
+        '.boo'
+    );
+});
+test(`selectorToString(Selector)`, () => {
+    expect(selectorToString(
+        selector(
+            classSelector('boo'),
+            pseudoClassSelector('foo', 'a+b'),
+            pseudoClassSelector('wehh'),
+            pseudoClassSelector('bleh', ''),
+            attrSelector('title', '*=', 'hello', 'i'),
+        )
+    ))
+    .toBe(
+        '.boo:foo(a+b):wehh:bleh()[title*="hello" i]'
+    );
+});
+test(`selectorToString(Selector)`, () => {
+    expect(selectorToString(
+        selector(
+            classSelector('boo'),
+            combinator(' '),
+            pseudoClassSelector('foo', 'a+b'),
+            combinator('>'),
+            idSelector('bleh'),
+        )
+    ))
+    .toBe(
+        '.boo :foo(a+b)>#bleh'
+    );
+});
 ['is', 'not', 'where', 'has'].forEach((group) => {
-    expect(selectorToString(
-        selector(
-            classSelector('product'),
-            pseudoClassSelector(group,
-                selectorGroup(
-                    selector(
-                        classSelector('great'),
-                        classSelector('okay'),
-                        pseudoClassSelector('valid'),
-                    ),
-                    selector(
-                        classSelector('awesome'),
-                    ),
-                ),
-            ),
-            combinator('~'),
-            pseudoClassSelector('first-child'),
-        )
-    ))
-    .toBe(
-        `.product:${group}(.great.okay:valid, .awesome)~:first-child`
-    );
-    
-    expect(selectorToString(
-        selector(
-            classSelector('product'),
-            pseudoClassSelector(group,
-                selectorGroup(
-                    selector(
-                        classSelector('great'),
-                        combinator(' '),
-                        classSelector('okay'),
-                        combinator('>'),
-                        pseudoClassSelector('valid'),
-                    ),
-                    selector(
-                        classSelector('awesome'),
-                        combinator('+'),
-                        pseudoClassSelector('nth-child', '2n+3'),
-                    ),
-                ),
-            ),
-            combinator('~'),
-            pseudoClassSelector('first-child'),
-        )
-    ))
-    .toBe(
-        `.product:${group}(.great .okay>:valid, .awesome+:nth-child(2n+3))~:first-child`
-    );
-    
-    ['is', 'not', 'where', 'has'].forEach((group2) => {
+    test(`selectorToString(Selector)`, () => {
         expect(selectorToString(
             selector(
                 classSelector('product'),
@@ -605,38 +560,92 @@ expect(selectorToString(
                     selectorGroup(
                         selector(
                             classSelector('great'),
+                            classSelector('okay'),
+                            pseudoClassSelector('valid'),
                         ),
                         selector(
-                            pseudoClassSelector(group2,
-                                selectorGroup(
-                                    selector(
-                                        idSelector('okay'),
+                            classSelector('awesome'),
+                        ),
+                    ),
+                ),
+                combinator('~'),
+                pseudoClassSelector('first-child'),
+            )
+        ))
+        .toBe(
+            `.product:${group}(.great.okay:valid, .awesome)~:first-child`
+        );
+    });
+    test(`selectorToString(Selector)`, () => {
+        expect(selectorToString(
+            selector(
+                classSelector('product'),
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            combinator(' '),
+                            classSelector('okay'),
+                            combinator('>'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                            combinator('+'),
+                            pseudoClassSelector('nth-child', '2n+3'),
+                        ),
+                    ),
+                ),
+                combinator('~'),
+                pseudoClassSelector('first-child'),
+            )
+        ))
+        .toBe(
+            `.product:${group}(.great .okay>:valid, .awesome+:nth-child(2n+3))~:first-child`
+        );
+    });
+    ['is', 'not', 'where', 'has'].forEach((group2) => {
+        test(`selectorToString(Selector)`, () => {
+            expect(selectorToString(
+                selector(
+                    classSelector('product'),
+                    pseudoClassSelector(group,
+                        selectorGroup(
+                            selector(
+                                classSelector('great'),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            idSelector('okay'),
+                                        ),
                                     ),
                                 ),
                             ),
-                        ),
-                        selector(
-                            pseudoClassSelector(group2,
-                                selectorGroup(
-                                    selector(
-                                        pseudoClassSelector('valid'),
-                                        pseudoClassSelector('first-child'),
-                                        combinator('>'),
-                                        pseudoClassSelector('nth-child', '2n+3'),
-                                    ),
-                                    selector(
-                                        pseudoElementSelector('backdrop'),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            pseudoClassSelector('valid'),
+                                            pseudoClassSelector('first-child'),
+                                            combinator('>'),
+                                            pseudoClassSelector('nth-child', '2n+3'),
+                                        ),
+                                        selector(
+                                            pseudoElementSelector('backdrop'),
+                                        ),
                                     ),
                                 ),
                             ),
                         ),
                     ),
-                ),
-                attrSelector('title', '*=', 'hello', 'i'),
-            )
-        ))
-        .toBe(
-            `.product:${group}(.great, :${group2}(#okay), :${group2}(:valid:first-child>:nth-child(2n+3), ::backdrop))[title*="hello" i]`
-        );
+                    attrSelector('title', '*=', 'hello', 'i'),
+                )
+            ))
+            .toBe(
+                `.product:${group}(.great, :${group2}(#okay), :${group2}(:valid:first-child>:nth-child(2n+3), ::backdrop))[title*="hello" i]`
+            );
+        });
     });
 });
