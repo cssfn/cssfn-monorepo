@@ -48,6 +48,18 @@ import {
     isNotClassOrPseudoClassSelector,
     isNotPseudoElementSelector,
     isNotElementOrPseudoElementSelector,
+    
+    isAttrSelectorOf,
+    isElementSelectorOf,
+    isIdSelectorOf,
+    isClassSelectorOf,
+    isPseudoClassSelectorOf,
+    isClassOrPseudoClassSelectorOf,
+    isPseudoElementSelectorOf,
+    isElementOrPseudoElementSelectorOf,
+    
+    isCombinator,
+    isCombinatorOf,
 } from '../src/css-selectors'
 
 
@@ -673,10 +685,10 @@ test(`PseudoElementSelector`, () => {
 
 
 
-const allSelectorfalsies = [undefined, null, false, true, ...([' ', '>', '~', '+'] as Combinator[])];
+const allSimpleSelectorfalsies = [undefined, null, false, true, ...([' ', '>', '~', '+'] as Combinator[])];
 
 //#region allSampleSimpleSelectors
-const allSampleSimpleSelectors : SimpleSelector[] =[
+const allSampleSimpleSelectors : SimpleSelector[] = [
     parentSelector(),
     universalSelector(),
     attrSelector('disabled'),
@@ -825,11 +837,14 @@ const allSampleSimpleSelectors : SimpleSelector[] =[
             ))
         ]),
     ]),
+    pseudoElementSelector('backdrop'),
+    pseudoElementSelector('-boo-foo'),
 ];
 //#endregion allSampleSimpleSelectors
 
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isSimpleSelector`, () => {
         expect(isSimpleSelector(selectorfalsy))
         .toBe(false)
@@ -842,7 +857,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isParentSelector`, () => {
         expect(isParentSelector(selectorfalsy))
         .toBe(false)
@@ -857,7 +872,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isUniversalSelector`, () => {
         expect(isUniversalSelector(selectorfalsy))
         .toBe(false)
@@ -872,7 +887,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isAttrSelector`, () => {
         expect(isAttrSelector(selectorfalsy))
         .toBe(false)
@@ -887,7 +902,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isElementSelector`, () => {
         expect(isElementSelector(selectorfalsy))
         .toBe(false)
@@ -902,7 +917,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isIdSelector`, () => {
         expect(isIdSelector(selectorfalsy))
         .toBe(false)
@@ -917,7 +932,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isClassSelector`, () => {
         expect(isClassSelector(selectorfalsy))
         .toBe(false)
@@ -932,7 +947,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isPseudoClassSelector`, () => {
         expect(isPseudoClassSelector(selectorfalsy))
         .toBe(false)
@@ -947,7 +962,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isClassOrPseudoClassSelector`, () => {
         expect(isClassOrPseudoClassSelector(selectorfalsy))
         .toBe(false)
@@ -964,7 +979,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isPseudoElementSelector`, () => {
         expect(isPseudoElementSelector(selectorfalsy))
         .toBe(false)
@@ -979,7 +994,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isElementOrPseudoElementSelector`, () => {
         expect(isElementOrPseudoElementSelector(selectorfalsy))
         .toBe(false)
@@ -998,7 +1013,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
 
 
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isNotSimpleSelector`, () => {
         expect(isNotSimpleSelector(selectorfalsy))
         .toBe(true)
@@ -1011,7 +1026,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isNotParentSelector`, () => {
         expect(isNotParentSelector(selectorfalsy))
         .toBe(true)
@@ -1026,7 +1041,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isNotUniversalSelector`, () => {
         expect(isNotUniversalSelector(selectorfalsy))
         .toBe(true)
@@ -1041,7 +1056,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isNotAttrSelector`, () => {
         expect(isNotAttrSelector(selectorfalsy))
         .toBe(true)
@@ -1056,7 +1071,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isNotElementSelector`, () => {
         expect(isNotElementSelector(selectorfalsy))
         .toBe(true)
@@ -1071,7 +1086,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isNotIdSelector`, () => {
         expect(isNotIdSelector(selectorfalsy))
         .toBe(true)
@@ -1086,7 +1101,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isNotClassSelector`, () => {
         expect(isNotClassSelector(selectorfalsy))
         .toBe(true)
@@ -1101,7 +1116,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isNotPseudoClassSelector`, () => {
         expect(isNotPseudoClassSelector(selectorfalsy))
         .toBe(true)
@@ -1116,7 +1131,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isNotClassOrPseudoClassSelector`, () => {
         expect(isNotClassOrPseudoClassSelector(selectorfalsy))
         .toBe(true)
@@ -1133,7 +1148,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isNotPseudoElementSelector`, () => {
         expect(isNotPseudoElementSelector(selectorfalsy))
         .toBe(true)
@@ -1148,7 +1163,7 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
     });
 });
 
-allSelectorfalsies.forEach((selectorfalsy) => {
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
     test(`isNotElementOrPseudoElementSelector`, () => {
         expect(isNotElementOrPseudoElementSelector(selectorfalsy))
         .toBe(true)
@@ -1162,5 +1177,434 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
             &&
             (sampleSimpleSelector[0] !== '::')
         )
+    });
+});
+
+
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isAttrSelectorOf`, () => {
+        expect(isAttrSelectorOf(selectorfalsy, 'disabled'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isAttrSelectorOf`, () => {
+        expect(isAttrSelectorOf(sampleSimpleSelector, 'disabled'))
+        .toBe(
+            (sampleSimpleSelector[0] === '[')
+            &&
+            (sampleSimpleSelector?.[2]?.[0] === 'disabled')
+        )
+    });
+});
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isAttrSelectorOf`, () => {
+        expect(isAttrSelectorOf(selectorfalsy, 'aria-role'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isAttrSelectorOf`, () => {
+        expect(isAttrSelectorOf(sampleSimpleSelector, 'aria-role'))
+        .toBe(
+            (sampleSimpleSelector[0] === '[')
+            &&
+            (sampleSimpleSelector?.[2]?.[0] === 'aria-role')
+        )
+    });
+});
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isAttrSelectorOf`, () => {
+        expect(isAttrSelectorOf(selectorfalsy, 'title'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isAttrSelectorOf`, () => {
+        expect(isAttrSelectorOf(sampleSimpleSelector, 'title'))
+        .toBe(
+            (sampleSimpleSelector[0] === '[')
+            &&
+            (sampleSimpleSelector?.[2]?.[0] === 'title')
+        )
+    });
+});
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isAttrSelectorOf`, () => {
+        expect(isAttrSelectorOf(selectorfalsy, 'lang'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isAttrSelectorOf`, () => {
+        expect(isAttrSelectorOf(sampleSimpleSelector, 'lang'))
+        .toBe(
+            (sampleSimpleSelector[0] === '[')
+            &&
+            (sampleSimpleSelector?.[2]?.[0] === 'lang')
+        )
+    });
+});
+
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isElementSelectorOf`, () => {
+        expect(isElementSelectorOf(selectorfalsy, 'div'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isElementSelectorOf`, () => {
+        expect(isElementSelectorOf(sampleSimpleSelector, 'div'))
+        .toBe(
+            (sampleSimpleSelector[0] === '')
+            &&
+            (sampleSimpleSelector[1] === 'div')
+        )
+    });
+});
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isElementSelectorOf`, () => {
+        expect(isElementSelectorOf(selectorfalsy, 'custom-element'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isElementSelectorOf`, () => {
+        expect(isElementSelectorOf(sampleSimpleSelector, 'custom-element'))
+        .toBe(
+            (sampleSimpleSelector[0] === '')
+            &&
+            (sampleSimpleSelector[1]  === 'custom-element')
+        )
+    });
+});
+
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isIdSelectorOf`, () => {
+        expect(isIdSelectorOf(selectorfalsy, 'login'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isIdSelectorOf`, () => {
+        expect(isIdSelectorOf(sampleSimpleSelector, 'login'))
+        .toBe(
+            (sampleSimpleSelector[0] === '#')
+            &&
+            (sampleSimpleSelector[1] === 'login')
+        )
+    });
+});
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isIdSelectorOf`, () => {
+        expect(isIdSelectorOf(selectorfalsy, 'login-form'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isIdSelectorOf`, () => {
+        expect(isIdSelectorOf(sampleSimpleSelector, 'login-form'))
+        .toBe(
+            (sampleSimpleSelector[0] === '#')
+            &&
+            (sampleSimpleSelector[1] === 'login-form')
+        )
+    });
+});
+
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isClassSelectorOf`, () => {
+        expect(isClassSelectorOf(selectorfalsy, 'login'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isClassSelectorOf`, () => {
+        expect(isClassSelectorOf(sampleSimpleSelector, 'login'))
+        .toBe(
+            (sampleSimpleSelector[0] === '.')
+            &&
+            (sampleSimpleSelector[1] === 'login')
+        )
+    });
+});
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isClassSelectorOf`, () => {
+        expect(isClassSelectorOf(selectorfalsy, 'login-form'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isClassSelectorOf`, () => {
+        expect(isClassSelectorOf(sampleSimpleSelector, 'login-form'))
+        .toBe(
+            (sampleSimpleSelector[0] === '.')
+            &&
+            (sampleSimpleSelector[1] === 'login-form')
+        )
+    });
+});
+
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isPseudoClassSelectorOf`, () => {
+        expect(isPseudoClassSelectorOf(selectorfalsy, 'disabled'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isPseudoClassSelectorOf`, () => {
+        expect(isPseudoClassSelectorOf(sampleSimpleSelector, 'disabled'))
+        .toBe(
+            (sampleSimpleSelector[0] === ':')
+            &&
+            (sampleSimpleSelector[1] === 'disabled')
+        )
+    });
+});
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isPseudoClassSelectorOf`, () => {
+        expect(isPseudoClassSelectorOf(selectorfalsy, 'nth-child'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isPseudoClassSelectorOf`, () => {
+        expect(isPseudoClassSelectorOf(sampleSimpleSelector, 'nth-child'))
+        .toBe(
+            (sampleSimpleSelector[0] === ':')
+            &&
+            (sampleSimpleSelector[1] === 'nth-child')
+        )
+    });
+});
+
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isClassOrPseudoClassSelectorOf`, () => {
+        expect(isClassOrPseudoClassSelectorOf(selectorfalsy, 'login'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isClassOrPseudoClassSelectorOf`, () => {
+        expect(isClassOrPseudoClassSelectorOf(sampleSimpleSelector, 'login'))
+        .toBe(
+            (
+                (sampleSimpleSelector[0] === '.')
+                ||
+                (sampleSimpleSelector[0] === ':')
+            )
+            &&
+            (sampleSimpleSelector[1] === 'login')
+        )
+    });
+});
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isClassOrPseudoClassSelectorOf`, () => {
+        expect(isClassOrPseudoClassSelectorOf(selectorfalsy, 'disabled'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isClassOrPseudoClassSelectorOf`, () => {
+        expect(isClassOrPseudoClassSelectorOf(sampleSimpleSelector, 'disabled'))
+        .toBe(
+            (
+                (sampleSimpleSelector[0] === '.')
+                ||
+                (sampleSimpleSelector[0] === ':')
+            )
+            &&
+            (sampleSimpleSelector[1] === 'disabled')
+        )
+    });
+});
+
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isPseudoElementSelectorOf`, () => {
+        expect(isPseudoElementSelectorOf(selectorfalsy, 'backdrop'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isPseudoElementSelectorOf`, () => {
+        expect(isPseudoElementSelectorOf(sampleSimpleSelector, 'backdrop'))
+        .toBe(
+            (sampleSimpleSelector[0] === '::')
+            &&
+            (sampleSimpleSelector[1] === 'backdrop')
+        )
+    });
+});
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isPseudoElementSelectorOf`, () => {
+        expect(isPseudoElementSelectorOf(selectorfalsy, '-boo-foo'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isPseudoElementSelectorOf`, () => {
+        expect(isPseudoElementSelectorOf(sampleSimpleSelector, '-boo-foo'))
+        .toBe(
+            (sampleSimpleSelector[0] === '::')
+            &&
+            (sampleSimpleSelector[1] === '-boo-foo')
+        )
+    });
+});
+
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isElementOrPseudoElementSelectorOf`, () => {
+        expect(isElementOrPseudoElementSelectorOf(selectorfalsy, 'div'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isElementOrPseudoElementSelectorOf`, () => {
+        expect(isElementOrPseudoElementSelectorOf(sampleSimpleSelector, 'div'))
+        .toBe(
+            (
+                (sampleSimpleSelector[0] === '')
+                ||
+                (sampleSimpleSelector[0] === '::')
+            )
+            &&
+            (sampleSimpleSelector[1] === 'div')
+        )
+    });
+});
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isElementOrPseudoElementSelectorOf`, () => {
+        expect(isElementOrPseudoElementSelectorOf(selectorfalsy, 'custom-element'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isElementOrPseudoElementSelectorOf`, () => {
+        expect(isElementOrPseudoElementSelectorOf(sampleSimpleSelector, 'custom-element'))
+        .toBe(
+            (
+                (sampleSimpleSelector[0] === '')
+                ||
+                (sampleSimpleSelector[0] === '::')
+            )
+            &&
+            (sampleSimpleSelector[1] === 'custom-element')
+        )
+    });
+});
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isElementOrPseudoElementSelectorOf`, () => {
+        expect(isElementOrPseudoElementSelectorOf(selectorfalsy, 'backdrop'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isElementOrPseudoElementSelectorOf`, () => {
+        expect(isElementOrPseudoElementSelectorOf(sampleSimpleSelector, 'backdrop'))
+        .toBe(
+            (
+                (sampleSimpleSelector[0] === '')
+                ||
+                (sampleSimpleSelector[0] === '::')
+            )
+            &&
+            (sampleSimpleSelector[1] === 'backdrop')
+        )
+    });
+});
+
+allSimpleSelectorfalsies.forEach((selectorfalsy) => {
+    test(`isElementOrPseudoElementSelectorOf`, () => {
+        expect(isElementOrPseudoElementSelectorOf(selectorfalsy, '-boo-foo'))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isElementOrPseudoElementSelectorOf`, () => {
+        expect(isElementOrPseudoElementSelectorOf(sampleSimpleSelector, '-boo-foo'))
+        .toBe(
+            (
+                (sampleSimpleSelector[0] === '')
+                ||
+                (sampleSimpleSelector[0] === '::')
+            )
+            &&
+            (sampleSimpleSelector[1] === '-boo-foo')
+        )
+    });
+});
+
+
+
+const allCombinatorfalsies = [undefined, null, false, true, ...allSampleSimpleSelectors];
+
+//#region allSampleSimpleSelectors
+const allSampleCombinators : Combinator[] = [
+    ' ',
+    '>',
+    '~',
+    '+',
+];
+//#endregion allSampleSimpleSelectors
+
+
+
+allSampleCombinators.forEach((sampleCombinator) => {
+    test(`Combinator`, () => {
+        expect(combinator(sampleCombinator))
+        .toEqual(((): Combinator => sampleCombinator)());
+    });
+});
+
+
+
+allCombinatorfalsies.forEach((combinatorfalsy) => {
+    test(`isCombinator`, () => {
+        expect(isCombinator(combinatorfalsy))
+        .toBe(false)
+    });
+});
+allSampleCombinators.forEach((sampleCombinator) => {
+    test(`isCombinator`, () => {
+        expect(isCombinator(sampleCombinator))
+        .toBe(true)
+    });
+});
+
+allCombinatorfalsies.forEach((combinatorfalsy) => {
+    allSampleCombinators.forEach((sampleCombinator) => {
+        test(`isCombinatorOf`, () => {
+            expect(isCombinatorOf(combinatorfalsy, sampleCombinator))
+            .toBe(false)
+        });
+    });
+});
+allSampleCombinators.forEach((sampleCombinator) => {
+    allSampleCombinators.forEach((sampleCombinator2) => {
+        test(`isCombinatorOf`, () => {
+            expect(isCombinatorOf(sampleCombinator, sampleCombinator2))
+            .toBe(
+                sampleCombinator === sampleCombinator2
+            )
+        });
     });
 });
