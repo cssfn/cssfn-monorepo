@@ -23,6 +23,10 @@ import {
     isPseudoElementSelectorOf,
     isElementOrPseudoElementSelectorOf,
     
+    combinator,
+    
+    isCombinatorOf,
+    
     
     
     // Selector creates & tests:
@@ -65,16 +69,22 @@ const replaceExpensiveToVeryCheap: FlatMapSelectorsCallback = (selectorEntry) =>
     
     return selectorEntry;
 };
-const removeUnusedThing: FlatMapSelectorsCallback = (selectorEntry) => {
+const removeUnusedThingGarbage: FlatMapSelectorsCallback = (selectorEntry) => {
     if (isClassSelectorOf(selectorEntry, 'unused')) {
-        return selector(
-            /* empty */
-        );
+        return null;
     } // if
     if (isAttrSelectorOf(selectorEntry, 'thing')) {
-        return selector(
-            /* empty */
-        );
+        return false;
+    } // if
+    if (isPseudoClassSelectorOf(selectorEntry, 'garbage')) {
+        return true;
+    } // if
+    
+    return selectorEntry;
+};
+const replaceDescendantsToChildren: FlatMapSelectorsCallback = (selectorEntry) => {
+    if (isCombinatorOf(selectorEntry, ' ')) {
+        return combinator('>');
     } // if
     
     return selectorEntry;
@@ -275,11 +285,22 @@ test(`flatMapSelectors()`, () => {
 test(`flatMapSelectors()`, () => {
     expect(selectorsToString(flatMapSelectors(
         parseSelectors(
-            '.product.unused>#some[thing="bleh"]:valid'
+            '.product.unused>#some[thing="bleh"]:valid+:garbage:first-child'
         )!,
-        removeUnusedThing
+        removeUnusedThingGarbage
     )))
     .toBe(
-        '.product>#some:valid'
+        '.product>#some:valid+:first-child'
+    );
+});
+test(`flatMapSelectors()`, () => {
+    expect(selectorsToString(flatMapSelectors(
+        parseSelectors(
+            '.ultra :deep #field+:nth-child(2n+3), #this:is(#very .exciting .thing, ::backdrop+:hover)'
+        )!,
+        replaceDescendantsToChildren
+    )))
+    .toBe(
+        '.ultra>:deep>#field+:nth-child(2n+3), #this:is(#very>.exciting>.thing, ::backdrop+:hover)'
     );
 });

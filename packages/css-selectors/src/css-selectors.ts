@@ -805,40 +805,33 @@ export const flatMapSelectors = (selectors: SelectorGroup, callbackFn: FlatMapSe
             selector
             .filter(isNotEmptySelectorEntry) // remove empty SelectorEntry(es) in Selector
             .flatMap((selectorEntry: SelectorEntry): Selector => { // mutates a (SimpleSelector|Combinator) to ([SimpleSelector]|Selector)
-                if (isSimpleSelector(selectorEntry)) {
-                    let callbackResult = callbackFn(selectorEntry);
-                    if (callbackResult === true) callbackResult = null;
-                    let replacement : SelectorEntry|Selector = callbackResult || selectorEntry;
+                const callbackResult = callbackFn(selectorEntry);
+                let replacement = (callbackResult === undefined) ? selectorEntry : callbackResult;
+                
+                
+                
+                if (replacement === selectorEntry) { // if has not been replaced by `callbackFn` (same by reference)
+                    const [
+                        selectorToken,
+                        selectorName,
+                        selectorParams,
+                    ] = selectorEntry;
                     
-                    
-                    
-                    if (replacement === selectorEntry) { // if has not been replaced by `callbackFn` (same by reference)
-                        const [
+                    if (selectorParams && isSelectors(selectorParams)) {
+                        const oldSelectors = selectorParams;
+                        const newSelectors = flatMapSelectors(oldSelectors, callbackFn); // recursively map the `oldSelectors`
+                        
+                        replacement = [
                             selectorToken,
                             selectorName,
-                            selectorParams,
-                        ] = selectorEntry;
-                        
-                        if (selectorParams && isSelectors(selectorParams)) {
-                            const oldSelectors = selectorParams;
-                            const newSelectors = flatMapSelectors(oldSelectors, callbackFn); // recursively map the `oldSelectors`
-                            
-                            replacement = [
-                                selectorToken,
-                                selectorName,
-                                newSelectors,
-                            ] as SimpleSelector;
-                        } // if
+                            newSelectors,
+                        ] as SimpleSelector;
                     } // if
-                    
-                    
-                    
-                    return isSelector(replacement) ? replacement /* as Selector */ : createSelector(replacement) /* createSelector(as SelectorEntry) as Selector */;
-                } // if SimpleSelector
+                } // if
                 
                 
                 
-                return createSelector(selectorEntry); /* createSelector(as Combinator) as Selector */
+                return isSelector(replacement) ? replacement /* as Selector */ : createSelector(replacement) /* createSelector(as SelectorEntry) as Selector */;
             })
         )
     );
