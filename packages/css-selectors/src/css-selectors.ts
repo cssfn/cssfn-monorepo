@@ -712,12 +712,25 @@ export const isNotEmptySelectorEntry = (selectorEntry: OptionalOrBoolean<Selecto
     */
    return !!selectorEntry && (selectorEntry !== true);
 }
-export const isSelector = (test: OptionalOrBoolean<SimpleSelector|Selector>): test is Selector => {
+export const isSelector = (test: OptionalOrBoolean<SelectorEntry|Selector>): test is Selector => {
     /*
-        SimpleSelector : [ SelectorToken, SelectorName, SelectorParams ]
-        Selector       : [ SimpleSelector...(SimpleSelector|Combinator)... ]
+        SelectorEntry  = SimpleSelector | Combinator
+        
+        Combinator     : string
+        SimpleSelector : [ SelectorToken, SelectorName, SelectorParams  ] => [ SelectorToken, SelectorName, SelectorParams ]
+        Selector       : [ SelectorEntry...SelectorEntry...             ] => [ (SimpleSelector|Combinator)...              ]
     */
-    return !!test && (test !== true) && ((typeof(test[0]) !== 'string') || combinatorList.includes(test[0])); // Selector : the first element (SelectorEntry) must be a NON-string (an array) -or- a string of Combinator
+    return (
+        !!test && (test !== true)   // filter out undefined|null|false|true
+        &&
+        (typeof(test) !== 'string') // filter out Combinator
+        &&
+        (
+            (typeof(test[0]) !== 'string')   // is SimpleSelector
+            ||
+            combinatorList.includes(test[0]) // is Combinator|SelectorToken => filter in Combinator
+        )
+    ); // Selector : the first element (SelectorEntry) must be a NON-string (an array) -or- a string of Combinator
 };
 export const isNotEmptySelector   = (selector  : OptionalOrBoolean<Selector     >): selector  is PureSelector      =>  !!selector  && (selector  !== true) &&  selector.some(  isNotEmptySelectorEntry);
 export const isNotEmptySelectors  = (selectors : OptionalOrBoolean<SelectorGroup>): selectors is PureSelectorGroup =>  !!selectors && (selectors !== true) && selectors.some(  isNotEmptySelector     );
@@ -792,7 +805,7 @@ export const selectorsToString      = (selectors: SelectorGroup): string => {
 
 
 // transforms:
-export type MapSelectorsCallback = (selector: SimpleSelector) => OptionalOrBoolean<SimpleSelector|Selector>
+export type MapSelectorsCallback = (selectorEntry: SelectorEntry) => OptionalOrBoolean<SelectorEntry|Selector>
 /**
  * Creates a new `SelectorGroup` populated with the results of calling a provided `callbackFn` on every `SimpleSelector` in the `selectors`.  
  * The nested `SimpleSelector` (if any) will also be passed to `callbackFn`.  
@@ -813,7 +826,7 @@ export const flatMapSelectors = (selectors: SelectorGroup, callbackFn: MapSelect
                 if (isSimpleSelector(selectorEntry)) {
                     let callbackResult = callbackFn(selectorEntry);
                     if (callbackResult === true) callbackResult = null;
-                    let replacement : SimpleSelector|Selector = callbackResult || selectorEntry;
+                    let replacement : SelectorEntry|Selector = callbackResult || selectorEntry;
                     
                     
                     
@@ -838,12 +851,12 @@ export const flatMapSelectors = (selectors: SelectorGroup, callbackFn: MapSelect
                     
                     
                     
-                    return isSelector(replacement) ? replacement /* as Selector */ : createSelector(replacement) /* createSelector(as SimpleSelector) as Selector */;
+                    return isSelector(replacement) ? replacement /* as Selector */ : createSelector(replacement) /* createSelector(as SelectorEntry) as Selector */;
                 } // if SimpleSelector
                 
                 
                 
-                return createSelector(selectorEntry);
+                return createSelector(selectorEntry); /* createSelector(as Combinator) as Selector */
             })
         )
     );
