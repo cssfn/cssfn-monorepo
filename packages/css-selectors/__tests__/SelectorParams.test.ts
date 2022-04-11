@@ -5,12 +5,19 @@ import {
     isSelectors,
     
     
+    
+    // SelectorEntry creates & tests:
     attrSelector,
     idSelector,
     classSelector,
     pseudoClassSelector,
     pseudoElementSelector,
+    
     combinator,
+    
+    
+    
+    // Selector creates & tests:
     selector,
     selectorGroup,
 } from '../src/css-selectors'

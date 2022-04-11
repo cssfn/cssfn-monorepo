@@ -17,12 +17,6 @@ import {
     pseudoClassSelector,
     PseudoElementSelector,
     pseudoElementSelector,
-    Combinator,
-    combinator,
-    Selector,
-    selector,
-    SelectorGroup,
-    selectorGroup,
     SimpleSelector,
     
     isSimpleSelector,
@@ -58,11 +52,21 @@ import {
     isPseudoElementSelectorOf,
     isElementOrPseudoElementSelectorOf,
     
+    Combinator,
+    combinator,
+    
     isCombinator,
     isCombinatorOf,
     
-    isNotEmptySelectorEntry,
     
+    
+    // Selector creates & tests:
+    Selector,
+    selector,
+    SelectorGroup,
+    selectorGroup,
+    
+    isNotEmptySelectorEntry,
     isSelector,
 } from '../src/css-selectors'
 

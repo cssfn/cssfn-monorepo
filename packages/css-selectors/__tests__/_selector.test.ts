@@ -1,14 +1,5 @@
 import {
     // SelectorEntry creates & tests:
-    ParentSelector,
-    parentSelector,
-    UniversalSelector,
-    universalSelector,
-    AttrSelector,
-    AttrSelectorParams,
-    attrSelector,
-    ElementSelector,
-    elementSelector,
     IdSelector,
     idSelector,
     ClassSelector,
@@ -17,54 +8,26 @@ import {
     pseudoClassSelector,
     PseudoElementSelector,
     pseudoElementSelector,
+    
     Combinator,
     combinator,
+    
+    
+    
+    // Selector creates & tests:
     Selector,
     selector,
     SelectorGroup,
     selectorGroup,
-    SimpleSelector,
-    
-    isSimpleSelector,
-    isParentSelector,
-    isUniversalSelector,
-    isAttrSelector,
-    isElementSelector,
-    isIdSelector,
-    isClassSelector,
-    isPseudoClassSelector,
-    isClassOrPseudoClassSelector,
-    isPseudoElementSelector,
-    isElementOrPseudoElementSelector,
-    
-    isNotSimpleSelector,
-    isNotParentSelector,
-    isNotUniversalSelector,
-    isNotAttrSelector,
-    isNotElementSelector,
-    isNotIdSelector,
-    isNotClassSelector,
-    isNotPseudoClassSelector,
-    isNotClassOrPseudoClassSelector,
-    isNotPseudoElementSelector,
-    isNotElementOrPseudoElementSelector,
-    
-    isAttrSelectorOf,
-    isElementSelectorOf,
-    isIdSelectorOf,
-    isClassSelectorOf,
-    isPseudoClassSelectorOf,
-    isClassOrPseudoClassSelectorOf,
-    isPseudoElementSelectorOf,
-    isElementOrPseudoElementSelectorOf,
-    
-    isCombinator,
-    isCombinatorOf,
-    
-    isNotEmptySelectorEntry,
     
     isSelector,
     isNotEmptySelector,
+    countSelectorEntries,
+    
+    
+    
+    // renders:
+    selectorToString,
 } from '../src/css-selectors'
 
 
@@ -475,6 +438,38 @@ allSampleStrangeSelectors.forEach((sampleSelector) => {
                 &&
                 (selectorEntry !== true)
             )
+        )
+    });
+});
+
+
+
+allBasicFalsies.forEach((basicFalsy) => {
+    test(`countSelectorEntries`, () => {
+        expect(countSelectorEntries(basicFalsy))
+        .toBe(0)
+    });
+});
+allSampleSelectors.forEach((sampleSelector) => {
+    test(`countSelectorEntries`, () => {
+        expect(countSelectorEntries(sampleSelector))
+        .toBe(sampleSelector.length)
+    });
+});
+allSampleStrangeSelectors.forEach((sampleSelector) => {
+    test(`countSelectorEntries`, () => {
+        expect(countSelectorEntries(sampleSelector))
+        .toBe(
+            sampleSelector.filter((selectorEntry) =>
+                (selectorEntry !== undefined)
+                &&
+                (selectorEntry !== null)
+                &&
+                (selectorEntry !== false)
+                &&
+                (selectorEntry !== true)
+            )
+            .length
         )
     });
 });
