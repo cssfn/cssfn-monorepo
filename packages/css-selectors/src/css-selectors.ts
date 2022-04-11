@@ -618,25 +618,16 @@ export const pseudoClassSelector                 = (className : SelectorName, pa
 };
 export const pseudoElementSelector               = (elmName   : SelectorName): PseudoElementSelector => requiredName(elmName  ) && [ '::' , elmName        /* no_param */ ];
 //#region aliases
-export const [
-    createParentSelector,
-    createUniversalSelector,
-    createAttrSelector,
-    createElementSelector,
-    createIdSelector,
-    createClassSelector,
-    createPseudoClassSelector,
-    createPseudoElementSelector,
-] = [
-    parentSelector,
-    universalSelector,
-    attrSelector,
-    elementSelector,
-    idSelector,
-    classSelector,
-    pseudoClassSelector,
-    pseudoElementSelector,
-];
+export {
+    parentSelector        as createParentSelector,
+    universalSelector     as createUniversalSelector,
+    attrSelector          as createAttrSelector,
+    elementSelector       as createElementSelector,
+    idSelector            as createIdSelector,
+    classSelector         as createClassSelector,
+    pseudoClassSelector   as createPseudoClassSelector,
+    pseudoElementSelector as createPseudoElementSelector,
+}
 //#endregion aliases
 
 export const isSimpleSelector                    = (selectorEntry: OptionalOrBoolean<SelectorEntry>): selectorEntry is SimpleSelector                          => !!selectorEntry && (selectorEntry !== true) && (typeof(selectorEntry) !== 'string');
@@ -674,11 +665,9 @@ export const isElementOrPseudoElementSelectorOf  = (selectorEntry: OptionalOrBoo
 
 export const combinator = (combinator: Combinator): Combinator => combinator;
 //#region aliases
-export const [
-    createCombinator,
-] = [
-    combinator,
-];
+export {
+    combinator as createCombinator,
+}
 //#endregion aliases
 
 export const isCombinator                        = (selectorEntry: OptionalOrBoolean<SelectorEntry>): selectorEntry is Combinator => (typeof(selectorEntry) === 'string');
@@ -690,19 +679,13 @@ export const pureSelector      = <TPureSelector      extends PureSelector      =
 export const selectorGroup     = <TSelectorGroup     extends SelectorGroup     = SelectorGroup    >(...selectors       : TSelectorGroup    ): TSelectorGroup     => selectors;
 export const pureSelectorGroup = <TPureSelectorGroup extends PureSelectorGroup = PureSelectorGroup>(...selectors       : TPureSelectorGroup): TPureSelectorGroup => selectors;
 //#region aliases
-export const [
-    createSelector,
-    createPureSelector,
-    
-    createSelectorGroup,
-    createPureSelectorGroup,
-] = [
-    selector,
-    pureSelector,
-    
-    selectorGroup,
-    pureSelectorGroup,
-];
+export {
+    selector          as createSelector,
+    pureSelector      as createPureSelector,
+    selectorGroup     as createSelectorGroup,
+    pureSelectorGroup as createPureSelectorGroup,
+}
+const createSelector = selector;
 //#endregion aliases
 
 export const isNotEmptySelectorEntry = (selectorEntry: OptionalOrBoolean<SelectorEntry>): selectorEntry is SelectorEntry => {
