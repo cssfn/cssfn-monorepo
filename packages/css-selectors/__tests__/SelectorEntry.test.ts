@@ -60,6 +60,8 @@ import {
     
     isCombinator,
     isCombinatorOf,
+    
+    isNotEmptySelectorEntry,
 } from '../src/css-selectors'
 
 
@@ -1606,5 +1608,26 @@ allSampleCombinators.forEach((sampleCombinator) => {
                 sampleCombinator === sampleCombinator2
             )
         });
+    });
+});
+
+
+
+[undefined, null, false, true].forEach((selectorfalsy) => {
+    test(`isNotEmptySelectorEntry`, () => {
+        expect(isNotEmptySelectorEntry(selectorfalsy))
+        .toBe(false)
+    });
+});
+allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
+    test(`isNotEmptySelectorEntry`, () => {
+        expect(isNotEmptySelectorEntry(sampleSimpleSelector))
+        .toBe(true)
+    });
+});
+allSampleCombinators.forEach((sampleCombinator) => {
+    test(`isNotEmptySelectorEntry`, () => {
+        expect(isNotEmptySelectorEntry(sampleCombinator))
+        .toBe(true)
     });
 });
