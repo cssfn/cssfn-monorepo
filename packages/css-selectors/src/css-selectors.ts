@@ -727,10 +727,7 @@ export const countSelectors       = (selectors : OptionalOrBoolean<SelectorGroup
 
 
 // renders:
-export const selectorParamsToString = (selectorParams: OptionalOrBoolean<SelectorParams>): string => {
-    if ((!selectorParams || (selectorParams === true)) && (selectorParams !== '')) return ''; // filter out undefined|null|false|true
-    // note: an empty string (selectorParams === '') is considered a valid WildParams
-    
+export const selectorParamsToString = (selectorParams: SelectorParams): string => {
     if (isWildParams(selectorParams)) {
         return `(${selectorParams})`;
     }
@@ -772,7 +769,7 @@ export const selectorToString       = (selector: Selector): string => {
                     return selectorParamsToString(selectorParams);
                 }
                 else {
-                    return `${selectorToken}${selectorName ?? ''}${selectorParamsToString(selectorParams)}`;
+                    return `${selectorToken}${selectorName ?? ''}${(selectorParams === undefined) ? '' : selectorParamsToString(selectorParams)}`;
                 } // if
             } // if SimpleSelector
             
