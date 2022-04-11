@@ -1653,3 +1653,9 @@ allSampleSimpleSelectors.forEach((sampleSimpleSelector) => {
         .toBe(false)
     });
 });
+allSampleCombinators.forEach((sampleCombinator) => {
+    test(`isSelector(Combinator)`, () => {
+        expect(isSelector(sampleCombinator))
+        .toBe(false)
+    });
+});
