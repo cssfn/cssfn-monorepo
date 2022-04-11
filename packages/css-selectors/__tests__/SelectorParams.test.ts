@@ -20,6 +20,11 @@ import {
     // Selector creates & tests:
     selector,
     selectorGroup,
+    
+    
+    
+    // renders:
+    selectorParamsToString,
 } from '../src/css-selectors'
 
 
@@ -1434,3 +1439,545 @@ test(`isSelectors(WildParams)`, () => {
 });
 //#endregion test with WildParams
 //#endregion test isSelectors(SelectorParams)
+
+
+
+//#region test selectorParamsToString(SelectorParams)
+test(`selectorParamsToString('')`, () => {
+    expect(selectorParamsToString(
+        '' /* empty param */
+    ))
+    .toBe(
+        '()'
+    );
+});
+
+//#region test with AttrSelectorParams
+test(`selectorParamsToString(AttrSelectorParams)`, () => {
+    expect(selectorParamsToString(
+        attrSelector('disabled')[2]
+    ))
+    .toBe(
+        '[disabled]'
+    );
+});
+test(`selectorParamsToString(AttrSelectorParams)`, () => {
+    expect(selectorParamsToString(
+        attrSelector('aria-role', '=', 'button')[2]
+    ))
+    .toBe(
+        '[aria-role="button"]'
+    );
+});
+test(`selectorParamsToString(AttrSelectorParams)`, () => {
+    expect(selectorParamsToString(
+        attrSelector('title', '~=', 'hello')[2]
+    ))
+    .toBe(
+        '[title~="hello"]'
+    );
+});
+test(`selectorParamsToString(AttrSelectorParams)`, () => {
+    expect(selectorParamsToString(
+        attrSelector('lang', '|=', 'en')[2]
+    ))
+    .toBe(
+        '[lang|="en"]'
+    );
+});
+test(`selectorParamsToString(AttrSelectorParams)`, () => {
+    expect(selectorParamsToString(
+        attrSelector('title', '^=', 'hello')[2]
+    ))
+    .toBe(
+        '[title^="hello"]'
+    );
+});
+test(`selectorParamsToString(AttrSelectorParams)`, () => {
+    expect(selectorParamsToString(
+        attrSelector('title', '$=', 'hello')[2]
+    ))
+    .toBe(
+        '[title$="hello"]'
+    );
+});
+test(`selectorParamsToString(AttrSelectorParams)`, () => {
+    expect(selectorParamsToString(
+        attrSelector('title', '*=', 'hello')[2]
+    ))
+    .toBe(
+        '[title*="hello"]'
+    );
+});
+test(`selectorParamsToString(AttrSelectorParams)`, () => {
+    expect(selectorParamsToString(
+        attrSelector('title', '=', 'hello', 'i')[2]
+    ))
+    .toBe(
+        '[title="hello" i]'
+    );
+});
+test(`selectorParamsToString(AttrSelectorParams)`, () => {
+    expect(selectorParamsToString(
+        attrSelector('title', '=', 'hello', 'I')[2]
+    ))
+    .toBe(
+        '[title="hello" I]'
+    );
+});
+test(`selectorParamsToString(AttrSelectorParams)`, () => {
+    expect(selectorParamsToString(
+        attrSelector('title', '=', 'hello', 's')[2]
+    ))
+    .toBe(
+        '[title="hello" s]'
+    );
+});
+test(`selectorParamsToString(AttrSelectorParams)`, () => {
+    expect(selectorParamsToString(
+        attrSelector('title', '=', 'hello', 'S')[2]
+    ))
+    .toBe(
+        '[title="hello" S]'
+    );
+});
+//#endregion test with AttrSelectorParams
+
+//#region test with SelectorGroup
+test(`selectorParamsToString(SelectorGroup)`, () => {
+    expect(selectorParamsToString(
+        selectorGroup(
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(
+        '(.boo, :foo(a+b), #bleh, ::charlie)'
+    );
+});
+test(`selectorParamsToString(SelectorGroup)`, () => {
+    expect(selectorParamsToString(
+        selectorGroup(
+            selector(
+                classSelector('boo'),
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(
+        '(.boo:foo(a+b), #bleh, ::charlie)'
+    );
+});
+test(`selectorParamsToString(SelectorGroup)`, () => {
+    expect(selectorParamsToString(
+        selectorGroup(
+            selector(
+                classSelector('boo'),
+                pseudoClassSelector('foo', 'a+b'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(
+        '(.boo:foo(a+b)#bleh, ::charlie)'
+    );
+});
+test(`selectorParamsToString(SelectorGroup)`, () => {
+    expect(selectorParamsToString(
+        selectorGroup(
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+                idSelector('bleh'),
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(
+        '(.boo, :foo(a+b)#bleh::charlie)'
+    );
+});
+test(`selectorParamsToString(SelectorGroup)`, () => {
+    expect(selectorParamsToString(
+        selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(
+        '(.boo :foo(a+b)>#bleh, ::charlie)'
+    );
+});
+test(`selectorParamsToString(SelectorGroup)`, () => {
+    expect(selectorParamsToString(
+        selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(
+        '(.boo :foo(a+b)>#bleh::charlie)'
+    );
+});
+test(`selectorParamsToString(SelectorGroup)`, () => {
+    expect(selectorParamsToString(
+        selectorGroup(
+            undefined,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(
+        '(.boo, :foo(a+b), #bleh, ::charlie)'
+    );
+});
+test(`selectorParamsToString(SelectorGroup)`, () => {
+    expect(selectorParamsToString(
+        selectorGroup(
+            null,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(
+        '(.boo, :foo(a+b), #bleh, ::charlie)'
+    );
+});
+test(`selectorParamsToString(SelectorGroup)`, () => {
+    expect(selectorParamsToString(
+        selectorGroup(
+            false,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(
+        '(.boo, :foo(a+b), #bleh, ::charlie)'
+    );
+});
+test(`selectorParamsToString(SelectorGroup)`, () => {
+    expect(selectorParamsToString(
+        selectorGroup(
+            true,
+            selector(
+                classSelector('boo'),
+            ),
+            selector(
+                pseudoClassSelector('foo', 'a+b'),
+            ),
+            selector(
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(
+        '(.boo, :foo(a+b), #bleh, ::charlie)'
+    );
+});
+test(`selectorParamsToString(SelectorGroup)`, () => {
+    expect(selectorParamsToString(
+        selectorGroup(
+            selector(
+                undefined,
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(
+        '(.boo :foo(a+b)>#bleh::charlie)'
+    );
+});
+test(`selectorParamsToString(SelectorGroup)`, () => {
+    expect(selectorParamsToString(
+        selectorGroup(
+            selector(
+                null,
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(
+        '(.boo :foo(a+b)>#bleh::charlie)'
+    );
+});
+test(`selectorParamsToString(SelectorGroup)`, () => {
+    expect(selectorParamsToString(
+        selectorGroup(
+            selector(
+                false,
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(
+        '(.boo :foo(a+b)>#bleh::charlie)'
+    );
+});
+test(`selectorParamsToString(SelectorGroup)`, () => {
+    expect(selectorParamsToString(
+        selectorGroup(
+            selector(
+                true,
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+                pseudoElementSelector('charlie'),
+            ),
+        )
+    ))
+    .toBe(
+        '(.boo :foo(a+b)>#bleh::charlie)'
+    );
+});
+['is', 'not', 'where', 'has'].forEach((group) => {
+    test(`selectorParamsToString(SelectorGroup)`, () => {
+        expect(selectorParamsToString(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                        ),
+                    ),
+                ),
+            ),
+        )))
+        .toBe(
+            `(.boo :foo(a+b)>#bleh, ::charlie, :${group}(.great))`
+        );
+    });
+    test(`selectorParamsToString(SelectorGroup)`, () => {
+        expect(selectorParamsToString(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            classSelector('okay'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                        ),
+                    ),
+                ),
+            ),
+        )))
+        .toBe(
+            `(.boo :foo(a+b)>#bleh, ::charlie, :${group}(.great.okay:valid, .awesome))`
+        );
+    });
+    test(`selectorParamsToString(SelectorGroup)`, () => {
+        expect(selectorParamsToString(selectorGroup(
+            selector(
+                classSelector('boo'),
+                combinator(' '),
+                pseudoClassSelector('foo', 'a+b'),
+                combinator('>'),
+                idSelector('bleh'),
+            ),
+            selector(
+                pseudoElementSelector('charlie'),
+            ),
+            selector(
+                pseudoClassSelector(group,
+                    selectorGroup(
+                        selector(
+                            classSelector('great'),
+                            combinator(' '),
+                            classSelector('okay'),
+                            combinator('>'),
+                            pseudoClassSelector('valid'),
+                        ),
+                        selector(
+                            classSelector('awesome'),
+                            combinator('+'),
+                            pseudoClassSelector('nth-child', '2n+3'),
+                        ),
+                    ),
+                ),
+            ),
+        )))
+        .toBe(
+            `(.boo :foo(a+b)>#bleh, ::charlie, :${group}(.great .okay>:valid, .awesome+:nth-child(2n+3)))`
+        );
+    });
+    ['is', 'not', 'where', 'has'].forEach((group2) => {
+        test(`selectorParamsToString(SelectorGroup)`, () => {
+            expect(selectorParamsToString(selectorGroup(
+                selector(
+                    classSelector('boo'),
+                    combinator(' '),
+                    pseudoClassSelector('foo', 'a+b'),
+                    combinator('>'),
+                    idSelector('bleh'),
+                ),
+                selector(
+                    pseudoElementSelector('charlie'),
+                ),
+                selector(
+                    pseudoClassSelector(group,
+                        selectorGroup(
+                            selector(
+                                classSelector('great'),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            idSelector('okay'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            selector(
+                                pseudoClassSelector(group2,
+                                    selectorGroup(
+                                        selector(
+                                            pseudoClassSelector('valid'),
+                                            pseudoClassSelector('first-child'),
+                                            combinator('>'),
+                                            pseudoClassSelector('nth-child', '2n+3'),
+                                        ),
+                                        selector(
+                                            pseudoElementSelector('backdrop'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            )))
+            .toBe(
+                `(.boo :foo(a+b)>#bleh, ::charlie, :${group}(.great, :${group2}(#okay), :${group2}(:valid:first-child>:nth-child(2n+3), ::backdrop)))`
+            );
+        });
+    });
+});
+//#endregion test with SelectorGroup
+
+//#region test with WildParams
+test(`selectorParamsToString(WildParams)`, () => {
+    expect(selectorParamsToString(
+        pseudoClassSelector('nth-child', '2n+3')[2]!
+    ))
+    .toBe(
+        '(2n+3)'
+    );
+});
+test(`selectorParamsToString(WildParams)`, () => {
+    expect(selectorParamsToString(
+        pseudoClassSelector('foo', '2n+(3a+b)+c+(de+fg)+((hi+(jk+lmn)))+opq')[2]!
+    ))
+    .toBe(
+        '(2n+(3a+b)+c+(de+fg)+((hi+(jk+lmn)))+opq)'
+    );
+});
+//#endregion test with WildParams
+//#endregion test selectorParamsToString(SelectorParams)
