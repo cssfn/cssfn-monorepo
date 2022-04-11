@@ -64,6 +64,7 @@ import {
     isNotEmptySelectorEntry,
     
     isSelector,
+    isNotEmptySelector,
 } from '../src/css-selectors'
 
 
@@ -397,6 +398,18 @@ const allSampleStrangeSelectors : Selector[] = [
         /* empty */
     ),
     selector(
+        undefined,
+        classSelector('boo'),
+        null,
+        combinator(' '),
+        false,
+        pseudoClassSelector('foo', 'a+b'),
+        true,
+        combinator('>'),
+        true,
+        idSelector('bleh'),
+    ),
+    selector(
         combinator('>'),
         classSelector('boo'),
         pseudoClassSelector('foo', 'a+b'),
@@ -432,5 +445,36 @@ allSampleStrangeSelectors.forEach((sampleSelector) => {
     test(`isSelector`, () => {
         expect(isSelector(sampleSelector))
         .toBe(true)
+    });
+});
+
+
+
+allBasicFalsies.forEach((basicFalsy) => {
+    test(`isNotEmptySelector`, () => {
+        expect(isNotEmptySelector(basicFalsy))
+        .toBe(false)
+    });
+});
+allSampleSelectors.forEach((sampleSelector) => {
+    test(`isNotEmptySelector`, () => {
+        expect(isNotEmptySelector(sampleSelector))
+        .toBe(true)
+    });
+});
+allSampleStrangeSelectors.forEach((sampleSelector) => {
+    test(`isNotEmptySelector`, () => {
+        expect(isNotEmptySelector(sampleSelector))
+        .toBe(
+            sampleSelector.some((selectorEntry) =>
+                (selectorEntry !== undefined)
+                &&
+                (selectorEntry !== null)
+                &&
+                (selectorEntry !== false)
+                &&
+                (selectorEntry !== true)
+            )
+        )
     });
 });
