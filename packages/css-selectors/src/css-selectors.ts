@@ -650,6 +650,7 @@ export const isClassOrPseudoClassSelector        = (selectorEntry: OptionalOrBoo
 export const isPseudoElementSelector             = (selectorEntry: OptionalOrBoolean<SelectorEntry>): selectorEntry is PseudoElementSelector                   => isSimpleSelector(selectorEntry) && (selectorEntry?.[0] === '::');
 export const isElementOrPseudoElementSelector    = (selectorEntry: OptionalOrBoolean<SelectorEntry>): selectorEntry is ElementSelector | PseudoElementSelector => isSimpleSelector(selectorEntry) && ['', '::'].includes(selectorEntry?.[0]);
 
+export const isNotSimpleSelector                 = (selectorEntry: OptionalOrBoolean<SelectorEntry>) => !isSimpleSelector(selectorEntry);
 export const isNotParentSelector                 = (selectorEntry: OptionalOrBoolean<SelectorEntry>) => !isParentSelector(selectorEntry);
 export const isNotUniversalSelector              = (selectorEntry: OptionalOrBoolean<SelectorEntry>) => !isUniversalSelector(selectorEntry);
 export const isNotAttrSelector                   = (selectorEntry: OptionalOrBoolean<SelectorEntry>) => !isAttrSelector(selectorEntry);
