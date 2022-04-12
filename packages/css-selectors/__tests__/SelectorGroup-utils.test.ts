@@ -10,25 +10,16 @@ import {
     
     
     // SelectorEntry creates & tests:
-    parentSelector,
-    universalSelector,
-    attrSelector,
     elementSelector,
-    idSelector,
     classSelector,
     pseudoClassSelector,
-    pseudoElementSelector,
     
     isParentSelector,
     
     isAttrSelectorOf,
     isElementSelectorOf,
-    isIdSelectorOf,
     isClassSelectorOf,
     isPseudoClassSelectorOf,
-    isClassOrPseudoClassSelectorOf,
-    isPseudoElementSelectorOf,
-    isElementOrPseudoElementSelectorOf,
     
     combinator,
     
@@ -37,13 +28,8 @@ import {
     
     
     // Selector creates & tests:
-    Selector,
     selector,
-    SelectorGroup,
     selectorGroup,
-    
-    isNotEmptySelectors,
-    countSelectors,
     
     
     
@@ -1152,6 +1138,18 @@ groupList.forEach((group) => {
         {
             selector    : `:${group}(::backdrop[title="you & me"])`,
             specificity : isZeroSpecificity ? zeroSpecificity : [0, 1, 1],
+        },
+        {
+            selector    : `:${group}(.ultra :deep #field+:nth-child(2n+3), #this:is(#very .exciting .thing))`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [2, 2, 0], // max([1.3.0], [2.2.0]) === [2.2.0]
+        },
+        {
+            selector    : `:${group}(&>.sub+next, .ultra&:deep #field+:nth-child(2n+3), #this:is(#very&.exciting>.thing))`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [2, 2, 0], // max([0.1.1], [1.3.0], [2.2.0]) === [2.2.0]
+        },
+        {
+            selector    : `:${group}(&>.sub+next, .ultra&:deep #field+:nth-child(2n+3), #this:is(#very&.exciting>.thing), #this:is(#very#specific#thing#ever))`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [5, 0, 0], // max([0.1.1], [1.3.0], [2.2.0], [5.0.0]) === [5.0.0]
         },
     ];
     tests.forEach(({ selector, specificity }) => {
