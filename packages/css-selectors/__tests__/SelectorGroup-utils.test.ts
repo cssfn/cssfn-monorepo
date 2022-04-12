@@ -48,8 +48,8 @@ import {
     
     
     // transforms:
-    FlatMapSelectorsCallback,
-    flatMapSelectors,
+    ReplaceSelectorsCallback,
+    replaceSelectors,
     GroupSelectorOptions,
     groupSelectors,
     groupSelector,
@@ -59,14 +59,14 @@ import {
 
 
 
-const replaceDivToSpan: FlatMapSelectorsCallback = (selectorEntry) => {
+const replaceDivToSpan: ReplaceSelectorsCallback = (selectorEntry) => {
     if (isElementSelectorOf(selectorEntry, 'div')) {
         return elementSelector('span');
     } // if
     
     return selectorEntry;
 };
-const replaceExpensiveToVeryCheap: FlatMapSelectorsCallback = (selectorEntry) => {
+const replaceExpensiveToVeryCheap: ReplaceSelectorsCallback = (selectorEntry) => {
     if (isClassSelectorOf(selectorEntry, 'expensive')) {
         return selector(
             classSelector('very'),
@@ -76,7 +76,7 @@ const replaceExpensiveToVeryCheap: FlatMapSelectorsCallback = (selectorEntry) =>
     
     return selectorEntry;
 };
-const removeUnusedThingGarbage: FlatMapSelectorsCallback = (selectorEntry) => {
+const removeUnusedThingGarbage: ReplaceSelectorsCallback = (selectorEntry) => {
     if (isClassSelectorOf(selectorEntry, 'unused')) {
         return null;
     } // if
@@ -89,17 +89,17 @@ const removeUnusedThingGarbage: FlatMapSelectorsCallback = (selectorEntry) => {
     
     return selectorEntry;
 };
-const doNotMutate: FlatMapSelectorsCallback = (selectorEntry) => {
+const doNotMutate: ReplaceSelectorsCallback = (selectorEntry) => {
     return undefined;
 };
-const replaceDescendantsToChildren: FlatMapSelectorsCallback = (selectorEntry) => {
+const replaceDescendantsToChildren: ReplaceSelectorsCallback = (selectorEntry) => {
     if (isCombinatorOf(selectorEntry, ' ')) {
         return combinator('>');
     } // if
     
     return selectorEntry;
 };
-const replaceDescendantsWithWrapper: FlatMapSelectorsCallback = (selectorEntry) => {
+const replaceDescendantsWithWrapper: ReplaceSelectorsCallback = (selectorEntry) => {
     if (isCombinatorOf(selectorEntry, ' ')) {
         return selector(
             combinator('>'),
@@ -110,7 +110,7 @@ const replaceDescendantsWithWrapper: FlatMapSelectorsCallback = (selectorEntry) 
     
     return selectorEntry;
 };
-const replaceParentWithRealParent: FlatMapSelectorsCallback = (selectorEntry) => {
+const replaceParentWithRealParent: ReplaceSelectorsCallback = (selectorEntry) => {
     if (isParentSelector(selectorEntry)) {
         return selector(
             classSelector('parent'),
@@ -123,8 +123,8 @@ const replaceParentWithRealParent: FlatMapSelectorsCallback = (selectorEntry) =>
 
 
 
-test(`flatMapSelectors(empty)`, () => {
-    expect(selectorsToString(flatMapSelectors(
+test(`replaceSelectors(empty)`, () => {
+    expect(selectorsToString(replaceSelectors(
         selectorGroup(
             /* empty */
         ),
@@ -134,8 +134,8 @@ test(`flatMapSelectors(empty)`, () => {
         ''
     );
 });
-test(`flatMapSelectors(empty)`, () => {
-    expect(selectorsToString(flatMapSelectors(
+test(`replaceSelectors(empty)`, () => {
+    expect(selectorsToString(replaceSelectors(
         selectorGroup(
             selector(
                 /* empty */
@@ -147,8 +147,8 @@ test(`flatMapSelectors(empty)`, () => {
         ''
     );
 });
-test(`flatMapSelectors(empty)`, () => {
-    expect(selectorsToString(flatMapSelectors(
+test(`replaceSelectors(empty)`, () => {
+    expect(selectorsToString(replaceSelectors(
         selectorGroup(
             selector(
                 /* empty */
@@ -166,8 +166,8 @@ test(`flatMapSelectors(empty)`, () => {
         ''
     );
 });
-test(`flatMapSelectors(falsy)`, () => {
-    expect(selectorsToString(flatMapSelectors(
+test(`replaceSelectors(falsy)`, () => {
+    expect(selectorsToString(replaceSelectors(
         selectorGroup(
             undefined,
             selector(
@@ -192,8 +192,8 @@ test(`flatMapSelectors(falsy)`, () => {
         ''
     );
 });
-test(`flatMapSelectors(falsy)`, () => {
-    expect(selectorsToString(flatMapSelectors(
+test(`replaceSelectors(falsy)`, () => {
+    expect(selectorsToString(replaceSelectors(
         selectorGroup(
             undefined,
             selector(
@@ -218,8 +218,8 @@ test(`flatMapSelectors(falsy)`, () => {
         ''
     );
 });
-test(`flatMapSelectors(falsy)`, () => {
-    expect(selectorsToString(flatMapSelectors(
+test(`replaceSelectors(falsy)`, () => {
+    expect(selectorsToString(replaceSelectors(
         selectorGroup(
             undefined,
             null,
@@ -232,8 +232,8 @@ test(`flatMapSelectors(falsy)`, () => {
         ''
     );
 });
-test(`flatMapSelectors(falsy)`, () => {
-    expect(selectorsToString(flatMapSelectors(
+test(`replaceSelectors(falsy)`, () => {
+    expect(selectorsToString(replaceSelectors(
         selectorGroup(
             selector(
                 undefined,
@@ -254,8 +254,8 @@ test(`flatMapSelectors(falsy)`, () => {
         ''
     );
 });
-test(`flatMapSelectors(falsy)`, () => {
-    expect(selectorsToString(flatMapSelectors(
+test(`replaceSelectors(falsy)`, () => {
+    expect(selectorsToString(replaceSelectors(
         selectorGroup(
             undefined,
             null,
@@ -291,8 +291,8 @@ test(`flatMapSelectors(falsy)`, () => {
 
 
 
-test(`flatMapSelectors()`, () => {
-    expect(selectorsToString(flatMapSelectors(
+test(`replaceSelectors()`, () => {
+    expect(selectorsToString(replaceSelectors(
         parseSelectors(
             '.product>div>:first-child'
         )!,
@@ -302,8 +302,8 @@ test(`flatMapSelectors()`, () => {
         '.product>span>:first-child'
     );
 });
-test(`flatMapSelectors()`, () => {
-    expect(selectorsToString(flatMapSelectors(
+test(`replaceSelectors()`, () => {
+    expect(selectorsToString(replaceSelectors(
         parseSelectors(
             '.product.expensive>#list'
         )!,
@@ -313,8 +313,8 @@ test(`flatMapSelectors()`, () => {
         '.product.very.cheap>#list'
     );
 });
-test(`flatMapSelectors()`, () => {
-    expect(selectorsToString(flatMapSelectors(
+test(`replaceSelectors()`, () => {
+    expect(selectorsToString(replaceSelectors(
         parseSelectors(
             '.product.unused>#some[thing="bleh"]:valid+:garbage:first-child'
         )!,
@@ -324,8 +324,8 @@ test(`flatMapSelectors()`, () => {
         '.product>#some:valid+:first-child'
     );
 });
-test(`flatMapSelectors()`, () => {
-    expect(selectorsToString(flatMapSelectors(
+test(`replaceSelectors()`, () => {
+    expect(selectorsToString(replaceSelectors(
         parseSelectors(
             '.product.unused>#some[thing="bleh"]:valid+:garbage:first-child'
         )!,
@@ -335,8 +335,8 @@ test(`flatMapSelectors()`, () => {
         '.product.unused>#some[thing="bleh"]:valid+:garbage:first-child'
     );
 });
-test(`flatMapSelectors()`, () => {
-    expect(selectorsToString(flatMapSelectors(
+test(`replaceSelectors()`, () => {
+    expect(selectorsToString(replaceSelectors(
         parseSelectors(
             '.ultra :deep #field+:nth-child(2n+3), #this:is(#very .exciting .thing, ::backdrop+:hover)'
         )!,
@@ -346,8 +346,8 @@ test(`flatMapSelectors()`, () => {
         '.ultra>:deep>#field+:nth-child(2n+3), #this:is(#very>.exciting>.thing, ::backdrop+:hover)'
     );
 });
-test(`flatMapSelectors()`, () => {
-    expect(selectorsToString(flatMapSelectors(
+test(`replaceSelectors()`, () => {
+    expect(selectorsToString(replaceSelectors(
         parseSelectors(
             '.ultra :deep #field+:nth-child(2n+3), #this:is(#very .exciting .thing, ::backdrop+:hover)'
         )!,
@@ -357,8 +357,8 @@ test(`flatMapSelectors()`, () => {
         '.ultra>.wrapper>:deep>.wrapper>#field+:nth-child(2n+3), #this:is(#very>.wrapper>.exciting>.wrapper>.thing, ::backdrop+:hover)'
     );
 });
-test(`flatMapSelectors()`, () => {
-    expect(selectorsToString(flatMapSelectors(
+test(`replaceSelectors()`, () => {
+    expect(selectorsToString(replaceSelectors(
         parseSelectors(
             '&>.sub+next, .ultra&:deep #field+:nth-child(2n+3), #this:is(#very&.exciting>.thing, ::backdrop[title="you & me"])'
         )!,

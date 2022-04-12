@@ -788,7 +788,7 @@ export const selectorsToString      = (selectors: SelectorGroup): string => {
 
 
 // transforms:
-export type FlatMapSelectorsCallback = (selectorEntry: SelectorEntry) => OptionalOrBoolean<SelectorEntry|Selector>
+export type ReplaceSelectorsCallback = (selectorEntry: SelectorEntry) => OptionalOrBoolean<SelectorEntry|Selector>
 /**
  * Creates a new `SelectorGroup` populated with the results of calling a provided `callbackFn` on every `SelectorEntry` in the `selectors`.  
  * The nested `SelectorEntry` (if any) will also be passed to `callbackFn`.  
@@ -797,7 +797,7 @@ export type FlatMapSelectorsCallback = (selectorEntry: SelectorEntry) => Optiona
  * Each time `callbackFn` executes, the returned value is added to the output `SelectorGroup`.
  * @returns The output `SelectorGroup`.
  */
-export const flatMapSelectors = (selectors: SelectorGroup, callbackFn: FlatMapSelectorsCallback): SelectorGroup => {
+export const replaceSelectors = (selectors: SelectorGroup, callbackFn: ReplaceSelectorsCallback): SelectorGroup => {
     return (
         selectors
         .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
@@ -819,7 +819,7 @@ export const flatMapSelectors = (selectors: SelectorGroup, callbackFn: FlatMapSe
                     
                     if (selectorParams && isSelectors(selectorParams)) {
                         const oldSelectors = selectorParams;
-                        const newSelectors = flatMapSelectors(oldSelectors, callbackFn); // recursively map the `oldSelectors`
+                        const newSelectors = replaceSelectors(oldSelectors, callbackFn); // recursively map the `oldSelectors`
                         
                         replacement = [
                             selectorToken,
@@ -836,7 +836,6 @@ export const flatMapSelectors = (selectors: SelectorGroup, callbackFn: FlatMapSe
         )
     );
 };
-export { flatMapSelectors as replaceSelectors }
 
 // groups:
 export interface GroupSelectorOptions {

@@ -1,5 +1,6 @@
 const whitespaceList = [' ', '\n', '\r', '\t', '\f', '\v'];
 const specialPseudoClassList = ['is', 'not', 'where', 'has'];
+const combinatorList = [' ', '>', '~', '+'];
 // parses:
 export const parseSelectors = (expressions) => {
     const expression = [expressions].flat(Infinity).filter((exp) => !!exp && (exp !== true)).join(',');
@@ -7,6 +8,9 @@ export const parseSelectors = (expressions) => {
     let pos = 0;
     const isEof = () => {
         return (pos >= expressionLength);
+    };
+    const isWhitespace = () => {
+        return whitespaceList.includes(expression[pos]);
     };
     const skipWhitespace = () => {
         while (!isEof() && whitespaceList.includes(expression[pos]))
@@ -179,6 +183,11 @@ export const parseSelectors = (expressions) => {
             } while (nextSequence);
             //#endregion SelectorSequence
         } // while
+        if (!selector.length) {
+            pos = originPos;
+            return null;
+        }
+        ; // syntax error: no any simpleSelector => revert changes & return null
         return selector;
     };
     const eatComma = () => {
@@ -205,9 +214,9 @@ export const parseSelectors = (expressions) => {
         pos++;
         return true; // move forward & return true
     };
-    const eatNonBrackets = () => {
+    const eatNonBracketsOrSpaces = () => {
         const originPos = pos;
-        while (!isEof() && (expression[pos] !== '(') && (expression[pos] !== ')'))
+        while (!isEof() && !isWhitespace() && (expression[pos] !== '(') && (expression[pos] !== ')'))
             pos++; // move forward until unmatch
         if (pos === originPos)
             return false; // pos was not moved => nothing to eat => no changes made & return false
@@ -231,27 +240,47 @@ export const parseSelectors = (expressions) => {
             } // syntax error: missing selector => revert changes & return null
             selectors.push(selector);
         } // while
+        if (!selectors.length) {
+            pos = originPos;
+            return null;
+        }
+        ; // syntax error: no any selector => revert changes & return null
         return selectors;
     };
     const parseWildParams = () => {
         const originPos = pos;
         if (!eatOpeningBracket())
             return null; // syntax error: missing `(` => no changes made & return null
+        skipWhitespace();
+        const taken = [];
         while (!isEof()) {
-            let eaten = eatNonBrackets();
+            //#region eat non_nested value
+            const startPos = pos;
+            let eaten = eatNonBracketsOrSpaces();
+            if (eaten) {
+                const endPos = pos;
+                taken.push(expression.slice(startPos, endPos));
+                skipWhitespace();
+            } // if
+            //#endregion eat non_nested value
+            // -or- //
+            //#region eat nested value
             const nestedWildParams = parseWildParams();
             if (nestedWildParams !== null) {
                 eaten = true;
-                eatNonBrackets();
+                taken.push('(', nestedWildParams, ')');
+                skipWhitespace();
             } // if
+            //#endregion eat nested value
             if (!eaten)
                 break; // nothing more to eat => break
         } // while
+        skipWhitespace();
         if (!eatClosingBracket()) {
             pos = originPos;
             return null;
         } // syntax error: missing `)` => revert changes & return null
-        return expression.slice(originPos + 1, pos - 1);
+        return taken.join('');
     };
     const parseSelectorParams = () => {
         const originPos = pos;
@@ -405,8 +434,12 @@ export const parseSelectors = (expressions) => {
         } // if
     };
     const allSelectors = parseSelectors();
-    if (!allSelectors)
-        return null; // syntax error: no recognized selector(s)
+    skipWhitespace();
+    if (!allSelectors) {
+        if (isEof())
+            return []; // empty selector
+        return null; // syntax error: not all expression are valid selector
+    } // if
     if (!isEof())
         return null; // syntax error: not all expression are valid selector
     return allSelectors;
@@ -421,10 +454,10 @@ export const isAttrSelectorParams = (selectorParams) => {
         &&
             /*
                 AttrSelectorParams : readonly array : [ AttrSelectorName, AttrSelectorOperator, AttrSelectorValue, AttrSelectorOptions ]
-                SelectorList       : mutable  array : [ undefined|null|false...Selector...Selector...[undefined|null|false...SimpleSelector|Combinator]... ]
+                SelectorGroup      : mutable  array : [ undefined|null|false|true...Selector...Selector...[undefined|null|false|true...SimpleSelector|Combinator]... ]
                 
-                [0]                : AttrSelectorName | undefined|null|false | Selector
-                [0]                : -----string----- | -------others------- | -array--
+                [0]                : AttrSelectorName | undefined|null|false|true | Selector
+                [0]                : -----string----- | ---------others---------- | -array--
             */
             (typeof (selectorParams[0]) === 'string') // AttrSelectorParams : the first element (AttrSelectorName) must be a string
     );
@@ -434,12 +467,12 @@ export const isSelectors = (selectorParams) => {
         &&
             /*
                 AttrSelectorParams : readonly array : [ AttrSelectorName, AttrSelectorOperator, AttrSelectorValue, AttrSelectorOptions ]
-                SelectorList       : mutable  array : [ undefined|null|false...Selector...Selector...[undefined|null|false...SimpleSelector|Combinator]... ]
+                SelectorGroup      : mutable  array : [ undefined|null|false|true...Selector...Selector...[undefined|null|false|true...SimpleSelector|Combinator]... ]
                 
-                [0]                : AttrSelectorName | undefined|null|false | Selector
-                [0]                : -----string----- | -------others------- | -array--
+                [0]                : AttrSelectorName | undefined|null|false|true | Selector
+                [0]                : -----string----- | ---------others---------- | -array--
             */
-            (typeof (selectorParams[0]) !== 'string') // SelectorList : the first element (Selector) must be a NON-string or undefined|null|false
+            (typeof (selectorParams[0]) !== 'string') // SelectorGroup : the first element (Selector) must be a NON-string (an array) or undefined|null|false|true
     );
 };
 // SelectorEntry creates & tests:
@@ -508,16 +541,7 @@ export const pseudoClassSelector = (className, params) => {
 };
 export const pseudoElementSelector = (elmName) => requiredName(elmName) && ['::', elmName /* no_param */];
 //#region aliases
-export const [createParentSelector, createUniversalSelector, createAttrSelector, createElementSelector, createIdSelector, createClassSelector, createPseudoClassSelector, createPseudoElementSelector,] = [
-    parentSelector,
-    universalSelector,
-    attrSelector,
-    elementSelector,
-    idSelector,
-    classSelector,
-    pseudoClassSelector,
-    pseudoElementSelector,
-];
+export { parentSelector as createParentSelector, universalSelector as createUniversalSelector, attrSelector as createAttrSelector, elementSelector as createElementSelector, idSelector as createIdSelector, classSelector as createClassSelector, pseudoClassSelector as createPseudoClassSelector, pseudoElementSelector as createPseudoElementSelector, };
 //#endregion aliases
 export const isSimpleSelector = (selectorEntry) => !!selectorEntry && (selectorEntry !== true) && (typeof (selectorEntry) !== 'string');
 export const isParentSelector = (selectorEntry) => isSimpleSelector(selectorEntry) && (selectorEntry?.[0] === '&');
@@ -530,6 +554,7 @@ export const isPseudoClassSelector = (selectorEntry) => isSimpleSelector(selecto
 export const isClassOrPseudoClassSelector = (selectorEntry) => isSimpleSelector(selectorEntry) && ['.', ':'].includes(selectorEntry?.[0]);
 export const isPseudoElementSelector = (selectorEntry) => isSimpleSelector(selectorEntry) && (selectorEntry?.[0] === '::');
 export const isElementOrPseudoElementSelector = (selectorEntry) => isSimpleSelector(selectorEntry) && ['', '::'].includes(selectorEntry?.[0]);
+export const isNotSimpleSelector = (selectorEntry) => !isSimpleSelector(selectorEntry);
 export const isNotParentSelector = (selectorEntry) => !isParentSelector(selectorEntry);
 export const isNotUniversalSelector = (selectorEntry) => !isUniversalSelector(selectorEntry);
 export const isNotAttrSelector = (selectorEntry) => !isAttrSelector(selectorEntry);
@@ -550,24 +575,18 @@ export const isPseudoElementSelectorOf = (selectorEntry, elmName) => isPseudoEle
 export const isElementOrPseudoElementSelectorOf = (selectorEntry, elmName) => isElementOrPseudoElementSelector(selectorEntry) && [elmName].flat().includes(selectorEntry?.[1]); // [ ''|'::' , elmName   ]
 export const combinator = (combinator) => combinator;
 //#region aliases
-export const [createCombinator,] = [
-    combinator,
-];
+export { combinator as createCombinator, };
 //#endregion aliases
 export const isCombinator = (selectorEntry) => (typeof (selectorEntry) === 'string');
 export const isCombinatorOf = (selectorEntry, combinator) => isCombinator(selectorEntry) && [combinator].flat().includes(selectorEntry);
 // SimpleSelector & Selector creates & tests:
 export const selector = (...selectorEntries) => selectorEntries;
 export const pureSelector = (...selectorEntries) => selectorEntries;
-export const selectorList = (...selectors) => selectors;
-export const pureSelectorList = (...selectors) => selectors;
+export const selectorGroup = (...selectors) => selectors;
+export const pureSelectorGroup = (...selectors) => selectors;
 //#region aliases
-export const [createSelector, createPureSelector, createSelectorList, createPureSelectorList,] = [
-    selector,
-    pureSelector,
-    selectorList,
-    pureSelectorList,
-];
+export { selector as createSelector, pureSelector as createPureSelector, selectorGroup as createSelectorGroup, pureSelectorGroup as createPureSelectorGroup, };
+const createSelector = selector;
 //#endregion aliases
 export const isNotEmptySelectorEntry = (selectorEntry) => {
     /*
@@ -578,10 +597,20 @@ export const isNotEmptySelectorEntry = (selectorEntry) => {
 };
 export const isSelector = (test) => {
     /*
-        SimpleSelector : [ SelectorToken, SelectorName, SelectorParams ]
-        Selector       : [ SimpleSelector...(SimpleSelector|Combinator)... ]
+        SelectorEntry  = SimpleSelector | Combinator
+        
+        Combinator     : string
+        SimpleSelector : [ SelectorToken, SelectorName, SelectorParams  ] => [ SelectorToken, SelectorName, SelectorParams ]
+        Selector       : [ SelectorEntry...SelectorEntry...             ] => [ (SimpleSelector|Combinator)...              ]
     */
-    return !!test && (test !== true) && (typeof (test[0]) !== 'string'); // Selector : the first element (SelectorEntry) must be a NON-string, the Combinator is guaranteed NEVER be the first element
+    return (!!test && (test !== true) // filter out undefined|null|false|true
+        &&
+            (typeof (test) !== 'string') // filter out Combinator
+        &&
+            ((typeof (test[0]) !== 'string') // is SimpleSelector
+                ||
+                    combinatorList.includes(test[0]) // is Combinator|SelectorToken => filter in Combinator
+            )); // Selector : the first element (SelectorEntry) must be a NON-string (an array) -or- a string of Combinator
 };
 export const isNotEmptySelector = (selector) => !!selector && (selector !== true) && selector.some(isNotEmptySelectorEntry);
 export const isNotEmptySelectors = (selectors) => !!selectors && (selectors !== true) && selectors.some(isNotEmptySelector);
@@ -589,9 +618,6 @@ export const countSelectorEntries = (selector) => (!!selector && (selector !== t
 export const countSelectors = (selectors) => (!!selectors && (selectors !== true) && selectors.filter(isNotEmptySelector).length) || 0;
 // renders:
 export const selectorParamsToString = (selectorParams) => {
-    if ((!selectorParams || (selectorParams === true)) && (selectorParams !== ''))
-        return ''; // filter out undefined|null|false
-    // note: an empty string (selectorParams === '') is considered a valid WildParams
     if (isWildParams(selectorParams)) {
         return `(${selectorParams})`;
     }
@@ -621,7 +647,7 @@ export const selectorToString = (selector) => {
                 return selectorParamsToString(selectorParams);
             }
             else {
-                return `${selectorToken}${selectorName ?? ''}${selectorParamsToString(selectorParams)}`;
+                return `${selectorToken}${selectorName ?? ''}${(selectorParams === undefined) ? '' : selectorParamsToString(selectorParams)}`;
             } // if
         } // if SimpleSelector
         return selectorEntry;
@@ -630,78 +656,71 @@ export const selectorToString = (selector) => {
 };
 export const selectorsToString = (selectors) => {
     return (selectors
-        .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorList, we don't want to join some rendered empty string '' => `.boo , , #foo`
+        .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup, we don't want to join some rendered empty string '' => `.boo , , #foo`
         .map(selectorToString)
         .join(', '));
 };
 /**
- * Creates a new `SelectorList` populated with the results of calling a provided `callbackFn` on every `SimpleSelector` in the `selectors`.
- * The nested `SimpleSelector` (if any) will also be passed to `callbackFn`.
- * The `Combinator` and its nested (if any) will not be passed to `callbackFn`.
- * @param selectors The input `SelectorList`.
- * @param callbackFn A function that is called for every `SimpleSelector` in the `selectors`.
- * Each time `callbackFn` executes, the returned value is added to the output `SelectorList`.
- * @returns The output `SelectorList`.
+ * Creates a new `SelectorGroup` populated with the results of calling a provided `callbackFn` on every `SelectorEntry` in the `selectors`.
+ * The nested `SelectorEntry` (if any) will also be passed to `callbackFn`.
+ * @param selectors The input `SelectorGroup`.
+ * @param callbackFn A function that is called for every `SelectorEntry` in the `selectors`.
+ * Each time `callbackFn` executes, the returned value is added to the output `SelectorGroup`.
+ * @returns The output `SelectorGroup`.
  */
-export const flatMapSelectors = (selectors, callbackFn) => {
+export const replaceSelectors = (selectors, callbackFn) => {
     return (selectors
-        .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorList
+        .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
         .map((selector) => // mutates a `Selector` to another `Selector`
      selector
         .filter(isNotEmptySelectorEntry) // remove empty SelectorEntry(es) in Selector
         .flatMap((selectorEntry) => {
-        if (isSimpleSelector(selectorEntry)) {
-            let callbackResult = callbackFn(selectorEntry);
-            if (callbackResult === true)
-                callbackResult = null;
-            let replacement = callbackResult || selectorEntry;
-            if (replacement === selectorEntry) { // if has not been replaced by `callbackFn` (same by reference)
-                const [selectorToken, selectorName, selectorParams,] = selectorEntry;
-                if (selectorParams && isSelectors(selectorParams)) {
-                    const oldSelectors = selectorParams;
-                    const newSelectors = flatMapSelectors(oldSelectors, callbackFn); // recursively map the `oldSelectors`
-                    replacement = [
-                        selectorToken,
-                        selectorName,
-                        newSelectors,
-                    ];
-                } // if
+        const callbackResult = callbackFn(selectorEntry);
+        let replacement = (callbackResult === undefined) ? selectorEntry : callbackResult;
+        if (replacement === selectorEntry) { // if has not been replaced by `callbackFn` (same by reference)
+            const [selectorToken, selectorName, selectorParams,] = selectorEntry;
+            if (selectorParams && isSelectors(selectorParams)) {
+                const oldSelectors = selectorParams;
+                const newSelectors = replaceSelectors(oldSelectors, callbackFn); // recursively map the `oldSelectors`
+                replacement = [
+                    selectorToken,
+                    selectorName,
+                    newSelectors,
+                ];
             } // if
-            return isSelector(replacement) ? replacement /* as Selector */ : createSelector(replacement) /* createSelector(as SimpleSelector) as Selector */;
-        } // if SimpleSelector
-        return createSelector(selectorEntry);
+        } // if
+        return isSelector(replacement) ? replacement /* as Selector */ : createSelector(replacement) /* createSelector(as SelectorEntry) as Selector */;
     })));
 };
-export { flatMapSelectors as mutateSelectors };
 const defaultGroupSelectorOptions = {
     selectorName: 'is',
     cancelGroupIfSingular: false
 };
 export const groupSelectors = (selectors, options = defaultGroupSelectorOptions) => {
     if (!isNotEmptySelectors(selectors))
-        return pureSelectorList(selector(...[] // an empty Selector
-        )); // empty selectors => nothing to group => return a SelectorList with an empty Selector
+        return pureSelectorGroup(selector(...[] // an empty Selector
+        )); // empty selectors => nothing to group => return a SelectorGroup with an empty Selector
     const selectorsWithoutPseudoElm = selectors.filter(isNotEmptySelector).filter((selector) => selector.every(isNotPseudoElementSelector)); // not contain ::pseudo-element
     const selectorsOnlyPseudoElm = selectors.filter(isNotEmptySelector).filter((selector) => selector.some(isPseudoElementSelector)); // do  contain ::pseudo-element
     if (!isNotEmptySelectors(selectorsWithoutPseudoElm))
-        return pureSelectorList(selector(...[] // an empty Selector
-        ), ...selectorsOnlyPseudoElm); // empty selectors => nothing to group => return a SelectorList with an empty Selector
+        return pureSelectorGroup(selector(...[] // an empty Selector
+        ), ...selectorsOnlyPseudoElm); // empty selectors => nothing to group => return a SelectorGroup with an empty Selector
     const { selectorName: targetSelectorName = defaultGroupSelectorOptions.selectorName, cancelGroupIfSingular = defaultGroupSelectorOptions.cancelGroupIfSingular, } = options;
-    return pureSelectorList(((cancelGroupIfSingular && (selectorsWithoutPseudoElm.length < 2))
+    return pureSelectorGroup(((cancelGroupIfSingular && (selectorsWithoutPseudoElm.length < 2))
         ?
             selectorsWithoutPseudoElm?.[0]
         :
             selector(pseudoClassSelector(targetSelectorName, selectorsWithoutPseudoElm))), ...selectorsOnlyPseudoElm);
 };
 export const groupSelector = (selector, options = defaultGroupSelectorOptions) => {
-    return groupSelectors(selectorList(selector), options);
+    return groupSelectors(selectorGroup(selector), options);
 };
 const defaultUngroupSelectorOptions = {
     selectorName: ['is', 'where'],
 };
 export const ungroupSelector = (selector, options = defaultUngroupSelectorOptions) => {
     if (!selector || (selector === true))
-        return pureSelectorList(...[]); // nothing to ungroup => return an empty SelectorList
+        return pureSelectorGroup(...[]); // nothing to ungroup => return an empty SelectorGroup
     const filteredSelector = selector.filter(isNotEmptySelectorEntry);
     if (filteredSelector.length === 1) {
         const selectorEntry = filteredSelector[0]; // get the only one SelectorEntry
@@ -728,9 +747,9 @@ export const ungroupSelector = (selector, options = defaultUngroupSelectorOption
             selectorName, 
             /*
                 selector parameter(s):
-                string       = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
-                array        = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
-                SelectorList = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
+                string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
+                array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
+                SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
             */
             selectorParams,] = selectorEntry;
             if (targetSelectorName.includes(selectorName)
@@ -740,11 +759,11 @@ export const ungroupSelector = (selector, options = defaultUngroupSelectorOption
             } // if
         } // if
     } // if
-    return pureSelectorList(filteredSelector);
+    return pureSelectorGroup(filteredSelector);
 };
 export const ungroupSelectors = (selectors, options = defaultUngroupSelectorOptions) => {
     if (!selectors || (selectors === true))
-        return pureSelectorList(...[]); // nothing to ungroup => return an empty SelectorList
+        return pureSelectorGroup(...[]); // nothing to ungroup => return an empty SelectorGroup
     return selectors.filter(isNotEmptySelector).flatMap((selector) => ungroupSelector(selector, options));
 };
 export const calculateSpecificity = (selector) => {
@@ -771,9 +790,9 @@ export const calculateSpecificity = (selector) => {
         selectorName, 
         /*
             selector parameter(s):
-            string       = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
-            array        = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
-            SelectorList = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
+            string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
+            array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
+            SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
         */
         selectorParams,] = simpleSelector;
         if (selectorToken === ':') {
@@ -784,7 +803,7 @@ export const calculateSpecificity = (selector) => {
                     if (!selectorParams || !isSelectors(selectorParams))
                         return accum; // no changes
                     const moreSpecificities = (selectorParams
-                        .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorList
+                        .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
                         .map((selectorParam) => calculateSpecificity(selectorParam)));
                     const maxSpecificity = moreSpecificities.reduce((accum, current) => {
                         if ((current[0] > accum[0])
