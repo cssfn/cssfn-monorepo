@@ -802,3 +802,218 @@ groupList.forEach((group) => {
     })});
 });
 //#endregion test ungroupSelector()
+
+
+
+//#region ungroupSelectors()
+test(`ungroupSelectors(empty)`, () => {
+    expect(selectorsToString(ungroupSelectors(
+        selectorGroup(
+            /* empty */
+        )
+    )))
+    .toBe(
+        ''
+    );
+});
+test(`ungroupSelectors(empty)`, () => {
+    expect(selectorsToString(ungroupSelectors(
+        selectorGroup(
+            selector(
+                /* empty */
+            ),
+        )
+    )))
+    .toBe(
+        ''
+    );
+});
+test(`ungroupSelectors(empty)`, () => {
+    expect(selectorsToString(ungroupSelectors(
+        selectorGroup(
+            selector(
+                /* empty */
+            ),
+            selector(
+                /* empty */
+            ),
+            selector(
+                /* empty */
+            ),
+        )
+    )))
+    .toBe(
+        ''
+    );
+});
+test(`ungroupSelectors(falsy)`, () => {
+    expect(selectorsToString(ungroupSelectors(
+        selectorGroup(
+            undefined,
+            selector(
+                /* empty */
+            ),
+            null,
+            selector(
+                /* empty */
+            ),
+            false,
+            selector(
+                /* empty */
+            ),
+            true,
+            selector(
+                /* empty */
+            ),
+        )
+    )))
+    .toBe(
+        ''
+    );
+});
+test(`ungroupSelectors(falsy)`, () => {
+    expect(selectorsToString(ungroupSelectors(
+        selectorGroup(
+            undefined,
+            selector(
+                undefined,
+            ),
+            null,
+            selector(
+                null,
+            ),
+            false,
+            selector(
+                false,
+            ),
+            true,
+            selector(
+                true,
+            ),
+        )
+    )))
+    .toBe(
+        ''
+    );
+});
+test(`ungroupSelectors(falsy)`, () => {
+    expect(selectorsToString(ungroupSelectors(
+        selectorGroup(
+            undefined,
+            null,
+            false,
+            true,
+        )
+    )))
+    .toBe(
+        ''
+    );
+});
+test(`ungroupSelectors(falsy)`, () => {
+    expect(selectorsToString(ungroupSelectors(
+        selectorGroup(
+            selector(
+                undefined,
+                null,
+                false,
+                true,
+            ),
+            selector(
+                undefined,
+                null,
+                false,
+                true,
+            ),
+        )
+    )))
+    .toBe(
+        ''
+    );
+});
+test(`ungroupSelectors(falsy)`, () => {
+    expect(selectorsToString(ungroupSelectors(
+        selectorGroup(
+            undefined,
+            null,
+            false,
+            true,
+            selector(
+                undefined,
+                null,
+                false,
+                true,
+            ),
+            undefined,
+            null,
+            false,
+            true,
+            selector(
+                undefined,
+                null,
+                false,
+                true,
+            ),
+            undefined,
+            null,
+            false,
+            true,
+        )
+    )))
+    .toBe(
+        ''
+    );
+});
+
+
+
+groupList.forEach((group) => {
+    [false, true].forEach((testSingular) => { [false, true].forEach((ungroupAll) => {
+        const options : UngroupSelectorOptions = {
+            selectorName : ungroupAll ? groupList : undefined,
+        };
+        const shouldUngroup = testSingular || ungroupAll || ['is', 'where'].includes(group);
+        
+        const tests : { ungrouped: string, grouped: string|null }[] = [
+            {
+                ungrouped : `.product>div>:first-child`,
+                grouped   : `:${group}(.product>div>:first-child)`,
+            },
+            {
+                ungrouped : `.product.expensive>#list, ::backdrop:hover, ::before, ::after`,
+                grouped   : `:${group}(.product.expensive>#list), ::backdrop:hover, ::before, ::after`,
+            },
+            {
+                ungrouped : `::backdrop:hover, ::before, ::after`,
+                grouped   : null,
+            },
+            {
+                ungrouped : `.product.unused>#some[thing="bleh"]:valid+:garbage:first-child`,
+                grouped   : `:${group}(.product.unused>#some[thing="bleh"]:valid+:garbage:first-child)`,
+            },
+            {
+                ungrouped : `.ultra :deep #field+:nth-child(2n+3), #this:is(#very .exciting .thing), ::backdrop+:hover`,
+                grouped   : `:${group}(.ultra :deep #field+:nth-child(2n+3), #this:is(#very .exciting .thing)), ::backdrop+:hover`,
+            },
+            {
+                ungrouped : `&>.sub+next, .ultra&:deep #field+:nth-child(2n+3), #this:is(#very&.exciting>.thing), ::backdrop[title="you & me"]`,
+                grouped   : `:${group}(&>.sub+next, .ultra&:deep #field+:nth-child(2n+3), #this:is(#very&.exciting>.thing)), ::backdrop[title="you & me"]`,
+            },
+        ];
+        tests.forEach(({ ungrouped, grouped }) => {
+            if (!testSingular && (grouped === null)) return;
+            
+            test(`ungroupSelectors()`, () => {
+                expect(selectorsToString(ungroupSelectors(
+                    parseSelectors(
+                        testSingular ? ungrouped : grouped
+                    )!,
+                    options
+                )))
+                .toBe(
+                    shouldUngroup ? ungrouped : grouped
+                );
+            });
+        });
+    })});
+});
+//#endregion ungroupSelectors()
