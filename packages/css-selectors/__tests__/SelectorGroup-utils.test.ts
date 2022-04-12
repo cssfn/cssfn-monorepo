@@ -1129,26 +1129,30 @@ groupList.forEach((group) => {
             selector    : `:${group}(&>.sub+next)`,
             specificity : isZeroSpecificity ? zeroSpecificity : [0, 1, 1],
         },
-        // {
-        //     selector    : `.ultra&:deep #field+:nth-child(2n+3)`,
-        //     specificity : [0, 0, 0],
-        // },
-        // {
-        //     selector    : `:${group}(.ultra&:deep #field+:nth-child(2n+3))`,
-        //     specificity : [0, 0, 0],
-        // },
-        // {
-        //     selector    : `#this:is(#very&.exciting>.thing)`,
-        //     specificity : [0, 0, 0],
-        // },
-        // {
-        //     selector    : `:${group}(#this:is(#very&.exciting>.thing))`,
-        //     specificity : [0, 0, 0],
-        // },
-        // {
-        //     selector    : `::backdrop[title="you & me"]`,
-        //     specificity : [0, 0, 0],
-        // },
+        {
+            selector    : `.ultra&:deep #field+:nth-child(2n+3)`,
+            specificity : [1, 3, 0],
+        },
+        {
+            selector    : `:${group}(.ultra&:deep #field+:nth-child(2n+3))`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [1, 3, 0],
+        },
+        {
+            selector    : `#this:is(#very&.exciting>.thing)`,
+            specificity : [2, 2, 0],
+        },
+        {
+            selector    : `:${group}(#this:is(#very&.exciting>.thing))`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [2, 2, 0],
+        },
+        {
+            selector    : `::backdrop[title="you & me"]`,
+            specificity : [0, 1, 1],
+        },
+        {
+            selector    : `:${group}(::backdrop[title="you & me"])`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [0, 1, 1],
+        },
     ];
     tests.forEach(({ selector, specificity }) => {
         test(`calculateSpecificity()`, () => {
