@@ -1,4 +1,9 @@
 import {
+    // types:
+    SelectorName,
+    
+    
+    
     // parses:
     parseSelectors,
     
@@ -53,6 +58,7 @@ import {
     GroupSelectorOptions,
     groupSelectors,
     groupSelector,
+    UngroupSelectorOptions,
     ungroupSelector,
     ungroupSelectors,
 } from '../src/css-selectors'
@@ -531,7 +537,7 @@ test(`groupSelectors(falsy)`, () => {
 
 
 
-const groupList = ['is','not','has','where'];
+const groupList : SelectorName[] & ('is'|'not'|'has'|'where')[] = ['is','not','has','where'];
 groupList.forEach((group) => {
     [false, true].forEach((cancelSingular) => {
         const options : GroupSelectorOptions = {
@@ -846,4 +852,77 @@ test(`ungroupSelector(falsy)`, () => {
     .toBe(
         ''
     );
+});
+
+
+
+groupList.forEach((group) => {
+    [true, false].forEach((testSingular) => { [false, true].forEach((ungroupAll) => {
+        const options : UngroupSelectorOptions = {
+            selectorName : ungroupAll ? groupList : undefined,
+        };
+        const shouldUngroup = testSingular || ungroupAll || ['is', 'where'].includes(group);
+        
+        const tests : { ungrouped: string, grouped: string|null }[] = [
+            {
+                ungrouped : `.product>div>:first-child`,
+                grouped   : `:${group}(.product>div>:first-child)`,
+            },
+            {
+                ungrouped : `::backdrop:hover`,
+                grouped   : null,
+            },
+            {
+                ungrouped : `::before`,
+                grouped   : null,
+            },
+            {
+                ungrouped : `#product>.item::after`,
+                grouped   : null,
+            },
+            {
+                ungrouped : `.product.unused>#some[thing="bleh"]:valid+:garbage:first-child`,
+                grouped   : `:${group}(.product.unused>#some[thing="bleh"]:valid+:garbage:first-child)`,
+            },
+            {
+                ungrouped : `.ultra :deep #field+:nth-child(2n+3)`,
+                grouped   : `:${group}(.ultra :deep #field+:nth-child(2n+3))`,
+            },
+            {
+                ungrouped : `#this:is(#very .exciting .thing)`,
+                grouped   : `:${group}(#this:is(#very .exciting .thing))`,
+            },
+            {
+                ungrouped : `&>.sub+next`,
+                grouped   : `:${group}(&>.sub+next)`,
+            },
+            {
+                ungrouped : `.ultra&:deep #field+:nth-child(2n+3)`,
+                grouped   : `:${group}(.ultra&:deep #field+:nth-child(2n+3))`,
+            },
+            {
+                ungrouped : `#this:is(#very&.exciting>.thing)`,
+                grouped   : `:${group}(#this:is(#very&.exciting>.thing))`,
+            },
+            {
+                ungrouped : `::backdrop[title="you & me"]`,
+                grouped   : null,
+            },
+        ];
+        tests.forEach(({ ungrouped, grouped }) => {
+            if (!testSingular && (grouped === null)) return;
+            
+            test(`ungroupSelector()`, () => {
+                expect(selectorsToString(ungroupSelector(
+                    parseSelectors(
+                        testSingular ? ungrouped : grouped
+                    )![0]!,
+                    options
+                )))
+                .toBe(
+                    shouldUngroup ? ungrouped : grouped
+                );
+            });
+        });
+    })});
 });
