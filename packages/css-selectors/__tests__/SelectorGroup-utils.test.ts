@@ -48,7 +48,7 @@ import {
     
     
     // transforms:
-    ReplaceSelectorsCallback,
+    ReplaceSelectorCallback,
     replaceSelectors,
     GroupSelectorOptions,
     groupSelectors,
@@ -59,14 +59,14 @@ import {
 
 
 
-const replaceDivToSpan: ReplaceSelectorsCallback = (selectorEntry) => {
+const replaceDivToSpan: ReplaceSelectorCallback = (selectorEntry) => {
     if (isElementSelectorOf(selectorEntry, 'div')) {
         return elementSelector('span');
     } // if
     
     return selectorEntry;
 };
-const replaceExpensiveToVeryCheap: ReplaceSelectorsCallback = (selectorEntry) => {
+const replaceExpensiveToVeryCheap: ReplaceSelectorCallback = (selectorEntry) => {
     if (isClassSelectorOf(selectorEntry, 'expensive')) {
         return selector(
             classSelector('very'),
@@ -76,7 +76,7 @@ const replaceExpensiveToVeryCheap: ReplaceSelectorsCallback = (selectorEntry) =>
     
     return selectorEntry;
 };
-const removeUnusedThingGarbage: ReplaceSelectorsCallback = (selectorEntry) => {
+const removeUnusedThingGarbage: ReplaceSelectorCallback = (selectorEntry) => {
     if (isClassSelectorOf(selectorEntry, 'unused')) {
         return null;
     } // if
@@ -89,17 +89,17 @@ const removeUnusedThingGarbage: ReplaceSelectorsCallback = (selectorEntry) => {
     
     return selectorEntry;
 };
-const doNotMutate: ReplaceSelectorsCallback = (selectorEntry) => {
+const doNotMutate: ReplaceSelectorCallback = (selectorEntry) => {
     return undefined;
 };
-const replaceDescendantsToChildren: ReplaceSelectorsCallback = (selectorEntry) => {
+const replaceDescendantsToChildren: ReplaceSelectorCallback = (selectorEntry) => {
     if (isCombinatorOf(selectorEntry, ' ')) {
         return combinator('>');
     } // if
     
     return selectorEntry;
 };
-const replaceDescendantsWithWrapper: ReplaceSelectorsCallback = (selectorEntry) => {
+const replaceDescendantsWithWrapper: ReplaceSelectorCallback = (selectorEntry) => {
     if (isCombinatorOf(selectorEntry, ' ')) {
         return selector(
             combinator('>'),
@@ -110,7 +110,7 @@ const replaceDescendantsWithWrapper: ReplaceSelectorsCallback = (selectorEntry) 
     
     return selectorEntry;
 };
-const replaceParentWithRealParent: ReplaceSelectorsCallback = (selectorEntry) => {
+const replaceParentWithRealParent: ReplaceSelectorCallback = (selectorEntry) => {
     if (isParentSelector(selectorEntry)) {
         return selector(
             classSelector('parent'),

@@ -788,7 +788,7 @@ export const selectorsToString      = (selectors: SelectorGroup): string => {
 
 
 // transforms:
-export type ReplaceSelectorsCallback = (selectorEntry: SelectorEntry) => OptionalOrBoolean<SelectorEntry|Selector>
+export type ReplaceSelectorCallback = (selectorEntry: SelectorEntry) => OptionalOrBoolean<SelectorEntry|Selector>
 /**
  * Creates a new `SelectorGroup` populated with the results of calling a provided `callbackFn` on every `SelectorEntry` in the `selectors`.  
  * The nested `SelectorEntry` (if any) will also be passed to `callbackFn`.  
@@ -797,7 +797,7 @@ export type ReplaceSelectorsCallback = (selectorEntry: SelectorEntry) => Optiona
  * Each time `callbackFn` executes, the returned value is added to the output `SelectorGroup`.
  * @returns The output `SelectorGroup`.
  */
-export const replaceSelectors = (selectors: SelectorGroup, callbackFn: ReplaceSelectorsCallback): SelectorGroup => {
+export const replaceSelectors = (selectors: SelectorGroup, callbackFn: ReplaceSelectorCallback): SelectorGroup => {
     return (
         selectors
         .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
@@ -836,6 +836,9 @@ export const replaceSelectors = (selectors: SelectorGroup, callbackFn: ReplaceSe
         )
     );
 };
+export const replaceSelector  = (selector: Selector, callbackFn: ReplaceSelectorCallback): SelectorGroup => {
+    return replaceSelectors(selectorGroup(selector), callbackFn);
+}
 
 // groups:
 export interface GroupSelectorOptions {
