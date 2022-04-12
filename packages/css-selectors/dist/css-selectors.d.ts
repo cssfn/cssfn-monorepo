@@ -101,7 +101,7 @@ export declare const countSelectors: (selectors: OptionalOrBoolean<SelectorGroup
 export declare const selectorParamsToString: (selectorParams: SelectorParams) => string;
 export declare const selectorToString: (selector: Selector) => string;
 export declare const selectorsToString: (selectors: SelectorGroup) => string;
-export declare type ReplaceSelectorsCallback = (selectorEntry: SelectorEntry) => OptionalOrBoolean<SelectorEntry | Selector>;
+export declare type ReplaceSelectorCallback = (selectorEntry: SelectorEntry) => OptionalOrBoolean<SelectorEntry | Selector>;
 /**
  * Creates a new `SelectorGroup` populated with the results of calling a provided `callbackFn` on every `SelectorEntry` in the `selectors`.
  * The nested `SelectorEntry` (if any) will also be passed to `callbackFn`.
@@ -110,7 +110,8 @@ export declare type ReplaceSelectorsCallback = (selectorEntry: SelectorEntry) =>
  * Each time `callbackFn` executes, the returned value is added to the output `SelectorGroup`.
  * @returns The output `SelectorGroup`.
  */
-export declare const replaceSelectors: (selectors: SelectorGroup, callbackFn: ReplaceSelectorsCallback) => SelectorGroup;
+export declare const replaceSelectors: (selectors: OptionalOrBoolean<SelectorGroup>, callbackFn: ReplaceSelectorCallback) => SelectorGroup;
+export declare const replaceSelector: (selector: OptionalOrBoolean<Selector>, callbackFn: ReplaceSelectorCallback) => SelectorGroup;
 export interface GroupSelectorOptions {
     selectorName?: SelectorName | ('is' | 'not' | 'has' | 'where');
     cancelGroupIfSingular?: boolean;
@@ -127,4 +128,4 @@ export interface UngroupSelectorOptions {
 export declare const ungroupSelector: (selector: OptionalOrBoolean<Selector>, options?: UngroupSelectorOptions) => PureSelectorGroup;
 export declare const ungroupSelectors: (selectors: OptionalOrBoolean<SelectorGroup>, options?: UngroupSelectorOptions) => PureSelectorGroup;
 export declare type Specificity = [number, number, number];
-export declare const calculateSpecificity: (selector: Selector) => Specificity;
+export declare const calculateSpecificity: (selector: OptionalOrBoolean<Selector>) => Specificity;

@@ -1068,7 +1068,6 @@ export const calculateSpecificity = (selector: OptionalOrBoolean<Selector>): Spe
             
             switch(selectorToken) {
                 case '#' : // ID selector
-                    array.splice(1); // eject early by mutating iterated copy - it's okay to **mutate** the `array` because it already cloned at `filter(isSimpleSelector)`
                     return [
                         accum[0] + 1,
                         accum[1],
