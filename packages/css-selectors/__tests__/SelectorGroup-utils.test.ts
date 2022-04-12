@@ -661,169 +661,70 @@ groupList.forEach((group) => {
             cancelGroupIfSingular : cancelSingular,
         };
         
-        test(`groupSelector()`, () => {
-            expect(selectorsToString(groupSelector(
-                parseSelectors(
-                    `.product>div>:first-child`
-                )![0]!,
-                options
-            )))
-            .toBe(
-                cancelSingular
-                ?
-                `.product>div>:first-child`
-                :
-                `:${group}(.product>div>:first-child)`
-            );
-        });
-        test(`groupSelector()`, () => {
-            expect(selectorsToString(groupSelector(
-                parseSelectors(
-                    `.product.expensive>#list`
-                )![0]!,
-                options
-            )))
-            .toBe(
-                cancelSingular
-                ?
-                `.product.expensive>#list`
-                :
-                `:${group}(.product.expensive>#list)`
-            );
-        });
-        test(`groupSelector()`, () => {
-            expect(selectorsToString(groupSelector(
-                parseSelectors(
-                    `::backdrop:hover`
-                )![0]!,
-                options
-            )))
-            .toBe(
-                `::backdrop:hover`
-            );
-        });
-        test(`groupSelector()`, () => {
-            expect(selectorsToString(groupSelector(
-                parseSelectors(
-                    `::before`
-                )![0]!,
-                options
-            )))
-            .toBe(
-                `::before`
-            );
-        });
-        test(`groupSelector()`, () => {
-            expect(selectorsToString(groupSelector(
-                parseSelectors(
-                    `#product>.item::after`
-                )![0]!,
-                options
-            )))
-            .toBe(
-                `#product>.item::after`
-            );
-        });
-        test(`groupSelector()`, () => {
-            expect(selectorsToString(groupSelector(
-                parseSelectors(
-                    `.product.unused>#some[thing="bleh"]:valid+:garbage:first-child`
-                )![0]!,
-                options
-            )))
-            .toBe(
-                cancelSingular
-                ?
-                `.product.unused>#some[thing="bleh"]:valid+:garbage:first-child`
-                :
-                `:${group}(.product.unused>#some[thing="bleh"]:valid+:garbage:first-child)`
-            );
-        });
-        test(`groupSelector()`, () => {
-            expect(selectorsToString(groupSelector(
-                parseSelectors(
-                    `.ultra :deep #field+:nth-child(2n+3)`
-                )![0]!,
-                options
-            )))
-            .toBe(
-                cancelSingular
-                ?
-                `.ultra :deep #field+:nth-child(2n+3)`
-                :
-                `:${group}(.ultra :deep #field+:nth-child(2n+3))`
-            );
-        });
-        test(`groupSelector()`, () => {
-            expect(selectorsToString(groupSelector(
-                parseSelectors(
-                    `#this:is(#very .exciting .thing)`
-                )![0]!,
-                options
-            )))
-            .toBe(
-                cancelSingular
-                ?
-                `#this:is(#very .exciting .thing)`
-                :
-                `:${group}(#this:is(#very .exciting .thing))`
-            );
-        });
-        test(`groupSelector()`, () => {
-            expect(selectorsToString(groupSelector(
-                parseSelectors(
-                    `&>.sub+next`
-                )![0]!,
-                options
-            )))
-            .toBe(
-                cancelSingular
-                ?
-                `&>.sub+next`
-                :
-                `:${group}(&>.sub+next)`
-            );
-        });
-        test(`groupSelector()`, () => {
-            expect(selectorsToString(groupSelector(
-                parseSelectors(
-                    `.ultra&:deep #field+:nth-child(2n+3)`
-                )![0]!,
-                options
-            )))
-            .toBe(
-                cancelSingular
-                ?
-                `.ultra&:deep #field+:nth-child(2n+3)`
-                :
-                `:${group}(.ultra&:deep #field+:nth-child(2n+3))`
-            );
-        });
-        test(`groupSelector()`, () => {
-            expect(selectorsToString(groupSelector(
-                parseSelectors(
-                    `#this:is(#very&.exciting>.thing)`
-                )![0]!,
-                options
-            )))
-            .toBe(
-                cancelSingular
-                ?
-                `#this:is(#very&.exciting>.thing)`
-                :
-                `:${group}(#this:is(#very&.exciting>.thing))`
-            );
-        });
-        test(`groupSelector()`, () => {
-            expect(selectorsToString(groupSelector(
-                parseSelectors(
-                    `::backdrop[title="you & me"]`
-                )![0]!,
-                options
-            )))
-            .toBe(
-                `::backdrop[title="you & me"]`
-            );
+        const tests : { ungrouped: string, grouped: string|null }[] = [
+            {
+                ungrouped : `.product>div>:first-child`,
+                grouped   : `:${group}(.product>div>:first-child)`,
+            },
+            {
+                ungrouped : `.product.expensive>#list`,
+                grouped   : `:${group}(.product.expensive>#list)`,
+            },
+            {
+                ungrouped : `::backdrop:hover`,
+                grouped   : null,
+            },
+            {
+                ungrouped : `::before`,
+                grouped   : null,
+            },
+            {
+                ungrouped : `#product>.item::after`,
+                grouped   : null,
+            },
+            {
+                ungrouped : `.product.unused>#some[thing="bleh"]:valid+:garbage:first-child`,
+                grouped   : `:${group}(.product.unused>#some[thing="bleh"]:valid+:garbage:first-child)`,
+            },
+            {
+                ungrouped : `.ultra :deep #field+:nth-child(2n+3)`,
+                grouped   : `:${group}(.ultra :deep #field+:nth-child(2n+3))`,
+            },
+            {
+                ungrouped : `#this:is(#very .exciting .thing)`,
+                grouped   : `:${group}(#this:is(#very .exciting .thing))`,
+            },
+            {
+                ungrouped : `&>.sub+next`,
+                grouped   : `:${group}(&>.sub+next)`,
+            },
+            {
+                ungrouped : `.ultra&:deep #field+:nth-child(2n+3)`,
+                grouped   : `:${group}(.ultra&:deep #field+:nth-child(2n+3))`,
+            },
+            {
+                ungrouped : `#this:is(#very&.exciting>.thing)`,
+                grouped   : `:${group}(#this:is(#very&.exciting>.thing))`,
+            },
+            {
+                ungrouped : `::backdrop[title="you & me"]`,
+                grouped   : null,
+            },
+        ];
+        tests.forEach(({ ungrouped, grouped }) => {
+            const shouldUngroup = (grouped === null) || cancelSingular;
+            
+            test(`groupSelector()`, () => {
+                expect(selectorsToString(groupSelector(
+                    parseSelectors(
+                        ungrouped
+                    )![0]!,
+                    options
+                )))
+                .toBe(
+                    shouldUngroup ? ungrouped : grouped
+                );
+            });
         });
     });
 });
