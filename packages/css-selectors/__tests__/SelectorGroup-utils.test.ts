@@ -821,3 +821,29 @@ groupList.forEach((group) => {
         });
     });
 });
+
+
+
+test(`ungroupSelector(empty)`, () => {
+    expect(selectorsToString(ungroupSelector(
+        selector(
+            /* empty */
+        )
+    )))
+    .toBe(
+        ''
+    );
+});
+test(`ungroupSelector(falsy)`, () => {
+    expect(selectorsToString(ungroupSelector(
+        selector(
+            undefined,
+            null,
+            false,
+            true,
+        )
+    )))
+    .toBe(
+        ''
+    );
+});
