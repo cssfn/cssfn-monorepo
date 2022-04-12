@@ -80,7 +80,7 @@ const combinatorList                   = [' ', '>', '~', '+'];
 
 // parses:
 export const parseSelectors = (expressions: SingleOrDeepArray<OptionalOrBoolean<string>>): SelectorGroup|null => {
-    const expression = [expressions].flat(Infinity).filter((exp) => !!exp && (exp !== true)).join(',');
+    const expression = [expressions].flat(Infinity).filter((exp) => (typeof(exp) === 'string') && (exp !== '')).join(',');
     const expressionLength = expression.length;
     let pos = 0;
     
@@ -693,7 +693,7 @@ export const isNotEmptySelectorEntry = (selectorEntry: OptionalOrBoolean<Selecto
         SimpleSelector : [ SelectorToken, SelectorName, SelectorParams ]
         Combinator     : non_empty string
     */
-   return !!selectorEntry && (selectorEntry !== true);
+   return (!!selectorEntry && (selectorEntry !== true)); // filter out undefined|null|false|true
 }
 export const isSelector = (test: OptionalOrBoolean<SelectorEntry|Selector>): test is Selector => {
     /*
@@ -704,7 +704,7 @@ export const isSelector = (test: OptionalOrBoolean<SelectorEntry|Selector>): tes
         Selector       : [ SelectorEntry...SelectorEntry...             ] => [ (SimpleSelector|Combinator)...              ]
     */
     return (
-        !!test && (test !== true)   // filter out undefined|null|false|true
+        (!!test && (test !== true)) // filter out undefined|null|false|true
         &&
         (typeof(test) !== 'string') // filter out Combinator
         &&
@@ -715,10 +715,10 @@ export const isSelector = (test: OptionalOrBoolean<SelectorEntry|Selector>): tes
         )
     ); // Selector : the first element (SelectorEntry) must be a NON-string (an array) -or- a string of Combinator
 };
-export const isNotEmptySelector   = (selector  : OptionalOrBoolean<Selector     >): selector  is PureSelector      =>  !!selector  && (selector  !== true) &&  selector.some(  isNotEmptySelectorEntry);
-export const isNotEmptySelectors  = (selectors : OptionalOrBoolean<SelectorGroup>): selectors is PureSelectorGroup =>  !!selectors && (selectors !== true) && selectors.some(  isNotEmptySelector     );
-export const countSelectorEntries = (selector  : OptionalOrBoolean<Selector     >): number                         => (!!selector  && (selector  !== true) &&  selector.filter(isNotEmptySelectorEntry).length) || 0;
-export const countSelectors       = (selectors : OptionalOrBoolean<SelectorGroup>): number                         => (!!selectors && (selectors !== true) && selectors.filter(isNotEmptySelector     ).length) || 0;
+export const isNotEmptySelector   = (selector  : OptionalOrBoolean<Selector     >): selector  is PureSelector      =>  (!!selector  && (selector  !== true)) &&  selector.some(  isNotEmptySelectorEntry);
+export const isNotEmptySelectors  = (selectors : OptionalOrBoolean<SelectorGroup>): selectors is PureSelectorGroup =>  (!!selectors && (selectors !== true)) && selectors.some(  isNotEmptySelector     );
+export const countSelectorEntries = (selector  : OptionalOrBoolean<Selector     >): number                         => ((!!selector  && (selector  !== true)) &&  selector.filter(isNotEmptySelectorEntry).length) || 0;
+export const countSelectors       = (selectors : OptionalOrBoolean<SelectorGroup>): number                         => ((!!selectors && (selectors !== true)) && selectors.filter(isNotEmptySelector     ).length) || 0;
 
 
 
