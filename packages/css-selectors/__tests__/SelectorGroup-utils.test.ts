@@ -628,6 +628,7 @@ groupList.forEach((group) => {
 
 
 
+//#region groupSelector()
 test(`groupSelector(empty)`, () => {
     expect(selectorsToString(groupSelector(
         selector(
@@ -728,9 +729,11 @@ groupList.forEach((group) => {
         });
     });
 });
+//#endregion groupSelector()
 
 
 
+//#region test ungroupSelector()
 test(`ungroupSelector(empty)`, () => {
     expect(selectorsToString(ungroupSelector(
         selector(
@@ -827,3 +830,4 @@ groupList.forEach((group) => {
         });
     })});
 });
+//#endregion test ungroupSelector()
