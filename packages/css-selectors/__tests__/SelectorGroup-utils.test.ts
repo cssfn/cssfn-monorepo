@@ -619,3 +619,205 @@ groupList.forEach((group) => {
         });
     });
 });
+
+
+
+test(`groupSelector(empty)`, () => {
+    expect(selectorsToString(groupSelector(
+        selector(
+            /* empty */
+        )
+    )))
+    .toBe(
+        ''
+    );
+});
+test(`groupSelector(falsy)`, () => {
+    expect(selectorsToString(groupSelector(
+        selector(
+            undefined,
+            null,
+            false,
+            true,
+        )
+    )))
+    .toBe(
+        ''
+    );
+});
+
+
+
+groupList.forEach((group) => {
+    [false, true].forEach((cancelSingular) => {
+        const options : GroupSelectorOptions = {
+            selectorName          : group,
+            cancelGroupIfSingular : cancelSingular,
+        };
+        
+        test(`groupSelector()`, () => {
+            expect(selectorsToString(groupSelector(
+                parseSelectors(
+                    `.product>div>:first-child`
+                )![0]!,
+                options
+            )))
+            .toBe(
+                cancelSingular
+                ?
+                `.product>div>:first-child`
+                :
+                `:${group}(.product>div>:first-child)`
+            );
+        });
+        test(`groupSelector()`, () => {
+            expect(selectorsToString(groupSelector(
+                parseSelectors(
+                    `.product.expensive>#list`
+                )![0]!,
+                options
+            )))
+            .toBe(
+                cancelSingular
+                ?
+                `.product.expensive>#list`
+                :
+                `:${group}(.product.expensive>#list)`
+            );
+        });
+        test(`groupSelector()`, () => {
+            expect(selectorsToString(groupSelector(
+                parseSelectors(
+                    `::backdrop:hover`
+                )![0]!,
+                options
+            )))
+            .toBe(
+                `::backdrop:hover`
+            );
+        });
+        test(`groupSelector()`, () => {
+            expect(selectorsToString(groupSelector(
+                parseSelectors(
+                    `::before`
+                )![0]!,
+                options
+            )))
+            .toBe(
+                `::before`
+            );
+        });
+        test(`groupSelector()`, () => {
+            expect(selectorsToString(groupSelector(
+                parseSelectors(
+                    `#product>.item::after`
+                )![0]!,
+                options
+            )))
+            .toBe(
+                `#product>.item::after`
+            );
+        });
+        test(`groupSelector()`, () => {
+            expect(selectorsToString(groupSelector(
+                parseSelectors(
+                    `.product.unused>#some[thing="bleh"]:valid+:garbage:first-child`
+                )![0]!,
+                options
+            )))
+            .toBe(
+                cancelSingular
+                ?
+                `.product.unused>#some[thing="bleh"]:valid+:garbage:first-child`
+                :
+                `:${group}(.product.unused>#some[thing="bleh"]:valid+:garbage:first-child)`
+            );
+        });
+        test(`groupSelector()`, () => {
+            expect(selectorsToString(groupSelector(
+                parseSelectors(
+                    `.ultra :deep #field+:nth-child(2n+3)`
+                )![0]!,
+                options
+            )))
+            .toBe(
+                cancelSingular
+                ?
+                `.ultra :deep #field+:nth-child(2n+3)`
+                :
+                `:${group}(.ultra :deep #field+:nth-child(2n+3))`
+            );
+        });
+        test(`groupSelector()`, () => {
+            expect(selectorsToString(groupSelector(
+                parseSelectors(
+                    `#this:is(#very .exciting .thing)`
+                )![0]!,
+                options
+            )))
+            .toBe(
+                cancelSingular
+                ?
+                `#this:is(#very .exciting .thing)`
+                :
+                `:${group}(#this:is(#very .exciting .thing))`
+            );
+        });
+        test(`groupSelector()`, () => {
+            expect(selectorsToString(groupSelector(
+                parseSelectors(
+                    `&>.sub+next`
+                )![0]!,
+                options
+            )))
+            .toBe(
+                cancelSingular
+                ?
+                `&>.sub+next`
+                :
+                `:${group}(&>.sub+next)`
+            );
+        });
+        test(`groupSelector()`, () => {
+            expect(selectorsToString(groupSelector(
+                parseSelectors(
+                    `.ultra&:deep #field+:nth-child(2n+3)`
+                )![0]!,
+                options
+            )))
+            .toBe(
+                cancelSingular
+                ?
+                `.ultra&:deep #field+:nth-child(2n+3)`
+                :
+                `:${group}(.ultra&:deep #field+:nth-child(2n+3))`
+            );
+        });
+        test(`groupSelector()`, () => {
+            expect(selectorsToString(groupSelector(
+                parseSelectors(
+                    `#this:is(#very&.exciting>.thing)`
+                )![0]!,
+                options
+            )))
+            .toBe(
+                cancelSingular
+                ?
+                `#this:is(#very&.exciting>.thing)`
+                :
+                `:${group}(#this:is(#very&.exciting>.thing))`
+            );
+        });
+        test(`groupSelector()`, () => {
+            expect(selectorsToString(groupSelector(
+                parseSelectors(
+                    `::backdrop[title="you & me"]`
+                )![0]!,
+                options
+            )))
+            .toBe(
+                `::backdrop[title="you & me"]`
+            );
+        });
+    });
+});
