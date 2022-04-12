@@ -5,23 +5,16 @@ import {
     
     
     // SelectorEntry creates & tests:
-    parentSelector,
-    universalSelector,
-    attrSelector,
     elementSelector,
-    idSelector,
     classSelector,
     pseudoClassSelector,
-    pseudoElementSelector,
+    
+    isParentSelector,
     
     isAttrSelectorOf,
     isElementSelectorOf,
-    isIdSelectorOf,
     isClassSelectorOf,
     isPseudoClassSelectorOf,
-    isClassOrPseudoClassSelectorOf,
-    isPseudoElementSelectorOf,
-    isElementOrPseudoElementSelectorOf,
     
     combinator,
     
@@ -30,13 +23,8 @@ import {
     
     
     // Selector creates & tests:
-    Selector,
     selector,
-    SelectorGroup,
     selectorGroup,
-    
-    isNotEmptySelectors,
-    countSelectors,
     
     
     
@@ -82,9 +70,33 @@ const removeUnusedThingGarbage: FlatMapSelectorsCallback = (selectorEntry) => {
     
     return selectorEntry;
 };
+const doNotMutate: FlatMapSelectorsCallback = (selectorEntry) => {
+    return undefined;
+};
 const replaceDescendantsToChildren: FlatMapSelectorsCallback = (selectorEntry) => {
     if (isCombinatorOf(selectorEntry, ' ')) {
         return combinator('>');
+    } // if
+    
+    return selectorEntry;
+};
+const replaceDescendantsWithWrapper: FlatMapSelectorsCallback = (selectorEntry) => {
+    if (isCombinatorOf(selectorEntry, ' ')) {
+        return selector(
+            combinator('>'),
+            classSelector('wrapper'),
+            combinator('>'),
+        );
+    } // if
+    
+    return selectorEntry;
+};
+const replaceParentWithRealParent: FlatMapSelectorsCallback = (selectorEntry) => {
+    if (isParentSelector(selectorEntry)) {
+        return selector(
+            classSelector('parent'),
+            pseudoClassSelector('yeah'),
+        );
     } // if
     
     return selectorEntry;
@@ -296,11 +308,44 @@ test(`flatMapSelectors()`, () => {
 test(`flatMapSelectors()`, () => {
     expect(selectorsToString(flatMapSelectors(
         parseSelectors(
+            '.product.unused>#some[thing="bleh"]:valid+:garbage:first-child'
+        )!,
+        doNotMutate
+    )))
+    .toBe(
+        '.product.unused>#some[thing="bleh"]:valid+:garbage:first-child'
+    );
+});
+test(`flatMapSelectors()`, () => {
+    expect(selectorsToString(flatMapSelectors(
+        parseSelectors(
             '.ultra :deep #field+:nth-child(2n+3), #this:is(#very .exciting .thing, ::backdrop+:hover)'
         )!,
         replaceDescendantsToChildren
     )))
     .toBe(
         '.ultra>:deep>#field+:nth-child(2n+3), #this:is(#very>.exciting>.thing, ::backdrop+:hover)'
+    );
+});
+test(`flatMapSelectors()`, () => {
+    expect(selectorsToString(flatMapSelectors(
+        parseSelectors(
+            '.ultra :deep #field+:nth-child(2n+3), #this:is(#very .exciting .thing, ::backdrop+:hover)'
+        )!,
+        replaceDescendantsWithWrapper
+    )))
+    .toBe(
+        '.ultra>.wrapper>:deep>.wrapper>#field+:nth-child(2n+3), #this:is(#very>.wrapper>.exciting>.wrapper>.thing, ::backdrop+:hover)'
+    );
+});
+test(`flatMapSelectors()`, () => {
+    expect(selectorsToString(flatMapSelectors(
+        parseSelectors(
+            '&>.sub+next, .ultra&:deep #field+:nth-child(2n+3), #this:is(#very&.exciting>.thing, ::backdrop[title="you & me"])'
+        )!,
+        replaceParentWithRealParent
+    )))
+    .toBe(
+        '.parent:yeah>.sub+next, .ultra.parent:yeah:deep #field+:nth-child(2n+3), #this:is(#very.parent:yeah.exciting>.thing, ::backdrop[title="you & me"])'
     );
 });
