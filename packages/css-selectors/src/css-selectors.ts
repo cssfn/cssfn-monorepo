@@ -630,7 +630,7 @@ export {
 }
 //#endregion aliases
 
-export const isSimpleSelector                    = (selectorEntry: OptionalOrBoolean<SelectorEntry>): selectorEntry is SimpleSelector                          => !!selectorEntry && (selectorEntry !== true) && (typeof(selectorEntry) !== 'string');
+export const isSimpleSelector                    = (selectorEntry: OptionalOrBoolean<SelectorEntry>): selectorEntry is SimpleSelector                          => (selectorEntry !== null) && (typeof(selectorEntry) === 'object');
 export const isParentSelector                    = (selectorEntry: OptionalOrBoolean<SelectorEntry>): selectorEntry is ParentSelector                          => isSimpleSelector(selectorEntry) && (selectorEntry?.[0] === '&' );
 export const isUniversalSelector                 = (selectorEntry: OptionalOrBoolean<SelectorEntry>): selectorEntry is UniversalSelector                       => isSimpleSelector(selectorEntry) && (selectorEntry?.[0] === '*' );
 export const isAttrSelector                      = (selectorEntry: OptionalOrBoolean<SelectorEntry>): selectorEntry is AttrSelector                            => isSimpleSelector(selectorEntry) && (selectorEntry?.[0] === '[' );
@@ -797,7 +797,13 @@ export type ReplaceSelectorCallback = (selectorEntry: SelectorEntry) => Optional
  * Each time `callbackFn` executes, the returned value is added to the output `SelectorGroup`.
  * @returns The output `SelectorGroup`.
  */
-export const replaceSelectors = (selectors: SelectorGroup, callbackFn: ReplaceSelectorCallback): SelectorGroup => {
+export const replaceSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, callbackFn: ReplaceSelectorCallback): SelectorGroup => {
+    if (!isNotEmptySelectors(selectors)) return selectorGroup(
+        /* an empty SelectorGroup */
+    ); // empty selectors => nothing to replace => return an empty SelectorGroup
+    
+    
+    
     return (
         selectors
         .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
@@ -836,7 +842,7 @@ export const replaceSelectors = (selectors: SelectorGroup, callbackFn: ReplaceSe
         )
     );
 };
-export const replaceSelector  = (selector: Selector, callbackFn: ReplaceSelectorCallback): SelectorGroup => {
+export const replaceSelector  = (selector : OptionalOrBoolean<Selector>     , callbackFn: ReplaceSelectorCallback): SelectorGroup => {
     return replaceSelectors(selectorGroup(selector), callbackFn);
 }
 
@@ -852,24 +858,25 @@ const defaultGroupSelectorOptions : Required<GroupSelectorOptions> = {
 export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorGroup & { 0: Selector } => {
     if (!isNotEmptySelectors(selectors)) return pureSelectorGroup(
         selector(
-            ...[] // an empty Selector
+            /* an empty Selector */
         ),
     ); // empty selectors => nothing to group => return a SelectorGroup with an empty Selector
     
     
     
-    const selectorsWithoutPseudoElm : PureSelector[] = selectors.filter(isNotEmptySelector).filter((selector) => selector.every(isNotPseudoElementSelector)); // not contain ::pseudo-element
-    const selectorsOnlyPseudoElm    : PureSelector[] = selectors.filter(isNotEmptySelector).filter((selector) => selector.some(isPseudoElementSelector));     // do  contain ::pseudo-element
+    const filteredSelectors         : PureSelector[] = selectors.filter(isNotEmptySelector);
+    const selectorsWithoutPseudoElm : PureSelector[] = filteredSelectors.filter((selector) => selector.every(isNotPseudoElementSelector)); // not contain ::pseudo-element
+    const selectorsOnlyPseudoElm    : PureSelector[] = filteredSelectors.filter((selector) => selector.some(isPseudoElementSelector));     // do  contain ::pseudo-element
     
     
     
     if (!isNotEmptySelectors(selectorsWithoutPseudoElm)) return pureSelectorGroup(
         selector(
-            ...[] // an empty Selector
+            /* an empty Selector */
         ),
         
-        ...selectorsOnlyPseudoElm,
-    ); // empty selectors => nothing to group => return a SelectorGroup with an empty Selector
+        ...selectorsOnlyPseudoElm, // additional pseudoElm(s) (if any)
+    ); // empty selectors => nothing to group => return a SelectorGroup with an empty Selector + additional pseudoElm(s) (if any)
     
     
     
@@ -894,7 +901,7 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
         ...selectorsOnlyPseudoElm,
     );
 }
-export const groupSelector  = (selector: OptionalOrBoolean<Selector>     , options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorGroup & { 0: Selector } => {
+export const groupSelector  = (selector : OptionalOrBoolean<Selector>     , options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorGroup & { 0: Selector } => {
     return groupSelectors(selectorGroup(selector), options);
 }
 
@@ -905,8 +912,10 @@ export interface UngroupSelectorOptions {
 const defaultUngroupSelectorOptions : Required<UngroupSelectorOptions> = {
     selectorName  : ['is', 'where'],
 };
-export const ungroupSelector  = (selector: OptionalOrBoolean<Selector>     , options: UngroupSelectorOptions = defaultUngroupSelectorOptions): PureSelectorGroup => {
-    if (!selector || (selector === true)) return pureSelectorGroup(...[]); // nothing to ungroup => return an empty SelectorGroup
+export const ungroupSelector  = (selector : OptionalOrBoolean<Selector>     , options: UngroupSelectorOptions = defaultUngroupSelectorOptions): PureSelectorGroup => {
+    if (!isNotEmptySelector(selector)) return pureSelectorGroup(
+        /* an empty SelectorGroup */
+    ); // empty selector => nothing to ungroup => return an empty SelectorGroup
     
     
     
@@ -966,7 +975,9 @@ export const ungroupSelector  = (selector: OptionalOrBoolean<Selector>     , opt
     );
 }
 export const ungroupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, options: UngroupSelectorOptions = defaultUngroupSelectorOptions): PureSelectorGroup => {
-    if (!selectors || (selectors === true)) return pureSelectorGroup(...[]); // nothing to ungroup => return an empty SelectorGroup
+    if (!isNotEmptySelectors(selectors)) return pureSelectorGroup(
+        /* an empty SelectorGroup */
+    ); // empty selectors => nothing to ungroup => return an empty SelectorGroup
     
     
     
@@ -977,7 +988,13 @@ export const ungroupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, op
 
 // measures:
 export type Specificity = [number, number, number];
-export const calculateSpecificity = (selector: Selector): Specificity => {
+export const calculateSpecificity = (selector: OptionalOrBoolean<Selector>): Specificity => {
+    if (!isNotEmptySelector(selector)) return [
+        0, 0, 0
+    ]; // empty selector => nothing to calculate => return a zero Specificity
+    
+    
+    
     return (
         selector
         .filter(isSimpleSelector) // filter out Combinator(s)
