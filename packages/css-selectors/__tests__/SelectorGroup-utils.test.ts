@@ -65,6 +65,8 @@ import {
 
 
 
+//#region test replaceSelectors()
+//#region replacements
 const replaceDivToSpan: ReplaceSelectorCallback = (selectorEntry) => {
     if (isElementSelectorOf(selectorEntry, 'div')) {
         return elementSelector('span');
@@ -126,6 +128,7 @@ const replaceParentWithRealParent: ReplaceSelectorCallback = (selectorEntry) => 
     
     return selectorEntry;
 };
+//#endregion replacements
 
 
 
@@ -374,6 +377,7 @@ test(`replaceSelectors()`, () => {
         '.parent:yeah>.sub+next, .ultra.parent:yeah:deep #field+:nth-child(2n+3), #this:is(#very.parent:yeah.exciting>.thing, ::backdrop[title="you & me"])'
     );
 });
+//#endregion test replaceSelectors()
 
 
 
