@@ -60,7 +60,7 @@ export type CssCustomRef          =
 
 export type CssCustomValue        = CssComplexValueOf<CssSimpleValue>
 
-export interface CssCustomProps {
+export type CssCustomProps = {
     [name: CssCustomName] : CssCustomValue
 }
 //#endregion css custom properties
