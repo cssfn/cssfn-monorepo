@@ -100,10 +100,7 @@ export type CssKnownProps                  = CssKnownStandardProps & CssKnownVen
 
 
 //#region cssfn properties
-export type CssKeyframes    = Dictionary<{}> // TODO: <Style>
-export type CssGeneralValue = (string & {}) | (number & {}) | CssKeyframes
-export type CssValue        = undefined | null | CssGeneralValue | CssGeneralValue[] | (CssGeneralValue|CssGeneralValue[]|'!important')[]
+export type CssKeyframes = Dictionary<{}> // TODO: <Style>
 
-export interface CssProps extends CssKnownProps, CssCustomProps {
-}
+export type CssProps     = CssCustomProps & CssKnownProps
 //#endregion cssfn properties
