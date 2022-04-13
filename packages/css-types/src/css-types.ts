@@ -16,9 +16,14 @@ import type {
 
 
 
-// types:
-
-export type CssSimpleValue                  = (string & {}) | (number & {})
+//#region css values
+//#region simple values
+export type CssSimpleNumericValue           = (number & {})
+export type CssSimpleLiteralValue           = (string & {})
+export type CssSimpleValue                  =
+    | CssSimpleNumericValue
+    | CssSimpleLiteralValue
+//#endregion simple values
 
 //#region complex values
 export type CssComplexBaseValueOf<TValue>   =
@@ -36,23 +41,24 @@ export type CssComplexValueOf<TValue>       =
     | CssComplexSingleValueOf<TValue>
     | CssComplexMultiValueOf<TValue>
 //#endregion complex values
+//#endregion css values
 
 
 
-//#region custom css properties
-export type CustomCssName         = `--${string}`
+//#region css custom properties
+export type CssCustomName         = `--${string}`
 
-export type CustomCssSingleRef    = `var(${CustomCssName})`
-export type CustomCssRef          = CustomCssSingleRef|`var(${CustomCssName},${CustomCssSingleRef})`|`var(${CustomCssName},${string})`
+export type CustomCssSingleRef    = `var(${CssCustomName})`
+export type CustomCssRef          = CustomCssSingleRef|`var(${CssCustomName},${CustomCssSingleRef})`|`var(${CssCustomName},${string})`
 export type CustomCssKeyframesRef = (string & {})
 
 
 export type CustomCssValue        = CssComplexValueOf<CssSimpleValue>
 
 export interface CustomCssProps {
-    [name: CustomCssName] : CustomCssValue
+    [name: CssCustomName] : CustomCssValue
 }
-//#endregion custom css properties
+//#endregion css custom properties
 
 
 
