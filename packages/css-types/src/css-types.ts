@@ -18,6 +18,44 @@ import type {
 
 // types:
 
+export type CssSimpleValue                  = (string & {}) | (number & {})
+
+//#region complex values
+export type CssComplexBaseValueOf<TValue>   =
+    | TValue                                               // final_value
+    | CustomCssRef                                         // css_variable
+export type CssComplexSingleValueOf<TValue> =
+    | CssComplexBaseValueOf<TValue>                        // single_value
+    | [CssComplexBaseValueOf<TValue>, '!important']        // single_value with !important
+export type CssComplexMultiValueOf<TValue>  =
+    | CssComplexBaseValueOf<TValue>[]                      // comma_separated_values
+    | CssComplexBaseValueOf<TValue>[][]                    // space_separated_values
+    | [...CssComplexBaseValueOf<TValue>[]  , '!important'] // comma_separated_values with !important
+    | [...CssComplexBaseValueOf<TValue>[][], '!important'] // space_separated_values with !important
+export type CssComplexValueOf<TValue>       =
+    | CssComplexSingleValueOf<TValue>
+    | CssComplexMultiValueOf<TValue>
+//#endregion complex values
+
+
+
+//#region custom css properties
+export type CustomCssName         = `--${string}`
+
+export type CustomCssSingleRef    = `var(${CustomCssName})`
+export type CustomCssRef          = CustomCssSingleRef|`var(${CustomCssName},${CustomCssSingleRef})`|`var(${CustomCssName},${string})`
+export type CustomCssKeyframesRef = (string & {})
+
+
+export type CustomCssValue        = CssComplexValueOf<CssSimpleValue>
+
+export interface CustomCssProps {
+    [name: CustomCssName] : CustomCssValue
+}
+//#endregion custom css properties
+
+
+
 //#region standard css properties
 export type CssLength   = (string & {}) | 0
 export type CssDuration = (string & {})
@@ -51,27 +89,10 @@ export type KnownCssProps                  = KnownStandardCssProps & KnownVendor
 
 
 
-//#region custom css properties
-export type CustomCssName         = `--${string}`
-
-export type CustomCssSingleRef    = `var(${CustomCssName})`
-export type CustomCssRef          = CustomCssSingleRef|`var(${CustomCssName},${CustomCssSingleRef})`|`var(${CustomCssName},${string})`
-export type CustomCssKeyframesRef = (string & {})
-
-export type GeneralCssValue       = (string & {}) | (number & {})
-export type CustomCssValue        = GeneralCssValue|CustomCssRef | (GeneralCssValue|CustomCssRef)[] | ((GeneralCssValue|CustomCssRef)|(GeneralCssValue|CustomCssRef)[]|'!important')[]
-
-export interface CustomCssProps {
-    [name: CustomCssName] : CustomCssValue
-}
-//#endregion custom css properties
-
-
-
 //#region cssfn properties
 export type CssKeyframes  = Dictionary<{}> // TODO: <Style>
-export type BasicCssValue = (string & {}) | (number & {}) | CssKeyframes
-export type CssValue      = undefined | null | BasicCssValue | BasicCssValue[] | (BasicCssValue|BasicCssValue[]|'!important')[]
+export type GeneralCssValue = (string & {}) | (number & {}) | CssKeyframes
+export type CssValue      = undefined | null | GeneralCssValue | GeneralCssValue[] | (GeneralCssValue|GeneralCssValue[]|'!important')[]
 
 export interface CssProps extends KnownCssProps, CustomCssProps {
 }
