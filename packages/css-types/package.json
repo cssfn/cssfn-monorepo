@@ -1,0 +1,26 @@
+{
+  "name": "@cssfn/css-types",
+  "version": "2.0.0",
+  "description": "CSS typescript definitions.",
+  "keywords": [
+    "css",
+    "typescript"
+  ],
+  "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
+  "homepage": "https://nodestrap.org",
+  "license": "ISC",
+  "main": "dist/css-types.js",
+  "types": "dist/css-types.d.ts",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@cssfn/types": "^2.0.0",
+    "csstype": "^3.0.11"
+  }
+}
