@@ -25,7 +25,7 @@ export type CssSimpleValue                  =
     | CssSimpleLiteralValue
 //#endregion simple values
 
-//#region complex values
+//#region generic complex values
 export type CssComplexBaseValueOf<TValue>   =
     | TValue                                               // final_value
     | CustomCssRef                                         // css_variable
@@ -40,7 +40,7 @@ export type CssComplexMultiValueOf<TValue>  =
 export type CssComplexValueOf<TValue>       =
     | CssComplexSingleValueOf<TValue>
     | CssComplexMultiValueOf<TValue>
-//#endregion complex values
+//#endregion generic complex values
 //#endregion css values
 
 
