@@ -83,15 +83,15 @@ export type CssKnownValueOf
 
 
 
-export type CssKnownPropsOf<TName extends CssKnownName> = {
-    [name in TName] ?: CssKnownValueOf<name>
+export type CssKnownPropsOf<TName extends CssKnownName, multiValue extends boolean = false> = {
+    [name in TName] ?: multiValue extends false ? CssComplexSingleValueOf<CssKnownValueOf<name>> : CssComplexValueOf<CssKnownValueOf<name>>
 }
 export type CssKnownStandardLonghandProps  = CssKnownPropsOf<keyof StandardLonghandProperties>
-export type CssKnownStandardShorthandProps = CssKnownPropsOf<keyof StandardShorthandProperties>
+export type CssKnownStandardShorthandProps = CssKnownPropsOf<keyof StandardShorthandProperties, true>
 export type CssKnownStandardProps          = CssKnownStandardLonghandProps & CssKnownStandardShorthandProps
 
 export type CssKnownVendorLonghandProps    = CssKnownPropsOf<keyof VendorLonghandProperties>
-export type CssKnownVendorShorthandProps   = CssKnownPropsOf<keyof VendorShorthandProperties>
+export type CssKnownVendorShorthandProps   = CssKnownPropsOf<keyof VendorShorthandProperties, true>
 export type CssKnownVendorProps            = CssKnownVendorLonghandProps & CssKnownVendorShorthandProps
 
 export type CssKnownObsoleteProps          = CssKnownPropsOf<keyof ObsoleteProperties>
