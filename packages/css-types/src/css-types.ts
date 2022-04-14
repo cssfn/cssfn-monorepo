@@ -112,9 +112,18 @@ export type CssProps           = CssCustomProps & CssKnownProps
 export type CssRule = { // do not use Record<symbol, CssStyleCollection> => doesn't support circular ref
     [name: symbol] : CssStyleCollection
 }
+export type CssRuleCollection  = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssRule>>
 
 export type CssStyle           = CssProps & CssRule
 export type CssStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssStyle>>
 
 export type CssKeyframes       = Dictionary<CssStyle>
+
+
+
+export type CssClassName = string & {} // not a really string: [A-Z_a-z-]+
+export type CssClassEntry
+    <TCssClassName extends CssClassName = CssClassName> = readonly [TCssClassName, CssStyleCollection]
+export type CssClassList
+    <TCssClassName extends CssClassName = CssClassName> = CssClassEntry<TCssClassName>[]
 //#endregion cssfn properties
