@@ -1,6 +1,13 @@
 // cssfn:
 import type {
+    OptionalOrBoolean,
+    SingleOrDeepArray,
+    ProductOrFactoryOrDeepArray,
+    ProductOrFactory,
+    
     Dictionary,
+    ValueOf,
+    DictionaryOf,
 }                           from '@cssfn/types'       // cssfn's types
 
 // others libs:
@@ -100,7 +107,16 @@ export type CssKnownProps                  = CssKnownStandardProps & CssKnownVen
 
 
 //#region cssfn properties
-export type CssKeyframes = Dictionary<{}> // TODO: <Style>
+export type CssProps           = CssCustomProps & CssKnownProps
 
-export type CssProps     = CssCustomProps & CssKnownProps
+export type CssRule = {
+    [name: symbol] : CssStyleCollection
+}
+
+export type CssStyle           = CssProps & CssRule
+export type CssStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssStyle>>
 //#endregion cssfn properties
+
+
+
+export type CssKeyframes       = Dictionary<CssStyle> // TODO: <Style>
