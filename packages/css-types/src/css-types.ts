@@ -119,4 +119,4 @@ export type CssStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<C
 
 
 
-export type CssKeyframes       = Dictionary<CssStyle> // TODO: <Style>
+export type CssKeyframes       = Dictionary<CssStyle>
