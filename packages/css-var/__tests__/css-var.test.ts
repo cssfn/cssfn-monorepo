@@ -473,3 +473,92 @@ test(`createCssVar<TestVars2>() with live options { prefix: 'nav', minify: false
         .toBe(`var(--nav-charlie)`);
     } // for
 });
+
+
+
+test(`fallbacks()`, () => {
+    const [cssVars] = createCssVar<TestVars2>({ minify: false });
+    
+    expect(
+        fallbacks(
+            cssVars.alice
+        )
+    )
+    .toBe(
+        `var(--alice)`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars.alice,
+            cssVars.bob
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob))`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars.alice,
+            cssVars.bob,
+            cssVars.charlie
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie)))`
+    );
+});
+
+test(`fallbacks(fallbacks())`, () => {
+    const [cssVars1] = createCssVar<TestVars2>({ minify: false });
+    const [cssVars2] = createCssVar<TestVars1>({ minify: false });
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            fallbacks(
+                cssVars2.hello,
+                cssVars2.world,
+                cssVars2.booFoo,
+                cssVars1.bob
+            )
+        )
+    )
+    .toBe(
+        `var(--alice, var(--hello, var(--world, var(--booFoo, var(--bob)))))`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            fallbacks(
+                cssVars2.hello,
+                cssVars2.world,
+                cssVars2.booFoo,
+                cssVars1.bob
+            ),
+            cssVars1.charlie
+        )
+    )
+    .toBe(
+        `var(--alice, var(--hello, var(--world, var(--booFoo, var(--bob, var(--charlie))))))`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            cssVars1.bob,
+            cssVars1.charlie,
+            fallbacks(
+                cssVars2.hello,
+                cssVars2.world,
+                cssVars2.booFoo,
+                cssVars1.bob
+            ),
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, var(--hello, var(--world, var(--booFoo, var(--bob)))))))`
+    );
+});
