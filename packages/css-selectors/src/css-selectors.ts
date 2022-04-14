@@ -3,7 +3,7 @@ import type {
     OptionalOrBoolean,
     SingleOrArray,
     SingleOrDeepArray,
-}                           from '@cssfn/types'       // cssfn's types
+}                           from '@cssfn/types'
 
 
 

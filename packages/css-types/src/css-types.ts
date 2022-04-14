@@ -3,12 +3,9 @@ import type {
     OptionalOrBoolean,
     SingleOrDeepArray,
     ProductOrFactoryOrDeepArray,
-    ProductOrFactory,
     
     Dictionary,
-    ValueOf,
-    DictionaryOf,
-}                           from '@cssfn/types'       // cssfn's types
+}                           from '@cssfn/types'
 
 // others libs:
 import type {
@@ -19,7 +16,7 @@ import type {
     VendorShorthandProperties,
     ObsoleteProperties,
     SvgProperties,
-}                           from 'csstype'       // ts defs support for cssfn
+}                           from 'csstype'
 
 
 
