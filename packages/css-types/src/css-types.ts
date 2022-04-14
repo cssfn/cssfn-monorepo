@@ -109,14 +109,12 @@ export type CssKnownProps                  = CssKnownStandardProps & CssKnownVen
 //#region cssfn properties
 export type CssProps           = CssCustomProps & CssKnownProps
 
-export type CssRule = {
+export type CssRule = { // do not use Record<symbol, CssStyleCollection> => doesn't support circular ref
     [name: symbol] : CssStyleCollection
 }
 
 export type CssStyle           = CssProps & CssRule
 export type CssStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssStyle>>
-//#endregion cssfn properties
-
-
 
 export type CssKeyframes       = Dictionary<CssStyle>
+//#endregion cssfn properties
