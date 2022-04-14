@@ -16,8 +16,7 @@
     "access": "public"
   },
   "scripts": {
-    "tsc": "tsc",
-    "test": "jest"
+    "tsc": "tsc"
   },
   "dependencies": {
     "@cssfn/types": "^2.0.0",
