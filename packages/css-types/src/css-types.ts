@@ -126,4 +126,9 @@ export type CssClassEntry
     <TCssClassName extends CssClassName = CssClassName> = readonly [TCssClassName, CssStyleCollection]
 export type CssClassList
     <TCssClassName extends CssClassName = CssClassName> = CssClassEntry<TCssClassName>[]
+
+
+
+export type CssSelector           = (string & {})
+export type CssSelectorCollection = SingleOrDeepArray<OptionalOrBoolean<CssSelector>>
 //#endregion cssfn properties
