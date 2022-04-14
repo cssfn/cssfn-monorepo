@@ -1,0 +1,29 @@
+{
+  "name": "@cssfn/css-var",
+  "version": "2.0.0",
+  "description": "Manipulates css selector - parse, transform, calculate specificity, and more.",
+  "keywords": [
+    "css",
+    "stylesheet",
+    "selector",
+    "combinator",
+    "attributes"
+  ],
+  "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
+  "homepage": "https://nodestrap.org",
+  "license": "ISC",
+  "main": "dist/css-var.js",
+  "types": "dist/css-var.d.ts",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@cssfn/css-types": "^2.0.0",
+    "@cssfn/types": "^2.0.0"
+  }
+}
