@@ -66,7 +66,7 @@ const liveOptionsHandler: ProxyHandler<LiveCssVarOptions> = {
 
 
 
-let globalIdCounter = 0;
+let globalIdCounter = 0; // TODO: may trigger memory leak on SSR
 
 
 
