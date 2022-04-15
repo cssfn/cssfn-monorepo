@@ -6,6 +6,14 @@ import type {
     CssCustomName,
     CssCustomRef,
 }                           from '@cssfn/css-types'
+import {
+    // tests:
+    isBrowser,
+}                           from 'is-in-browser'
+import {
+    // tests:
+    default as warning,
+}                           from 'tiny-warning'
 
 
 
@@ -66,7 +74,7 @@ const liveOptionsHandler: ProxyHandler<LiveCssVarOptions> = {
 
 
 
-let globalIdCounter = 0; // TODO: may trigger memory leak on SSR
+let globalIdCounter = 0; // should not be incremented on server side
 
 
 
@@ -92,6 +100,18 @@ export const createCssVar = <TCssCustomProps extends {}>(options: CssVarOptions 
      * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
      */
     const decl = (propName: string): CssCustomName => {
+        if (process.env.NODE_ENV === 'dev') {
+            warning(
+                isBrowser           // must run in browser
+                ||                  // or
+                !liveOptions.minify // not minified
+                ,
+                '`css-var` with option `minify = true (default)` is not supported to fetch on server side. Assign an option `{ minify: false }` to fix it.'
+            )
+        } // if
+        
+        
+        
         const name = (
             liveOptions.minify
             ?
