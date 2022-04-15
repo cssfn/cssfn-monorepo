@@ -20,6 +20,7 @@ const sheet = styleSheet(() => [
     globalScope(
     ),
 ]);
+sheet.enabled = true;
 
-const mainClass = sheet.classes.main;
+const mainClass    = sheet.classes.main;
 const menuBarClass = sheet.classes.menuBar;

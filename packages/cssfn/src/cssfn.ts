@@ -17,17 +17,33 @@ import type {
     CssScopeMap,
 }                           from '@cssfn/css-types'
 
+// other libs:
+import {
+    // tests:
+    isBrowser,
+}                           from 'is-in-browser'
+
 
 
 // style sheets:
-export const styleSheet  = <TCssScopeName extends CssScopeName>(classes: ProductOrFactory<CssClassList<TCssScopeName>>, sheetId?: string): StyleSheet<TCssScopeName> => {
-    const sheet = new StyleSheet(classes);
-    return sheet;
+export const styleSheets: StyleSheet<CssScopeName>[] = [];
+export const styleSheet = <TCssScopeName extends CssScopeName>(classes: ProductOrFactory<CssClassList<TCssScopeName>>, sheetId?: string): StyleSheet<TCssScopeName> => {
+    const styleSheet = new StyleSheet(classes);
+    if (isBrowser) {
+        styleSheets.push(styleSheet);
+    } // if
+    return styleSheet;
 }
 class StyleSheet<TCssScopeName extends CssScopeName> {
-    classes : CssScopeMap<TCssScopeName>
+    enabled          : boolean
+    readonly factory : ProductOrFactory<CssClassList<TCssScopeName>>
+    readonly classes : CssScopeMap<TCssScopeName>
+    
+    
     
     constructor(classes: ProductOrFactory<CssClassList<TCssScopeName>>) {
+        this.enabled = true;
+        this.factory = classes;
         this.classes = ({} as CssScopeMap<TCssScopeName>);
     }
 }
