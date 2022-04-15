@@ -106,7 +106,7 @@ export const createCssVar = <TCssCustomProps extends {}>(options: CssVarOptions 
                 ||                  // or
                 !liveOptions.minify // not minified
                 ,
-                '`css-var` with option `minify = true (default)` is not supported to fetch on server side. Assign an option `{ minify: false }` to fix it.'
+                '`css-var` with option `minify = true (default)` is not supported to be fetched on server side. Assign an option `{ minify: false }` to fix it.'
             )
         } // if
         
