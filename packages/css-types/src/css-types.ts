@@ -126,6 +126,13 @@ export type CssClassList
 
 
 
+export type CssScopeName = CssClassName & {}
+export type CssScopeMap<TCssScopeName extends CssScopeName = CssScopeName> = {
+    [name in TCssScopeName] : CssClassName
+}
+
+
+
 export type CssSelector           = (string & {})
 export type CssSelectorCollection = SingleOrDeepArray<OptionalOrBoolean<CssSelector>>
 //#endregion cssfn properties
