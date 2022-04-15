@@ -15,6 +15,7 @@
   "main": "dist/css-var.js",
   "types": "dist/css-var.d.ts",
   "type": "module",
+  "sideEffects": false,
   "publishConfig": {
     "access": "public"
   },

@@ -15,6 +15,7 @@
   "main": "dist/css-selectors.js",
   "types": "dist/css-selectors.d.ts",
   "type": "module",
+  "sideEffects": false,
   "publishConfig": {
     "access": "public"
   },

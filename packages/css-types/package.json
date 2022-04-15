@@ -12,6 +12,7 @@
   "main": "dist/css-types.js",
   "types": "dist/css-types.d.ts",
   "type": "module",
+  "sideEffects": false,
   "publishConfig": {
     "access": "public"
   },
