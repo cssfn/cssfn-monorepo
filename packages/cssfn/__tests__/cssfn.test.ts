@@ -12,7 +12,7 @@ import {
 
 
 
-styleSheet(() => [
+const sheet = styleSheet(() => [
     mainScope(
     ),
     scopeOf('menuBar',
@@ -20,3 +20,6 @@ styleSheet(() => [
     globalScope(
     ),
 ]);
+
+const mainClass = sheet.classes.main;
+const menuBarClass = sheet.classes.menuBar;

@@ -20,8 +20,16 @@ import type {
 
 
 // style sheets:
-export const styleSheet  = <TCssScopeName extends CssScopeName = CssScopeName>(classes: ProductOrFactory<CssClassList<TCssScopeName>>, sheetId?: string): Factory<CssScopeMap<TCssScopeName>> => {
-    return () => ({} as CssScopeMap<TCssScopeName>);
+export const styleSheet  = <TCssScopeName extends CssScopeName>(classes: ProductOrFactory<CssClassList<TCssScopeName>>, sheetId?: string): StyleSheet<TCssScopeName> => {
+    const sheet = new StyleSheet(classes);
+    return sheet;
+}
+class StyleSheet<TCssScopeName extends CssScopeName> {
+    classes : CssScopeMap<TCssScopeName>
+    
+    constructor(classes: ProductOrFactory<CssClassList<TCssScopeName>>) {
+        this.classes = ({} as CssScopeMap<TCssScopeName>);
+    }
 }
 
 
@@ -31,7 +39,7 @@ export const styleSheet  = <TCssScopeName extends CssScopeName = CssScopeName>(c
  * Defines an additional scoped styleSheet.
  * @returns A `CssClassEntry` represents a scoped styleSheet.
  */
-export const scopeOf     = <TCssScopeName extends CssScopeName = CssScopeName>(scopeName: TCssScopeName, ...styles: CssStyleCollection[]): CssClassEntry<TCssScopeName> => [
+export const scopeOf     = <TCssScopeName extends CssScopeName>(scopeName: TCssScopeName, ...styles: CssStyleCollection[]): CssClassEntry<TCssScopeName> => [
     scopeName,
     styles
 ];

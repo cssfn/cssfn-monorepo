@@ -120,14 +120,14 @@ export type CssKeyframes       = Dictionary<CssStyle>
 
 export type CssClassName = string & {} // not a really string: [A-Z_a-z-]+
 export type CssClassEntry
-    <TCssClassName extends CssClassName = CssClassName> = readonly [TCssClassName, CssStyleCollection]
+    <TCssClassName extends CssClassName> = readonly [TCssClassName, CssStyleCollection]
 export type CssClassList
-    <TCssClassName extends CssClassName = CssClassName> = CssClassEntry<TCssClassName>[]
+    <TCssClassName extends CssClassName> = CssClassEntry<TCssClassName>[]
 
 
 
 export type CssScopeName = CssClassName & {}
-export type CssScopeMap<TCssScopeName extends CssScopeName = CssScopeName> = {
+export type CssScopeMap<TCssScopeName extends CssScopeName> = {
     [name in TCssScopeName] : CssClassName
 }
 
