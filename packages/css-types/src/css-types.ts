@@ -86,12 +86,12 @@ export type CssKnownValueOf
 export type CssKnownPropsOf<TName extends CssKnownName, multiValue extends boolean = false> = {
     [name in TName] ?: multiValue extends false ? CssComplexSingleValueOf<CssKnownValueOf<name>> : CssComplexValueOf<CssKnownValueOf<name>>
 }
-export type CssKnownStandardLonghandProps  = CssKnownPropsOf<keyof StandardLonghandProperties>
-export type CssKnownStandardShorthandProps = CssKnownPropsOf<keyof StandardShorthandProperties, true>
+export type CssKnownStandardLonghandProps  = CssKnownPropsOf<keyof StandardLonghandProperties, true>  // some_props like boxShadow, filter are comma/space separated values
+export type CssKnownStandardShorthandProps = CssKnownPropsOf<keyof StandardShorthandProperties, true> // all_props are comma/space separated values
 export type CssKnownStandardProps          = CssKnownStandardLonghandProps & CssKnownStandardShorthandProps
 
-export type CssKnownVendorLonghandProps    = CssKnownPropsOf<keyof VendorLonghandProperties>
-export type CssKnownVendorShorthandProps   = CssKnownPropsOf<keyof VendorShorthandProperties, true>
+export type CssKnownVendorLonghandProps    = CssKnownPropsOf<keyof VendorLonghandProperties, true>  // some_props are comma/space separated values
+export type CssKnownVendorShorthandProps   = CssKnownPropsOf<keyof VendorShorthandProperties, true> // all_props  are comma/space separated values
 export type CssKnownVendorProps            = CssKnownVendorLonghandProps & CssKnownVendorShorthandProps
 
 export type CssKnownObsoleteProps          = CssKnownPropsOf<keyof ObsoleteProperties>
