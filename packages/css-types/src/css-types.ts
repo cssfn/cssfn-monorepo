@@ -127,6 +127,8 @@ export type CssClassList
 
 
 export type CssScopeName = CssClassName & {}
+export type CssScopeEntry
+    <TCssScopeName extends CssScopeName> = readonly [TCssScopeName, CssStyleCollection]
 export type CssScopeMap<TCssScopeName extends CssScopeName> = {
     [name in TCssScopeName] : CssClassName
 }
