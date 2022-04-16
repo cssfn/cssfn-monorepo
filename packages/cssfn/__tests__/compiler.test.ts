@@ -439,3 +439,27 @@ test(`mergeLiteral({conflict+symbols}, {conflict+symbols})`, () => {
         },
     })
 });
+
+
+
+test(`mergeNested( &{empty} )`, () => {
+    const mainStyle: CssStyle = {
+        /* empty */
+    };
+    mergeNested(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        /* empty */
+    })
+});
+
+test(`mergeNested( &{empty}, &{some} )`, () => {
+    const mainStyle: CssStyle = {
+        /* empty */
+    };
+    mergeNested(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        /* empty */
+    })
+});
