@@ -33,7 +33,7 @@ const defaultStyleSheetOptions : Required<StyleSheetOptions> = {
 }
 
 type StyleSheetUpdatedCallback<TCssScopeName extends CssScopeName> = (styleSheet: StyleSheet<TCssScopeName>) => void;
-class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> {
+class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements Required<StyleSheetOptions> {
     //#region private properties
     #options         : Required<StyleSheetOptions>
     #updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>|null
