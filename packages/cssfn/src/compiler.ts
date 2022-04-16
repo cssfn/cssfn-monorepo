@@ -487,3 +487,277 @@ const adjustSpecificityWeight = (selectorGroup: PureSelectorModelGroup, minSpeci
         )),
     );
 };
+
+export interface SelectorOptions {
+    groupSelectors ?: boolean
+    
+    specificityWeight    ?: number|null
+    minSpecificityWeight ?: number|null
+    maxSpecificityWeight ?: number|null
+}
+const defaultSelectorOptions : Required<SelectorOptions> = {
+    groupSelectors  : true,
+    
+    specificityWeight    : null,
+    minSpecificityWeight : null,
+    maxSpecificityWeight : null,
+};
+export const mergeSelectors = (selectorGroup: SelectorModelGroup, options: SelectorOptions = defaultSelectorOptions): SelectorModelGroup => {
+    const {
+        groupSelectors : doGroupSelectors = defaultSelectorOptions.groupSelectors,
+        
+        specificityWeight,
+    } = options;
+    const minSpecificityWeight = specificityWeight ?? options.minSpecificityWeight ?? null;
+    const maxSpecificityWeight = specificityWeight ?? options.maxSpecificityWeight ?? null;
+    
+    
+    
+    if (
+        !doGroupSelectors // do not perform grouping
+        &&
+        (minSpecificityWeight === null) && (maxSpecificityWeight === null) // do not perform transform
+    ) return selectorGroup; // nothing to do
+    
+    
+    
+    const normalizedSelectorGroup = (
+        selectorGroup
+        .flatMap((selector) => ungroupSelector(selector))
+        .filter(isNotEmptySelector)
+    );
+    
+    
+    
+    if (
+        (!doGroupSelectors || (normalizedSelectorGroup.length <= 1)) // do not perform grouping || only singular => nothing to group
+        &&
+        (minSpecificityWeight === null) && (maxSpecificityWeight === null) // do not perform transform
+    ) return normalizedSelectorGroup; // nothing to do
+    
+    
+    
+    // transform:
+    const adjustedSelectorGroup = adjustSpecificityWeight(
+        normalizedSelectorGroup
+        ,
+        minSpecificityWeight,
+        maxSpecificityWeight
+    );
+    
+    
+    
+    if (
+        (!doGroupSelectors || (adjustedSelectorGroup.length <= 1)) // do not perform grouping || only singular => nothing to group
+    ) return adjustedSelectorGroup; // nothing to do
+    
+    
+    
+    //#region group selectors by parent position
+    const enum ParentPosition {
+        OnlyParent,
+        OnlyBeginParent,
+        OnlyEndParent,
+        RandomParent,
+    }
+    type GroupByParentPosition = Map<ParentPosition, PureSelectorModel[]>
+    const selectorGroupByParentPosition = adjustedSelectorGroup.map((selector) => selector.filter(isNotEmptySelectorEntry) as PureSelectorModel).reduce(
+        (accum, selector): GroupByParentPosition => {
+            const position = ((): ParentPosition => {
+                const hasFirstParent = ((): boolean => {
+                    if (selector.length < 1) return false;                      // at least 1 entry must exist, for the first_parent
+                    
+                    const firstSelectorEntry = selector[0];                     // take the first entry
+                    return isParentSelector(firstSelectorEntry);                // the entry must be ParentSelector
+                })();
+                
+                const onlyParent      = hasFirstParent && (selector.length === 1);
+                if (onlyParent) return ParentPosition.OnlyParent;
+                
+                
+                
+                const hasMiddleParent = ((): boolean => {
+                    if (selector.length < 3) return false;                      // at least 3 entry must exist, the first & last are already reserved, the middle one is the middle_parent
+                    
+                    for (let index = 1, maxIndex = (selector.length - 2); index <= maxIndex; index++) {
+                        const middleSelectorEntry = selector[index];            // take the 2nd_first_entry until the 2nd_last_entry
+                        if (isParentSelector(middleSelectorEntry)) return true; // the entry must be ParentSelector, otherwise skip to next
+                    } // for
+                    
+                    return false; // ran out of iterator => not found
+                })();
+                const hasLastParent = ((): boolean => {
+                    const length = selector.length;
+                    if (length < 2) return false;                               // at least 2 entry must exist, the first is already reserved, the last one is the last_parent
+                    
+                    const lastSelectorEntry = selector[length - 1];             // take the last entry
+                    return isParentSelector(lastSelectorEntry);                 // the entry must be ParentSelector
+                })();
+                
+                const onlyBeginParent = hasFirstParent && !hasMiddleParent && !hasLastParent;
+                if (onlyBeginParent) return ParentPosition.OnlyBeginParent;
+                
+                const onlyEndParent   = !hasFirstParent && !hasMiddleParent && hasLastParent;
+                if (onlyEndParent) return ParentPosition.OnlyEndParent;
+                
+                return ParentPosition.RandomParent;
+            })();
+            let group = accum.get(position);             // get an existing collector
+            if (!group) accum.set(position, group = []); // create a new collector
+            group.push(selector);
+            return accum;
+        },
+        new Map<ParentPosition, PureSelectorModel[]>()
+    );
+    //#endregion group selectors by parent position
+    
+    const onlyParentSelectorGroup      = selectorGroupByParentPosition.get(ParentPosition.OnlyParent      ) ?? [];
+    const onlyBeginParentSelectorGroup = selectorGroupByParentPosition.get(ParentPosition.OnlyBeginParent ) ?? [];
+    const onlyEndParentSelectorGroup   = selectorGroupByParentPosition.get(ParentPosition.OnlyEndParent   ) ?? [];
+    const randomParentSelectorGroup    = selectorGroupByParentPosition.get(ParentPosition.RandomParent    ) ?? [];
+    
+    
+    
+    type GroupByCombinator = Map<Combinator|null, PureSelectorModelGroup>
+    const createGroupByCombinator = (fetch: (selector: PureSelectorModel) => Combinator|null) => (accum: GroupByCombinator, selector: PureSelectorModel): GroupByCombinator => {
+        const combinator = fetch(selector);
+        let group = accum.get(combinator);             // get an existing collector
+        if (!group) accum.set(combinator, group = []); // create a new collector
+        group.push(selector);
+        return accum;
+    };
+    const groupedSelectorGroup = createSelectorGroup(
+        // only ParentSelector
+        // &
+        !!onlyParentSelectorGroup.length && (
+            onlyParentSelectorGroup[0] // just take the first one, the rest are guaranteed to be the same
+        ),
+        
+        
+        
+        // ParentSelector at beginning
+        // &aaa
+        // &:is(aaa, bbb, ccc)
+        ...((): SelectorModelGroup => {
+            if (onlyBeginParentSelectorGroup.length <= 1) return onlyBeginParentSelectorGroup; // only contain one/no Selector, no need to group
+            
+            
+            
+            //#region group selectors by combinator
+            const selectorGroupByCombinator = onlyBeginParentSelectorGroup.reduce(
+                createGroupByCombinator((selector) => {
+                    if (selector.length >= 2) {                           // at least 2 entry must exist, for the first_parent followed by combinator
+                        const secondSelectorEntry = selector[1];          // take the first_second entry
+                        if (isCombinator(secondSelectorEntry)) {          // the entry must be the same as combinator
+                            return secondSelectorEntry;
+                        } // if
+                    } // if
+                    
+                    return null; // ungroupable
+                }),
+                new Map<Combinator|null, PureSelectorModelGroup>()
+            );
+            //#endregion group selectors by combinator
+            return Array.from(selectorGroupByCombinator.entries()).flatMap(([combinator, selectors]) => {
+                if (selectors.length <= 1) return selectors;  // only contain one/no Selector, no need to group
+                if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length <= 1) return selectors;  // only contain one/no Selector without ::pseudo-element, no need to group
+                
+                
+                
+                const [isSelector, ...pseudoElmSelectors] = groupSelectors(
+                    selectors
+                    .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
+                    .map((selector) => selector.slice(
+                        (
+                            combinator
+                            ?
+                            2 // remove the first_parent & combinator
+                            :
+                            1 // remove the first_parent
+                        )
+                        +
+                        (selector.some(isPseudoElementSelector) ? -1 : 0) // exception for ::pseudo-element => do not remove the first_parent
+                    )),
+                    { selectorName: 'is' }
+                );
+                return createSelectorGroup(
+                    isNotEmptySelector(isSelector) && createSelector(
+                        parentSelector(), // add a ParentSelector      before :is(...)
+                        combinator,       // add a Combinator (if any) before :is(...)
+                        ...isSelector,    // :is(...)
+                    ),
+                    ...pseudoElmSelectors,
+                );
+            });
+        })(),
+        
+        
+        
+        // ParentSelector at end
+        // aaa&
+        // :is(aaa, bbb, ccc)&
+        ...((): SelectorModelGroup => {
+            if (onlyEndParentSelectorGroup.length <= 1) return onlyEndParentSelectorGroup; // only contain one/no Selector, no need to group
+            
+            
+            
+            //#region group selectors by combinator
+            const selectorGroupByCombinator = onlyEndParentSelectorGroup.reduce(
+                createGroupByCombinator((selector) => {
+                    const length = selector.length;
+                    if (length >= 2) {                                    // at least 2 entry must exist, for the combinator followed by last_parent
+                        const secondSelectorEntry = selector[length - 2]; // take the last_second entry
+                        if (isCombinator(secondSelectorEntry)) {          // the entry must be the same as combinator
+                            return secondSelectorEntry;
+                        } // if
+                    } // if
+                    
+                    return null; // ungroupable
+                }),
+                new Map<Combinator|null, PureSelectorModelGroup>()
+            );
+            //#endregion group selectors by combinator
+            return Array.from(selectorGroupByCombinator.entries()).flatMap(([combinator, selectors]) => {
+                if (selectors.length <= 1) return selectors;  // only contain one/no Selector, no need to group
+                if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length <= 1) return selectors;  // only contain one/no Selector without ::pseudo-element, no need to group
+                
+                
+                
+                const [isSelector, ...pseudoElmSelectors] = groupSelectors(
+                    selectors
+                    .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
+                    .map((selector) => selector.slice(0,
+                        (
+                            combinator
+                            ?
+                            -2 // remove the combinator & last_parent
+                            :
+                            -1 // remove the last_parent
+                        )
+                        +
+                        (selector.some(isPseudoElementSelector) ? 1 : 0) // exception for ::pseudo-element => do not remove the last_parent
+                    )),
+                    { selectorName: 'is' }
+                );
+                return createSelectorGroup(
+                    isNotEmptySelector(isSelector) && createSelector(
+                        ...isSelector,    // :is(...)
+                        combinator,       // add a Combinator (if any) after :is(...)
+                        parentSelector(), // add a ParentSelector      after :is(...)
+                    ),
+                    ...pseudoElmSelectors,
+                );
+            });
+        })(),
+        
+        
+        
+        // parent at random
+        // a&aa, bb&b, c&c&c
+        ...randomParentSelectorGroup,
+    );
+    
+    
+    
+    return groupedSelectorGroup;
+}
