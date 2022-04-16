@@ -45,7 +45,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> {
     
     
     //#region constructors
-    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>|null, options ?: StyleSheetOptions) {
+    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
         this.#options         = {
             ...(options ?? {}),
             enabled : options?.enabled ?? defaultStyleSheetOptions.enabled,
@@ -96,7 +96,7 @@ export type { StyleSheet } // only export the type but not the actual class
 
 class StyleSheetRegistry {
     //#region private properties
-    #styleSheets : StyleSheet<CssScopeName>[] = []
+    #styleSheets : StyleSheet<CssScopeName>[]
     #subscribers : Subject<StyleSheet<CssScopeName>>
     //#endregion private properties
     
@@ -104,6 +104,7 @@ class StyleSheetRegistry {
     
     //#region constructors
     constructor() {
+        this.#styleSheets = [];
         this.#subscribers = new Subject<StyleSheet<CssScopeName>>();
     }
     //#endregion constructors
@@ -111,7 +112,7 @@ class StyleSheetRegistry {
     
     
     //#region public methods
-    add<TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, options ?: StyleSheetOptions) {
+    add<TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, options?: StyleSheetOptions) {
         if (!isBrowser) { // on server side => just pass a StyleSheet object
             return new StyleSheet<TCssScopeName>(
                 scopes,
@@ -147,7 +148,7 @@ class StyleSheetRegistry {
         
         //#region notify previously registered StyleSheet(s)
         const styleSheets = this.#styleSheets;
-        for (let i = 0; i < styleSheets.length; i ++) {
+        for (let i = 0; i < styleSheets.length; i++) {
             const styleSheet = styleSheets[i];
             if (!styleSheet.enabled) continue; // skip disabled styleSheet
             
@@ -172,6 +173,6 @@ export type { StyleSheetRegistry } // only export the type but not the actual cl
 
 
 export const styleSheets = new StyleSheetRegistry();
-export const styleSheet = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, options ?: StyleSheetOptions): StyleSheet<TCssScopeName> => {
+export const styleSheet = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, options?: StyleSheetOptions): StyleSheet<TCssScopeName> => {
     return styleSheets.add(scopes, options);
 }
