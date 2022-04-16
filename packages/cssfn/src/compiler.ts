@@ -81,10 +81,8 @@ import {
 // processors:
 
 export const mergeLiteral = (style: CssStyle, newStyle: CssStyle): void => {
-    for (const propName of [
-        ...Object.keys(newStyle),
-        ...Object.getOwnPropertySymbols(newStyle),
-    ]) { // loop through `newStyle`'s props
+    //#region merge normal props
+    for (const propName in newStyle) { // loop through `newStyle`'s props
         const newPropValue = (newStyle as any)[propName];
         
         
@@ -93,6 +91,21 @@ export const mergeLiteral = (style: CssStyle, newStyle: CssStyle): void => {
         delete (style as any)[propName]; // delete the old prop (if any), so the new prop always placed at the end of LiteralObject
         (style as any)[propName] = newPropValue as any; // add/overwrite
     } // for
+    //#endregion merge normal props
+    
+    
+    
+    //#region merge symbol props
+    for (const propName of Object.getOwnPropertySymbols(newStyle)) { // loop through `newStyle`'s props
+        const newPropValue = (newStyle as any)[propName];
+        
+        
+        
+        // add/overwrite `newPropValue` into `style`:
+        delete (style as any)[propName]; // delete the old prop (if any), so the new prop always placed at the end of LiteralObject
+        (style as any)[propName] = newPropValue as any; // add/overwrite
+    } // for
+    //#endregion merge symbol props
 }
 export const mergeNested  = (style: CssStyle): CssStyle => {
     //#region group (nested) Rule(s) by selector name
