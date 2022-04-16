@@ -17,6 +17,8 @@ import type {
 
 
 const simulateBrowserSide = () => {
+    jest.resetModules();
+    
     const oriWindow   = (typeof(window) === 'undefined'  ) ? undefined : window;
     const oriDocument = (typeof(document) === 'undefined') ? undefined : document;
     if (oriWindow === undefined) {
@@ -30,6 +32,8 @@ const simulateBrowserSide = () => {
     } // if
 };
 const simulateServerSide = () => {
+    jest.resetModules();
+    
     const oriWindow   = (typeof(window) === 'undefined'  ) ? undefined : window;
     const oriDocument = (typeof(document) === 'undefined') ? undefined : document;
     if (oriWindow !== undefined) {
@@ -44,16 +48,23 @@ const simulateServerSide = () => {
 
 
 jest.isolateModules(() => {
-    simulateBrowserSide();
-    
-    const cssfnModule = require('../src/cssfn');
-    const styleSheet  = cssfnModule.styleSheet  as typeof _styleSheet;
-    const scopeOf     = cssfnModule.scopeOf     as typeof _scopeOf;
-    const mainScope   = cssfnModule.mainScope   as typeof _mainScope;
-    const globalScope = cssfnModule.globalScope as typeof _globalScope;
-    
-    const styleSheetModule = require('../src/styleSheet');
-    const styleSheets = styleSheetModule.styleSheets as typeof _styleSheets;
+    let styleSheet  : typeof _styleSheet  = undefined as any;
+    let scopeOf     : typeof _scopeOf     = undefined as any;
+    let mainScope   : typeof _mainScope   = undefined as any;
+    let globalScope : typeof _globalScope = undefined as any;
+    let styleSheets : typeof _styleSheets = undefined as any;
+    beforeAll(async () => {
+        simulateBrowserSide();
+        
+        const cssfnModule      = await import('../src/cssfn')
+        const styleSheetModule = await import('../src/styleSheet')
+        
+        styleSheet  = cssfnModule.styleSheet
+        scopeOf     = cssfnModule.scopeOf
+        mainScope   = cssfnModule.mainScope
+        globalScope = cssfnModule.globalScope
+        styleSheets = styleSheetModule.styleSheets
+    });
     
     
     
@@ -242,16 +253,23 @@ jest.isolateModules(() => {
 
 
 jest.isolateModules(() => {
-    simulateServerSide();
-    
-    const cssfnModule = require('../src/cssfn');
-    const styleSheet  = cssfnModule.styleSheet  as typeof _styleSheet;
-    const scopeOf     = cssfnModule.scopeOf     as typeof _scopeOf;
-    const mainScope   = cssfnModule.mainScope   as typeof _mainScope;
-    const globalScope = cssfnModule.globalScope as typeof _globalScope;
-    
-    const styleSheetModule = require('../src/styleSheet');
-    const styleSheets = styleSheetModule.styleSheets as typeof _styleSheets;
+    let styleSheet  : typeof _styleSheet  = undefined as any;
+    let scopeOf     : typeof _scopeOf     = undefined as any;
+    let mainScope   : typeof _mainScope   = undefined as any;
+    let globalScope : typeof _globalScope = undefined as any;
+    let styleSheets : typeof _styleSheets = undefined as any;
+    beforeAll(async () => {
+        simulateServerSide();
+        
+        const cssfnModule      = await import('../src/cssfn')
+        const styleSheetModule = await import('../src/styleSheet')
+        
+        styleSheet  = cssfnModule.styleSheet
+        scopeOf     = cssfnModule.scopeOf
+        mainScope   = cssfnModule.mainScope
+        globalScope = cssfnModule.globalScope
+        styleSheets = styleSheetModule.styleSheets
+    });
     
     
     
