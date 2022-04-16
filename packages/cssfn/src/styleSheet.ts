@@ -1,18 +1,10 @@
 // cssfn:
 import type {
     // types:
-    Factory,
     ProductOrFactory,
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
-    CssRuleCollection,
-    
-    CssStyleCollection,
-    
-    CssClassEntry,
-    CssClassList,
-    
     CssScopeName,
     CssScopeList,
     CssScopeMap,
@@ -40,28 +32,29 @@ const defaultStyleSheetOptions : Required<StyleSheetOptions> = {
     id       : '',
 }
 
+type StyleSheetUpdatedCallback<TCssScopeName extends CssScopeName> = (styleSheet: StyleSheet<TCssScopeName>) => void;
 class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> {
     //#region private properties
-    #options     : Required<StyleSheetOptions>
-    #subscribers : Subject<StyleSheet<TCssScopeName>>
+    #options         : Required<StyleSheetOptions>
+    #updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>|null
     
-    #scopes      : ProductOrFactory<CssScopeList<TCssScopeName>>
-    #classes     : CssScopeMap<TCssScopeName>
+    #scopes          : ProductOrFactory<CssScopeList<TCssScopeName>>
+    #classes         : CssScopeMap<TCssScopeName>
     //#endregion private properties
     
     
     
     //#region constructors
-    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, options ?: StyleSheetOptions) {
-        this.#options = {
+    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>|null, options ?: StyleSheetOptions) {
+        this.#options         = {
             ...(options ?? {}),
             enabled : options?.enabled ?? defaultStyleSheetOptions.enabled,
             id      : options?.id      ?? defaultStyleSheetOptions.id,
         };
-        this.#subscribers = new Subject<StyleSheet<TCssScopeName>>();
+        this.#updatedCallback = updatedCallback;
         
-        this.#scopes      = scopes;
-        this.#classes     = ({} as CssScopeMap<TCssScopeName>);
+        this.#scopes          = scopes;
+        this.#classes         = ({} as CssScopeMap<TCssScopeName>);
     }
     //#endregion constructors
     
@@ -73,7 +66,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> {
         if (this.#options.enabled === value) return; // no change => no need to update
         
         this.#options.enabled = value; // update
-        this.#subscribers.next(this);  // notify a StyleSheet updated
+        this.#updatedCallback?.(this); // notify a StyleSheet updated
     }
     
     get id() { return this.#options.id }
@@ -81,7 +74,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> {
         if (this.#options.id === value) return; // no change => no need to update
         
         this.#options.id = value;      // update
-        this.#subscribers.next(this);  // notify a StyleSheet updated
+        this.#updatedCallback?.(this); // notify a StyleSheet updated
     }
     //#endregion public options
     
@@ -96,14 +89,6 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> {
         return this.#classes;
     }
     //#endregion public properties
-    
-    
-    
-    //#region public methods
-    subscribe(subscriber: (styleSheet: StyleSheet<TCssScopeName>) => void) {
-        return this.#subscribers.subscribe(subscriber); // listen for future updates
-    }
-    //#endregion public methods
 }
 export type { StyleSheet } // only export the type but not the actual class
 
@@ -127,20 +112,30 @@ class StyleSheetRegistry {
     
     //#region public methods
     add<TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, options ?: StyleSheetOptions) {
-        const newStyleSheet = new StyleSheet<TCssScopeName>(scopes, options);
-        
-        if (isBrowser) { // client side only
-            this.#styleSheets.push(newStyleSheet as any);     // register to collection
-            
-            
-            if (newStyleSheet.enabled) {                      // skip disabled styleSheet
-                this.#subscribers.next(newStyleSheet as any); // notify a StyleSheet added
-            } // if
-            
-            newStyleSheet.subscribe((styleSheet) => {         // listen for future updates
-                this.#subscribers.next(styleSheet as any);    // notify a StyleSheet updated
-            });
+        if (!isBrowser) { // on server side => just pass a StyleSheet object
+            return new StyleSheet<TCssScopeName>(
+                scopes,
+                null, // not listen for future updates
+                options
+            );
         } // if
+        
+        
+        
+        const newStyleSheet = new StyleSheet<TCssScopeName>(
+            scopes,
+            this.#styleSheetUpdated as any,               // listen for future updates
+            options
+        );
+        this.#styleSheets.push(newStyleSheet as any);     // register to collection
+        
+        
+        
+        if (newStyleSheet.enabled) {                      // skip disabled styleSheet
+            this.#subscribers.next(newStyleSheet as any); // notify a StyleSheet added
+        } // if
+        
+        
         
         return newStyleSheet;
     }
@@ -163,6 +158,14 @@ class StyleSheetRegistry {
         return this.#subscribers.subscribe(subscriber); // listen for future updates
     }
     //#endregion public methods
+    
+    
+    
+    //#region private callbacks
+    #styleSheetUpdated = (styleSheet: StyleSheet<CssScopeName>): void => {
+        this.#subscribers.next(styleSheet); // notify a StyleSheet updated
+    }
+    //#endregion private callbacks
 }
 export type { StyleSheetRegistry } // only export the type but not the actual class
 
