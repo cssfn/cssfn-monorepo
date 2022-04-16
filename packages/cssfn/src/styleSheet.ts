@@ -14,6 +14,7 @@ import type {
     CssClassList,
     
     CssScopeName,
+    CssScopeList,
     CssScopeMap,
 }                           from '@cssfn/css-types'
 
@@ -44,14 +45,14 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> {
     #options     : Required<StyleSheetOptions>
     #subscribers : Subject<StyleSheet<TCssScopeName>>
     
-    #factory     : ProductOrFactory<CssClassList<TCssScopeName>>
+    #factory     : ProductOrFactory<CssScopeList<TCssScopeName>>
     #classes     : CssScopeMap<TCssScopeName>
     //#endregion private properties
     
     
     
     //#region constructors
-    constructor(classes: ProductOrFactory<CssClassList<TCssScopeName>>, options ?: StyleSheetOptions) {
+    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, options ?: StyleSheetOptions) {
         this.#options = {
             ...(options ?? {}),
             enabled : options?.enabled ?? defaultStyleSheetOptions.enabled,
@@ -59,7 +60,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> {
         };
         this.#subscribers = new Subject<StyleSheet<TCssScopeName>>();
         
-        this.#factory     = classes;
+        this.#factory     = scopes;
         this.#classes     = ({} as CssScopeMap<TCssScopeName>);
     }
     //#endregion constructors
@@ -125,8 +126,8 @@ class StyleSheetRegistry {
     
     
     //#region public methods
-    add<TCssScopeName extends CssScopeName>(classes: ProductOrFactory<CssClassList<TCssScopeName>>, options ?: StyleSheetOptions) {
-        const newStyleSheet = new StyleSheet<TCssScopeName>(classes, options);
+    add<TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, options ?: StyleSheetOptions) {
+        const newStyleSheet = new StyleSheet<TCssScopeName>(scopes, options);
         
         if (isBrowser) { // client side only
             this.#styleSheets.push(newStyleSheet as any);     // register to collection
@@ -168,6 +169,6 @@ export type { StyleSheetRegistry } // only export the type but not the actual cl
 
 
 export const styleSheets = new StyleSheetRegistry();
-export const styleSheet = <TCssScopeName extends CssScopeName>(classes: ProductOrFactory<CssClassList<TCssScopeName>>, options ?: StyleSheetOptions): StyleSheet<TCssScopeName> => {
-    return styleSheets.add(classes, options);
+export const styleSheet = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, options ?: StyleSheetOptions): StyleSheet<TCssScopeName> => {
+    return styleSheets.add(scopes, options);
 }
