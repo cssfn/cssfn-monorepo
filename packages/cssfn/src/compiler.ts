@@ -639,7 +639,7 @@ export const mergeSelectors = (selectorGroup: SelectorModelGroup, options: Selec
         // &aaa
         // &:is(aaa, bbb, ccc)
         ...((): SelectorModelGroup => {
-            if (onlyBeginParentSelectorGroup.length <= 1) return onlyBeginParentSelectorGroup; // only contain one/no Selector, no need to group
+            if (onlyBeginParentSelectorGroup.length <= 1) return onlyBeginParentSelectorGroup; // only contain one/no SelectorModel, no need to group
             
             
             
@@ -659,14 +659,14 @@ export const mergeSelectors = (selectorGroup: SelectorModelGroup, options: Selec
             );
             //#endregion group selectors by combinator
             return Array.from(selectorGroupByCombinator.entries()).flatMap(([combinator, selectors]) => {
-                if (selectors.length <= 1) return selectors;  // only contain one/no Selector, no need to group
-                if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length <= 1) return selectors;  // only contain one/no Selector without ::pseudo-element, no need to group
+                if (selectors.length <= 1) return selectors;  // only contain one/no SelectorModel, no need to group
+                if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length <= 1) return selectors;  // only contain one/no SelectorModel without ::pseudo-element, no need to group
                 
                 
                 
                 const [isSelector, ...pseudoElmSelectors] = groupSelectors(
                     selectors
-                    .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
+                    .filter(isNotEmptySelector) // remove empty SelectorModel(s) in SelectorGroup
                     .map((selector) => selector.slice(
                         (
                             combinator
@@ -697,7 +697,7 @@ export const mergeSelectors = (selectorGroup: SelectorModelGroup, options: Selec
         // aaa&
         // :is(aaa, bbb, ccc)&
         ...((): SelectorModelGroup => {
-            if (onlyEndParentSelectorGroup.length <= 1) return onlyEndParentSelectorGroup; // only contain one/no Selector, no need to group
+            if (onlyEndParentSelectorGroup.length <= 1) return onlyEndParentSelectorGroup; // only contain one/no SelectorModel, no need to group
             
             
             
@@ -718,14 +718,14 @@ export const mergeSelectors = (selectorGroup: SelectorModelGroup, options: Selec
             );
             //#endregion group selectors by combinator
             return Array.from(selectorGroupByCombinator.entries()).flatMap(([combinator, selectors]) => {
-                if (selectors.length <= 1) return selectors;  // only contain one/no Selector, no need to group
-                if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length <= 1) return selectors;  // only contain one/no Selector without ::pseudo-element, no need to group
+                if (selectors.length <= 1) return selectors;  // only contain one/no SelectorModel, no need to group
+                if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length <= 1) return selectors;  // only contain one/no SelectorModel without ::pseudo-element, no need to group
                 
                 
                 
                 const [isSelector, ...pseudoElmSelectors] = groupSelectors(
                     selectors
-                    .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
+                    .filter(isNotEmptySelector) // remove empty SelectorModel(s) in SelectorGroup
                     .map((selector) => selector.slice(0,
                         (
                             combinator
@@ -761,3 +761,86 @@ export const mergeSelectors = (selectorGroup: SelectorModelGroup, options: Selec
     
     return groupedSelectorGroup;
 }
+
+
+
+// rules:
+/**
+ * Defines component's `style(s)` that is applied when the specified `selector(s)` meet the conditions.
+ * @returns A `Rule` represents the component's rule.
+ */
+export const rule = (rules: CssSelectorCollection, styles: CssStyleCollection, options: SelectorOptions = defaultSelectorOptions): CssRule => {
+    const rulesString = (
+        flat(rules)
+        .filter((rule): rule is CssSelector => !!rule)
+    );
+    const enum RuleType {
+        SelectorRule, // &.foo   .boo&   .foo&.boo
+        AtRule,       // for `@media`
+        PropRule,     // for `from`, `to`, `25%`
+    }
+    type GroupByRuleTypes = Map<RuleType, CssSelector[]>
+    const rulesByTypes = rulesString.reduce(
+        (accum, rule): GroupByRuleTypes => {
+            let ruleType = ((): RuleType|null => {
+                if (rule.startsWith('@')) return RuleType.AtRule;
+                if (rule.startsWith(' ')) return RuleType.PropRule;
+                if (rule.includes('&'))   return RuleType.SelectorRule;
+                return null;
+            })();
+            switch (ruleType) {
+                case RuleType.PropRule:
+                    rule = rule.slice(1);
+                    break;
+                
+                case null:
+                    ruleType = RuleType.SelectorRule;
+                    rule = `&${rule}`;
+                    break;
+            } // switch
+            
+            
+            
+            let group = accum.get(ruleType);             // get an existing collector
+            if (!group) accum.set(ruleType, group = []); // create a new collector
+            group.push(rule);
+            return accum;
+        },
+        new Map<RuleType, CssSelector[]>()
+    );
+    
+    
+    
+    const selectorList = (
+        (rulesByTypes.get(RuleType.SelectorRule) ?? [])
+        .flatMap((selector) => {
+            const selectorList = parseSelectors(selector);
+            if (!selectorList) throw Error(`parse selector error: ${selector}`);
+            return selectorList;
+        })
+        .filter(isNotEmptySelector)
+    );
+    const mergedSelectorList = mergeSelectors(selectorList, options);
+    
+    
+    
+    return {
+        ...(isNotEmptySelectors(mergedSelectorList) ? {
+            [Symbol(
+                selectorsToString(mergedSelectorList)
+            )] : styles
+        } : {}),
+        
+        ...Object.fromEntries(
+            [
+                ...(rulesByTypes.get(RuleType.AtRule   ) ?? []),
+                ...(rulesByTypes.get(RuleType.PropRule ) ?? []),
+            ].map((rule) => [
+                Symbol(
+                    rule
+                ),
+                styles
+            ]),
+        ),
+    };
+};

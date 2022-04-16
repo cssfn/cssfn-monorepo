@@ -16,6 +16,9 @@ import type {
     CssScopeName,
     CssScopeEntry,
     CssScopeMap,
+    
+    CssSelector,
+    CssSelectorCollection,
 }                           from '@cssfn/css-types'
 
 // internals:
@@ -23,6 +26,9 @@ export {
     StyleSheet,
     styleSheet,
 }                           from './styleSheet'
+export {
+    rule,
+}                           from './compiler'
 
 
 
