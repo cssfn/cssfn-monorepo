@@ -107,10 +107,16 @@ export const mergeLiteral = (style: CssStyle, newStyle: CssStyle): void => {
     } // for
     //#endregion merge symbol props
 }
-export const mergeNested  = (style: CssStyle): CssStyle => {
+
+const nestedAtRules = ['@media', '@supports', '@document', '@global'];
+export const mergeNested  = (style: CssStyle): void => {
+    const symbolProps = Object.getOwnPropertySymbols(style);
+    
+    
+    
     //#region group (nested) Rule(s) by selector name
     const groupByNested = (
-        Object.getOwnPropertySymbols(style)
+        symbolProps
         .reduce((accum, sym) => {
             const nestedSelector = sym.description ?? '';
             if (
@@ -122,24 +128,26 @@ export const mergeNested  = (style: CssStyle): CssStyle => {
                 )
                 ||
                 // conditional rules & globals:
-                ['@media', '@supports', '@document', '@global'].some((at) => nestedSelector.startsWith(at))
+                nestedAtRules.some((at) => nestedSelector.startsWith(at))
             ) {
                 let group = accum.get(nestedSelector);             // get an existing collector
                 if (!group) accum.set(nestedSelector, group = []); // create a new collector
                 group.push(sym);
             } // if
             return accum;
-    }, new Map<string, symbol[]>()));
+        }, new Map<string, symbol[]>())
+    );
     //#endregion group (nested) Rule(s) by selector name
     
     
     
     //#region merge duplicates (nested) Rule(s) to unique ones
-    for (const group of Array.from(groupByNested.values())) {
+    for (const group of groupByNested.values()) {
         if (group.length <= 1) continue; // filter out groups with single/no member
         
         
         
+        // merge styles from group's members to single style
         const mergedStyles = mergeStyles(
             group.map((sym) => style[sym])
         );
@@ -148,7 +156,7 @@ export const mergeNested  = (style: CssStyle): CssStyle => {
         
         if (mergedStyles) {
             // update last member
-            style[group[group.length - 1]] = mergedStyles; // merge all member's style to the last member
+            style[group[group.length - 1]] = mergedStyles; // assign mergedStyles to the last member
         }
         else {
             // mergedStyles is empty => delete last member
@@ -161,8 +169,8 @@ export const mergeNested  = (style: CssStyle): CssStyle => {
     
     
     //#region merge only_parentSelector to current style
-    let moveNestedRules = false;
-    for (const sym of Object.getOwnPropertySymbols(style)) {
+    let needToReorderOtherSymbolProps = false;
+    for (const sym of symbolProps) {
         if (sym.description === '&') {
             /* move the CssProps and (nested)Rules from only_parentSelector to current style */
             
@@ -171,18 +179,19 @@ export const mergeNested  = (style: CssStyle): CssStyle => {
             const parentStyles       = style[sym];
             const mergedParentStyles = mergeStyles(parentStyles);
             if (mergedParentStyles) {
-                if (!moveNestedRules) {
+                if (!needToReorderOtherSymbolProps) {
+                    /* if mergedParentStyles has any (nested) Rule => all (nested) Rule in current style need to rearrange to preserve the order */
                     const hasNestedRule  = !!Object.getOwnPropertySymbols(mergedParentStyles).length;
-                    if (hasNestedRule) moveNestedRules = true;
+                    if (hasNestedRule) needToReorderOtherSymbolProps = true;
                 } // if
                 
                 
                 
                 mergeLiteral(style, mergedParentStyles); // merge into current style
-                delete style[sym];                       // merged => delete source
             } // if
+            delete style[sym];                           // merged => delete source
         }
-        else if (moveNestedRules) {
+        else if (needToReorderOtherSymbolProps) {
             /* preserve the order of another (nested)Rules */
             
             
@@ -193,10 +202,6 @@ export const mergeNested  = (style: CssStyle): CssStyle => {
         } // if
     } // for
     //#endregion merge only_parentSelector to current style
-    
-    
-    
-    return style;
 }
 
 /**
