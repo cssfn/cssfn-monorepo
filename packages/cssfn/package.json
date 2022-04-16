@@ -24,6 +24,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@cssfn/css-selectors": "^2.0.0",
     "@cssfn/css-types": "^2.0.0",
     "@cssfn/types": "^2.0.0",
     "is-in-browser": "^2.0.0",
