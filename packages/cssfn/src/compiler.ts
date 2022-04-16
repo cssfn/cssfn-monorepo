@@ -80,8 +80,7 @@ import {
 
 // processors:
 
-const isStyle      = (object: any): object is CssStyle => !!object && (typeof(object) === 'object') && !Array.isArray(object);
-const mergeLiteral = (style: CssStyle, newStyle: CssStyle): void => {
+export const mergeLiteral = (style: CssStyle, newStyle: CssStyle): void => {
     for (const propName of [
         ...Object.keys(newStyle),
         ...Object.getOwnPropertySymbols(newStyle),
@@ -90,33 +89,12 @@ const mergeLiteral = (style: CssStyle, newStyle: CssStyle): void => {
         
         
         
-        if (!isStyle(newPropValue)) {
-            // `newPropValue` is not a `CssStyle` => unmergeable => add/overwrite `newPropValue` into `style`:
-            delete (style as any)[propName]; // delete the old prop (if any), so the new prop always placed at the end of LiteralObject
-            (style as any)[propName] = newPropValue as any; // add/overwrite
-        }
-        else {
-            // `newPropValue` is a `CssStyle` => possibility to merge with `currentPropValue`
-            
-            const currentPropValue = (style as any)[propName];
-            if (!isStyle(currentPropValue)) {
-                // `currentPropValue` is not a `CssStyle` => unmergeable => add/overwrite `newPropValue` into `style`:
-                delete (style as any)[propName]; // delete the old prop (if any), so the new prop always placed at the end of LiteralObject
-                (style as any)[propName] = newPropValue as any; // add/overwrite
-            }
-            else {
-                // both `newPropValue` & `currentPropValue` are `CssStyle` => merge them recursively (deeply):
-                
-                const currentValueClone = {...currentPropValue} as CssStyle; // clone the `currentPropValue` to avoid side effect, because the `currentPropValue` is not **the primary object** we're working on
-                mergeLiteral(currentValueClone, newPropValue);
-                
-                // merging style prop no need to rearrange the prop position
-                (style as any)[propName] = currentValueClone as any; // set the mutated `currentValueClone` back to `style`
-            } // if
-        } // if
+        // add/overwrite `newPropValue` into `style`:
+        delete (style as any)[propName]; // delete the old prop (if any), so the new prop always placed at the end of LiteralObject
+        (style as any)[propName] = newPropValue as any; // add/overwrite
     } // for
 }
-const mergeNested  = (style: CssStyle): CssStyle => {
+export const mergeNested  = (style: CssStyle): CssStyle => {
     //#region group (nested) Rule(s) by selector name
     const groupByNested = (
         Object.getOwnPropertySymbols(style)
