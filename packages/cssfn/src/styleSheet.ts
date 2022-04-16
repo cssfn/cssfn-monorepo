@@ -39,7 +39,7 @@ const defaultStyleSheetOptions : Required<StyleSheetOptions> = {
     id       : '',
 }
 
-class StyleSheet<TCssScopeName extends CssScopeName> {
+class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> {
     //#region private properties
     #options     : Required<StyleSheetOptions>
     #subscribers : Subject<StyleSheet<TCssScopeName>>
@@ -51,11 +51,11 @@ class StyleSheet<TCssScopeName extends CssScopeName> {
     
     
     //#region constructors
-    constructor(classes: ProductOrFactory<CssClassList<TCssScopeName>>, options: Required<StyleSheetOptions>) {
+    constructor(classes: ProductOrFactory<CssClassList<TCssScopeName>>, options ?: StyleSheetOptions) {
         this.#options = {
-            ...options,
-            enabled : options.enabled ?? defaultStyleSheetOptions.enabled,
-            id      : options.id      ?? defaultStyleSheetOptions.id,
+            ...(options ?? {}),
+            enabled : options?.enabled ?? defaultStyleSheetOptions.enabled,
+            id      : options?.id      ?? defaultStyleSheetOptions.id,
         };
         this.#subscribers = new Subject<StyleSheet<TCssScopeName>>();
         
@@ -104,6 +104,7 @@ class StyleSheet<TCssScopeName extends CssScopeName> {
     }
     //#endregion public methods
 }
+export type { StyleSheet } // only export the type but not the actual class
 
 
 
@@ -124,18 +125,19 @@ class StyleSheetRegistry {
     
     
     //#region public methods
-    add<TCssScopeName extends CssScopeName>(classes: ProductOrFactory<CssClassList<TCssScopeName>>, options = defaultStyleSheetOptions) {
+    add<TCssScopeName extends CssScopeName>(classes: ProductOrFactory<CssClassList<TCssScopeName>>, options ?: StyleSheetOptions) {
         const newStyleSheet = new StyleSheet<TCssScopeName>(classes, options);
         
         if (isBrowser) { // client side only
-            this.#styleSheets.push(newStyleSheet as any);  // register to collection
+            this.#styleSheets.push(newStyleSheet as any);     // register to collection
             
             
+            if (newStyleSheet.enabled) {                      // skip disabled styleSheet
+                this.#subscribers.next(newStyleSheet as any); // notify a StyleSheet added
+            } // if
             
-            this.#subscribers.next(newStyleSheet as any);  // notify a StyleSheet added
-            
-            newStyleSheet.subscribe((styleSheet) => {      // listen for future updates
-                this.#subscribers.next(styleSheet as any); // notify a StyleSheet updated
+            newStyleSheet.subscribe((styleSheet) => {         // listen for future updates
+                this.#subscribers.next(styleSheet as any);    // notify a StyleSheet updated
             });
         } // if
         
@@ -161,10 +163,11 @@ class StyleSheetRegistry {
     }
     //#endregion public methods
 }
+export type { StyleSheetRegistry } // only export the type but not the actual class
 
 
 
 export const styleSheets = new StyleSheetRegistry();
-export const styleSheet = <TCssScopeName extends CssScopeName>(classes: ProductOrFactory<CssClassList<TCssScopeName>>, options = defaultStyleSheetOptions): StyleSheet<TCssScopeName> => {
+export const styleSheet = <TCssScopeName extends CssScopeName>(classes: ProductOrFactory<CssClassList<TCssScopeName>>, options ?: StyleSheetOptions): StyleSheet<TCssScopeName> => {
     return styleSheets.add(classes, options);
 }

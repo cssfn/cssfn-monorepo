@@ -17,16 +17,11 @@ import type {
     CssScopeMap,
 }                           from '@cssfn/css-types'
 
-// other libs:
-import {
-    // tests:
-    isBrowser,
-}                           from 'is-in-browser'
-
 // internals:
 export {
+    StyleSheet,
     styleSheet,
-}                           from './styleSheet.js'
+}                           from './styleSheet'
 
 
 
