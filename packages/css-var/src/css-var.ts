@@ -41,37 +41,28 @@ const defaultOptions : Required<CssVarOptions> = {
     prefix : '',
     minify : true,
 }
-export type LiveCssVarOptions = Required<CssVarOptions>
+class LiveCssVarOptions implements Required<CssVarOptions> {
+    //#region public options
+    prefix : string
+    minify : boolean
+    //#endregion public options
+    
+    
+    
+    //#region constructors
+    constructor(options?: CssVarOptions) {
+        this.prefix = options?.prefix ?? defaultOptions.prefix;
+        this.minify = options?.minify ?? defaultOptions.minify;
+    }
+    //#endregion constructors
+}
 
 
 
 // global proxy's handlers:
+const unusedObj = {}
 const setReadonlyHandler = (obj: any, propName: string, newValue: any): boolean => {
     throw new Error(`Setter \`${propName}\` is not supported.`);
-}
-
-const unusedObj = {}
-const liveOptionsHandler: ProxyHandler<LiveCssVarOptions> = {
-    set : (options, propName: string, newValue: any): boolean => {
-        if (!(propName in options)) return false; // the requested prop does not exist
-        
-        
-        
-        // apply the default value (if any):
-        newValue = newValue ?? (defaultOptions as any)[propName];
-        
-        
-        
-        // compare `oldValue` & `newValue`:
-        const oldValue = (options as any)[propName];
-        if (oldValue === newValue) return true; // success but no change => no need to update
-        
-        
-        
-        // apply changes & update:
-        (options as any)[propName] = newValue;
-        return true; // notify the operation was completed successfully
-    },
 }
 
 
@@ -85,10 +76,7 @@ let globalIdCounter = 0; // should not be incremented on server side
  */
 export const createCssVar = <TCssCustomProps extends {}>(options: CssVarOptions = defaultOptions): CssVar<TCssCustomProps> => {
     // options:
-    const liveOptions : LiveCssVarOptions = {
-        prefix : options.prefix ?? defaultOptions.prefix,
-        minify : options.minify ?? defaultOptions.minify,
-    }
+    const liveOptions = new LiveCssVarOptions(options);
     
     
     
@@ -152,7 +140,7 @@ export const createCssVar = <TCssCustomProps extends {}>(options: CssVarOptions 
         
         
         // settings:
-        new Proxy<LiveCssVarOptions>(liveOptions, liveOptionsHandler),
+        liveOptions,
     ];
 }
 export { createCssVar as default }
