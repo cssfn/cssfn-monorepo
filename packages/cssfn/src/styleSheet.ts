@@ -45,7 +45,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> {
     #options     : Required<StyleSheetOptions>
     #subscribers : Subject<StyleSheet<TCssScopeName>>
     
-    #factory     : ProductOrFactory<CssScopeList<TCssScopeName>>
+    #scopes      : ProductOrFactory<CssScopeList<TCssScopeName>>
     #classes     : CssScopeMap<TCssScopeName>
     //#endregion private properties
     
@@ -60,7 +60,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> {
         };
         this.#subscribers = new Subject<StyleSheet<TCssScopeName>>();
         
-        this.#factory     = scopes;
+        this.#scopes      = scopes;
         this.#classes     = ({} as CssScopeMap<TCssScopeName>);
     }
     //#endregion constructors
@@ -88,8 +88,8 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> {
     
     
     //#region public properties
-    get factory() {
-        return this.#factory;
+    get scopes() {
+        return this.#scopes;
     }
     
     get classes() {
