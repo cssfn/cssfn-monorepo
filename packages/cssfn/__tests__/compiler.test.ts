@@ -457,6 +457,417 @@ test(`mergeParent( &{empty} )`, () => {
     })
 });
 
+test(`mergeParent( &{unique} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol(':active&');
+    const rule3 = Symbol('@media (min-width: 900px)');
+    const rule4 = Symbol('@supports (display: grid)');
+    const rule5 = Symbol('@global');
+    const root  = Symbol('&:root');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    })
+});
+
+test(`mergeParent( &{same-all} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol('&:hover');
+    const rule3 = Symbol('&:hover');
+    const rule4 = Symbol('&:hover');
+    const rule5 = Symbol('&:hover');
+    const root  = Symbol('&:hover');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    })
+});
+
+test(`mergeParent( &{same-partial} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol('@supports (display: grid)');
+    const rule3 = Symbol('&:hover');
+    const rule4 = Symbol('@supports (display: grid)');
+    const rule5 = Symbol('@supports (display: grid)');
+    const root  = Symbol('&:root');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    })
+});
+
+test(`mergeParent( &{same-partial} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol(':active&');
+    const rule3 = Symbol('&:active');
+    const rule4 = Symbol(':active&');
+    const rule5 = Symbol('&:hover');
+    const root  = Symbol('&:root');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    })
+});
+
+test(`mergeParent( &{same-partial empty-partial} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol('@supports (display: grid)');
+    const rule3 = Symbol('&:hover');
+    const rule4 = Symbol('@supports (display: grid)');
+    const rule5 = Symbol('@supports (display: grid)');
+    const root  = Symbol('&:root');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule1]: {
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    })
+});
+
+test(`mergeParent( &{same-partial empty-partial} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol('@supports (display: grid)');
+    const rule3 = Symbol('&:hover');
+    const rule4 = Symbol('@supports (display: grid)');
+    const rule5 = Symbol('@supports (display: grid)');
+    const root  = Symbol('&:root');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    })
+});
+
+test(`mergeParent( &{same-partial empty-all} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol('@supports (display: grid)');
+    const rule3 = Symbol('&:hover');
+    const rule4 = Symbol('@supports (display: grid)');
+    const rule5 = Symbol('@supports (display: grid)');
+    const root  = Symbol('&:root');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule1]: {
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    })
+});
+
+test(`mergeParent( &{same-partial empty-all} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol('@supports (display: grid)');
+    const rule3 = Symbol('&:hover');
+    const rule4 = Symbol('@supports (display: grid)');
+    const rule5 = Symbol('@supports (display: grid)');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+        },
+        [rule5]: {
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+        },
+        [rule5]: {
+        },
+    })
+});
+
 test(`mergeParent( &{parent-all} )`, () => {
     const rule1 = Symbol('&');
     const rule2 = Symbol('&');
