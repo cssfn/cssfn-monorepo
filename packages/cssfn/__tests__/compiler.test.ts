@@ -1056,6 +1056,153 @@ test(`mergeParent( &{parent-all-deep} )`, () => {
     });
 });
 
+test(`mergeParent( &{parent-all-deep-deep} )`, () => {
+    const rule1 = Symbol('&');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&:active');
+    const rule6 = Symbol('&');
+    const rule7 = Symbol('&');
+    const rule8 = Symbol('&');
+    const rule9 = Symbol('&');
+    const rule10 = Symbol('&');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+            [rule3]: {
+                visibility: 'hidden',
+                animation: 'none',
+                [rule4]: {
+                    paddingInline: '2rem',
+                },
+            },
+        },
+        [rule5]: {
+            [rule6]: {
+                background: 'white',
+            },
+        },
+        [rule7]: {
+            [rule8]: {
+                [rule9]: {
+                    [rule10]: {
+                        color: 'black',
+                    },
+                },
+            },
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        // color: 'red',
+        opacity: 0.5,
+        
+        margin: '2rem',
+        minWidth: '100px',
+        
+        visibility: 'hidden',
+        animation: 'none',
+        
+        paddingInline: '2rem',
+        
+        [rule5]: {
+            [rule6]: {
+                background: 'white',
+            },
+        },
+        
+        color: 'black',
+    });
+});
+
+test(`mergeParent( &{parent-all-deep-deep} )`, () => {
+    const rule1 = Symbol('&');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&:active');
+    const rule6 = Symbol('&');
+    const rule7 = Symbol('&');
+    const rule8 = Symbol('&');
+    const rule9 = Symbol('&');
+    const rule10 = Symbol('&');
+    const rule11 = Symbol('&');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+            [rule3]: {
+                visibility: 'hidden',
+                animation: 'none',
+                [rule4]: {
+                    paddingInline: '2rem',
+                },
+            },
+        },
+        [rule5]: {
+            [rule6]: {
+                background: 'white',
+            },
+        },
+        [rule7]: {
+            [rule8]: {
+                [rule9]: {
+                    [rule10]: {
+                        color: 'red',
+                    },
+                    [rule11]: [
+                        {
+                            background: 'blue',
+                        },
+                        {
+                            overflow: 'visible',
+                            zIndex: 99,
+                        },
+                    ],
+                },
+            },
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        // color: 'red',
+        opacity: 0.5,
+        
+        margin: '2rem',
+        minWidth: '100px',
+        
+        visibility: 'hidden',
+        animation: 'none',
+        
+        paddingInline: '2rem',
+        
+        color: 'red',
+        
+        background: 'blue',
+        
+        overflow: 'visible',
+        zIndex: 99,
+        
+        [rule5]: {
+            [rule6]: {
+                background: 'white',
+            },
+        },
+    });
+});
+
 test(`mergeParent( &{parent unique} )`, () => {
     const rule1 = Symbol('&:hover');
     const rule2 = Symbol('&');
