@@ -13,6 +13,9 @@ import type {
 import type {
     styleSheets as _styleSheets,
 } from '../src/styleSheet'
+import {
+    jest,
+} from '@jest/globals'
 
 
 
