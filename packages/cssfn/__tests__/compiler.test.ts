@@ -22,7 +22,7 @@ test(`mergeLiteral({empty}, {empty})`, () => {
     expect(mainStyle)
     .toEqual({
         /* empty */
-    })
+    });
 });
 
 test(`mergeLiteral({some}, {empty})`, () => {
@@ -58,7 +58,7 @@ test(`mergeLiteral({some}, {empty})`, () => {
             ['-1em', '0', '.4em', 'olive'],
         ],
         paddingInline: '2rem',
-    })
+    });
 });
 
 test(`mergeLiteral({empty}, {some})`, () => {
@@ -94,7 +94,7 @@ test(`mergeLiteral({empty}, {some})`, () => {
             ['-1em', '0', '.4em', 'olive'],
         ],
         paddingInline: '2rem',
-    })
+    });
 });
 
 test(`mergeLiteral({some+symbols}, {empty})`, () => {
@@ -150,7 +150,7 @@ test(`mergeLiteral({some+symbols}, {empty})`, () => {
             visibility: 'hidden',
             animation: 'none',
         },
-    })
+    });
 });
 
 test(`mergeLiteral({empty}, {some+symbols})`, () => {
@@ -206,7 +206,7 @@ test(`mergeLiteral({empty}, {some+symbols})`, () => {
             visibility: 'hidden',
             animation: 'none',
         },
-    })
+    });
 });
 
 test(`mergeLiteral({some}, {some})`, () => {
@@ -241,7 +241,7 @@ test(`mergeLiteral({some}, {some})`, () => {
             ['-1em', '0', '.4em', 'olive'],
         ],
         paddingInline: '2rem',
-    })
+    });
 });
 
 test(`mergeLiteral({some+symbols}, {some+symbols})`, () => {
@@ -314,7 +314,7 @@ test(`mergeLiteral({some+symbols}, {some+symbols})`, () => {
             cursor: 'pointer',
             opacity: 0.9,
         },
-    })
+    });
 });
 
 test(`mergeLiteral({conflict}, {conflict})`, () => {
@@ -357,7 +357,7 @@ test(`mergeLiteral({conflict}, {conflict})`, () => {
             ['30px', '20px', 'purple'],
         ],
         background: 'black',
-    })
+    });
 });
 
 test(`mergeLiteral({conflict+symbols}, {conflict+symbols})`, () => {
@@ -439,7 +439,7 @@ test(`mergeLiteral({conflict+symbols}, {conflict+symbols})`, () => {
             cursor: 'pointer',
             opacity: 0.9,
         },
-    })
+    });
 });
 //#endregion test mergeLiteral()
 
@@ -454,7 +454,7 @@ test(`mergeParent( &{empty} )`, () => {
     expect(mainStyle)
     .toEqual({
         /* empty */
-    })
+    });
 });
 
 test(`mergeParent( &{unique} )`, () => {
@@ -509,7 +509,7 @@ test(`mergeParent( &{unique} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeParent( &{same-all} )`, () => {
@@ -564,7 +564,7 @@ test(`mergeParent( &{same-all} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeParent( &{same-partial} )`, () => {
@@ -619,7 +619,7 @@ test(`mergeParent( &{same-partial} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeParent( &{same-partial} )`, () => {
@@ -674,7 +674,7 @@ test(`mergeParent( &{same-partial} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeParent( &{same-partial empty-partial} )`, () => {
@@ -725,7 +725,7 @@ test(`mergeParent( &{same-partial empty-partial} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeParent( &{same-partial empty-partial} )`, () => {
@@ -776,7 +776,7 @@ test(`mergeParent( &{same-partial empty-partial} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeParent( &{same-partial empty-all} )`, () => {
@@ -823,7 +823,7 @@ test(`mergeParent( &{same-partial empty-all} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeParent( &{same-partial empty-all} )`, () => {
@@ -865,7 +865,7 @@ test(`mergeParent( &{same-partial empty-all} )`, () => {
         },
         [rule5]: {
         },
-    })
+    });
 });
 
 test(`mergeParent( &{parent-all} )`, () => {
@@ -906,7 +906,7 @@ test(`mergeParent( &{parent-all} )`, () => {
         animation: 'none',
         
         paddingInline: '2rem',
-    })
+    });
 });
 
 test(`mergeParent( &{parent-all} )`, () => {
@@ -955,7 +955,7 @@ test(`mergeParent( &{parent-all} )`, () => {
         [root]: {
             background: 'white',
         },
-    })
+    });
 });
 
 test(`mergeParent( &{parent-all-deep} )`, () => {
@@ -1002,7 +1002,7 @@ test(`mergeParent( &{parent-all-deep} )`, () => {
         paddingInline: '2rem',
         
         background: 'white',
-    })
+    });
 });
 
 test(`mergeParent( &{parent-all-deep} )`, () => {
@@ -1053,7 +1053,7 @@ test(`mergeParent( &{parent-all-deep} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeParent( &{parent unique} )`, () => {
@@ -1106,7 +1106,7 @@ test(`mergeParent( &{parent unique} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeParent( &{parent-some unique-partial} )`, () => {
@@ -1159,7 +1159,7 @@ test(`mergeParent( &{parent-some unique-partial} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeParent( &{parent-some nested-rule preserve-order} )`, () => {
@@ -1234,7 +1234,7 @@ test(`mergeParent( &{parent-some nested-rule preserve-order} )`, () => {
             width: '10px',
             height: '50vh',
         },
-    })
+    });
 });
 //#endregion test mergeParent()
 
@@ -1249,7 +1249,7 @@ test(`mergeNested( &{empty} )`, () => {
     expect(mainStyle)
     .toEqual({
         /* empty */
-    })
+    });
 });
 
 test(`mergeNested( &{unique} )`, () => {
@@ -1304,7 +1304,7 @@ test(`mergeNested( &{unique} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeNested( &{same-all} )`, () => {
@@ -1355,7 +1355,7 @@ test(`mergeNested( &{same-all} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeNested( &{same-partial} )`, () => {
@@ -1407,7 +1407,7 @@ test(`mergeNested( &{same-partial} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeNested( &{same-partial} )`, () => {
@@ -1460,7 +1460,7 @@ test(`mergeNested( &{same-partial} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeNested( &{same-partial empty-partial} )`, () => {
@@ -1507,7 +1507,7 @@ test(`mergeNested( &{same-partial empty-partial} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeNested( &{same-partial empty-partial} )`, () => {
@@ -1554,7 +1554,7 @@ test(`mergeNested( &{same-partial empty-partial} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeNested( &{same-partial empty-all} )`, () => {
@@ -1595,7 +1595,7 @@ test(`mergeNested( &{same-partial empty-all} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeNested( &{same-partial empty-all} )`, () => {
@@ -1630,7 +1630,7 @@ test(`mergeNested( &{same-partial empty-all} )`, () => {
             visibility: 'hidden',
             animation: 'none',
         },
-    })
+    });
 });
 
 test(`mergeNested( &{parent-all} )`, () => {
@@ -1678,7 +1678,7 @@ test(`mergeNested( &{parent-all} )`, () => {
         },
         [rule5]: {
         },
-    })
+    });
 });
 
 test(`mergeNested( &{parent-all} )`, () => {
@@ -1733,7 +1733,7 @@ test(`mergeNested( &{parent-all} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeNested( &{parent-all-deep} )`, () => {
@@ -1788,7 +1788,7 @@ test(`mergeNested( &{parent-all-deep} )`, () => {
                 },
             },
         },
-    })
+    });
 });
 
 test(`mergeNested( &{parent-all-deep} )`, () => {
@@ -1843,7 +1843,7 @@ test(`mergeNested( &{parent-all-deep} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeNested( &{parent unique} )`, () => {
@@ -1898,7 +1898,7 @@ test(`mergeNested( &{parent unique} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeNested( &{parent-some unique-partial} )`, () => {
@@ -1953,7 +1953,7 @@ test(`mergeNested( &{parent-some unique-partial} )`, () => {
                 background: 'white',
             },
         },
-    })
+    });
 });
 
 test(`mergeNested( &{parent-some nested-rule preserve-order} )`, () => {
@@ -2028,11 +2028,81 @@ test(`mergeNested( &{parent-some nested-rule preserve-order} )`, () => {
             width: '10px',
             height: '50vh',
         },
-    })
+    });
 });
 //#endregion test mergeNested()
 
 
 
 //#region test mergeStyles()
+//#region test with empty style(s)
+const allBasicFalsies = [undefined, null, false, true];
+allBasicFalsies.forEach((basicFalsy) => {
+    test(`mergeStyles(falsy)`, () => {
+        expect(mergeStyles(
+            basicFalsy
+        ))
+        .toBe(
+            null
+        );
+    });
+});
+
+allBasicFalsies.forEach((basicFalsy) => {
+    test(`mergeStyles([falsy])`, () => {
+        expect(mergeStyles([
+            basicFalsy
+        ]))
+        .toBe(
+            null
+        );
+    });
+});
+
+test(`mergeStyles({empty})`, () => {
+    expect(mergeStyles(
+        {}
+    ))
+    .toBe(
+        null
+    );
+});
+
+test(`mergeStyles([{empty}])`, () => {
+    expect(mergeStyles([
+        {}
+    ]))
+    .toBe(
+        null
+    );
+});
+
+test(`mergeStyles([{empty}])`, () => {
+    expect(mergeStyles([
+        {},
+        {},
+        {},
+    ]))
+    .toBe(
+        null
+    );
+});
+
+test(`mergeStyles([{empty}|falsy])`, () => {
+    expect(mergeStyles([
+        {},
+        undefined,
+        {},
+        null,
+        {},
+        true,
+        {},
+        false,
+        {},
+    ]))
+    .toBe(
+        null
+    );
+});
+//#endregion test with empty style(s)
 //#endregion test mergeStyles()
