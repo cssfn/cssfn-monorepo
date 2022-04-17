@@ -185,26 +185,9 @@ export const mergeNested  = (style: CssStyle): void => {
     
     //#region merge duplicates (nested) Rule(s) to unique ones
     for (const group of groupByNested.values()) {
-        if (group.length <= 1) {
-            if (group.length) {
-                /*
-                we still need to simplify the styles inside single rule.
-                eg: deep nested of parent rule.
-                */
-                const singleStyle = style[group[0]];
-                style[group[0]] = mergeStyles(singleStyle);
-            } // if
-            
-            
-            
-            continue; // filter out groups with single/no member
-        } // if
-        
-        
-        
         // merge styles from group's members to single style
-        const multipleStyle = group.map((sym) => style[sym]);
-        const mergedStyles  = mergeStyles(multipleStyle);
+        const multipleStyles = group.map((sym) => style[sym]);
+        const mergedStyles   = mergeStyles(multipleStyles);
         
         
         
