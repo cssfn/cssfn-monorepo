@@ -203,9 +203,8 @@ export const mergeNested  = (style: CssStyle): void => {
         
         
         // merge styles from group's members to single style
-        const mergedStyles = mergeStyles(
-            group.map((sym) => style[sym])
-        );
+        const multipleStyle = group.map((sym) => style[sym]);
+        const mergedStyles  = mergeStyles(multipleStyle);
         
         
         
