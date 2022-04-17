@@ -453,13 +453,379 @@ test(`mergeNested( &{empty} )`, () => {
     })
 });
 
-test(`mergeNested( &{empty}, &{some} )`, () => {
+test(`mergeNested( &{unique} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol(':active&');
+    const rule3 = Symbol('@media (min-width: 900px)');
+    const rule4 = Symbol('@supports (display: grid)');
+    const rule5 = Symbol('@global');
+    const root  = Symbol('&:root');
     const mainStyle: CssStyle = {
-        /* empty */
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            }
+        },
     };
     mergeNested(mainStyle);
     expect(mainStyle)
     .toEqual({
-        /* empty */
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            }
+        },
+    })
+});
+
+test(`mergeNested( &{same-all} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol('&:hover');
+    const rule3 = Symbol('&:hover');
+    const rule4 = Symbol('&:hover');
+    const rule5 = Symbol('&:hover');
+    const root  = Symbol('&:hover');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            }
+        },
+    };
+    mergeNested(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule5]: {
+            color: 'red',
+            opacity: 0.5,
+            margin: '2rem',
+            minWidth: '100px',
+            visibility: 'hidden',
+            animation: 'none',
+            paddingInline: '2rem',
+            [root]: {
+                background: 'white',
+            }
+        },
+    })
+});
+
+test(`mergeNested( &{same-partial} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol('@supports (display: grid)');
+    const rule3 = Symbol('&:hover');
+    const rule4 = Symbol('@supports (display: grid)');
+    const rule5 = Symbol('@supports (display: grid)');
+    const root  = Symbol('&:root');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            }
+        },
+    };
+    mergeNested(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule3]: {
+            color: 'red',
+            opacity: 0.5,
+            
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule5]: {
+            margin: '2rem',
+            minWidth: '100px',
+            
+            paddingInline: '2rem',
+            
+            [root]: {
+                background: 'white',
+            }
+        },
+    })
+});
+
+test(`mergeNested( &{same-partial} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol(':active&');
+    const rule3 = Symbol('&:active');
+    const rule4 = Symbol(':active&');
+    const rule5 = Symbol('&:hover');
+    const root  = Symbol('&:root');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            }
+        },
+    };
+    mergeNested(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            margin: '2rem',
+            minWidth: '100px',
+            
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            color: 'red',
+            opacity: 0.5,
+            
+            [root]: {
+                background: 'white',
+            }
+        },
+    })
+});
+
+test(`mergeNested( &{same-partial empty-partial} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol('@supports (display: grid)');
+    const rule3 = Symbol('&:hover');
+    const rule4 = Symbol('@supports (display: grid)');
+    const rule5 = Symbol('@supports (display: grid)');
+    const root  = Symbol('&:root');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            }
+        },
+    };
+    mergeNested(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule5]: {
+            margin: '2rem',
+            minWidth: '100px',
+            
+            paddingInline: '2rem',
+            
+            [root]: {
+                background: 'white',
+            }
+        },
+    })
+});
+
+test(`mergeNested( &{same-partial empty-partial} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol('@supports (display: grid)');
+    const rule3 = Symbol('&:hover');
+    const rule4 = Symbol('@supports (display: grid)');
+    const rule5 = Symbol('@supports (display: grid)');
+    const root  = Symbol('&:root');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            }
+        },
+    };
+    mergeNested(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule3]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule5]: {
+            margin: '2rem',
+            minWidth: '100px',
+            
+            paddingInline: '2rem',
+            
+            [root]: {
+                background: 'white',
+            }
+        },
+    })
+});
+
+test(`mergeNested( &{same-partial empty-all} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol('@supports (display: grid)');
+    const rule3 = Symbol('&:hover');
+    const rule4 = Symbol('@supports (display: grid)');
+    const rule5 = Symbol('@supports (display: grid)');
+    const root  = Symbol('&:root');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            }
+        },
+    };
+    mergeNested(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule5]: {
+            margin: '2rem',
+            minWidth: '100px',
+            
+            paddingInline: '2rem',
+            
+            [root]: {
+                background: 'white',
+            }
+        },
+    })
+});
+
+test(`mergeNested( &{same-partial empty-all} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol('@supports (display: grid)');
+    const rule3 = Symbol('&:hover');
+    const rule4 = Symbol('@supports (display: grid)');
+    const rule5 = Symbol('@supports (display: grid)');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+        },
+        [rule5]: {
+        },
+    };
+    mergeNested(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule3]: {
+            color: 'red',
+            opacity: 0.5,
+            
+            visibility: 'hidden',
+            animation: 'none',
+        },
     })
 });
