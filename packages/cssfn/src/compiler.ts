@@ -210,8 +210,8 @@ export const mergeNested  = (style: CssStyle): void => {
 
 
 /**
- * Merges the (sub) component's composition to single `CssStyle`.
- * @returns A `CssStyle` represents the merged (sub) component's composition  
+ * Merges `CssStyleCollection` to single `CssStyle`.
+ * @returns A `CssStyle` represents the merged `CssStyleCollection`.
  * -or-  
  * `null` represents an empty `CssStyle`.
  */
@@ -766,8 +766,8 @@ export const mergeSelectors = (selectorGroup: SelectorModelGroup, options: Selec
 
 // rules:
 /**
- * Defines component's `style(s)` that is applied when the specified `selector(s)` meet the conditions.
- * @returns A `Rule` represents the component's rule.
+ * Defines a conditional style(s) that is applied when the specified `selector(s)` meets the conditions.
+ * @returns A `Rule` represents a conditional style(s).
  */
 export const rule = (rules: CssSelectorCollection, styles: CssStyleCollection, options: SelectorOptions = defaultSelectorOptions): CssRule => {
     const rulesString = (

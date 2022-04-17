@@ -9,6 +9,7 @@ import {
 
 
 
+//#region test mergeLiteral()
 test(`mergeLiteral({empty}, {empty})`, () => {
     const mainStyle: CssStyle = {
         /* empty */
@@ -439,9 +440,11 @@ test(`mergeLiteral({conflict+symbols}, {conflict+symbols})`, () => {
         },
     })
 });
+//#endregion test mergeLiteral()
 
 
 
+//#region test mergeNested()
 test(`mergeNested( &{empty} )`, () => {
     const mainStyle: CssStyle = {
         /* empty */
@@ -1202,3 +1205,9 @@ test(`mergeNested( &{parent-some nested-rule preserve-order} )`, () => {
         },
     })
 });
+//#endregion test mergeNested()
+
+
+
+//#region test mergeStyles()
+//#endregion test mergeStyles()
