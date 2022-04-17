@@ -964,7 +964,7 @@ test(`mergeParent( &{parent-all-deep} )`, () => {
     const rule3 = Symbol('&');
     const rule4 = Symbol('&');
     const rule5 = Symbol('&');
-    const rule6  = Symbol('&');
+    const rule6 = Symbol('&');
     const mainStyle: CssStyle = {
         [rule1]: {
             color: 'red',
@@ -1011,7 +1011,7 @@ test(`mergeParent( &{parent-all-deep} )`, () => {
     const rule3 = Symbol('&');
     const rule4 = Symbol('&');
     const rule5 = Symbol('&:active');
-    const rule6  = Symbol('&');
+    const rule6 = Symbol('&');
     const mainStyle: CssStyle = {
         [rule1]: {
             color: 'red',
@@ -1168,7 +1168,7 @@ test(`mergeParent( &{parent-some nested-rule preserve-order} )`, () => {
     const rule3 = Symbol('&:disabled');
     const rule4 = Symbol('&');
     const rule5 = Symbol('&.selected');
-    const rule6  = Symbol(':focus&');
+    const rule6 = Symbol(':focus&');
     const rule7  = Symbol('&:first-child');
     const rule8  = Symbol('&:checked');
     const mainStyle: CssStyle = {
@@ -1742,7 +1742,7 @@ test(`mergeNested( &{parent-all-deep} )`, () => {
     const rule3 = Symbol('&');
     const rule4 = Symbol('&');
     const rule5 = Symbol('&');
-    const rule6  = Symbol('&');
+    const rule6 = Symbol('&');
     const mainStyle: CssStyle = {
         [rule1]: {
             color: 'red',
@@ -1797,7 +1797,7 @@ test(`mergeNested( &{parent-all-deep} )`, () => {
     const rule3 = Symbol('&');
     const rule4 = Symbol('&');
     const rule5 = Symbol('&:active');
-    const rule6  = Symbol('&');
+    const rule6 = Symbol('&');
     const mainStyle: CssStyle = {
         [rule1]: {
             color: 'red',
@@ -1839,8 +1839,166 @@ test(`mergeNested( &{parent-all-deep} )`, () => {
             },
         },
         [rule5]: {
+            background: 'white',
+        },
+    });
+});
+
+test(`mergeNested( &{parent-all-deep-deep} )`, () => {
+    const rule1 = Symbol('&');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&:active');
+    const rule6 = Symbol('&');
+    const rule7 = Symbol('&:hover');
+    const rule8 = Symbol('&');
+    const rule9 = Symbol('&');
+    const rule10 = Symbol('&');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+            [rule3]: {
+                visibility: 'hidden',
+                animation: 'none',
+                [rule4]: {
+                    paddingInline: '2rem',
+                },
+            },
+        },
+        [rule5]: {
             [rule6]: {
                 background: 'white',
+            },
+        },
+        [rule7]: {
+            [rule8]: {
+                [rule9]: {
+                    [rule10]: {
+                        color: 'black',
+                    },
+                },
+            },
+        },
+    };
+    mergeNested(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+            [rule3]: {
+                visibility: 'hidden',
+                animation: 'none',
+                [rule4]: {
+                    paddingInline: '2rem',
+                },
+            },
+        },
+        [rule5]: {
+            background: 'white',
+        },
+        [rule7]: {
+            color: 'black',
+        },
+    });
+});
+
+test(`mergeNested( &{parent-all-deep-deep} )`, () => {
+    const rule1 = Symbol('&');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&:active');
+    const rule6 = Symbol('&');
+    const rule7 = Symbol('&:hover');
+    const rule8 = Symbol('&:checked');
+    const rule9 = Symbol(':valid&');
+    const rule10 = Symbol('&:first-child');
+    const rule11 = Symbol('&:last-child');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+            [rule3]: {
+                visibility: 'hidden',
+                animation: 'none',
+                [rule4]: {
+                    paddingInline: '2rem',
+                },
+            },
+        },
+        [rule5]: {
+            [rule6]: {
+                background: 'white',
+            },
+        },
+        [rule7]: {
+            [rule8]: {
+                [rule9]: {
+                    [rule10]: {
+                        color: 'red',
+                    },
+                    [rule11]: [
+                        {
+                            background: 'blue',
+                        },
+                        {
+                            overflow: 'visible',
+                            zIndex: 99,
+                        },
+                    ],
+                },
+            },
+        },
+    };
+    mergeNested(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+            [rule3]: {
+                visibility: 'hidden',
+                animation: 'none',
+                [rule4]: {
+                    paddingInline: '2rem',
+                },
+            },
+        },
+        [rule5]: {
+            background: 'white',
+        },
+        [rule7]: {
+            [rule8]: {
+                [rule9]: {
+                    [rule10]: {
+                        color: 'red',
+                    },
+                    [rule11]: {
+                        background: 'blue',
+                        
+                        overflow: 'visible',
+                        zIndex: 99,
+                    },
+                },
             },
         },
     });
@@ -1962,7 +2120,7 @@ test(`mergeNested( &{parent-some nested-rule preserve-order} )`, () => {
     const rule3 = Symbol('&:disabled');
     const rule4 = Symbol('&');
     const rule5 = Symbol('&.selected');
-    const rule6  = Symbol(':focus&');
+    const rule6 = Symbol(':focus&');
     const rule7  = Symbol('&:first-child');
     const rule8  = Symbol('&:checked');
     const mainStyle: CssStyle = {
@@ -2575,4 +2733,347 @@ test(`mergeStyles({conflict+symbols}, {conflict+symbols})`, () => {
     });
 });
 //#endregion test with some style(s)
+
+
+
+//#region test with some style(s) + &parent
+test(`mergeStyles([ &{parent-all}... ])`, () => {
+    const rule1 = Symbol('&');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+    };
+    const addStyle: CssStyle = {
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+        },
+    };
+    expect(mergeStyles([mainStyle, addStyle]))
+    .toEqual({
+        color: 'red',
+        opacity: 0.5,
+        
+        margin: '2rem',
+        minWidth: '100px',
+        
+        visibility: 'hidden',
+        animation: 'none',
+        
+        paddingInline: '2rem',
+    });
+});
+
+test(`mergeStyles([ &{parent-all}... ])`, () => {
+    const rule1 = Symbol('&');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&');
+    const root  = Symbol('&:root');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+    };
+    const addStyle: CssStyle = {
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    };
+    expect(mergeStyles([mainStyle, addStyle]))
+    .toEqual({
+        color: 'red',
+        opacity: 0.5,
+        
+        margin: '2rem',
+        minWidth: '100px',
+        
+        visibility: 'hidden',
+        animation: 'none',
+        
+        paddingInline: '2rem',
+        
+        [root]: {
+            background: 'white',
+        },
+    });
+});
+
+test(`mergeStyles([ &{parent-all-deep}... ])`, () => {
+    const rule1 = Symbol('&');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&');
+    const rule6 = Symbol('&');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+    };
+    const addStyle: CssStyle = {
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+            [rule4]: {
+                paddingInline: '2rem',
+                [rule5]: {
+                    [rule6]: {
+                        background: 'white',
+                    },
+                },
+            },
+        },
+    };
+    expect(mergeStyles([mainStyle, addStyle]))
+    .toEqual({
+        color: 'red',
+        opacity: 0.5,
+        
+        margin: '2rem',
+        minWidth: '100px',
+        
+        visibility: 'hidden',
+        animation: 'none',
+        
+        paddingInline: '2rem',
+        
+        background: 'white',
+    });
+});
+
+test(`mergeStyles([ &{parent-all-deep}... ])`, () => {
+    const rule1 = Symbol('&');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&:active');
+    const rule6 = Symbol('&');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+    };
+    const addStyle: CssStyle = {
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+            [rule3]: {
+                visibility: 'hidden',
+                animation: 'none',
+                [rule4]: {
+                    paddingInline: '2rem',
+                },
+            },
+        },
+        [rule5]: {
+            [rule6]: {
+                background: 'white',
+            },
+        },
+    };
+    expect(mergeStyles([mainStyle, addStyle]))
+    .toEqual({
+        color: 'red',
+        opacity: 0.5,
+        
+        margin: '2rem',
+        minWidth: '100px',
+        
+        visibility: 'hidden',
+        animation: 'none',
+        
+        paddingInline: '2rem',
+        
+        [rule5]: {
+            background: 'white',
+        },
+    });
+});
+
+test(`mergeStyles([ &{parent-all-deep-deep}... ])`, () => {
+    const rule1 = Symbol('&');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&:active');
+    const rule6 = Symbol('&');
+    const rule7 = Symbol('&:hover');
+    const rule8 = Symbol('&');
+    const rule9 = Symbol('&');
+    const rule10 = Symbol('&');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+            [rule3]: {
+                visibility: 'hidden',
+                animation: 'none',
+                [rule4]: {
+                    paddingInline: '2rem',
+                },
+            },
+        },
+        [rule5]: {
+            [rule6]: {
+                background: 'white',
+            },
+        },
+    };
+    const addStyle: CssStyle = {
+        [rule7]: {
+            [rule8]: {
+                [rule9]: {
+                    [rule10]: {
+                        color: 'black',
+                    },
+                },
+            },
+        },
+    };
+    
+    expect(mergeStyles([mainStyle, addStyle]))
+    .toEqual({
+        color: 'red',
+        opacity: 0.5,
+        
+        margin: '2rem',
+        minWidth: '100px',
+        
+        visibility: 'hidden',
+        animation: 'none',
+        
+        paddingInline: '2rem',
+        
+        [rule5]: {
+            background: 'white',
+        },
+        
+        [rule7]: {
+            color: 'black',
+        },
+    });
+});
+
+test(`mergeStyles([ &{parent-all-deep-deep}... ])`, () => {
+    const rule1 = Symbol('&');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&:active');
+    const rule6 = Symbol('&');
+    const rule7 = Symbol('&');
+    const rule8 = Symbol('&');
+    const rule9 = Symbol('&');
+    const rule10 = Symbol('&');
+    const rule11 = Symbol('&');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+            [rule3]: {
+                visibility: 'hidden',
+                animation: 'none',
+                [rule4]: {
+                    paddingInline: '2rem',
+                },
+            },
+        },
+    };
+    const addStyle: CssStyle = {
+        [rule5]: {
+            [rule6]: {
+                background: 'white',
+            },
+        },
+        [rule7]: {
+            [rule8]: {
+                [rule9]: {
+                    [rule10]: {
+                        color: 'pink',
+                    },
+                    [rule11]: [
+                        {
+                            background: 'blue',
+                        },
+                        {
+                            overflow: 'visible',
+                            zIndex: 99,
+                        },
+                    ],
+                },
+            },
+        },
+    };
+    
+    expect(mergeStyles([mainStyle, addStyle]))
+    .toEqual({
+        // color: 'red',
+        opacity: 0.5,
+        
+        margin: '2rem',
+        minWidth: '100px',
+        
+        visibility: 'hidden',
+        animation: 'none',
+        
+        paddingInline: '2rem',
+        
+        color: 'pink',
+        
+        background: 'blue',
+        
+        overflow: 'visible',
+        zIndex: 99,
+        
+        [rule5]: {
+            background: 'white',
+        },
+    });
+});
+//#endregion test with some style(s) + &parent
 //#endregion test mergeStyles()
