@@ -110,6 +110,45 @@ export const mergeLiteral = (style: CssStyle, newStyle: CssStyle): void => {
 
 
 
+export const mergeParent  = (style: CssStyle): void => {
+    const symbolProps = Object.getOwnPropertySymbols(style);
+    if (!symbolProps.length) return; // there's no (nested) Rule => nothing to do
+    
+    
+    
+    let needToReorderOtherSymbolProps = false;
+    for (const sym of symbolProps) {
+        if (sym.description === '&') {
+            /* move the CssProps and (nested)Rules from only_parentSelector to current style */
+            
+            
+            
+            const parentStyles       = style[sym];
+            const mergedParentStyles = mergeStyles(parentStyles);
+            if (mergedParentStyles) {
+                if (!needToReorderOtherSymbolProps) {
+                    /* if mergedParentStyles has any (nested) Rule => all (nested) Rule in current style need to rearrange to preserve the order */
+                    const hasNestedRule  = !!Object.getOwnPropertySymbols(mergedParentStyles).length;
+                    if (hasNestedRule) needToReorderOtherSymbolProps = true;
+                } // if
+                
+                
+                
+                mergeLiteral(style, mergedParentStyles); // merge into current style
+            } // if
+            delete style[sym];                           // merged => delete source
+        }
+        else if (needToReorderOtherSymbolProps) {
+            /* preserve the order of another (nested)Rules */
+            
+            
+            
+            const nestedStyles = style[sym]; // backup
+            delete style[sym];               // delete
+            style[sym] = nestedStyles;       // restore (re-insert at the last order)
+        } // if
+    } // for
+}
 const nestedAtRules = ['@media', '@supports', '@document', '@global'];
 export const mergeNested  = (style: CssStyle): void => {
     const symbolProps = Object.getOwnPropertySymbols(style);
@@ -168,43 +207,6 @@ export const mergeNested  = (style: CssStyle): void => {
         for (const sym of group.slice(0, -1)) delete style[sym]; // delete first member to second last member
     } // for
     //#endregion merge duplicates (nested) Rule to unique ones
-    
-    
-    
-    //#region merge only_parentSelector to current style
-    let needToReorderOtherSymbolProps = false;
-    for (const sym of symbolProps) {
-        if (sym.description === '&') {
-            /* move the CssProps and (nested)Rules from only_parentSelector to current style */
-            
-            
-            
-            const parentStyles       = style[sym];
-            const mergedParentStyles = mergeStyles(parentStyles);
-            if (mergedParentStyles) {
-                if (!needToReorderOtherSymbolProps) {
-                    /* if mergedParentStyles has any (nested) Rule => all (nested) Rule in current style need to rearrange to preserve the order */
-                    const hasNestedRule  = !!Object.getOwnPropertySymbols(mergedParentStyles).length;
-                    if (hasNestedRule) needToReorderOtherSymbolProps = true;
-                } // if
-                
-                
-                
-                mergeLiteral(style, mergedParentStyles); // merge into current style
-            } // if
-            delete style[sym];                           // merged => delete source
-        }
-        else if (needToReorderOtherSymbolProps) {
-            /* preserve the order of another (nested)Rules */
-            
-            
-            
-            const nestedStyles = style[sym]; // backup
-            delete style[sym];               // delete
-            style[sym] = nestedStyles;       // restore (re-insert at the last order)
-        } // if
-    } // for
-    //#endregion merge only_parentSelector to current style
 }
 
 
@@ -239,6 +241,7 @@ export const mergeStyles = (styles: CssStyleCollection): CssStyle|null => {
         
         
         const mergedStyles: CssStyle = (styleValue === styles) ? styleValue : { ...styleValue }; // shallow clone before mutate
+        mergeParent(mergedStyles); // mutate
         mergeNested(mergedStyles); // mutate
         
         
@@ -274,9 +277,14 @@ export const mergeStyles = (styles: CssStyleCollection): CssStyle|null => {
         
         
         // merge current style to single big style (string props + symbol props):
-        mergeLiteral(mergedStyles, subStyleValue);
-        mergeNested(mergedStyles); // merge nested immediately after literal, to preserve prop order in mergedStyles and in mergedStyles[Symbol('&')]
+        mergeLiteral(mergedStyles, subStyleValue); // mutate
+        
+        // to preserve the order sequence of only_parentSelector
+        // we need to unwrap the only_parentSelector before merging with next subStyles
+        // by calling `mergeParent()`, the only_parentSelector are unwrapped
+        mergeParent(mergedStyles); // mutate
     } // for
+    mergeNested(mergedStyles); // mutate
     
     
     
