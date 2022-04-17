@@ -1128,7 +1128,7 @@ test(`mergeNested( &{parent-some unique-partial} )`, () => {
     })
 });
 
-test(`mergeNested( &{parent-some nested-rule} )`, () => {
+test(`mergeNested( &{parent-some nested-rule preserve-order} )`, () => {
     const rule1 = Symbol('&:hover');
     const rule2 = Symbol('&');
     const rule3 = Symbol('&:disabled');
