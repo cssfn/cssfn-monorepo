@@ -219,13 +219,13 @@ export const mergeStyles = (styles: CssStyleCollection): CssStyle|null => {
     /*
         CssStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssStyle>>
         CssStyleCollection = ProductOrFactory<OptionalOrBoolean<CssStyle>> | ProductOrFactoryDeepArray<OptionalOrBoolean<CssStyle>>
-        typeof             = ---------------- not an array --------------- | -------------------- is an array ---------------------
+        typeof             = -------- nullable_object or function -------- | ---------------------- an array ----------------------
     */
     
     
     
     if (!Array.isArray(styles)) {
-        // not an array => ProductOrFactory<OptionalOrBoolean<CssStyle>>
+        // nullable_object or function => ProductOrFactory<OptionalOrBoolean<CssStyle>>
         
         const styleValue: OptionalOrBoolean<CssStyle> = (
             (typeof(styles) === 'function')
@@ -234,12 +234,12 @@ export const mergeStyles = (styles: CssStyleCollection): CssStyle|null => {
             :
             styles   // a product  => OptionalOrBoolean<CssStyle>
         );
-        if (!styleValue || (styleValue === true)) return null; // `null` or `undefined` => return `null`
+        if (!styleValue || (styleValue === true)) return null; // undefined|null|false|true => return `null`
         
         
         
-        const mergedStyles: CssStyle = styleValue;
-        mergeNested(mergedStyles);
+        const mergedStyles: CssStyle = (styleValue === styles) ? styleValue : { ...styleValue }; // shallow clone before mutate
+        mergeNested(mergedStyles); // mutate
         
         
         
@@ -260,10 +260,8 @@ export const mergeStyles = (styles: CssStyleCollection): CssStyle|null => {
             // deep iterating array
             mergeStyles(subStyles) // an array => ProductOrFactoryDeepArray<OptionalOrBoolean<CssStyle>> => recursively `mergeStyles()`
             :
-            // final element => might be a function or a product
+            // not an array => nullable_object or function => ProductOrFactory<OptionalOrBoolean<CssStyle>>
             (
-                // not an array => ProductOrFactory<OptionalOrBoolean<CssStyle>>
-                
                 (typeof(subStyles) === 'function')
                 ?
                 subStyles() // a function => Factory<OptionalOrBoolean<CssStyle>>
@@ -271,7 +269,7 @@ export const mergeStyles = (styles: CssStyleCollection): CssStyle|null => {
                 subStyles   // a product  => OptionalOrBoolean<CssStyle>
             )
         );
-        if (!subStyleValue || (subStyleValue === true)) continue; // `null` or `undefined` => skip
+        if (!subStyleValue || (subStyleValue === true)) continue; // undefined|null|false|true => skip
         
         
         
