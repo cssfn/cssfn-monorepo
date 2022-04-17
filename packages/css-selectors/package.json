@@ -21,7 +21,7 @@
   },
   "scripts": {
     "tsc": "tsc",
-    "test": "jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
     "@cssfn/types": "^2.0.0"
