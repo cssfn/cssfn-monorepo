@@ -3,6 +3,7 @@ import type {
 } from '@cssfn/css-types'
 import {
     mergeLiteral,
+    mergeParent,
     mergeNested,
     mergeStyles,
 } from '../src/compiler'
@@ -444,6 +445,390 @@ test(`mergeLiteral({conflict+symbols}, {conflict+symbols})`, () => {
 
 
 
+//#region test mergeParent()
+test(`mergeParent( &{empty} )`, () => {
+    const mainStyle: CssStyle = {
+        /* empty */
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        /* empty */
+    })
+});
+
+test(`mergeParent( &{parent-all} )`, () => {
+    const rule1 = Symbol('&');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        color: 'red',
+        opacity: 0.5,
+        
+        margin: '2rem',
+        minWidth: '100px',
+        
+        visibility: 'hidden',
+        animation: 'none',
+        
+        paddingInline: '2rem',
+    })
+});
+
+test(`mergeParent( &{parent-all} )`, () => {
+    const rule1 = Symbol('&');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&');
+    const root  = Symbol('&:root');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        color: 'red',
+        opacity: 0.5,
+        
+        margin: '2rem',
+        minWidth: '100px',
+        
+        visibility: 'hidden',
+        animation: 'none',
+        
+        paddingInline: '2rem',
+        
+        [root]: {
+            background: 'white',
+        },
+    })
+});
+
+test(`mergeParent( &{parent-all-deep} )`, () => {
+    const rule1 = Symbol('&');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&');
+    const rule6  = Symbol('&');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+            [rule4]: {
+                paddingInline: '2rem',
+                [rule5]: {
+                    [rule6]: {
+                        background: 'white',
+                    },
+                },
+            },
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        color: 'red',
+        opacity: 0.5,
+        
+        margin: '2rem',
+        minWidth: '100px',
+        
+        visibility: 'hidden',
+        animation: 'none',
+        
+        paddingInline: '2rem',
+        
+        background: 'white',
+    })
+});
+
+test(`mergeParent( &{parent-all-deep} )`, () => {
+    const rule1 = Symbol('&');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&:active');
+    const rule6  = Symbol('&');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+            [rule3]: {
+                visibility: 'hidden',
+                animation: 'none',
+                [rule4]: {
+                    paddingInline: '2rem',
+                },
+            },
+        },
+        [rule5]: {
+            [rule6]: {
+                background: 'white',
+            },
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        color: 'red',
+        opacity: 0.5,
+        
+        margin: '2rem',
+        minWidth: '100px',
+        
+        visibility: 'hidden',
+        animation: 'none',
+        
+        paddingInline: '2rem',
+        
+        [rule5]: {
+            [rule6]: {
+                background: 'white',
+            },
+        },
+    })
+});
+
+test(`mergeParent( &{parent unique} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('@media (min-width: 900px)');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('@global');
+    const root  = Symbol('&:root');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        margin: '2rem',
+        minWidth: '100px',
+        
+        paddingInline: '2rem',
+        
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    })
+});
+
+test(`mergeParent( &{parent-some unique-partial} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('@media (min-width: 900px)');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('@global');
+    const root  = Symbol('&:root');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        margin: '2rem',
+        minWidth: '100px',
+        
+        paddingInline: '2rem',
+        
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
+        },
+    })
+});
+
+test(`mergeParent( &{parent-some nested-rule preserve-order} )`, () => {
+    const rule1 = Symbol('&:hover');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&:disabled');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&.selected');
+    const rule6  = Symbol(':focus&');
+    const rule7  = Symbol('&:first-child');
+    const rule8  = Symbol('&:checked');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+            
+            [rule3]: {
+                visibility: 'hidden',
+                animation: 'none',
+            },
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+            [rule5]: {
+                aspectRatio: '2/5',
+            },
+            [rule6]: {
+                background: 'white',
+            },
+        },
+        [rule7]: {
+            background: 'white',
+        },
+        [rule8]: {
+            width: '10px',
+            height: '50vh',
+        },
+    };
+    mergeParent(mainStyle);
+    expect(mainStyle)
+    .toEqual({
+        margin: '2rem',
+        minWidth: '100px',
+        
+        paddingInline: '2rem',
+        
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        
+        [rule5]: {
+            aspectRatio: '2/5',
+        },
+        [rule6]: {
+            background: 'white',
+        },
+        
+        [rule7]: {
+            background: 'white',
+        },
+        [rule8]: {
+            width: '10px',
+            height: '50vh',
+        },
+    })
+});
+//#endregion test mergeParent()
+
+
+
 //#region test mergeNested()
 test(`mergeNested( &{empty} )`, () => {
     const mainStyle: CssStyle = {
@@ -865,16 +1250,23 @@ test(`mergeNested( &{parent-all} )`, () => {
     mergeNested(mainStyle);
     expect(mainStyle)
     .toEqual({
-        color: 'red',
-        opacity: 0.5,
-        
-        margin: '2rem',
-        minWidth: '100px',
-        
-        visibility: 'hidden',
-        animation: 'none',
-        
-        paddingInline: '2rem',
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+        },
     })
 });
 
@@ -910,19 +1302,25 @@ test(`mergeNested( &{parent-all} )`, () => {
     mergeNested(mainStyle);
     expect(mainStyle)
     .toEqual({
-        color: 'red',
-        opacity: 0.5,
-        
-        margin: '2rem',
-        minWidth: '100px',
-        
-        visibility: 'hidden',
-        animation: 'none',
-        
-        paddingInline: '2rem',
-        
-        [root]: {
-            background: 'white',
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
+        },
+        [rule5]: {
+            [root]: {
+                background: 'white',
+            },
         },
     })
 });
@@ -959,18 +1357,26 @@ test(`mergeNested( &{parent-all-deep} )`, () => {
     mergeNested(mainStyle);
     expect(mainStyle)
     .toEqual({
-        color: 'red',
-        opacity: 0.5,
-        
-        margin: '2rem',
-        minWidth: '100px',
-        
-        visibility: 'hidden',
-        animation: 'none',
-        
-        paddingInline: '2rem',
-        
-        background: 'white',
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        [rule3]: {
+            visibility: 'hidden',
+            animation: 'none',
+            [rule4]: {
+                paddingInline: '2rem',
+                [rule5]: {
+                    [rule6]: {
+                        background: 'white',
+                    },
+                },
+            },
+        },
     })
 });
 
@@ -1006,17 +1412,21 @@ test(`mergeNested( &{parent-all-deep} )`, () => {
     mergeNested(mainStyle);
     expect(mainStyle)
     .toEqual({
-        color: 'red',
-        opacity: 0.5,
-        
-        margin: '2rem',
-        minWidth: '100px',
-        
-        visibility: 'hidden',
-        animation: 'none',
-        
-        paddingInline: '2rem',
-        
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+            [rule3]: {
+                visibility: 'hidden',
+                animation: 'none',
+                [rule4]: {
+                    paddingInline: '2rem',
+                },
+            },
+        },
         [rule5]: {
             [rule6]: {
                 background: 'white',
@@ -1057,18 +1467,20 @@ test(`mergeNested( &{parent unique} )`, () => {
     mergeNested(mainStyle);
     expect(mainStyle)
     .toEqual({
-        margin: '2rem',
-        minWidth: '100px',
-        
-        paddingInline: '2rem',
-        
         [rule1]: {
             color: 'red',
             opacity: 0.5,
         },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
         [rule3]: {
             visibility: 'hidden',
             animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
         },
         [rule5]: {
             [root]: {
@@ -1110,18 +1522,20 @@ test(`mergeNested( &{parent-some unique-partial} )`, () => {
     mergeNested(mainStyle);
     expect(mainStyle)
     .toEqual({
-        margin: '2rem',
-        minWidth: '100px',
-        
-        paddingInline: '2rem',
-        
         [rule1]: {
             color: 'red',
             opacity: 0.5,
         },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
         [rule3]: {
             visibility: 'hidden',
             animation: 'none',
+        },
+        [rule4]: {
+            paddingInline: '2rem',
         },
         [rule5]: {
             [root]: {
@@ -1174,28 +1588,28 @@ test(`mergeNested( &{parent-some nested-rule preserve-order} )`, () => {
     mergeNested(mainStyle);
     expect(mainStyle)
     .toEqual({
-        margin: '2rem',
-        minWidth: '100px',
-        
-        paddingInline: '2rem',
-        
         [rule1]: {
             color: 'red',
             opacity: 0.5,
         },
-        
-        [rule3]: {
-            visibility: 'hidden',
-            animation: 'none',
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+            
+            [rule3]: {
+                visibility: 'hidden',
+                animation: 'none',
+            },
         },
-        
-        [rule5]: {
-            aspectRatio: '2/5',
+        [rule4]: {
+            paddingInline: '2rem',
+            [rule5]: {
+                aspectRatio: '2/5',
+            },
+            [rule6]: {
+                background: 'white',
+            },
         },
-        [rule6]: {
-            background: 'white',
-        },
-        
         [rule7]: {
             background: 'white',
         },
