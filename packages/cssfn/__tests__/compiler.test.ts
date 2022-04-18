@@ -3226,7 +3226,7 @@ test(`mergeStyles([ &{parent-all-deep-deep}... ])`, () => {
 
 
 
-test(`mergeStyles([ &{parent-dont-overlap}... ])`, () => {
+test(`mergeStyles([ &{parent-preserve-order}... ])`, () => {
     const rule1 = Symbol('&');
     const rule2 = Symbol('&');
     const rule3 = Symbol('&');
