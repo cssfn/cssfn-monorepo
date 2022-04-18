@@ -82,7 +82,8 @@ import {
 
 export const mergeLiteral = (style: CssStyle, newStyle: CssStyle): void => {
     //#region merge normal props
-    for (const propName in newStyle) { // loop through `newStyle`'s props
+    // for (const propName in newStyle) { // loop through `newStyle`'s props
+    for (const propName of Object.keys(newStyle)) { // loop through `newStyle`'s props // capture keys before iterating & mutate
         const newPropValue = (newStyle as any)[propName];
         
         
