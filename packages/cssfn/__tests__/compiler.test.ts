@@ -3223,5 +3223,55 @@ test(`mergeStyles([ &{parent-all-deep-deep}... ])`, () => {
         },
     });
 });
+
+
+
+test(`mergeStyles([ &{parent-dont-overlap}... ])`, () => {
+    const rule1 = Symbol('&');
+    const rule2 = Symbol('&');
+    const rule3 = Symbol('&');
+    const rule4 = Symbol('&');
+    const rule5 = Symbol('&');
+    const rule6 = Symbol('&');
+    const mainStyle: CssStyle = {
+        [rule1]: {
+            color: 'red',
+            opacity: 0.5,
+        },
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+            [rule3]: {
+                visibility: 'hidden',
+                animation: 'none',
+            },
+        },
+    };
+    const addStyle: CssStyle = {
+        [rule4]: {
+            paddingInline: '2rem',
+            [rule5]: {
+                [rule6]: {
+                    background: 'white',
+                },
+            },
+        },
+    };
+    expect(mergeStyles([mainStyle, addStyle]))
+    .toExactEqual({
+        color: 'red',
+        opacity: 0.5,
+        
+        margin: '2rem',
+        minWidth: '100px',
+        
+        visibility: 'hidden',
+        animation: 'none',
+        
+        paddingInline: '2rem',
+        
+        background: 'white',
+    });
+});
 //#endregion test with some style(s) + &parent
 //#endregion test mergeStyles()
