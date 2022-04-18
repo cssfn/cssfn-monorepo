@@ -28,7 +28,7 @@ export {
 }                           from './styleSheet'
 export {
     rule,
-}                           from './compiler'
+}                           from './rule'
 
 
 
