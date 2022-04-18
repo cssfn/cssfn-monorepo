@@ -24,12 +24,12 @@ import type {
 }                           from '@cssfn/css-types'
 import {
     // types:
-    SimpleSelector    as SimpleSelectorModel,
+    SimpleSelector,
     Combinator,
-    Selector          as SelectorModel,
-    SelectorGroup     as SelectorModelGroup,
-    PureSelector      as PureSelectorModel,
-    PureSelectorGroup as PureSelectorModelGroup,
+    Selector,
+    SelectorGroup,
+    PureSelector,
+    PureSelectorGroup,
     
     
     
@@ -81,7 +81,7 @@ import {
 // processors:
 
 const nthChildNSelector = pseudoClassSelector('nth-child', 'n');
-const adjustSpecificityWeight = (selectorGroup: PureSelectorModelGroup, minSpecificityWeight: number|null, maxSpecificityWeight: number|null): PureSelectorModelGroup => {
+const adjustSpecificityWeight = (selectorGroup: PureSelectorGroup, minSpecificityWeight: number|null, maxSpecificityWeight: number|null): PureSelectorGroup => {
     if (
         (minSpecificityWeight == null)
         &&
@@ -96,8 +96,8 @@ const adjustSpecificityWeight = (selectorGroup: PureSelectorModelGroup, minSpeci
         TooBig,
         TooSmall,
     }
-    type GroupBySpecificityWeightStatus = Map<SpecificityWeightStatus, { selector: PureSelectorModel, specificityWeight: number }[]>
-    const selectorGroupBySpecificityWeightStatus = selectorGroup.map((selector) => selector.filter(isNotEmptySelectorEntry) as PureSelectorModel).reduce(
+    type GroupBySpecificityWeightStatus = Map<SpecificityWeightStatus, { selector: PureSelector, specificityWeight: number }[]>
+    const selectorGroupBySpecificityWeightStatus = selectorGroup.map((selector) => selector.filter(isNotEmptySelectorEntry) as PureSelector).reduce(
         (accum, selector): GroupBySpecificityWeightStatus => {
             const [specificityWeight, weightStatus] = ((): readonly [number, SpecificityWeightStatus] => {
                 const specificityWeight = calculateSpecificity(selector)[1];
@@ -123,7 +123,7 @@ const adjustSpecificityWeight = (selectorGroup: PureSelectorModelGroup, minSpeci
             group.push({ selector, specificityWeight });
             return accum;
         },
-        new Map<SpecificityWeightStatus, { selector: PureSelectorModel, specificityWeight: number }[]>()
+        new Map<SpecificityWeightStatus, { selector: PureSelector, specificityWeight: number }[]>()
     );
     //#endregion group selectors by specificity weight status
     
@@ -139,7 +139,7 @@ const adjustSpecificityWeight = (selectorGroup: PureSelectorModelGroup, minSpeci
         ...tooBigSelectors.flatMap((group) => {
             const reversedSelector = group.selector.reverse(); // reverse & mutate the current `group.selector` array
             
-            type SelectorAccum = { remaining: number, reducedSelector: SelectorModel }
+            type SelectorAccum = { remaining: number, reducedSelector: Selector }
             const { reducedSelector: reversedReducedSelector, remaining: remainingSpecificityWeight } : SelectorAccum = (
                 reversedSelector.slice(0) // clone the `reversedSelector` because the `reduce()` uses `splice()` to break the iteration
                 .reduce((accum, selectorEntry, index, array): SelectorAccum => {
@@ -220,7 +220,7 @@ const adjustSpecificityWeight = (selectorGroup: PureSelectorModelGroup, minSpeci
                 ...reversedSelector.slice(reversedReducedSelector.length).reverse(),
             );
             whereSelector.push(
-                ...(new Array<SimpleSelectorModel>((remainingSpecificityWeight < 0) ? -remainingSpecificityWeight : 0)).fill(
+                ...(new Array<SimpleSelector>((remainingSpecificityWeight < 0) ? -remainingSpecificityWeight : 0)).fill(
                     nthChildNSelector // or use `nth-child(n)`
                 ),
             );
@@ -232,7 +232,7 @@ const adjustSpecificityWeight = (selectorGroup: PureSelectorModelGroup, minSpeci
         
         ...tooSmallSelectors.map((group) => createSelector(
             ...group.selector,
-            ...(new Array<SimpleSelectorModel>((minSpecificityWeight ?? 1) - group.specificityWeight)).fill(
+            ...(new Array<SimpleSelector>((minSpecificityWeight ?? 1) - group.specificityWeight)).fill(
                 group.selector
                 .filter(isClassOrPseudoClassSelector) // only interested to class selector -or- pseudo class selector
                 .filter((simpleSelector) => {         // pseudo class selector without parameters
@@ -291,7 +291,7 @@ const defaultSelectorOptions : Required<SelectorOptions> = {
     minSpecificityWeight : null,
     maxSpecificityWeight : null,
 };
-export const mergeSelectors = (selectorGroup: SelectorModelGroup, options: SelectorOptions = defaultSelectorOptions): SelectorModelGroup => {
+export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOptions = defaultSelectorOptions): SelectorGroup => {
     const {
         groupSelectors : doGroupSelectors = defaultSelectorOptions.groupSelectors,
         
@@ -349,8 +349,8 @@ export const mergeSelectors = (selectorGroup: SelectorModelGroup, options: Selec
         OnlyEndParent,
         RandomParent,
     }
-    type GroupByParentPosition = Map<ParentPosition, PureSelectorModel[]>
-    const selectorGroupByParentPosition = adjustedSelectorGroup.map((selector) => selector.filter(isNotEmptySelectorEntry) as PureSelectorModel).reduce(
+    type GroupByParentPosition = Map<ParentPosition, PureSelector[]>
+    const selectorGroupByParentPosition = adjustedSelectorGroup.map((selector) => selector.filter(isNotEmptySelectorEntry) as PureSelector).reduce(
         (accum, selector): GroupByParentPosition => {
             const position = ((): ParentPosition => {
                 const hasFirstParent = ((): boolean => {
@@ -396,7 +396,7 @@ export const mergeSelectors = (selectorGroup: SelectorModelGroup, options: Selec
             group.push(selector);
             return accum;
         },
-        new Map<ParentPosition, PureSelectorModel[]>()
+        new Map<ParentPosition, PureSelector[]>()
     );
     //#endregion group selectors by parent position
     
@@ -407,8 +407,8 @@ export const mergeSelectors = (selectorGroup: SelectorModelGroup, options: Selec
     
     
     
-    type GroupByCombinator = Map<Combinator|null, PureSelectorModelGroup>
-    const createGroupByCombinator = (fetch: (selector: PureSelectorModel) => Combinator|null) => (accum: GroupByCombinator, selector: PureSelectorModel): GroupByCombinator => {
+    type GroupByCombinator = Map<Combinator|null, PureSelectorGroup>
+    const createGroupByCombinator = (fetch: (selector: PureSelector) => Combinator|null) => (accum: GroupByCombinator, selector: PureSelector): GroupByCombinator => {
         const combinator = fetch(selector);
         let group = accum.get(combinator);             // get an existing collector
         if (!group) accum.set(combinator, group = []); // create a new collector
@@ -427,8 +427,8 @@ export const mergeSelectors = (selectorGroup: SelectorModelGroup, options: Selec
         // ParentSelector at beginning
         // &aaa
         // &:is(aaa, bbb, ccc)
-        ...((): SelectorModelGroup => {
-            if (onlyBeginParentSelectorGroup.length <= 1) return onlyBeginParentSelectorGroup; // only contain one/no SelectorModel, no need to group
+        ...((): SelectorGroup => {
+            if (onlyBeginParentSelectorGroup.length <= 1) return onlyBeginParentSelectorGroup; // only contain one/no Selector, no need to group
             
             
             
@@ -444,18 +444,18 @@ export const mergeSelectors = (selectorGroup: SelectorModelGroup, options: Selec
                     
                     return null; // ungroupable
                 }),
-                new Map<Combinator|null, PureSelectorModelGroup>()
+                new Map<Combinator|null, PureSelectorGroup>()
             );
             //#endregion group selectors by combinator
             return Array.from(selectorGroupByCombinator.entries()).flatMap(([combinator, selectors]) => {
-                if (selectors.length <= 1) return selectors;  // only contain one/no SelectorModel, no need to group
-                if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length <= 1) return selectors;  // only contain one/no SelectorModel without ::pseudo-element, no need to group
+                if (selectors.length <= 1) return selectors;  // only contain one/no Selector, no need to group
+                if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length <= 1) return selectors;  // only contain one/no Selector without ::pseudo-element, no need to group
                 
                 
                 
                 const [isSelector, ...pseudoElmSelectors] = groupSelectors(
                     selectors
-                    .filter(isNotEmptySelector) // remove empty SelectorModel(s) in SelectorGroup
+                    .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
                     .map((selector) => selector.slice(
                         (
                             combinator
@@ -485,8 +485,8 @@ export const mergeSelectors = (selectorGroup: SelectorModelGroup, options: Selec
         // ParentSelector at end
         // aaa&
         // :is(aaa, bbb, ccc)&
-        ...((): SelectorModelGroup => {
-            if (onlyEndParentSelectorGroup.length <= 1) return onlyEndParentSelectorGroup; // only contain one/no SelectorModel, no need to group
+        ...((): SelectorGroup => {
+            if (onlyEndParentSelectorGroup.length <= 1) return onlyEndParentSelectorGroup; // only contain one/no Selector, no need to group
             
             
             
@@ -503,18 +503,18 @@ export const mergeSelectors = (selectorGroup: SelectorModelGroup, options: Selec
                     
                     return null; // ungroupable
                 }),
-                new Map<Combinator|null, PureSelectorModelGroup>()
+                new Map<Combinator|null, PureSelectorGroup>()
             );
             //#endregion group selectors by combinator
             return Array.from(selectorGroupByCombinator.entries()).flatMap(([combinator, selectors]) => {
-                if (selectors.length <= 1) return selectors;  // only contain one/no SelectorModel, no need to group
-                if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length <= 1) return selectors;  // only contain one/no SelectorModel without ::pseudo-element, no need to group
+                if (selectors.length <= 1) return selectors;  // only contain one/no Selector, no need to group
+                if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length <= 1) return selectors;  // only contain one/no Selector without ::pseudo-element, no need to group
                 
                 
                 
                 const [isSelector, ...pseudoElmSelectors] = groupSelectors(
                     selectors
-                    .filter(isNotEmptySelector) // remove empty SelectorModel(s) in SelectorGroup
+                    .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
                     .map((selector) => selector.slice(0,
                         (
                             combinator
