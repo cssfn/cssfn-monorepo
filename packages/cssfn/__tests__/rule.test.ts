@@ -61,7 +61,7 @@ import {
 
 
 
-//#region adjustSpecificityWeight()
+//#region test adjustSpecificityWeight()
 const zeroSpecificity: Specificity = [0, 0, 0];
 const groupList : SelectorName[] & ('is'|'not'|'has'|'where')[] = ['is','not','has','where'];
 
@@ -228,4 +228,4 @@ groupList.forEach((group) => {
         });
     });
 });
-//#endregion adjustSpecificityWeight()
+//#endregion test adjustSpecificityWeight()
