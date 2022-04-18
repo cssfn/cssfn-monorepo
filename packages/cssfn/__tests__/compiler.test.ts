@@ -7,6 +7,7 @@ import {
     mergeNested,
     mergeStyles,
 } from '../src/compiler'
+import './jest-custom'
 
 
 
@@ -20,7 +21,7 @@ test(`mergeLiteral({empty}, {empty})`, () => {
     };
     mergeLiteral(mainStyle, addStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         /* empty */
     });
 });
@@ -45,7 +46,7 @@ test(`mergeLiteral({some}, {empty})`, () => {
     };
     mergeLiteral(mainStyle, addStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         background: 'red',
         color: 'blue',
         opacity: 0.5,
@@ -81,7 +82,7 @@ test(`mergeLiteral({empty}, {some})`, () => {
     };
     mergeLiteral(mainStyle, addStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         background: 'red',
         color: 'blue',
         opacity: 0.5,
@@ -128,7 +129,7 @@ test(`mergeLiteral({some+symbols}, {empty})`, () => {
     };
     mergeLiteral(mainStyle, addStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         background: 'red',
         color: 'blue',
         opacity: 0.5,
@@ -184,7 +185,7 @@ test(`mergeLiteral({empty}, {some+symbols})`, () => {
     };
     mergeLiteral(mainStyle, addStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         background: 'red',
         color: 'blue',
         opacity: 0.5,
@@ -228,7 +229,7 @@ test(`mergeLiteral({some}, {some})`, () => {
     };
     mergeLiteral(mainStyle, addStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         color: 'blue',
         opacity: 0.5,
         border: [['solid', '2px', 'dashed']],
@@ -284,7 +285,7 @@ test(`mergeLiteral({some+symbols}, {some+symbols})`, () => {
     };
     mergeLiteral(mainStyle, addStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         color: 'blue',
         opacity: 0.5,
         border: [['solid', '2px', 'dashed']],
@@ -344,7 +345,7 @@ test(`mergeLiteral({conflict}, {conflict})`, () => {
     };
     mergeLiteral(mainStyle, addStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         color: 'blue',
         border: [['solid', '2px', 'dashed']],
         paddingInline: '2rem',
@@ -408,7 +409,7 @@ test(`mergeLiteral({conflict+symbols}, {conflict+symbols})`, () => {
     };
     mergeLiteral(mainStyle, addStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         color: 'blue',
         border: [['solid', '2px', 'dashed']],
         paddingInline: '2rem',
@@ -452,7 +453,7 @@ test(`mergeParent( &{empty} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         /* empty */
     });
 });
@@ -488,7 +489,7 @@ test(`mergeParent( &{unique} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -543,7 +544,7 @@ test(`mergeParent( &{same-all} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -598,7 +599,7 @@ test(`mergeParent( &{same-partial} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -653,7 +654,7 @@ test(`mergeParent( &{same-partial} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -706,7 +707,7 @@ test(`mergeParent( &{same-partial empty-partial} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
         },
         [rule2]: {
@@ -757,7 +758,7 @@ test(`mergeParent( &{same-partial empty-partial} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -806,7 +807,7 @@ test(`mergeParent( &{same-partial empty-all} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
         },
         [rule2]: {
@@ -850,7 +851,7 @@ test(`mergeParent( &{same-partial empty-all} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -895,7 +896,7 @@ test(`mergeParent( &{parent-all} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         color: 'red',
         opacity: 0.5,
         
@@ -940,7 +941,7 @@ test(`mergeParent( &{parent-all} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         color: 'red',
         opacity: 0.5,
         
@@ -989,7 +990,7 @@ test(`mergeParent( &{parent-all-deep} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         color: 'red',
         opacity: 0.5,
         
@@ -1036,7 +1037,7 @@ test(`mergeParent( &{parent-all-deep} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         color: 'red',
         opacity: 0.5,
         
@@ -1100,7 +1101,7 @@ test(`mergeParent( &{parent-all-deep-deep} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         // color: 'red',
         opacity: 0.5,
         
@@ -1176,7 +1177,7 @@ test(`mergeParent( &{parent-all-deep-deep} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         // color: 'red',
         opacity: 0.5,
         
@@ -1234,7 +1235,7 @@ test(`mergeParent( &{parent unique} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         margin: '2rem',
         minWidth: '100px',
         
@@ -1287,7 +1288,7 @@ test(`mergeParent( &{parent-some unique-partial} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         margin: '2rem',
         minWidth: '100px',
         
@@ -1351,7 +1352,7 @@ test(`mergeParent( &{parent-some nested-rule preserve-order} )`, () => {
     };
     mergeParent(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         margin: '2rem',
         minWidth: '100px',
         
@@ -1394,7 +1395,7 @@ test(`mergeNested( &{empty} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         /* empty */
     });
 });
@@ -1430,7 +1431,7 @@ test(`mergeNested( &{unique} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -1485,7 +1486,7 @@ test(`mergeNested( &{same-all} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule5]: {
             color: 'red',
             opacity: 0.5,
@@ -1536,7 +1537,7 @@ test(`mergeNested( &{same-partial} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule3]: {
             color: 'red',
             opacity: 0.5,
@@ -1588,7 +1589,7 @@ test(`mergeNested( &{same-partial} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule3]: {
             visibility: 'hidden',
             animation: 'none',
@@ -1639,7 +1640,7 @@ test(`mergeNested( &{same-partial empty-partial} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule3]: {
             visibility: 'hidden',
             animation: 'none',
@@ -1686,7 +1687,7 @@ test(`mergeNested( &{same-partial empty-partial} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule3]: {
             color: 'red',
             opacity: 0.5,
@@ -1731,7 +1732,7 @@ test(`mergeNested( &{same-partial empty-all} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule5]: {
             margin: '2rem',
             minWidth: '100px',
@@ -1769,7 +1770,7 @@ test(`mergeNested( &{same-partial empty-all} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule3]: {
             color: 'red',
             opacity: 0.5,
@@ -1807,7 +1808,7 @@ test(`mergeNested( &{parent-all} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -1859,7 +1860,7 @@ test(`mergeNested( &{parent-all} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -1914,7 +1915,7 @@ test(`mergeNested( &{parent-all-deep} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -1969,7 +1970,7 @@ test(`mergeNested( &{parent-all-deep} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -2035,7 +2036,7 @@ test(`mergeNested( &{parent-all-deep-deep} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -2114,7 +2115,7 @@ test(`mergeNested( &{parent-all-deep-deep} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -2182,7 +2183,7 @@ test(`mergeNested( &{parent unique} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -2237,7 +2238,7 @@ test(`mergeNested( &{parent-some unique-partial} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -2303,7 +2304,7 @@ test(`mergeNested( &{parent-some nested-rule preserve-order} )`, () => {
     };
     mergeNested(mainStyle);
     expect(mainStyle)
-    .toEqual({
+    .toExactEqual({
         [rule1]: {
             color: 'red',
             opacity: 0.5,
@@ -2430,9 +2431,9 @@ test(`mergeStyles({some})`, () => {
         paddingInline: '2rem',
     };
     expect(mergeStyles(mainStyle))
-    .toEqual(mainStyle);
+    .toExactEqual(mainStyle);
     expect(mergeStyles([mainStyle]))
-    .toEqual(mainStyle);
+    .toExactEqual(mainStyle);
 });
 
 test(`mergeStyles({some+symbols})`, () => {
@@ -2462,9 +2463,9 @@ test(`mergeStyles({some+symbols})`, () => {
         paddingInline: '2rem',
     };
     expect(mergeStyles(mainStyle))
-    .toEqual(mainStyle);
+    .toExactEqual(mainStyle);
     expect(mergeStyles([mainStyle]))
-    .toEqual(mainStyle);
+    .toExactEqual(mainStyle);
 });
 //#endregion test with single style
 
@@ -2490,7 +2491,7 @@ test(`mergeStyles({some}, {empty})`, () => {
         /* empty */
     };
     expect(mergeStyles([mainStyle, addStyle]))
-    .toEqual({
+    .toExactEqual({
         background: 'red',
         color: 'blue',
         opacity: 0.5,
@@ -2525,7 +2526,7 @@ test(`mergeStyles({empty}, {some})`, () => {
         paddingInline: '2rem',
     };
     expect(mergeStyles([mainStyle, addStyle]))
-    .toEqual({
+    .toExactEqual({
         background: 'red',
         color: 'blue',
         opacity: 0.5,
@@ -2571,7 +2572,7 @@ test(`mergeStyles({some+symbols}, {empty})`, () => {
         /* empty */
     };
     expect(mergeStyles([mainStyle, addStyle]))
-    .toEqual({
+    .toExactEqual({
         background: 'red',
         color: 'blue',
         opacity: 0.5,
@@ -2626,7 +2627,7 @@ test(`mergeStyles({empty}, {some+symbols})`, () => {
         paddingInline: '2rem',
     };
     expect(mergeStyles([mainStyle, addStyle]))
-    .toEqual({
+    .toExactEqual({
         background: 'red',
         color: 'blue',
         opacity: 0.5,
@@ -2669,7 +2670,7 @@ test(`mergeStyles({some}, {some})`, () => {
         paddingInline: '2rem',
     };
     expect(mergeStyles([mainStyle, addStyle]))
-    .toEqual({
+    .toExactEqual({
         color: 'blue',
         opacity: 0.5,
         border: [['solid', '2px', 'dashed']],
@@ -2724,7 +2725,7 @@ test(`mergeStyles({some+symbols}, {some+symbols})`, () => {
         paddingInline: '2rem',
     };
     expect(mergeStyles([mainStyle, addStyle]))
-    .toEqual({
+    .toExactEqual({
         color: 'blue',
         opacity: 0.5,
         border: [['solid', '2px', 'dashed']],
@@ -2783,7 +2784,7 @@ test(`mergeStyles({conflict}, {conflict})`, () => {
         background: 'black',
     };
     expect(mergeStyles([mainStyle, addStyle]))
-    .toEqual({
+    .toExactEqual({
         color: 'blue',
         border: [['solid', '2px', 'dashed']],
         paddingInline: '2rem',
@@ -2846,7 +2847,7 @@ test(`mergeStyles({conflict+symbols}, {conflict+symbols})`, () => {
         background: 'black',
     };
     expect(mergeStyles([mainStyle, addStyle]))
-    .toEqual({
+    .toExactEqual({
         color: 'blue',
         border: [['solid', '2px', 'dashed']],
         paddingInline: '2rem',
@@ -2912,7 +2913,7 @@ test(`mergeStyles([ &{parent-all}... ])`, () => {
         },
     };
     expect(mergeStyles([mainStyle, addStyle]))
-    .toEqual({
+    .toExactEqual({
         color: 'red',
         opacity: 0.5,
         
@@ -2958,7 +2959,7 @@ test(`mergeStyles([ &{parent-all}... ])`, () => {
         },
     };
     expect(mergeStyles([mainStyle, addStyle]))
-    .toEqual({
+    .toExactEqual({
         color: 'red',
         opacity: 0.5,
         
@@ -3008,7 +3009,7 @@ test(`mergeStyles([ &{parent-all-deep}... ])`, () => {
         },
     };
     expect(mergeStyles([mainStyle, addStyle]))
-    .toEqual({
+    .toExactEqual({
         color: 'red',
         opacity: 0.5,
         
@@ -3056,7 +3057,7 @@ test(`mergeStyles([ &{parent-all-deep}... ])`, () => {
         },
     };
     expect(mergeStyles([mainStyle, addStyle]))
-    .toEqual({
+    .toExactEqual({
         color: 'red',
         opacity: 0.5,
         
@@ -3120,7 +3121,7 @@ test(`mergeStyles([ &{parent-all-deep-deep}... ])`, () => {
     };
     
     expect(mergeStyles([mainStyle, addStyle]))
-    .toEqual({
+    .toExactEqual({
         color: 'red',
         opacity: 0.5,
         
@@ -3198,7 +3199,7 @@ test(`mergeStyles([ &{parent-all-deep-deep}... ])`, () => {
     };
     
     expect(mergeStyles([mainStyle, addStyle]))
-    .toEqual({
+    .toExactEqual({
         // color: 'red',
         opacity: 0.5,
         
