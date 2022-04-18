@@ -855,7 +855,7 @@ const defaultGroupSelectorOptions : Required<GroupSelectorOptions> = {
     selectorName           : 'is',
     cancelGroupIfSingular  : false
 };
-export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorGroup & { 0: Selector } => {
+export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorGroup & [Selector, ...Selector[]] => {
     if (!isNotEmptySelectors(selectors)) return pureSelectorGroup(
         selector(
             /* an empty Selector */
@@ -901,7 +901,7 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
         ...selectorsOnlyPseudoElm,
     );
 }
-export const groupSelector  = (selector : OptionalOrBoolean<Selector>     , options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorGroup & { 0: Selector } => {
+export const groupSelector  = (selector : OptionalOrBoolean<Selector>     , options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorGroup & [Selector, ...Selector[]] => {
     return groupSelectors(selectorGroup(selector), options);
 }
 
