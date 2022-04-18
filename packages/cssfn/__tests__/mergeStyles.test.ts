@@ -6,7 +6,7 @@ import {
     mergeParent,
     mergeNested,
     mergeStyles,
-} from '../src/compiler'
+} from '../src/mergeStyles'
 import './jest-custom'
 
 
