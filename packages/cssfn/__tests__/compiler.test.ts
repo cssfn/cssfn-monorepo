@@ -3234,20 +3234,24 @@ test(`mergeStyles([ &{parent-dont-overlap}... ])`, () => {
     const rule5 = Symbol('&');
     const rule6 = Symbol('&');
     const mainStyle: CssStyle = {
+        aspectRatio: '2/3',
         [rule1]: {
             color: 'red',
             opacity: 0.5,
-        },
-        [rule2]: {
-            margin: '2rem',
-            minWidth: '100px',
             [rule3]: {
                 visibility: 'hidden',
                 animation: 'none',
             },
         },
+        boxShadow: 'inherit',
+        [rule2]: {
+            margin: '2rem',
+            minWidth: '100px',
+        },
+        cursor: 'pointer',
     };
     const addStyle: CssStyle = {
+        justifySelf: 'stretch',
         [rule4]: {
             paddingInline: '2rem',
             [rule5]: {
@@ -3259,14 +3263,20 @@ test(`mergeStyles([ &{parent-dont-overlap}... ])`, () => {
     };
     expect(mergeStyles([mainStyle, addStyle]))
     .toExactEqual({
+        aspectRatio: '2/3',
+        boxShadow: 'inherit',
+        cursor: 'pointer',
+        
         color: 'red',
         opacity: 0.5,
+        
+        visibility: 'hidden',
+        animation: 'none',
         
         margin: '2rem',
         minWidth: '100px',
         
-        visibility: 'hidden',
-        animation: 'none',
+        justifySelf: 'stretch',
         
         paddingInline: '2rem',
         
