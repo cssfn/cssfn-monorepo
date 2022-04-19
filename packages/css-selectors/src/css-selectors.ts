@@ -981,7 +981,7 @@ export const ungroupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, op
     
     
     
-    return selectors.filter(isNotEmptySelector).flatMap((selector) => ungroupSelector(selector, options));
+    return selectors.flatMap((selector) => ungroupSelector(selector, options));
 }
 
 
