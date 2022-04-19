@@ -376,36 +376,36 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
         RandomParent,
     }
     type GroupByParentPosition = Map<ParentPosition, PureSelector[]>
-    const selectorGroupByParentPosition = adjustedSelectorGroup.map((selector) => selector.filter(isNotEmptySelectorEntry) as PureSelector).reduce(
-        (accum, selector): GroupByParentPosition => {
+    const selectorGroupByParentPosition = adjustedSelectorGroup.reduce(
+        (accum, pureSelector): GroupByParentPosition => {
             const position = ((): ParentPosition => {
                 const hasFirstParent = ((): boolean => {
-                    if (selector.length < 1) return false;                      // at least 1 entry must exist, for the first_parent
+                    if (pureSelector.length < 1) return false;                  // at least 1 entry must exist, for the first_parent
                     
-                    const firstSelectorEntry = selector[0];                     // take the first entry
+                    const firstSelectorEntry = pureSelector[0];                 // take the first entry
                     return isParentSelector(firstSelectorEntry);                // the entry must be ParentSelector
                 })();
                 
-                const onlyParent      = hasFirstParent && (selector.length === 1);
+                const onlyParent      = hasFirstParent && (pureSelector.length === 1);
                 if (onlyParent) return ParentPosition.OnlyParent;
                 
                 
                 
                 const hasMiddleParent = ((): boolean => {
-                    if (selector.length < 3) return false;                      // at least 3 entry must exist, the first & last are already reserved, the middle one is the middle_parent
+                    if (pureSelector.length < 3) return false;                  // at least 3 entry must exist, the first & last are already reserved, the middle one is the middle_parent
                     
-                    for (let index = 1, maxIndex = (selector.length - 2); index <= maxIndex; index++) {
-                        const middleSelectorEntry = selector[index];            // take the 2nd_first_entry until the 2nd_last_entry
+                    for (let index = 1, maxIndex = (pureSelector.length - 2); index <= maxIndex; index++) {
+                        const middleSelectorEntry = pureSelector[index];        // take the 2nd_first_entry until the 2nd_last_entry
                         if (isParentSelector(middleSelectorEntry)) return true; // the entry must be ParentSelector, otherwise skip to next
                     } // for
                     
                     return false; // ran out of iterator => not found
                 })();
                 const hasLastParent = ((): boolean => {
-                    const length = selector.length;
+                    const length = pureSelector.length;
                     if (length < 2) return false;                               // at least 2 entry must exist, the first is already reserved, the last one is the last_parent
                     
-                    const lastSelectorEntry = selector[length - 1];             // take the last entry
+                    const lastSelectorEntry = pureSelector[length - 1];         // take the last entry
                     return isParentSelector(lastSelectorEntry);                 // the entry must be ParentSelector
                 })();
                 
@@ -419,7 +419,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
             })();
             let group = accum.get(position);             // get an existing collector
             if (!group) accum.set(position, group = []); // create a new collector
-            group.push(selector);
+            group.push(pureSelector);
             return accum;
         },
         new Map<ParentPosition, PureSelector[]>()
