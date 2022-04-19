@@ -361,6 +361,39 @@ const groupByParentPosition    = (accum: Map<ParentPosition, PureSelector[]>, pu
     return accum;
 }
 
+type GroupByCombinator = Map<Combinator|null, PureSelectorGroup>
+const createGroupByCombinator = (getGroupingCombinator: (pureSelector: PureSelector) => Combinator|null) => (accum: GroupByCombinator, pureSelector: PureSelector): GroupByCombinator => {
+    const combinator = getGroupingCombinator(pureSelector);
+    
+    
+    
+    let group = accum.get(combinator);             // get an existing collector
+    if (!group) accum.set(combinator, group = []); // create a new collector
+    group.push(pureSelector);
+    return accum;
+}
+const groupBySuffixCombinator = createGroupByCombinator(/* getGroupingCombinator: */(pureSelector) => {
+    if (pureSelector.length >= 2) {                           // at least 2 entry must exist, for the first_parent followed by combinator
+        const secondSelectorEntry = pureSelector[1];          // take the second_first entry
+        if (isCombinator(secondSelectorEntry)) {              // the entry must be the same as combinator
+            return secondSelectorEntry;
+        } // if
+    } // if
+    
+    return null; // parent_selector not suffix by combinator (&>) => ungroupable
+})
+const groupByPrefixCombinator = createGroupByCombinator(/* getGroupingCombinator: */(pureSelector) => {
+    const length = pureSelector.length;
+    if (length >= 2) {                                        // at least 2 entry must exist, for the combinator followed by last_parent
+        const secondSelectorEntry = pureSelector[length - 2]; // take the second_last entry
+        if (isCombinator(secondSelectorEntry)) {              // the entry must be the same as combinator
+            return secondSelectorEntry;
+        } // if
+    } // if
+    
+    return null; // parent_selector not prefix by combinator (>&) => ungroupable
+})
+
 export interface SelectorOptions {
     groupSelectors       ?: boolean
     
@@ -451,14 +484,6 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
     
     
     
-    type GroupByCombinator = Map<Combinator|null, PureSelectorGroup>
-    const createGroupByCombinator = (fetch: (selector: PureSelector) => Combinator|null) => (accum: GroupByCombinator, selector: PureSelector): GroupByCombinator => {
-        const combinator = fetch(selector);
-        let group = accum.get(combinator);             // get an existing collector
-        if (!group) accum.set(combinator, group = []); // create a new collector
-        group.push(selector);
-        return accum;
-    };
     const groupedSelectorGroup = createSelectorGroup(
         // only ParentSelector
         // &
@@ -478,16 +503,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
             
             //#region group selectors by combinator
             const selectorGroupByCombinator = onlyBeginParentSelectorGroup.reduce(
-                createGroupByCombinator((selector) => {
-                    if (selector.length >= 2) {                           // at least 2 entry must exist, for the first_parent followed by combinator
-                        const secondSelectorEntry = selector[1];          // take the first_second entry
-                        if (isCombinator(secondSelectorEntry)) {          // the entry must be the same as combinator
-                            return secondSelectorEntry;
-                        } // if
-                    } // if
-                    
-                    return null; // ungroupable
-                }),
+                groupBySuffixCombinator,
                 new Map<Combinator|null, PureSelectorGroup>()
             );
             //#endregion group selectors by combinator
@@ -536,17 +552,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
             
             //#region group selectors by combinator
             const selectorGroupByCombinator = onlyEndParentSelectorGroup.reduce(
-                createGroupByCombinator((selector) => {
-                    const length = selector.length;
-                    if (length >= 2) {                                    // at least 2 entry must exist, for the combinator followed by last_parent
-                        const secondSelectorEntry = selector[length - 2]; // take the last_second entry
-                        if (isCombinator(secondSelectorEntry)) {          // the entry must be the same as combinator
-                            return secondSelectorEntry;
-                        } // if
-                    } // if
-                    
-                    return null; // ungroupable
-                }),
+                groupByPrefixCombinator,
                 new Map<Combinator|null, PureSelectorGroup>()
             );
             //#endregion group selectors by combinator
