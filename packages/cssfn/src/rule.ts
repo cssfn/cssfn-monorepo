@@ -107,6 +107,21 @@ const calculateSpecificityWeightStatus = (pureSelector: PureSelector, minSpecifi
     return [specificityWeight, SpecificityWeightStatus.Fit];
 }
 
+type GroupBySpecificityWeightStatus = Map<SpecificityWeightStatus, { selector: PureSelector, specificityWeight: number }[]>
+const groupBySpecificityWeightStatus = (minSpecificityWeight: number|null, maxSpecificityWeight: number|null) => (accum: Map<SpecificityWeightStatus, {
+    selector          : PureSelector
+    specificityWeight : number
+}[]>, pureSelector: PureSelector): GroupBySpecificityWeightStatus => {
+    const [specificityWeight, weightStatus] = calculateSpecificityWeightStatus(pureSelector, minSpecificityWeight, maxSpecificityWeight);
+    
+    
+    
+    let group = accum.get(weightStatus);             // get an existing collector
+    if (!group) accum.set(weightStatus, group = []); // create a new collector
+    group.push({ selector: pureSelector, specificityWeight });
+    return accum;
+}
+
 const nthChildNSelector = pseudoClassSelector('nth-child', 'n');
 export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSpecificityWeight: number|null, maxSpecificityWeight: number|null): PureSelector[] => {
     if (
@@ -117,22 +132,11 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
     
     
     
-    //#region group selectors by specificity weight status
-    type GroupBySpecificityWeightStatus = Map<SpecificityWeightStatus, { selector: PureSelector, specificityWeight: number }[]>
+    // group selectors by specificity weight status:
     const selectorGroupBySpecificityWeightStatus = pureSelectorGroup.reduce(
-        (accum, pureSelector): GroupBySpecificityWeightStatus => {
-            const [specificityWeight, weightStatus] = calculateSpecificityWeightStatus(pureSelector, minSpecificityWeight, maxSpecificityWeight);
-            
-            
-            
-            let group = accum.get(weightStatus);             // get an existing collector
-            if (!group) accum.set(weightStatus, group = []); // create a new collector
-            group.push({ selector: pureSelector, specificityWeight });
-            return accum;
-        },
+        groupBySpecificityWeightStatus(minSpecificityWeight, maxSpecificityWeight),
         new Map<SpecificityWeightStatus, { selector: PureSelector, specificityWeight: number }[]>()
     );
-    //#endregion group selectors by specificity weight status
     
     const fitSelectors      = selectorGroupBySpecificityWeightStatus.get(SpecificityWeightStatus.Fit     ) ?? [];
     const tooSmallSelectors = selectorGroupBySpecificityWeightStatus.get(SpecificityWeightStatus.TooSmall) ?? [];
@@ -327,7 +331,7 @@ const enum ParentPosition {
     OnlyEndParent,
     RandomParent,
 }
-const calculateParentPosition = (pureSelector: PureSelector): ParentPosition => {
+const calculateParentPosition  = (pureSelector: PureSelector): ParentPosition => {
     const hasFirstParent  = calculateHasFirstParent(pureSelector);
     
     const onlyParent      = hasFirstParent && (pureSelector.length === 1);
@@ -343,7 +347,19 @@ const calculateParentPosition = (pureSelector: PureSelector): ParentPosition => 
     if (onlyEndParent) return ParentPosition.OnlyEndParent;
     
     return ParentPosition.RandomParent;
-};
+}
+
+type GroupByParentPosition     = Map<ParentPosition, PureSelector[]>
+const groupByParentPosition    = (accum: Map<ParentPosition, PureSelector[]>, pureSelector: PureSelector): GroupByParentPosition => {
+    const position = calculateParentPosition(pureSelector);
+    
+    
+    
+    let group = accum.get(position);             // get an existing collector
+    if (!group) accum.set(position, group = []); // create a new collector
+    group.push(pureSelector);
+    return accum;
+}
 
 export interface SelectorOptions {
     groupSelectors       ?: boolean
@@ -422,22 +438,11 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
     
     
     
-    //#region group selectors by parent position
-    type GroupByParentPosition = Map<ParentPosition, PureSelector[]>
+    // group selectors by parent position:
     const selectorGroupByParentPosition = adjustedSelectorGroup.reduce(
-        (accum, pureSelector): GroupByParentPosition => {
-            const position = calculateParentPosition(pureSelector);
-            
-            
-            
-            let group = accum.get(position);             // get an existing collector
-            if (!group) accum.set(position, group = []); // create a new collector
-            group.push(pureSelector);
-            return accum;
-        },
+        groupByParentPosition,
         new Map<ParentPosition, PureSelector[]>()
     );
-    //#endregion group selectors by parent position
     
     const onlyParentSelectorGroup      = selectorGroupByParentPosition.get(ParentPosition.OnlyParent      ) ?? [];
     const onlyBeginParentSelectorGroup = selectorGroupByParentPosition.get(ParentPosition.OnlyBeginParent ) ?? [];
