@@ -298,6 +298,53 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
 
 
 
+const calculateHasFirstParent  = (pureSelector: PureSelector): boolean => {
+    if (pureSelector.length < 1) return false;                  // at least 1 entry must exist, for the first_parent
+    
+    const firstSelectorEntry = pureSelector[0];                 // take the first entry
+    return isParentSelector(firstSelectorEntry);                // the entry must be ParentSelector
+}
+const calculateHasMiddleParent = (pureSelector: PureSelector): boolean => {
+    if (pureSelector.length < 3) return false;                  // at least 3 entry must exist, the first & last are already reserved, the middle one is the middle_parent
+    
+    for (let index = 1, maxIndex = (pureSelector.length - 2); index <= maxIndex; index++) {
+        const middleSelectorEntry = pureSelector[index];        // take the 2nd_first_entry until the 2nd_last_entry
+        if (isParentSelector(middleSelectorEntry)) return true; // the entry must be ParentSelector, otherwise skip to next
+    } // for
+    
+    return false; // ran out of iterator => not found
+}
+const calculateHasLastParent   = (pureSelector: PureSelector): boolean => {
+    const length = pureSelector.length;
+    if (length < 2) return false;                               // at least 2 entry must exist, the first is already reserved, the last one is the last_parent
+    
+    const lastSelectorEntry = pureSelector[length - 1];         // take the last entry
+    return isParentSelector(lastSelectorEntry);                 // the entry must be ParentSelector
+}
+const enum ParentPosition {
+    OnlyParent,
+    OnlyBeginParent,
+    OnlyEndParent,
+    RandomParent,
+}
+const calculateParentPosition = (pureSelector: PureSelector): ParentPosition => {
+    const hasFirstParent  = calculateHasFirstParent(pureSelector);
+    
+    const onlyParent      = hasFirstParent && (pureSelector.length === 1);
+    if (onlyParent) return ParentPosition.OnlyParent;
+    
+    const hasMiddleParent = calculateHasMiddleParent(pureSelector);
+    const hasLastParent   = calculateHasLastParent(pureSelector);
+    
+    const onlyBeginParent = hasFirstParent && !hasMiddleParent && !hasLastParent;
+    if (onlyBeginParent) return ParentPosition.OnlyBeginParent;
+    
+    const onlyEndParent   = !hasFirstParent && !hasMiddleParent && hasLastParent;
+    if (onlyEndParent) return ParentPosition.OnlyEndParent;
+    
+    return ParentPosition.RandomParent;
+};
+
 export interface SelectorOptions {
     groupSelectors       ?: boolean
     
@@ -376,54 +423,13 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
     
     
     //#region group selectors by parent position
-    const enum ParentPosition {
-        OnlyParent,
-        OnlyBeginParent,
-        OnlyEndParent,
-        RandomParent,
-    }
     type GroupByParentPosition = Map<ParentPosition, PureSelector[]>
     const selectorGroupByParentPosition = adjustedSelectorGroup.reduce(
         (accum, pureSelector): GroupByParentPosition => {
-            const position = ((): ParentPosition => {
-                const hasFirstParent = ((): boolean => {
-                    if (pureSelector.length < 1) return false;                  // at least 1 entry must exist, for the first_parent
-                    
-                    const firstSelectorEntry = pureSelector[0];                 // take the first entry
-                    return isParentSelector(firstSelectorEntry);                // the entry must be ParentSelector
-                })();
-                
-                const onlyParent      = hasFirstParent && (pureSelector.length === 1);
-                if (onlyParent) return ParentPosition.OnlyParent;
-                
-                
-                
-                const hasMiddleParent = ((): boolean => {
-                    if (pureSelector.length < 3) return false;                  // at least 3 entry must exist, the first & last are already reserved, the middle one is the middle_parent
-                    
-                    for (let index = 1, maxIndex = (pureSelector.length - 2); index <= maxIndex; index++) {
-                        const middleSelectorEntry = pureSelector[index];        // take the 2nd_first_entry until the 2nd_last_entry
-                        if (isParentSelector(middleSelectorEntry)) return true; // the entry must be ParentSelector, otherwise skip to next
-                    } // for
-                    
-                    return false; // ran out of iterator => not found
-                })();
-                const hasLastParent = ((): boolean => {
-                    const length = pureSelector.length;
-                    if (length < 2) return false;                               // at least 2 entry must exist, the first is already reserved, the last one is the last_parent
-                    
-                    const lastSelectorEntry = pureSelector[length - 1];         // take the last entry
-                    return isParentSelector(lastSelectorEntry);                 // the entry must be ParentSelector
-                })();
-                
-                const onlyBeginParent = hasFirstParent && !hasMiddleParent && !hasLastParent;
-                if (onlyBeginParent) return ParentPosition.OnlyBeginParent;
-                
-                const onlyEndParent   = !hasFirstParent && !hasMiddleParent && hasLastParent;
-                if (onlyEndParent) return ParentPosition.OnlyEndParent;
-                
-                return ParentPosition.RandomParent;
-            })();
+            const position = calculateParentPosition(pureSelector);
+            
+            
+            
             let group = accum.get(position);             // get an existing collector
             if (!group) accum.set(position, group = []); // create a new collector
             group.push(pureSelector);
