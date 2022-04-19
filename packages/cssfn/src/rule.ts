@@ -108,7 +108,7 @@ const calculateSpecificityWeightStatus = (pureSelector: PureSelector, minSpecifi
 }
 
 type GroupBySpecificityWeightStatus = Map<SpecificityWeightStatus, { selector: PureSelector, specificityWeight: number }[]>
-const groupBySpecificityWeightStatus = (minSpecificityWeight: number|null, maxSpecificityWeight: number|null) => (accum: Map<SpecificityWeightStatus, {
+const createGroupBySpecificityWeightStatus = (minSpecificityWeight: number|null, maxSpecificityWeight: number|null) => (accum: Map<SpecificityWeightStatus, {
     selector          : PureSelector
     specificityWeight : number
 }[]>, pureSelector: PureSelector): GroupBySpecificityWeightStatus => {
@@ -134,7 +134,7 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
     
     // group selectors by specificity weight status:
     const selectorGroupBySpecificityWeightStatus = pureSelectorGroup.reduce(
-        groupBySpecificityWeightStatus(minSpecificityWeight, maxSpecificityWeight),
+        createGroupBySpecificityWeightStatus(minSpecificityWeight, maxSpecificityWeight),
         new Map<SpecificityWeightStatus, { selector: PureSelector, specificityWeight: number }[]>()
     );
     
