@@ -302,13 +302,13 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
 
 
 
-const calculateHasFirstParent  = (pureSelector: PureSelector): boolean => {
+const startsWithParent  = (pureSelector: PureSelector): boolean => {
     if (pureSelector.length < 1) return false;                  // at least 1 entry must exist, for the first_parent
     
     const firstSelectorEntry = pureSelector[0];                 // take the first entry
     return isParentSelector(firstSelectorEntry);                // the entry must be ParentSelector
 }
-const calculateHasMiddleParent = (pureSelector: PureSelector): boolean => {
+const middlesWithParent = (pureSelector: PureSelector): boolean => {
     if (pureSelector.length < 3) return false;                  // at least 3 entry must exist, the first & last are already reserved, the middle one is the middle_parent
     
     for (let index = 1, maxIndex = (pureSelector.length - 2); index <= maxIndex; index++) {
@@ -318,7 +318,7 @@ const calculateHasMiddleParent = (pureSelector: PureSelector): boolean => {
     
     return false; // ran out of iterator => not found
 }
-const calculateHasLastParent   = (pureSelector: PureSelector): boolean => {
+const endsWithParent   = (pureSelector: PureSelector): boolean => {
     const length = pureSelector.length;
     if (length < 2) return false;                               // at least 2 entry must exist, the first is already reserved, the last one is the last_parent
     
@@ -332,19 +332,19 @@ const enum ParentPosition {
     RandomParent,
 }
 const calculateParentPosition  = (pureSelector: PureSelector): ParentPosition => {
-    const hasFirstParent  = calculateHasFirstParent(pureSelector);
+    const hasStartsWithParent  = startsWithParent(pureSelector);
     
-    const onlyParent      = hasFirstParent && (pureSelector.length === 1);
-    if (onlyParent) return ParentPosition.OnlyParent;
+    const onlyParent           = hasStartsWithParent && (pureSelector.length === 1);
+    if (onlyParent)      return ParentPosition.OnlyParent;
     
-    const hasMiddleParent = calculateHasMiddleParent(pureSelector);
-    const hasLastParent   = calculateHasLastParent(pureSelector);
+    const hasMiddlesWithParent = middlesWithParent(pureSelector);
+    const hasEndsWithParent    = endsWithParent(pureSelector);
     
-    const onlyBeginParent = hasFirstParent && !hasMiddleParent && !hasLastParent;
+    const onlyBeginParent      = hasStartsWithParent && !hasMiddlesWithParent && !hasEndsWithParent;
     if (onlyBeginParent) return ParentPosition.OnlyBeginParent;
     
-    const onlyEndParent   = !hasFirstParent && !hasMiddleParent && hasLastParent;
-    if (onlyEndParent) return ParentPosition.OnlyEndParent;
+    const onlyEndParent        = !hasStartsWithParent && !hasMiddlesWithParent && hasEndsWithParent;
+    if (onlyEndParent)   return ParentPosition.OnlyEndParent;
     
     return ParentPosition.RandomParent;
 }
