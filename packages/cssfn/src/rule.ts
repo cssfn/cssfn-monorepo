@@ -373,25 +373,25 @@ const createGroupByCombinator = (getGroupingCombinator: (pureSelector: PureSelec
     return accum;
 }
 const groupBySuffixCombinator = createGroupByCombinator(/* getGroupingCombinator: */(pureSelector) => {
-    if (pureSelector.length >= 2) {                           // at least 2 entry must exist, for the first_parent followed by combinator
+    if (pureSelector.length >= 2) {                           // at least 2 entry must exist, for the first_parent suffixed by combinator
         const secondSelectorEntry = pureSelector[1];          // take the second_first entry
-        if (isCombinator(secondSelectorEntry)) {              // the entry must be the same as combinator
+        if (isCombinator(secondSelectorEntry)) {              // the entry must be Combinator
             return secondSelectorEntry;
         } // if
     } // if
     
-    return null; // parent_selector not suffix by combinator (&>) => ungroupable
+    return null; // parent_selector not suffixed by combinator (&>) => ungroupable
 })
 const groupByPrefixCombinator = createGroupByCombinator(/* getGroupingCombinator: */(pureSelector) => {
     const length = pureSelector.length;
-    if (length >= 2) {                                        // at least 2 entry must exist, for the combinator followed by last_parent
+    if (length >= 2) {                                        // at least 2 entry must exist, for the last_parent prefixed by combinator
         const secondSelectorEntry = pureSelector[length - 2]; // take the second_last entry
-        if (isCombinator(secondSelectorEntry)) {              // the entry must be the same as combinator
+        if (isCombinator(secondSelectorEntry)) {              // the entry must be Combinator
             return secondSelectorEntry;
         } // if
     } // if
     
-    return null; // parent_selector not prefix by combinator (>&) => ungroupable
+    return null; // parent_selector not prefixed by combinator (>&) => ungroupable
 })
 
 export interface SelectorOptions {
