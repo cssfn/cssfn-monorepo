@@ -48,7 +48,9 @@ import {
     isNotPseudoElementSelector,
     isCombinator,
     createSelector,
+    createPureSelector,
     createSelectorGroup,
+    createPureSelectorGroup,
     isNotEmptySelectorEntry,
     isNotEmptySelector,
     isNotEmptySelectors,
@@ -81,12 +83,12 @@ import {
 // processors:
 
 const nthChildNSelector = pseudoClassSelector('nth-child', 'n');
-export const adjustSpecificityWeight = (selectorGroup: PureSelector[], minSpecificityWeight: number|null, maxSpecificityWeight: number|null): PureSelectorGroup => {
+export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSpecificityWeight: number|null, maxSpecificityWeight: number|null): PureSelector[] => {
     if (
         (minSpecificityWeight == null)
         &&
         (maxSpecificityWeight == null)
-    ) return selectorGroup; // nothing to adjust
+    ) return pureSelectorGroup; // nothing to adjust
     
     
     
@@ -97,10 +99,10 @@ export const adjustSpecificityWeight = (selectorGroup: PureSelector[], minSpecif
         TooSmall,
     }
     type GroupBySpecificityWeightStatus = Map<SpecificityWeightStatus, { selector: PureSelector, specificityWeight: number }[]>
-    const selectorGroupBySpecificityWeightStatus = selectorGroup.reduce(
-        (accum, selector): GroupBySpecificityWeightStatus => {
+    const selectorGroupBySpecificityWeightStatus = pureSelectorGroup.reduce(
+        (accum, pureSelector): GroupBySpecificityWeightStatus => {
             const [specificityWeight, weightStatus] = ((): readonly [number, SpecificityWeightStatus] => {
-                const specificityWeight = calculateSpecificity(selector)[1];
+                const specificityWeight = calculateSpecificity(pureSelector)[1];
                 
                 
                 
@@ -120,7 +122,7 @@ export const adjustSpecificityWeight = (selectorGroup: PureSelector[], minSpecif
             })();
             let group = accum.get(weightStatus);             // get an existing collector
             if (!group) accum.set(weightStatus, group = []); // create a new collector
-            group.push({ selector, specificityWeight });
+            group.push({ selector: pureSelector, specificityWeight });
             return accum;
         },
         new Map<SpecificityWeightStatus, { selector: PureSelector, specificityWeight: number }[]>()
@@ -133,10 +135,10 @@ export const adjustSpecificityWeight = (selectorGroup: PureSelector[], minSpecif
     
     
     
-    return createSelectorGroup(
+    return createPureSelectorGroup(
         ...fitSelectors.map((group) => group.selector),
         
-        ...tooSmallSelectors.map((group) => createSelector(
+        ...tooSmallSelectors.map((group) => createPureSelector(
             ...group.selector,
             ...(new Array<SimpleSelector>((minSpecificityWeight ?? 1) - group.specificityWeight)).fill(
                 group.selector
@@ -184,7 +186,7 @@ export const adjustSpecificityWeight = (selectorGroup: PureSelector[], minSpecif
         ...tooBigSelectors.flatMap((group) => {
             const reversedSelector : PureSelector = group.selector.reverse(); // reverse & mutate the current `group.selector` array. It's okay to mutate the `selector` because it was cloned by `selector.filter()` when grouped
             
-            type SelectorAccum = { remaining: number, eaten: Selector }
+            type SelectorAccum = { remaining: number, eaten: PureSelector }
             const { eaten: reversedEatenSelector, remaining: remainingSpecificityWeight } : SelectorAccum = (
                 reversedSelector.slice(0) // clone the `reversedSelector` because the `reduce()` uses `splice()` to break the iteration and we still need the `reversedSelector` later
                 .reduce((accum, selectorEntry, index, array): SelectorAccum => {
@@ -284,7 +286,7 @@ export const adjustSpecificityWeight = (selectorGroup: PureSelector[], minSpecif
             return createSelectorGroup(
                 whereSelector,
                 ...pseudoElmSelectors,
-            );
+            ).filter(isNotEmptySelector);
         }),
     );
 };
