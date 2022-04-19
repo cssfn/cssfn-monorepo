@@ -82,6 +82,31 @@ import {
 
 // processors:
 
+const enum SpecificityWeightStatus {
+    Fit,
+    TooBig,
+    TooSmall,
+}
+const calculateSpecificityWeightStatus = (pureSelector: PureSelector, minSpecificityWeight: number|null, maxSpecificityWeight: number|null): readonly [number, SpecificityWeightStatus] => {
+    const specificityWeight = calculateSpecificity(pureSelector)[1];
+    
+    
+    
+    if ((minSpecificityWeight !== null) && (specificityWeight < minSpecificityWeight)) {
+        return [specificityWeight, SpecificityWeightStatus.TooSmall];
+    } // if
+    
+    
+    
+    if ((maxSpecificityWeight !== null) && (specificityWeight > maxSpecificityWeight)) {
+        return [specificityWeight, SpecificityWeightStatus.TooBig];
+    } // if
+    
+    
+    
+    return [specificityWeight, SpecificityWeightStatus.Fit];
+}
+
 const nthChildNSelector = pseudoClassSelector('nth-child', 'n');
 export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSpecificityWeight: number|null, maxSpecificityWeight: number|null): PureSelector[] => {
     if (
@@ -93,33 +118,13 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
     
     
     //#region group selectors by specificity weight status
-    const enum SpecificityWeightStatus {
-        Fit,
-        TooBig,
-        TooSmall,
-    }
     type GroupBySpecificityWeightStatus = Map<SpecificityWeightStatus, { selector: PureSelector, specificityWeight: number }[]>
     const selectorGroupBySpecificityWeightStatus = pureSelectorGroup.reduce(
         (accum, pureSelector): GroupBySpecificityWeightStatus => {
-            const [specificityWeight, weightStatus] = ((): readonly [number, SpecificityWeightStatus] => {
-                const specificityWeight = calculateSpecificity(pureSelector)[1];
-                
-                
-                
-                if ((minSpecificityWeight !== null) && (specificityWeight < minSpecificityWeight)) {
-                    return [specificityWeight, SpecificityWeightStatus.TooSmall];
-                } // if
-                
-                
-                
-                if ((maxSpecificityWeight !== null) && (specificityWeight > maxSpecificityWeight)) {
-                    return [specificityWeight, SpecificityWeightStatus.TooBig];
-                } // if
-                
-                
-                
-                return [specificityWeight, SpecificityWeightStatus.Fit];
-            })();
+            const [specificityWeight, weightStatus] = calculateSpecificityWeightStatus(pureSelector, minSpecificityWeight, maxSpecificityWeight);
+            
+            
+            
             let group = accum.get(weightStatus);             // get an existing collector
             if (!group) accum.set(weightStatus, group = []); // create a new collector
             group.push({ selector: pureSelector, specificityWeight });
@@ -289,7 +294,9 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
             ).filter(isNotEmptySelector);
         }),
     );
-};
+}
+
+
 
 export interface SelectorOptions {
     groupSelectors       ?: boolean
@@ -304,7 +311,7 @@ const defaultSelectorOptions : Required<SelectorOptions> = {
     specificityWeight    : null,
     minSpecificityWeight : null,
     maxSpecificityWeight : null,
-};
+}
 export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOptions = defaultSelectorOptions): SelectorGroup => {
     const {
         groupSelectors : doGroupSelectors = defaultSelectorOptions.groupSelectors,
@@ -353,7 +360,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
     
     
     // transform:
-    const adjustedSelectorGroup = adjustSpecificityWeight(
+    const adjustedSelectorGroup: PureSelector[] = adjustSpecificityWeight(
         normalizedSelectorGroup
         ,
         minSpecificityWeight,
@@ -364,7 +371,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
     
     if (
         (!doGroupSelectors || (adjustedSelectorGroup.length <= 1)) // do not perform grouping || only singular selector => nothing to group
-    ) return adjustedSelectorGroup; // nothing to do
+    ) return adjustedSelectorGroup; // no grouping => nothing to do => returns the adjusted specificity
     
     
     
