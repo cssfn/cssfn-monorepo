@@ -394,6 +394,93 @@ const groupByPrefixCombinator = createGroupByCombinator(/* getGroupingCombinator
     return null; // parent_selector not prefixed by combinator (>&) => ungroupable
 })
 
+const createSuffixedParentSelectorGroup = (groupByParentSelectorGroup: PureSelector[]): SelectorGroup => {
+    if (groupByParentSelectorGroup.length <= 1) return groupByParentSelectorGroup; // only contain one/no Selector, no need to group
+    
+    
+    
+    //#region group selectors by combinator
+    const selectorGroupByCombinator = groupByParentSelectorGroup.reduce(
+        groupBySuffixCombinator,
+        new Map<Combinator|null, PureSelectorGroup>()
+    );
+    //#endregion group selectors by combinator
+    return Array.from(selectorGroupByCombinator.entries()).flatMap(([combinator, selectors]) => {
+        if (selectors.length <= 1) return selectors;  // only contain one/no Selector, no need to group
+        if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length <= 1) return selectors;  // only contain one/no Selector without ::pseudo-element, no need to group
+        
+        
+        
+        const [isSelector, ...pseudoElmSelectors] = groupSelectors(
+            selectors
+            .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
+            .map((selector) => selector.slice(
+                (
+                    combinator
+                    ?
+                    2 // remove the first_parent & combinator
+                    :
+                    1 // remove the first_parent
+                )
+                +
+                (selector.some(isPseudoElementSelector) ? -1 : 0) // exception for ::pseudo-element => do not remove the first_parent
+            )),
+            { selectorName: 'is' }
+        );
+        return createSelectorGroup(
+            isNotEmptySelector(isSelector) && createSelector(
+                parentSelector(), // add a ParentSelector      before :is(...)
+                combinator,       // add a Combinator (if any) before :is(...)
+                ...isSelector,    // :is(...)
+            ),
+            ...pseudoElmSelectors,
+        );
+    });
+};
+const createPrefixedParentSelectorGroup = (groupByParentSelectorGroup: PureSelector[]): SelectorGroup => {
+    if (groupByParentSelectorGroup.length <= 1) return groupByParentSelectorGroup; // only contain one/no Selector, no need to group
+    
+    
+    
+    //#region group selectors by combinator
+    const selectorGroupByCombinator = groupByParentSelectorGroup.reduce(
+        groupByPrefixCombinator,
+        new Map<Combinator|null, PureSelectorGroup>()
+    );
+    //#endregion group selectors by combinator
+    return Array.from(selectorGroupByCombinator.entries()).flatMap(([combinator, selectors]) => {
+        if (selectors.length <= 1) return selectors;  // only contain one/no Selector, no need to group
+        if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length <= 1) return selectors;  // only contain one/no Selector without ::pseudo-element, no need to group
+        
+        
+        
+        const [isSelector, ...pseudoElmSelectors] = groupSelectors(
+            selectors
+            .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
+            .map((selector) => selector.slice(0,
+                (
+                    combinator
+                    ?
+                    -2 // remove the combinator & last_parent
+                    :
+                    -1 // remove the last_parent
+                )
+                +
+                (selector.some(isPseudoElementSelector) ? 1 : 0) // exception for ::pseudo-element => do not remove the last_parent
+            )),
+            { selectorName: 'is' }
+        );
+        return createSelectorGroup(
+            isNotEmptySelector(isSelector) && createSelector(
+                ...isSelector,    // :is(...)
+                combinator,       // add a Combinator (if any) after :is(...)
+                parentSelector(), // add a ParentSelector      after :is(...)
+            ),
+            ...pseudoElmSelectors,
+        );
+    });
+};
+
 export interface SelectorOptions {
     groupSelectors       ?: boolean
     
@@ -495,104 +582,24 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
         
         // ParentSelector at beginning
         // &aaa
+        // &>aaa
         // &:is(aaa, bbb, ccc)
-        ...((): SelectorGroup => {
-            if (onlyBeginParentSelectorGroup.length <= 1) return onlyBeginParentSelectorGroup; // only contain one/no Selector, no need to group
-            
-            
-            
-            //#region group selectors by combinator
-            const selectorGroupByCombinator = onlyBeginParentSelectorGroup.reduce(
-                groupBySuffixCombinator,
-                new Map<Combinator|null, PureSelectorGroup>()
-            );
-            //#endregion group selectors by combinator
-            return Array.from(selectorGroupByCombinator.entries()).flatMap(([combinator, selectors]) => {
-                if (selectors.length <= 1) return selectors;  // only contain one/no Selector, no need to group
-                if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length <= 1) return selectors;  // only contain one/no Selector without ::pseudo-element, no need to group
-                
-                
-                
-                const [isSelector, ...pseudoElmSelectors] = groupSelectors(
-                    selectors
-                    .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
-                    .map((selector) => selector.slice(
-                        (
-                            combinator
-                            ?
-                            2 // remove the first_parent & combinator
-                            :
-                            1 // remove the first_parent
-                        )
-                        +
-                        (selector.some(isPseudoElementSelector) ? -1 : 0) // exception for ::pseudo-element => do not remove the first_parent
-                    )),
-                    { selectorName: 'is' }
-                );
-                return createSelectorGroup(
-                    isNotEmptySelector(isSelector) && createSelector(
-                        parentSelector(), // add a ParentSelector      before :is(...)
-                        combinator,       // add a Combinator (if any) before :is(...)
-                        ...isSelector,    // :is(...)
-                    ),
-                    ...pseudoElmSelectors,
-                );
-            });
-        })(),
+        // &>:is(aaa, bbb, ccc)
+        ...createSuffixedParentSelectorGroup(onlyBeginParentSelectorGroup),
         
         
         
         // ParentSelector at end
         // aaa&
+        // aaa>&
         // :is(aaa, bbb, ccc)&
-        ...((): SelectorGroup => {
-            if (onlyEndParentSelectorGroup.length <= 1) return onlyEndParentSelectorGroup; // only contain one/no Selector, no need to group
-            
-            
-            
-            //#region group selectors by combinator
-            const selectorGroupByCombinator = onlyEndParentSelectorGroup.reduce(
-                groupByPrefixCombinator,
-                new Map<Combinator|null, PureSelectorGroup>()
-            );
-            //#endregion group selectors by combinator
-            return Array.from(selectorGroupByCombinator.entries()).flatMap(([combinator, selectors]) => {
-                if (selectors.length <= 1) return selectors;  // only contain one/no Selector, no need to group
-                if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length <= 1) return selectors;  // only contain one/no Selector without ::pseudo-element, no need to group
-                
-                
-                
-                const [isSelector, ...pseudoElmSelectors] = groupSelectors(
-                    selectors
-                    .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
-                    .map((selector) => selector.slice(0,
-                        (
-                            combinator
-                            ?
-                            -2 // remove the combinator & last_parent
-                            :
-                            -1 // remove the last_parent
-                        )
-                        +
-                        (selector.some(isPseudoElementSelector) ? 1 : 0) // exception for ::pseudo-element => do not remove the last_parent
-                    )),
-                    { selectorName: 'is' }
-                );
-                return createSelectorGroup(
-                    isNotEmptySelector(isSelector) && createSelector(
-                        ...isSelector,    // :is(...)
-                        combinator,       // add a Combinator (if any) after :is(...)
-                        parentSelector(), // add a ParentSelector      after :is(...)
-                    ),
-                    ...pseudoElmSelectors,
-                );
-            });
-        })(),
+        // :is(aaa, bbb, ccc)>&
+        ...createPrefixedParentSelectorGroup(onlyEndParentSelectorGroup),
         
         
         
         // parent at random
-        // a&aa, bb&b, c&c&c
+        // aaa&bbb, aaa&bbb&ccc
         ...randomParentSelectorGroup,
     );
     
