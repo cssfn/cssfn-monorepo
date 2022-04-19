@@ -81,7 +81,7 @@ import {
 // processors:
 
 const nthChildNSelector = pseudoClassSelector('nth-child', 'n');
-export const adjustSpecificityWeight = (selectorGroup: PureSelectorGroup, minSpecificityWeight: number|null, maxSpecificityWeight: number|null): PureSelectorGroup => {
+export const adjustSpecificityWeight = (selectorGroup: PureSelector[], minSpecificityWeight: number|null, maxSpecificityWeight: number|null): PureSelectorGroup => {
     if (
         (minSpecificityWeight == null)
         &&
@@ -97,7 +97,7 @@ export const adjustSpecificityWeight = (selectorGroup: PureSelectorGroup, minSpe
         TooSmall,
     }
     type GroupBySpecificityWeightStatus = Map<SpecificityWeightStatus, { selector: PureSelector, specificityWeight: number }[]>
-    const selectorGroupBySpecificityWeightStatus = selectorGroup.map((selector) => selector.filter(isNotEmptySelectorEntry) as PureSelector).reduce(
+    const selectorGroupBySpecificityWeightStatus = selectorGroup.reduce(
         (accum, selector): GroupBySpecificityWeightStatus => {
             const [specificityWeight, weightStatus] = ((): readonly [number, SpecificityWeightStatus] => {
                 const specificityWeight = calculateSpecificity(selector)[1];
