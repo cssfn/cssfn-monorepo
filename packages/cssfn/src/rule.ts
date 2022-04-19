@@ -258,7 +258,10 @@ export const adjustSpecificityWeight = (selectorGroup: PureSelectorGroup, minSpe
             
             
             // group the eatenSelector with :where(), so the specificity is zero:
-            const [whereSelector, ...pseudoElmSelectors] = groupSelector(
+            const [
+                whereSelector,        // grouped selectors inside :where()
+                ...pseudoElmSelectors // ungroupable pseudoElement selectors
+            ] = groupSelector(
                 reversedEatenSelector.reverse(), // re-reverse the reversedEatenSelector, so it becomes eatenSelector
                 { selectorName: 'where' }        // :where
             );
@@ -268,7 +271,8 @@ export const adjustSpecificityWeight = (selectorGroup: PureSelectorGroup, minSpe
                 ...reversedSelector.slice(reversedEatenSelector.length).reverse(), // insert the un-eaten selectors at the beginning
             );
             
-            if (remainingSpecificityWeight < 0) { // if negative `remainingSpecificityWeight` => increase the specificity until zero
+            // if negative `remainingSpecificityWeight` => increase the specificity until zero
+            if (remainingSpecificityWeight < 0) {
                 whereSelector.push(
                     ...(new Array<SimpleSelector>(-remainingSpecificityWeight)).fill(
                         nthChildNSelector // or use `nth-child(n)`
@@ -276,6 +280,7 @@ export const adjustSpecificityWeight = (selectorGroup: PureSelectorGroup, minSpe
                 );
             } // if
             
+            // done:
             return createSelectorGroup(
                 whereSelector,
                 ...pseudoElmSelectors,
@@ -285,14 +290,14 @@ export const adjustSpecificityWeight = (selectorGroup: PureSelectorGroup, minSpe
 };
 
 export interface SelectorOptions {
-    groupSelectors ?: boolean
+    groupSelectors       ?: boolean
     
     specificityWeight    ?: number|null
     minSpecificityWeight ?: number|null
     maxSpecificityWeight ?: number|null
 }
 const defaultSelectorOptions : Required<SelectorOptions> = {
-    groupSelectors  : true,
+    groupSelectors       : true,
     
     specificityWeight    : null,
     minSpecificityWeight : null,
@@ -309,27 +314,39 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
     
     
     
-    if (
-        !doGroupSelectors // do not perform grouping
-        &&
-        (minSpecificityWeight === null) && (maxSpecificityWeight === null) // do not perform transform
-    ) return selectorGroup; // nothing to do
-    
-    
-    
-    const normalizedSelectorGroup = (
+    // remove empty_selector(s) undefined|null|false|true|Selector(...only_emptySelectorEntry...) from selectorGroup,
+    // so we only working with real_selector(s)
+    const pureSelectorGroup: PureSelector[] = (
         selectorGroup
-        .flatMap((selector) => ungroupSelector(selector))
-        .filter(isNotEmptySelector)
+        .filter(isNotEmptySelector) // [ Selector...Selector... ]  =>  [ PureSelector...PureSelector... ]
     );
     
     
     
+    // check for options before performing expensive transformation:
     if (
-        (!doGroupSelectors || (normalizedSelectorGroup.length <= 1)) // do not perform grouping || only singular => nothing to group
+        (!doGroupSelectors || (pureSelectorGroup.length <= 1)) // do not perform grouping but still allow to adjust the specificity || only singular selector => nothing to group
         &&
-        (minSpecificityWeight === null) && (maxSpecificityWeight === null) // do not perform transform
-    ) return normalizedSelectorGroup; // nothing to do
+        ((minSpecificityWeight === null) && (maxSpecificityWeight === null)) // no need to adjust the specificity
+    ) return selectorGroup; // no grouping and no adjusting the specificity => nothing to do => returns the original
+    
+    
+    
+    // we need to unwrap the :is(...) and :where(...) before adjusting the specificity
+    const normalizedSelectorGroup: PureSelector[] = (
+        pureSelectorGroup
+        .flatMap((selector) => ungroupSelector(selector)) // SelectorGroup               =>  PureSelectorGroup === Selector[] === [ Selector...Selector... ]
+        .filter(isNotEmptySelector)                       // [ Selector...Selector... ]  =>  [ PureSelector...PureSelector... ]
+    );
+    
+    
+    
+    // check for options before performing expensive transformation:
+    if (
+        (!doGroupSelectors || (normalizedSelectorGroup.length <= 1)) // do not perform grouping but still allow to adjust the specificity || only singular selector => nothing to group
+        &&
+        ((minSpecificityWeight === null) && (maxSpecificityWeight === null)) // no need to adjust the specificity
+    ) return selectorGroup; // no grouping and no adjusting the specificity => nothing to do => returns the original
     
     
     
@@ -344,7 +361,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
     
     
     if (
-        (!doGroupSelectors || (adjustedSelectorGroup.length <= 1)) // do not perform grouping || only singular => nothing to group
+        (!doGroupSelectors || (adjustedSelectorGroup.length <= 1)) // do not perform grouping || only singular selector => nothing to group
     ) return adjustedSelectorGroup; // nothing to do
     
     
