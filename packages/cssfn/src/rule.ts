@@ -361,7 +361,7 @@ const groupByParentPosition    = (accum: Map<ParentPosition, PureSelector[]>, pu
     return accum;
 }
 
-type GroupByCombinator = Map<Combinator|null, PureSelectorGroup>
+type GroupByCombinator = Map<Combinator|null, PureSelector[]>
 const createGroupByCombinator = (getGroupingCombinator: (pureSelector: PureSelector) => Combinator|null) => (accum: GroupByCombinator, pureSelector: PureSelector): GroupByCombinator => {
     const combinator = getGroupingCombinator(pureSelector);
     
@@ -422,15 +422,15 @@ const removeCommonSuffixedParentSelectorWithCombinator = (pureSelector: PureSele
         (pureSelector.some(isPseudoElementSelector) ? 1 : 0) // exception for ::pseudo-element => do not remove the last_parent
     );
 }
-const createCommonPrefixedParentSelector = (isSelector: Selector, combinator: Combinator | null): OptionalOrBoolean<Selector> => {
-    return isNotEmptySelector(isSelector) && createSelector(
+const createCommonPrefixedParentSelector = (isSelector: PureSelector, combinator: Combinator | null): Selector => {
+    return createSelector(
         parentSelector(), // add a ParentSelector      before :is(...)
         combinator,       // add a Combinator (if any) before :is(...)
         ...isSelector,    // :is(...)
     );
-};
-const createCommonSuffixedParentSelector = (isSelector: Selector, combinator: Combinator | null): OptionalOrBoolean<Selector> => {
-    return isNotEmptySelector(isSelector) && createSelector(
+}
+const createCommonSuffixedParentSelector = (isSelector: PureSelector, combinator: Combinator | null): Selector => {
+    return createSelector(
         ...isSelector,    // :is(...)
         combinator,       // add a Combinator (if any) after :is(...)
         parentSelector(), // add a ParentSelector      after :is(...)
@@ -441,35 +441,33 @@ const createBaseParentSelectorGroup      = (
         getGroupingCombinator                    : (accum: GroupByCombinator, pureSelector: PureSelector) => GroupByCombinator,
         removeCommonParentSelector               : (pureSelector: PureSelector) => PureSelector,
         removeCommonParentSelectorWithCombinator : (pureSelector: PureSelector) => PureSelector,
-        createCommonParentSelector               : (isSelector: Selector, combinator: Combinator | null) => OptionalOrBoolean<Selector>
+        createCommonParentSelector               : (isSelector: PureSelector, combinator: Combinator | null) => Selector
     ): SelectorGroup => {
-    if (groupByParentSelectorGroup.length <= 1) return groupByParentSelectorGroup; // only contain one/no Selector, no need to group
+    if (groupByParentSelectorGroup.length < 2) return groupByParentSelectorGroup; // must contains at least 2 selectors, if only one/no selector => no need to group
     
     
     
     // group selectors by combinator:
     const selectorGroupByCombinator = groupByParentSelectorGroup.reduce(
         getGroupingCombinator,
-        new Map<Combinator|null, PureSelectorGroup>()
+        new Map<Combinator|null, PureSelector[]>()
     );
     
     
     
     return Array.from(selectorGroupByCombinator.entries()).flatMap(([combinator, selectors]) => {
-        if (selectors.length <= 1) return selectors;  // only contain one/no Selector, no need to group
-        if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length <= 1) return selectors;  // only contain one/no Selector without ::pseudo-element, no need to group
+        if (selectors.length < 2) return selectors; // must contains at least 2 selectors, if only one/no selector => no need to group
+        if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length < 2) return selectors; // must contains at least 2 selectors which without ::pseudo-element, if only one/no selector => no need to group
         
         
         
         const [isSelector, ...pseudoElmSelectors] = groupSelectors(
             selectors
-            .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
             .map(!!combinator ? removeCommonParentSelectorWithCombinator : removeCommonParentSelector),
-            { selectorName: 'is' }
         );
         return createSelectorGroup(
-            createCommonParentSelector(isSelector, combinator),
-            ...pseudoElmSelectors,
+            isNotEmptySelector(isSelector) && createCommonParentSelector(isSelector, combinator), // grouped selectors (if any), might be empty if the original only contains ::pseudo-element(s)
+            ...pseudoElmSelectors, // ungroupable ::pseudo-element (if any)
         );
     });
 }
@@ -528,7 +526,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
     
     // check for options before performing expensive transformation:
     if (
-        (!doGroupSelectors || (pureSelectorGroup.length <= 1)) // do not perform grouping but still allow to adjust the specificity || only singular selector => nothing to group
+        (!doGroupSelectors || (pureSelectorGroup.length < 2)) // do not perform grouping but still allow to adjust the specificity || only one/no selector => nothing to group
         &&
         ((minSpecificityWeight === null) && (maxSpecificityWeight === null)) // no need to adjust the specificity
     ) return selectorGroup; // no grouping and no adjusting the specificity => nothing to do => returns the original
@@ -546,7 +544,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
     
     // check for options before performing expensive transformation:
     if (
-        (!doGroupSelectors || (normalizedSelectorGroup.length <= 1)) // do not perform grouping but still allow to adjust the specificity || only singular selector => nothing to group
+        (!doGroupSelectors || (normalizedSelectorGroup.length < 2)) // do not perform grouping but still allow to adjust the specificity || only one/no selector => nothing to group
         &&
         ((minSpecificityWeight === null) && (maxSpecificityWeight === null)) // no need to adjust the specificity
     ) return selectorGroup; // no grouping and no adjusting the specificity => nothing to do => returns the original
@@ -564,7 +562,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
     
     
     if (
-        (!doGroupSelectors || (adjustedSelectorGroup.length <= 1)) // do not perform grouping || only singular selector => nothing to group
+        (!doGroupSelectors || (adjustedSelectorGroup.length < 2)) // do not perform grouping || only one/no selector => nothing to group
     ) return adjustedSelectorGroup; // no grouping => nothing to do => returns the adjusted specificity
     
     
