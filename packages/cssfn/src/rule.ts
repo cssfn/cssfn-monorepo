@@ -625,24 +625,24 @@ const enum RuleType {
     AtRule,       // for `@media`
     PropRule,     // for `from`, `to`, `25%`
 }
-const getRuleType = (rule: CssSelector): RuleType|null => {
-    if (rule.startsWith('@')) return RuleType.AtRule;
-    if (rule.startsWith(' ')) return RuleType.PropRule;
-    if (rule.includes('&'))   return RuleType.SelectorRule;
+const getRuleType = (selector: CssSelector): RuleType|null => {
+    if (selector.startsWith('@')) return RuleType.AtRule;
+    if (selector.startsWith(' ')) return RuleType.PropRule;
+    if (selector.includes('&'))   return RuleType.SelectorRule;
     return null;
 }
 
 type GroupByRuleTypes = Map<RuleType, CssSelector[]>
-const groupByRuleTypes = (accum: Map<RuleType, CssSelector[]>, rule: CssSelector): GroupByRuleTypes => {
-    let ruleType = getRuleType(rule);
+const groupByRuleTypes = (accum: Map<RuleType, CssSelector[]>, selector: CssSelector): GroupByRuleTypes => {
+    let ruleType = getRuleType(selector);
     switch (ruleType) {
         case RuleType.PropRule:
-            rule = rule.slice(1);
+            selector = selector.slice(1); // remove prefixed space
             break;
         
-        case null:
-            ruleType = RuleType.SelectorRule;
-            rule = `&${rule}`;
+        case null: // unknown RuleType
+            ruleType = RuleType.SelectorRule; // default to (nested) SelectorRule
+            selector = `&${selector}`;        // :active => &:active
             break;
     } // switch
     
@@ -650,18 +650,18 @@ const groupByRuleTypes = (accum: Map<RuleType, CssSelector[]>, rule: CssSelector
     
     let group = accum.get(ruleType);             // get an existing collector
     if (!group) accum.set(ruleType, group = []); // create a new collector
-    group.push(rule);
+    group.push(selector);
     return accum;
 }
 
 /**
- * Defines a conditional style(s) that is applied when the specified `selector(s)` meets the conditions.
+ * Defines a conditional style(s) that is applied when the specified `selector`(s) meets the conditions.
  * @returns A `Rule` represents a conditional style(s).
  */
 export const rule = (rules: CssSelectorCollection, styles: CssStyleCollection, options: SelectorOptions = defaultSelectorOptions): CssRule => {
     const rulesString = (
         flat(rules)
-        .filter((rule): rule is CssSelector => !!rule)
+        .filter((selector): selector is CssSelector => !!selector && (selector !== true))
     );
     const rulesByTypes = rulesString.reduce(
         groupByRuleTypes,
@@ -694,9 +694,9 @@ export const rule = (rules: CssSelectorCollection, styles: CssStyleCollection, o
             [
                 ...(rulesByTypes.get(RuleType.AtRule   ) ?? []),
                 ...(rulesByTypes.get(RuleType.PropRule ) ?? []),
-            ].map((rule) => [
+            ].map((selector) => [
                 Symbol(
-                    rule
+                    selector
                 ),
                 styles
             ]),
