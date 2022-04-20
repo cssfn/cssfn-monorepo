@@ -1,3 +1,12 @@
 type GroupBy
 
+
+// immediately invoked function:
 )()
+
+
+// accumulator reduce handler:
+let group = accum.get(TItem);             // get an existing collector
+if (!group) accum.set(TItem, group = []); // create a new collector
+group.push(selector);
+return accum;
