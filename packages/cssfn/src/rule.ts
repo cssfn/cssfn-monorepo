@@ -107,7 +107,7 @@ const calculateSpecificityWeightStatus = (pureSelector: PureSelector, minSpecifi
     return [specificityWeight, SpecificityWeightStatus.Fit];
 }
 
-type GroupBySpecificityWeightStatus = Map<SpecificityWeightStatus, { selector: PureSelector, specificityWeight: number }[]>
+type GroupBySpecificityWeightStatus        = Map<SpecificityWeightStatus, { selector: PureSelector, specificityWeight: number }[]>
 const createGroupBySpecificityWeightStatus = (minSpecificityWeight: number|null, maxSpecificityWeight: number|null) => (accum: Map<SpecificityWeightStatus, {
     selector          : PureSelector
     specificityWeight : number
@@ -361,9 +361,9 @@ const groupByParentPosition    = (accum: Map<ParentPosition, PureSelector[]>, pu
     return accum;
 }
 
-type GroupByCombinator = Map<Combinator|null, PureSelector[]>
-const createGroupByCombinator = (getGroupingCombinator: (pureSelector: PureSelector) => Combinator|null) => (accum: GroupByCombinator, pureSelector: PureSelector): GroupByCombinator => {
-    const combinator = getGroupingCombinator(pureSelector);
+type GroupByCombinator        = Map<Combinator|null, PureSelector[]>
+const createGroupByCombinator = (groupByCombinator: (pureSelector: PureSelector) => Combinator|null) => (accum: GroupByCombinator, pureSelector: PureSelector): GroupByCombinator => {
+    const combinator = groupByCombinator(pureSelector);
     
     
     
@@ -372,7 +372,7 @@ const createGroupByCombinator = (getGroupingCombinator: (pureSelector: PureSelec
     group.push(pureSelector);
     return accum;
 }
-const groupByPrefixCombinator = createGroupByCombinator(/* getGroupingCombinator: */(pureSelector) => {
+const groupByPrefixCombinator = createGroupByCombinator(/* groupByCombinator: */(pureSelector) => {
     if (pureSelector.length >= 2) {                           // at least 2 entry must exist, for the first_parent suffixed by combinator
         const secondSelectorEntry = pureSelector[1];          // take the second_first entry
         if (isCombinator(secondSelectorEntry)) {              // the entry must be Combinator
@@ -382,7 +382,7 @@ const groupByPrefixCombinator = createGroupByCombinator(/* getGroupingCombinator
     
     return null; // parent_selector not suffixed by combinator (&>) => ungroupable
 })
-const groupBySuffixCombinator = createGroupByCombinator(/* getGroupingCombinator: */(pureSelector) => {
+const groupBySuffixCombinator = createGroupByCombinator(/* groupByCombinator: */(pureSelector) => {
     const length = pureSelector.length;
     if (length >= 2) {                                        // at least 2 entry must exist, for the last_parent prefixed by combinator
         const secondSelectorEntry = pureSelector[length - 2]; // take the second_last entry
@@ -438,7 +438,7 @@ const createCommonSuffixedParentSelector = (isSelector: PureSelector, combinator
 }
 const createBaseParentSelectorGroup      = (
         groupByParentSelectorGroup               : PureSelector[],
-        getGroupingCombinator                    : (accum: GroupByCombinator, pureSelector: PureSelector) => GroupByCombinator,
+        groupByCombinator                        : (accum: GroupByCombinator, pureSelector: PureSelector) => GroupByCombinator,
         removeCommonParentSelector               : (pureSelector: PureSelector) => PureSelector,
         removeCommonParentSelectorWithCombinator : (pureSelector: PureSelector) => PureSelector,
         createCommonParentSelector               : (isSelector: PureSelector, combinator: Combinator | null) => Selector
@@ -449,7 +449,7 @@ const createBaseParentSelectorGroup      = (
     
     // group selectors by combinator:
     const selectorGroupByCombinator = groupByParentSelectorGroup.reduce(
-        getGroupingCombinator,
+        groupByCombinator,
         new Map<Combinator|null, PureSelector[]>()
     );
     
@@ -632,8 +632,8 @@ const getRuleType = (selector: CssSelector): RuleType|null => {
     return null;
 }
 
-type GroupByRuleTypes = Map<RuleType, CssSelector[]>
-const groupByRuleTypes = (accum: Map<RuleType, CssSelector[]>, selector: CssSelector): GroupByRuleTypes => {
+type GroupByRuleType  = Map<RuleType, CssSelector[]>
+const groupByRuleType = (accum: Map<RuleType, CssSelector[]>, selector: CssSelector): GroupByRuleType => {
     let ruleType = getRuleType(selector);
     switch (ruleType) {
         case RuleType.PropRule:
@@ -655,23 +655,23 @@ const groupByRuleTypes = (accum: Map<RuleType, CssSelector[]>, selector: CssSele
 }
 
 /**
- * Defines a conditional style(s) that is applied when the specified `selector`(s) meets the conditions.
+ * Defines a conditional style(s) that is applied when the specified `selectors` meets the conditions.
  * @returns A `Rule` represents a conditional style(s).
  */
-export const rule = (rules: CssSelectorCollection, styles: CssStyleCollection, options: SelectorOptions = defaultSelectorOptions): CssRule => {
-    const rulesString = (
-        flat(rules)
-        .filter((selector): selector is CssSelector => !!selector && (selector !== true))
+export const rule = (selectors: CssSelectorCollection, styles: CssStyleCollection, options: SelectorOptions = defaultSelectorOptions): CssRule => {
+    const selectorsString = (
+        flat(selectors)
+        .filter((selector): selector is CssSelector => (!!selector || (selector === '')) && (selector !== true))
     );
-    const rulesByTypes = rulesString.reduce(
-        groupByRuleTypes,
+    const selectorGroupByRuleType = selectorsString.reduce(
+        groupByRuleType,
         new Map<RuleType, CssSelector[]>()
     );
     
     
     
     const selectorList = (
-        (rulesByTypes.get(RuleType.SelectorRule) ?? [])
+        (selectorGroupByRuleType.get(RuleType.SelectorRule) ?? [])
         .flatMap((selector) => {
             const selectorList = parseSelectors(selector);
             if (!selectorList) throw Error(`parse selector error: ${selector}`);
@@ -692,8 +692,8 @@ export const rule = (rules: CssSelectorCollection, styles: CssStyleCollection, o
         
         ...Object.fromEntries(
             [
-                ...(rulesByTypes.get(RuleType.AtRule   ) ?? []),
-                ...(rulesByTypes.get(RuleType.PropRule ) ?? []),
+                ...(selectorGroupByRuleType.get(RuleType.AtRule   ) ?? []),
+                ...(selectorGroupByRuleType.get(RuleType.PropRule ) ?? []),
             ].map((selector) => [
                 Symbol(
                     selector
@@ -702,4 +702,4 @@ export const rule = (rules: CssSelectorCollection, styles: CssStyleCollection, o
             ]),
         ),
     };
-};
+}

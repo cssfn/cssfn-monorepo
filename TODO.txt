@@ -5,8 +5,16 @@ type GroupBy
 )()
 
 
+
+const\s+(?!create)[\w0-9_-]*GroupBy[\w0-9_-]+\s*=
+const\s+[\w0-9_-]*GroupBy[\w0-9_-]+\s*=
+
+type\s+GroupBy[\w0-9_-]+
+
+
 // accumulator reduce handler:
 let group = accum.get(TItem);             // get an existing collector
 if (!group) accum.set(TItem, group = []); // create a new collector
 group.push(selector);
 return accum;
+// skip => return undefined;
