@@ -620,6 +620,40 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
 
 
 // rules:
+const enum RuleType {
+    SelectorRule, // &.foo   .boo&   .foo&.boo
+    AtRule,       // for `@media`
+    PropRule,     // for `from`, `to`, `25%`
+}
+const getRuleType = (rule: CssSelector): RuleType|null => {
+    if (rule.startsWith('@')) return RuleType.AtRule;
+    if (rule.startsWith(' ')) return RuleType.PropRule;
+    if (rule.includes('&'))   return RuleType.SelectorRule;
+    return null;
+}
+
+type GroupByRuleTypes = Map<RuleType, CssSelector[]>
+const groupByRuleTypes = (accum: Map<RuleType, CssSelector[]>, rule: CssSelector): GroupByRuleTypes => {
+    let ruleType = getRuleType(rule);
+    switch (ruleType) {
+        case RuleType.PropRule:
+            rule = rule.slice(1);
+            break;
+        
+        case null:
+            ruleType = RuleType.SelectorRule;
+            rule = `&${rule}`;
+            break;
+    } // switch
+    
+    
+    
+    let group = accum.get(ruleType);             // get an existing collector
+    if (!group) accum.set(ruleType, group = []); // create a new collector
+    group.push(rule);
+    return accum;
+}
+
 /**
  * Defines a conditional style(s) that is applied when the specified `selector(s)` meets the conditions.
  * @returns A `Rule` represents a conditional style(s).
@@ -629,38 +663,8 @@ export const rule = (rules: CssSelectorCollection, styles: CssStyleCollection, o
         flat(rules)
         .filter((rule): rule is CssSelector => !!rule)
     );
-    const enum RuleType {
-        SelectorRule, // &.foo   .boo&   .foo&.boo
-        AtRule,       // for `@media`
-        PropRule,     // for `from`, `to`, `25%`
-    }
-    type GroupByRuleTypes = Map<RuleType, CssSelector[]>
     const rulesByTypes = rulesString.reduce(
-        (accum, rule): GroupByRuleTypes => {
-            let ruleType = ((): RuleType|null => {
-                if (rule.startsWith('@')) return RuleType.AtRule;
-                if (rule.startsWith(' ')) return RuleType.PropRule;
-                if (rule.includes('&'))   return RuleType.SelectorRule;
-                return null;
-            })();
-            switch (ruleType) {
-                case RuleType.PropRule:
-                    rule = rule.slice(1);
-                    break;
-                
-                case null:
-                    ruleType = RuleType.SelectorRule;
-                    rule = `&${rule}`;
-                    break;
-            } // switch
-            
-            
-            
-            let group = accum.get(ruleType);             // get an existing collector
-            if (!group) accum.set(ruleType, group = []); // create a new collector
-            group.push(rule);
-            return accum;
-        },
+        groupByRuleTypes,
         new Map<RuleType, CssSelector[]>()
     );
     
