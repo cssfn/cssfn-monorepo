@@ -488,7 +488,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
         (!doGroupSelectors || (pureSelectorGroup.length < 2)) // do not perform grouping but still allow to adjust the specificity || only one/no selector => nothing to group
         &&
         ((minSpecificityWeight === null) && (maxSpecificityWeight === null)) // no need to adjust the specificity
-    ) return selectorGroup; // no grouping and no adjusting the specificity => nothing to do => returns the original
+    ) return pureSelectorGroup; // no grouping and no adjusting the specificity => nothing to do => returns the simplified original
     
     
     
@@ -506,7 +506,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
         (!doGroupSelectors || (normalizedSelectorGroup.length < 2)) // do not perform grouping but still allow to adjust the specificity || only one/no selector => nothing to group
         &&
         ((minSpecificityWeight === null) && (maxSpecificityWeight === null)) // no need to adjust the specificity
-    ) return selectorGroup; // no grouping and no adjusting the specificity => nothing to do => returns the original
+    ) return pureSelectorGroup; // no grouping and no adjusting the specificity => nothing to do => returns the simplified original
     
     
     

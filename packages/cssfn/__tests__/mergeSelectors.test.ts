@@ -1,5 +1,6 @@
 import {
     adjustSpecificityWeight,
+    mergeSelectors,
 } from '../src/mergeSelectors'
 import {
     // types:
@@ -198,3 +199,33 @@ groupList.forEach((group) => {
     });
 });
 //#endregion test adjustSpecificityWeight()
+
+
+
+//#region test mergeSelectors()
+//#region test with empty selector(s)
+const allBasicFalsies = [undefined, null, false, true];
+allBasicFalsies.forEach((basicFalsy) => {
+    test(`mergeSelectors(falsy)`, () => {
+        expect(mergeSelectors([
+            basicFalsy,
+        ]))
+        .toEqual(
+            []
+        );
+    });
+    
+    allBasicFalsies.forEach((basicFalsy2) => {
+        test(`mergeSelectors(falsy)`, () => {
+            expect(mergeSelectors([
+                basicFalsy,
+                basicFalsy2,
+            ]))
+            .toEqual(
+                []
+            );
+        });
+    });
+});
+//#endregion test with empty selector(s)
+//#endregion test mergeSelectors()
