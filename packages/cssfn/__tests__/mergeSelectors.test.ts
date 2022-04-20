@@ -1,6 +1,6 @@
 import {
     adjustSpecificityWeight,
-} from '../src/rule'
+} from '../src/mergeSelectors'
 import {
     // types:
     SelectorName,
@@ -14,43 +14,12 @@ import {
     
     
     // SelectorEntry creates & tests:
-    elementSelector,
-    classSelector,
-    pseudoClassSelector,
-    
-    isParentSelector,
     isPseudoElementSelector,
-    
-    isAttrSelectorOf,
-    isElementSelectorOf,
-    isClassSelectorOf,
-    isPseudoClassSelectorOf,
-    
-    combinator,
-    
-    isCombinatorOf,
     
     
     
     // Selector creates & tests:
     pureSelectorGroup,
-    
-    
-    
-    // renders:
-    selectorsToString,
-    
-    
-    
-    // transforms:
-    ReplaceSelectorCallback,
-    replaceSelectors,
-    GroupSelectorOptions,
-    groupSelectors,
-    groupSelector,
-    UngroupSelectorOptions,
-    ungroupSelector,
-    ungroupSelectors,
     
     
     
