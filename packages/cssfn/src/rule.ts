@@ -580,7 +580,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
     
     
     
-    const groupedSelectorGroup = createSelectorGroup(
+    const mergedSelectors = createSelectorGroup(
         // only ParentSelector
         // &
         !!onlyParentSelectorGroup.length && (
@@ -614,7 +614,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
     
     
     
-    return groupedSelectorGroup;
+    return mergedSelectors;
 }
 
 
@@ -670,31 +670,31 @@ export const rule = (selectors: CssSelectorCollection, styles: CssStyleCollectio
     
     
     
-    const selectorList = (
-        (selectorGroupByRuleType.get(RuleType.SelectorRule) ?? [])
-        .flatMap((selector) => {
-            const selectorList = parseSelectors(selector);
-            if (!selectorList) throw Error(`parse selector error: ${selector}`);
-            return selectorList;
+    const selectorGroup : SelectorGroup = (
+        (selectorGroupByRuleType.get(RuleType.SelectorRule) ?? []) // take only the SelectorRule(s)
+        .flatMap((selectorString) => {
+            const selectorGroup = parseSelectors(selectorString);
+            if (!selectorGroup) throw Error(`parse selector error: ${selectorString}`);
+            return selectorGroup;
         })
-        .filter(isNotEmptySelector)
     );
-    const mergedSelectorList = mergeSelectors(selectorList, options);
+    const mergedSelectors = mergeSelectors(selectorGroup, options);
     
     
     
     return {
-        ...(isNotEmptySelectors(mergedSelectorList) ? {
+        ...(isNotEmptySelectors(mergedSelectors) ? {
             [Symbol(
-                selectorsToString(mergedSelectorList)
+                selectorsToString(mergedSelectors) // render back to string // TODO: render lazily
             )] : styles
         } : {}),
         
         ...Object.fromEntries(
-            [
+            [ // take all rules except SelectorRule(s):
                 ...(selectorGroupByRuleType.get(RuleType.AtRule   ) ?? []),
                 ...(selectorGroupByRuleType.get(RuleType.PropRule ) ?? []),
-            ].map((selector) => [
+            ]
+            .map((selector) => [
                 Symbol(
                     selector
                 ),
