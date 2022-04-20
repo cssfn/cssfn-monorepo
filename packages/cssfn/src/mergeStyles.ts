@@ -83,6 +83,26 @@ export const mergeParent  = (style: CssStyle): void => {
         } // if
     } // for
 }
+
+const groupByNested = (accum: Map<string, symbol[]>, sym: symbol) => {
+    const nestedSelector = sym.description ?? '';
+    if (
+        // nested rules:
+        (
+            (nestedSelector !== '&')     // ignore only_parentSelector
+            &&
+            nestedSelector.includes('&') // nested rule
+        )
+        ||
+        // conditional rules & globals:
+        nestedAtRules.some((at) => nestedSelector.startsWith(at))
+    ) {
+        let group = accum.get(nestedSelector);             // get an existing collector
+        if (!group) accum.set(nestedSelector, group = []); // create a new collector
+        group.push(sym);
+    } // if
+    return accum;
+}
 const nestedAtRules = ['@media', '@supports', '@document', '@global'];
 export const mergeNested  = (style: CssStyle): void => {
     const symbolProps = Object.getOwnPropertySymbols(style);
@@ -91,34 +111,19 @@ export const mergeNested  = (style: CssStyle): void => {
     
     
     //#region group (nested) Rule(s) by selector name
-    const groupByNested = (
+    const symbolPropGroupByNested = (
         symbolProps
-        .reduce((accum, sym) => {
-            const nestedSelector = sym.description ?? '';
-            if (
-                // nested rules:
-                (
-                    (nestedSelector !== '&')     // ignore only_parentSelector
-                    &&
-                    nestedSelector.includes('&') // nested rule
-                )
-                ||
-                // conditional rules & globals:
-                nestedAtRules.some((at) => nestedSelector.startsWith(at))
-            ) {
-                let group = accum.get(nestedSelector);             // get an existing collector
-                if (!group) accum.set(nestedSelector, group = []); // create a new collector
-                group.push(sym);
-            } // if
-            return accum;
-        }, new Map<string, symbol[]>())
+        .reduce(
+            groupByNested,
+            new Map<string, symbol[]>()
+        )
     );
     //#endregion group (nested) Rule(s) by selector name
     
     
     
     //#region merge duplicates (nested) Rule(s) to unique ones
-    for (const group of groupByNested.values()) {
+    for (const group of symbolPropGroupByNested.values()) {
         // merge styles from group's members to single style
         const multipleStyles = group.map((sym) => style[sym]);
         const mergedStyles   = mergeStyles(multipleStyles);
