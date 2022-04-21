@@ -106,8 +106,9 @@ export type CssKnownProps                  = CssKnownStandardProps & CssKnownVen
 //#region cssfn properties
 export type CssProps           = CssCustomProps & CssKnownProps
 
+export type CssRuleData        = readonly [CssSelector|RawCssSelector, CssStyleCollection]
 export type CssRule = { // do not use Record<symbol, CssStyleCollection> => doesn't support circular ref
-    [name: symbol] : CssStyleCollection
+    [name: symbol] : CssRuleData
 }
 export type CssRuleCollection  = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssRule>>
 
@@ -139,4 +140,14 @@ export type CssScopeMap<TCssScopeName extends CssScopeName> = {
 
 export type CssSelector           = (string & {})
 export type CssSelectorCollection = SingleOrDeepArray<OptionalOrBoolean<CssSelector>>
+
+export interface CssSelectorOptions {
+    groupSelectors       ?: boolean
+    
+    specificityWeight    ?: number|null
+    minSpecificityWeight ?: number|null
+    maxSpecificityWeight ?: number|null
+}
+
+export type RawCssSelector        = readonly [CssSelector, CssSelectorOptions]
 //#endregion cssfn properties
