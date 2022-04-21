@@ -1,4 +1,8 @@
 // cssfn:
+import type {
+    // types:
+    CssSelectorOptions,
+}                           from '@cssfn/css-types'
 import {
     // types:
     SimpleSelector,
@@ -471,23 +475,16 @@ const createSuffixedParentSelectorGroup  = (groupByParentSelectorGroup: PureSele
     );
 }
 
-export interface SelectorOptions {
-    groupSelectors       ?: boolean
-    
-    specificityWeight    ?: number|null
-    minSpecificityWeight ?: number|null
-    maxSpecificityWeight ?: number|null
-}
-const defaultSelectorOptions : Required<SelectorOptions> = {
+const defaultCssSelectorOptions : Required<CssSelectorOptions> = {
     groupSelectors       : true,
     
     specificityWeight    : null,
     minSpecificityWeight : null,
     maxSpecificityWeight : null,
 }
-export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOptions = defaultSelectorOptions): SelectorGroup => {
+export const mergeSelectors = (selectorGroup: SelectorGroup, options: CssSelectorOptions = defaultCssSelectorOptions): SelectorGroup => {
     const {
-        groupSelectors : doGroupSelectors = defaultSelectorOptions.groupSelectors,
+        groupSelectors : doGroupSelectors = defaultCssSelectorOptions.groupSelectors,
         
         specificityWeight,
     } = options;
