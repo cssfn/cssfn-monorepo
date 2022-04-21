@@ -285,6 +285,7 @@ const endsWithParent    = (pureSelector: PureSelector): boolean => {
     return isParentSelector(lastSelectorEntry);                 // the entry must be ParentSelector
 }
 const enum ParentPosition {
+    NoParent,
     OnlyParent,
     OnlyBeginParent,
     OnlyEndParent,
@@ -304,6 +305,9 @@ const calculateParentPosition  = (pureSelector: PureSelector): ParentPosition =>
     
     const onlyEndParent        = !hasStartsWithParent && !hasMiddlesWithParent && hasEndsWithParent;
     if (onlyEndParent)   return ParentPosition.OnlyEndParent;
+    
+    const noParent             = !hasStartsWithParent && !hasMiddlesWithParent && !hasEndsWithParent;
+    if (noParent)        return ParentPosition.NoParent;
     
     return ParentPosition.RandomParent;
 }
@@ -397,20 +401,20 @@ const createCommonSuffixedParentSelector = (isSelector: PureSelector, combinator
 }
 const createBaseParentSelectorGroup      = (
         groupByParentSelectorGroup               : PureSelector[],
-        groupByCombinator                        : (accum: GroupByCombinator, pureSelector: PureSelector) => GroupByCombinator,
-        removeCommonParentSelector               : (pureSelector: PureSelector) => PureSelector,
-        removeCommonParentSelectorWithCombinator : (pureSelector: PureSelector) => PureSelector,
-        createCommonParentSelector               : (isSelector: PureSelector, combinator: Combinator | null) => Selector
+        groupByCombinator                        : null | ((accum: GroupByCombinator, pureSelector: PureSelector) => GroupByCombinator),
+        removeCommonParentSelector               : null | ((pureSelector: PureSelector) => PureSelector),
+        removeCommonParentSelectorWithCombinator : null | ((pureSelector: PureSelector) => PureSelector),
+        createCommonParentSelector               : null | ((isSelector: PureSelector, combinator: Combinator | null) => Selector)
     ): SelectorGroup => {
     if (groupByParentSelectorGroup.length < 2) return groupByParentSelectorGroup; // must contains at least 2 selectors, if only one/no selector => no need to group
     
     
     
     // group selectors by combinator:
-    const selectorGroupByCombinator = groupByParentSelectorGroup.reduce(
+    const selectorGroupByCombinator = groupByCombinator ? groupByParentSelectorGroup.reduce(
         groupByCombinator,
         new Map<Combinator|null, PureSelector[]>()
-    );
+    ) : new Map<Combinator|null, PureSelector[]>([[ null, groupByParentSelectorGroup ]]);
     
     
     
@@ -419,16 +423,34 @@ const createBaseParentSelectorGroup      = (
         if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length < 2) return selectors; // must contains at least 2 selectors which without ::pseudo-element, if only one/no selector => no need to group
         
         
-        
+        const conditionalRemoveCommonParentSelector = combinator ? removeCommonParentSelectorWithCombinator : removeCommonParentSelector;
         const [isSelector, ...pseudoElmSelectors] = groupSelectors(
+            conditionalRemoveCommonParentSelector
+            ?
+            selectors.map(conditionalRemoveCommonParentSelector)
+            :
             selectors
-            .map(!!combinator ? removeCommonParentSelectorWithCombinator : removeCommonParentSelector),
         );
         return createSelectorGroup(
-            isNotEmptySelector(isSelector) && createCommonParentSelector(isSelector, combinator), // grouped selectors (if any), might be empty if the original only contains ::pseudo-element(s)
+            isNotEmptySelector(isSelector) && ( // grouped selectors (if any), might be empty if the original only contains ::pseudo-element(s)
+                createCommonParentSelector
+                ?
+                createCommonParentSelector(isSelector, combinator)
+                :
+                isSelector
+            ),
             ...pseudoElmSelectors, // ungroupable ::pseudo-element (if any)
         );
     });
+}
+const createNoParentSelectorGroup  = (groupByParentSelectorGroup: PureSelector[]): SelectorGroup => {
+    return createBaseParentSelectorGroup(
+        groupByParentSelectorGroup,
+        null,
+        null,
+        null,
+        null,
+    );
 }
 const createPrefixedParentSelectorGroup  = (groupByParentSelectorGroup: PureSelector[]): SelectorGroup => {
     return createBaseParentSelectorGroup(
@@ -532,6 +554,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
         new Map<ParentPosition, PureSelector[]>()
     );
     
+    const noParentSelectorGroup        = selectorGroupByParentPosition.get(ParentPosition.NoParent        ) ?? [];
     const onlyParentSelectorGroup      = selectorGroupByParentPosition.get(ParentPosition.OnlyParent      ) ?? [];
     const onlyBeginParentSelectorGroup = selectorGroupByParentPosition.get(ParentPosition.OnlyBeginParent ) ?? [];
     const onlyEndParentSelectorGroup   = selectorGroupByParentPosition.get(ParentPosition.OnlyEndParent   ) ?? [];
@@ -540,6 +563,12 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
     
     
     const mergedSelectors = createSelectorGroup(
+        // no parent
+        // aaa, bbb, ccc
+        ...createNoParentSelectorGroup(noParentSelectorGroup),
+        
+        
+        
         // only ParentSelector
         // &
         !!onlyParentSelectorGroup.length && (

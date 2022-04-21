@@ -24,6 +24,11 @@ import {
     
     
     
+    // renders:
+    selectorsToString,
+    
+    
+    
     // measures:
     Specificity,
     calculateSpecificity,
@@ -204,6 +209,15 @@ groupList.forEach((group) => {
 
 //#region test mergeSelectors()
 //#region test with empty selector(s)
+test(`mergeSelectors([])`, () => {
+    expect(mergeSelectors([
+        /* empty */
+    ]))
+    .toEqual(
+        []
+    );
+});
+
 const allBasicFalsies = [undefined, null, false, true];
 allBasicFalsies.forEach((basicFalsy) => {
     test(`mergeSelectors(falsy)`, () => {
@@ -228,4 +242,46 @@ allBasicFalsies.forEach((basicFalsy) => {
     });
 });
 //#endregion test with empty selector(s)
+
+
+
+//#region test with unmergeable selectors
+test(`mergeSelectors([only-one])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa`
+    )!)))
+    .toEqual(
+        `.aaa`
+    );
+});
+test(`mergeSelectors([only-one])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `::before`
+    )!)))
+    .toEqual(
+        `::before`
+    );
+});
+test(`mergeSelectors([only-one])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:first-child`
+    )!)))
+    .toEqual(
+        `:first-child`
+    );
+});
+//#endregion test with unmergeable selectors
+
+
+
+//#region test with mergeable parentless selectors
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa, .bbb, .ccc`
+    )!)))
+    .toEqual(
+        `:is(.aaa, .bbb, .ccc)`
+    );
+});
+//#endregion test with mergeable parentless selectors
 //#endregion test mergeSelectors()
