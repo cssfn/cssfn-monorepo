@@ -110,7 +110,7 @@ export const mergeNested  = (style: CssStyle): void => {
     
     
     
-    //#region group (nested) Rule(s) by selector name
+    // group (nested) Rule(s) by selector name:
     const symbolPropGroupByNested = (
         symbolProps
         .reduce(
@@ -118,7 +118,6 @@ export const mergeNested  = (style: CssStyle): void => {
             new Map<string, symbol[]>()
         )
     );
-    //#endregion group (nested) Rule(s) by selector name
     
     
     
