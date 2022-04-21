@@ -221,8 +221,23 @@ export const mergeLiteral = (style: CssStyle, newStyle: CssStyle): void => {
 
 
 
-export const mergeParent  = (style: CssStyle): void => {
+const ensureSymbolPropsUpdated = (style: CssStyle): symbol[] => {
     const symbolProps = Object.getOwnPropertySymbols(style);
+    if (!symbolProps.length) return symbolProps; // there's no (nested) Rule => nothing to do
+    
+    
+    
+    // render RawCssSelector to FinalCssSelector (if any)
+    for (const symbolProp of symbolProps) {
+        finalizeSelector(style, symbolProp);
+    } // for
+    
+    
+    
+    return Object.getOwnPropertySymbols(style); // refresh the `symbolProps`
+}
+export const mergeParent  = (style: CssStyle): void => {
+    const symbolProps = ensureSymbolPropsUpdated(style);
     if (!symbolProps.length) return; // there's no (nested) Rule => nothing to do
     
     
@@ -262,28 +277,32 @@ export const mergeParent  = (style: CssStyle): void => {
     } // for
 }
 
-const groupByNested = (accum: Map<string, symbol[]>, symbolProp: symbol) => {
-    const nestedSelector = symbolProp.description ?? '';
+const nestedAtRules = ['@media', '@supports', '@document', '@global'];
+type GroupByNestedEntry = readonly [symbol, FinalCssSelector|null];
+const groupByNested = (accum: Map<FinalCssSelector, symbol[]>, [symbolProp, finalSelector]: GroupByNestedEntry) => {
+    if (!finalSelector) return accum; // skip empty entry
+    
+    
+    
     if (
         // nested rules:
         (
-            (nestedSelector !== '&')     // ignore only_parentSelector
+            (finalSelector !== '&')     // ignore only_parentSelector
             &&
-            nestedSelector.includes('&') // nested rule
+            finalSelector.includes('&') // nested rule
         )
         ||
         // conditional rules & globals:
-        nestedAtRules.some((at) => nestedSelector.startsWith(at))
+        nestedAtRules.some((at) => finalSelector.startsWith(at))
     ) {
-        let group = accum.get(nestedSelector);             // get an existing collector
-        if (!group) accum.set(nestedSelector, group = []); // create a new collector
+        let group = accum.get(finalSelector);             // get an existing collector
+        if (!group) accum.set(finalSelector, group = []); // create a new collector
         group.push(symbolProp);
     } // if
     return accum;
 }
-const nestedAtRules = ['@media', '@supports', '@document', '@global'];
 export const mergeNested  = (style: CssStyle): void => {
-    const symbolProps = Object.getOwnPropertySymbols(style);
+    const symbolProps = ensureSymbolPropsUpdated(style);
     if (!symbolProps.length) return; // there's no (nested) Rule => nothing to do
     
     
@@ -291,31 +310,39 @@ export const mergeNested  = (style: CssStyle): void => {
     // group (nested) Rule(s) by selector name:
     const symbolPropGroupByNested = (
         symbolProps
+        .map((symbolProp): GroupByNestedEntry => [
+            symbolProp,
+            finalizeSelector(style, symbolProp)
+        ])
         .reduce(
             groupByNested,
-            new Map<string, symbol[]>()
+            new Map<FinalCssSelector, symbol[]>()
         )
     );
     
     
     
     //#region merge duplicates (nested) Rule(s) to unique ones
-    for (const group of symbolPropGroupByNested.values()) {
-        // merge styles from group's members to single style
-        const multipleStyles = group.map((sym) => style[sym]);
+    for (const symbolGroup of symbolPropGroupByNested.values()) {
+        // merge styles from symbolGroup's members to single style
+        const multipleStyles = symbolGroup.map((symbolProp) => style[symbolProp][1]);
         const mergedStyles   = mergeStyles(multipleStyles);
         
         
         
         if (mergedStyles) {
             // update last member
-            style[group[group.length - 1]] = mergedStyles; // assign mergedStyles to the last member
+            const lastMember = symbolGroup[symbolGroup.length - 1];
+            style[lastMember] = [ // assign mergedStyles to the last member
+                style[lastMember][0],
+                mergedStyles
+            ] as CssRuleData;
         }
         else {
             // mergedStyles is empty => delete last member
-            delete style[group[group.length - 1]];
+            delete style[symbolGroup[symbolGroup.length - 1]];
         } // if
-        for (const sym of group.slice(0, -1)) delete style[sym]; // delete first member to second last member
+        for (const symbolProp of symbolGroup.slice(0, -1)) delete style[symbolProp]; // delete first member to second last member
     } // for
     //#endregion merge duplicates (nested) Rule to unique ones
 }
