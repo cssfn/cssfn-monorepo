@@ -317,6 +317,7 @@ test(`mergeSelectors([.foo::pseudo-element...])`, () => {
 
 
 
+//#region test with mergeable parentless selectors
 //#region test with single grouped selectors
 test(`mergeSelectors([((.only-one))])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
@@ -362,7 +363,6 @@ test(`mergeSelectors([((.only-one))])`, () => {
 
 
 
-//#region test with mergeable parentless selectors
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `.aaa, .bbb, .ccc`
