@@ -1049,4 +1049,248 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
 });
 //#endregion test with mergeable suffixed-parent-combinator selectors
 
+
+
+//#region test with mergeable random-parent selectors
+//#region test with single grouped selectors
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(.aaa:active&:first-child)`
+    )!)))
+    .toBe(
+        `.aaa:active&:first-child`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(.aaa:active&:first-child)`
+    )!)))
+    .toBe(
+        `.aaa:active&:first-child`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:is(:is(.aaa:active&:first-child)))`
+    )!)))
+    .toBe(
+        `.aaa:active&:first-child`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(:where(:where(.aaa:active&:first-child)))`
+    )!)))
+    .toBe(
+        `.aaa:active&:first-child`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:where(:is(:where(.aaa:active&:first-child))))`
+    )!)))
+    .toBe(
+        `.aaa:active&:first-child`
+    );
+});
+//#endregion test with single grouped selectors
+
+
+
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa:active&:first-child, .bbb&[title="bleh"], #ccc&:valid`
+    )!)))
+    .toBe(
+        `.aaa:active&:first-child, .bbb&[title="bleh"], #ccc&:valid`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa:active&:first-child, :is(.bbb&[title="bleh"], #ccc&:valid)`
+    )!)))
+    .toBe(
+        `.aaa:active&:first-child, .bbb&[title="bleh"], #ccc&:valid`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa:active&:first-child, :where(.bbb&[title="bleh"], #ccc&:valid)`
+    )!)))
+    .toBe(
+        `.aaa:active&:first-child, .bbb&[title="bleh"], #ccc&:valid`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa:active&:first-child, :not(.bbb&[title="bleh"], #ccc&:valid)`
+    )!)))
+    .toBe(
+        `:not(.bbb&[title="bleh"], #ccc&:valid), .aaa:active&:first-child`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa:active&:first-child, :has(.bbb&[title="bleh"], #ccc&:valid)`
+    )!)))
+    .toBe(
+        `:has(.bbb&[title="bleh"], #ccc&:valid), .aaa:active&:first-child`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(.aaa:active&:first-child), :is(:is(:is(.bbb&[title="bleh"]), :is(#ccc&:valid)))`
+    )!)))
+    .toBe(
+        `.aaa:active&:first-child, .bbb&[title="bleh"], #ccc&:valid`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:is(:is(.aaa:active&:first-child), :is(:is(:is(.bbb&[title="bleh"]), :is(#ccc&:valid)))))`
+    )!)))
+    .toBe(
+        `.aaa:active&:first-child, .bbb&[title="bleh"], #ccc&:valid`
+    );
+});
+
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(.aaa:active&:first-child), :where(:is(:is(.bbb&[title="bleh"]), :where(#ccc&:valid)))`
+    )!)))
+    .toBe(
+        `.aaa:active&:first-child, .bbb&[title="bleh"], #ccc&:valid`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:where(:is(.aaa:active&:first-child), :where(:is(:is(.bbb&[title="bleh"]), :where(#ccc&:valid)))))`
+    )!)))
+    .toBe(
+        `.aaa:active&:first-child, .bbb&[title="bleh"], #ccc&:valid`
+    );
+});
+//#endregion test with mergeable random-parent selectors
+
+//#region test with mergeable random-parent-combinator selectors
+//#region test with single grouped selectors
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(.aaa:active&>:first-child)`
+    )!)))
+    .toBe(
+        `.aaa:active&>:first-child`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(.aaa:active&>:first-child)`
+    )!)))
+    .toBe(
+        `.aaa:active&>:first-child`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:is(:is(.aaa:active&>:first-child)))`
+    )!)))
+    .toBe(
+        `.aaa:active&>:first-child`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(:where(:where(.aaa:active&>:first-child)))`
+    )!)))
+    .toBe(
+        `.aaa:active&>:first-child`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:where(:is(:where(.aaa:active&>:first-child))))`
+    )!)))
+    .toBe(
+        `.aaa:active&>:first-child`
+    );
+});
+//#endregion test with single grouped selectors
+
+
+
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa:active&>:first-child, .bbb>&[title="bleh"], #ccc>&:valid`
+    )!)))
+    .toBe(
+        `.aaa:active&>:first-child, .bbb>&[title="bleh"], #ccc>&:valid`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa:active&>:first-child, :is(.bbb>&[title="bleh"], #ccc>&:valid)`
+    )!)))
+    .toBe(
+        `.aaa:active&>:first-child, .bbb>&[title="bleh"], #ccc>&:valid`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa:active&>:first-child, :where(.bbb>&[title="bleh"], #ccc>&:valid)`
+    )!)))
+    .toBe(
+        `.aaa:active&>:first-child, .bbb>&[title="bleh"], #ccc>&:valid`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa:active&>:first-child, :not(.bbb>&[title="bleh"], #ccc>&:valid)`
+    )!)))
+    .toBe(
+        `:not(.bbb>&[title="bleh"], #ccc>&:valid), .aaa:active&>:first-child`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa:active&>:first-child, :has(.bbb>&[title="bleh"], #ccc>&:valid)`
+    )!)))
+    .toBe(
+        `:has(.bbb>&[title="bleh"], #ccc>&:valid), .aaa:active&>:first-child`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(.aaa:active&>:first-child), :is(:is(:is(.bbb>&[title="bleh"]), :is(#ccc>&:valid)))`
+    )!)))
+    .toBe(
+        `.aaa:active&>:first-child, .bbb>&[title="bleh"], #ccc>&:valid`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:is(:is(.aaa:active&>:first-child), :is(:is(:is(.bbb>&[title="bleh"]), :is(#ccc>&:valid)))))`
+    )!)))
+    .toBe(
+        `.aaa:active&>:first-child, .bbb>&[title="bleh"], #ccc>&:valid`
+    );
+});
+
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(.aaa:active&>:first-child), :where(:is(:is(.bbb>&[title="bleh"]), :where(#ccc>&:valid)))`
+    )!)))
+    .toBe(
+        `.aaa:active&>:first-child, .bbb>&[title="bleh"], #ccc>&:valid`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:where(:is(.aaa:active&>:first-child), :where(:is(:is(.bbb>&[title="bleh"]), :where(#ccc>&:valid)))))`
+    )!)))
+    .toBe(
+        `.aaa:active&>:first-child, .bbb>&[title="bleh"], #ccc>&:valid`
+    );
+});
+//#endregion test with mergeable random-parent-combinator selectors
+
 //#endregion test mergeSelectors()
