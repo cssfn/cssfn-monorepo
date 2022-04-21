@@ -246,7 +246,7 @@ allBasicFalsies.forEach((basicFalsy) => {
 
 
 //#region test with unmergeable selectors
-test(`mergeSelectors([only-one])`, () => {
+test(`mergeSelectors([.only-one])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `.aaa`
     )!)))
@@ -254,7 +254,7 @@ test(`mergeSelectors([only-one])`, () => {
         `.aaa`
     );
 });
-test(`mergeSelectors([only-one])`, () => {
+test(`mergeSelectors([.only-one])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `::before`
     )!)))
@@ -262,15 +262,103 @@ test(`mergeSelectors([only-one])`, () => {
         `::before`
     );
 });
-test(`mergeSelectors([only-one])`, () => {
+test(`mergeSelectors([.only-one])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `:first-child`
     )!)))
     .toEqual(
         `:first-child`
+    );
+});
+
+
+
+test(`mergeSelectors([::pseudo-element...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `::before, ::after`
+    )!)))
+    .toEqual(
+        `::before, ::after`
+    );
+});
+test(`mergeSelectors([::pseudo-element...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `::before, ::after, ::backdrop`
+    )!)))
+    .toEqual(
+        `::before, ::after, ::backdrop`
+    );
+});
+test(`mergeSelectors([.foo::pseudo-element...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:valid::before, ::after`
+    )!)))
+    .toEqual(
+        `:valid::before, ::after`
+    );
+});
+test(`mergeSelectors([.foo::pseudo-element...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `::before, .awesome::after`
+    )!)))
+    .toEqual(
+        `::before, .awesome::after`
+    );
+});
+test(`mergeSelectors([.foo::pseudo-element...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:valid::before, .awesome::after`
+    )!)))
+    .toEqual(
+        `:valid::before, .awesome::after`
     );
 });
 //#endregion test with unmergeable selectors
+
+
+
+//#region test with single grouped selectors
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(.aaa)`
+    )!)))
+    .toEqual(
+        `.aaa`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(.aaa)`
+    )!)))
+    .toEqual(
+        `.aaa`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:is(:is(.aaa)))`
+    )!)))
+    .toEqual(
+        `.aaa`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(:where(:where(.aaa)))`
+    )!)))
+    .toEqual(
+        `.aaa`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:where(:is(:where(.aaa))))`
+    )!)))
+    .toEqual(
+        `.aaa`
+    );
+});
+//#endregion test with single grouped selectors
 
 
 
@@ -278,6 +366,71 @@ test(`mergeSelectors([only-one])`, () => {
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `.aaa, .bbb, .ccc`
+    )!)))
+    .toEqual(
+        `:is(.aaa, .bbb, .ccc)`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa, :is(.bbb, .ccc)`
+    )!)))
+    .toEqual(
+        `:is(.aaa, .bbb, .ccc)`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa, :where(.bbb, .ccc)`
+    )!)))
+    .toEqual(
+        `:is(.aaa, .bbb, .ccc)`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa, :not(.bbb, .ccc)`
+    )!)))
+    .toEqual(
+        `:is(.aaa, :not(.bbb, .ccc))`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa, :has(.bbb, .ccc)`
+    )!)))
+    .toEqual(
+        `:is(.aaa, :has(.bbb, .ccc))`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(.aaa), :is(:is(:is(.bbb), :is(.ccc)))`
+    )!)))
+    .toEqual(
+        `:is(.aaa, .bbb, .ccc)`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:is(:is(.aaa), :is(:is(:is(.bbb), :is(.ccc)))))`
+    )!)))
+    .toEqual(
+        `:is(.aaa, .bbb, .ccc)`
+    );
+});
+
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(.aaa), :where(:is(:is(.bbb), :where(.ccc)))`
+    )!)))
+    .toEqual(
+        `:is(.aaa, .bbb, .ccc)`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:where(:is(.aaa), :where(:is(:is(.bbb), :where(.ccc)))))`
     )!)))
     .toEqual(
         `:is(.aaa, .bbb, .ccc)`

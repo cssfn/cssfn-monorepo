@@ -504,6 +504,8 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
     );
     
     
+    /*
+    DISABLED for handling deep nested :is(:is(:is()))
     
     // check for options before performing expensive transformation:
     if (
@@ -511,6 +513,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
         &&
         ((minSpecificityWeight === null) && (maxSpecificityWeight === null)) // no need to adjust the specificity
     ) return pureSelectorGroup; // no grouping and no adjusting the specificity => nothing to do => returns the simplified original
+    */
     
     
     
@@ -528,7 +531,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: SelectorOp
         (!doGroupSelectors || (normalizedSelectorGroup.length < 2)) // do not perform grouping but still allow to adjust the specificity || only one/no selector => nothing to group
         &&
         ((minSpecificityWeight === null) && (maxSpecificityWeight === null)) // no need to adjust the specificity
-    ) return pureSelectorGroup; // no grouping and no adjusting the specificity => nothing to do => returns the simplified original
+    ) return normalizedSelectorGroup; // no grouping and no adjusting the specificity => nothing to do => returns the simplified original
     
     
     
