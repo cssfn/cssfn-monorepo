@@ -806,4 +806,248 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
 });
 //#endregion test with mergeable prefixed-parent-combinator selectors
 
+
+
+//#region test with mergeable suffixed-parent selectors
+//#region test with single grouped selectors
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(.aaa&)`
+    )!)))
+    .toBe(
+        `.aaa&`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(.aaa&)`
+    )!)))
+    .toBe(
+        `.aaa&`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:is(:is(.aaa&)))`
+    )!)))
+    .toBe(
+        `.aaa&`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(:where(:where(.aaa&)))`
+    )!)))
+    .toBe(
+        `.aaa&`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:where(:is(:where(.aaa&))))`
+    )!)))
+    .toBe(
+        `.aaa&`
+    );
+});
+//#endregion test with single grouped selectors
+
+
+
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa&, .bbb&, #ccc&`
+    )!)))
+    .toBe(
+        `:is(.aaa, .bbb, #ccc)&`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa&, :is(.bbb&, #ccc&)`
+    )!)))
+    .toBe(
+        `:is(.aaa, .bbb, #ccc)&`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa&, :where(.bbb&, #ccc&)`
+    )!)))
+    .toBe(
+        `:is(.aaa, .bbb, #ccc)&`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa&, :not(.bbb&, #ccc&)`
+    )!)))
+    .toBe(
+        `:not(.bbb&, #ccc&), .aaa&` // TODO: in the future will be: `:not(.bbb, #ccc)&, .aaa&`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa&, :has(.bbb&, #ccc&)`
+    )!)))
+    .toBe(
+        `:has(.bbb&, #ccc&), .aaa&` // TODO: in the future will be: `:has(:is(.bbb, #ccc)&), .aaa&`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(.aaa&), :is(:is(:is(.bbb&), :is(#ccc&)))`
+    )!)))
+    .toBe(
+        `:is(.aaa, .bbb, #ccc)&`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:is(:is(.aaa&), :is(:is(:is(.bbb&), :is(#ccc&)))))`
+    )!)))
+    .toBe(
+        `:is(.aaa, .bbb, #ccc)&`
+    );
+});
+
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(.aaa&), :where(:is(:is(.bbb&), :where(#ccc&)))`
+    )!)))
+    .toBe(
+        `:is(.aaa, .bbb, #ccc)&`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:where(:is(.aaa&), :where(:is(:is(.bbb&), :where(#ccc&)))))`
+    )!)))
+    .toBe(
+        `:is(.aaa, .bbb, #ccc)&`
+    );
+});
+//#endregion test with mergeable suffixed-parent selectors
+
+//#region test with mergeable suffixed-parent-combinator selectors
+//#region test with single grouped selectors
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(.aaa>&)`
+    )!)))
+    .toBe(
+        `.aaa>&`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(.aaa>&)`
+    )!)))
+    .toBe(
+        `.aaa>&`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:is(:is(.aaa>&)))`
+    )!)))
+    .toBe(
+        `.aaa>&`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(:where(:where(.aaa>&)))`
+    )!)))
+    .toBe(
+        `.aaa>&`
+    );
+});
+test(`mergeSelectors([((.only-one))])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:where(:is(:where(.aaa>&))))`
+    )!)))
+    .toBe(
+        `.aaa>&`
+    );
+});
+//#endregion test with single grouped selectors
+
+
+
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa>&, .bbb>&, #ccc>&`
+    )!)))
+    .toBe(
+        `:is(.aaa, .bbb, #ccc)>&`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa>&, :is(.bbb>&, #ccc>&)`
+    )!)))
+    .toBe(
+        `:is(.aaa, .bbb, #ccc)>&`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa>&, :where(.bbb>&, #ccc>&)`
+    )!)))
+    .toBe(
+        `:is(.aaa, .bbb, #ccc)>&`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa>&, :not(.bbb>&, #ccc>&)`
+    )!)))
+    .toBe(
+        `:not(.bbb>&, #ccc>&), .aaa>&` // TODO: in the future will be: `:not(.bbb, #ccc)>&, .aaa>&`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa>&, :has(.bbb>&, #ccc>&)`
+    )!)))
+    .toBe(
+        `:has(.bbb>&, #ccc>&), .aaa>&` // TODO: in the future will be: `:has(:is(.bbb, #ccc)>&), .aaa>&`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(.aaa>&), :is(:is(:is(.bbb>&), :is(#ccc>&)))`
+    )!)))
+    .toBe(
+        `:is(.aaa, .bbb, #ccc)>&`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:is(:is(.aaa>&), :is(:is(:is(.bbb>&), :is(#ccc>&)))))`
+    )!)))
+    .toBe(
+        `:is(.aaa, .bbb, #ccc)>&`
+    );
+});
+
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(.aaa>&), :where(:is(:is(.bbb>&), :where(#ccc>&)))`
+    )!)))
+    .toBe(
+        `:is(.aaa, .bbb, #ccc)>&`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:where(:is(.aaa>&), :where(:is(:is(.bbb>&), :where(#ccc>&)))))`
+    )!)))
+    .toBe(
+        `:is(.aaa, .bbb, #ccc)>&`
+    );
+});
+//#endregion test with mergeable suffixed-parent-combinator selectors
+
 //#endregion test mergeSelectors()
