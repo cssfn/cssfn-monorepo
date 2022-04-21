@@ -443,7 +443,7 @@ const createBaseParentSelectorGroup      = (
         );
     });
 }
-const createNoParentSelectorGroup  = (groupByParentSelectorGroup: PureSelector[]): SelectorGroup => {
+const createNoParentSelectorGroup        = (groupByParentSelectorGroup: PureSelector[]): SelectorGroup => {
     return createBaseParentSelectorGroup(
         groupByParentSelectorGroup,
         null,
