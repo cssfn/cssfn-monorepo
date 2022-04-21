@@ -21,6 +21,7 @@ import type {
     
     CssSelector,
     CssSelectorCollection,
+    CssSelectorOptions,
 }                           from '@cssfn/css-types'
 import {
     // types:
@@ -78,7 +79,6 @@ import {
     flat,
 }                           from './utilities'
 import {
-    SelectorOptions,
     mergeSelectors,
 }                           from './mergeSelectors'
 
@@ -123,7 +123,7 @@ const groupByRuleType = (accum: Map<RuleType, CssSelector[]>, selector: CssSelec
  * Defines a conditional style(s) that is applied when the specified `selectors` meets the conditions.
  * @returns A `Rule` represents a conditional style(s).
  */
-export const rule = (selectors: CssSelectorCollection, styles: CssStyleCollection, options?: SelectorOptions): CssRule => {
+export const rule = (selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
     const selectorsString = (
         flat(selectors)
         .filter((selector): selector is CssSelector => (!!selector || (selector === '')) && (selector !== true))
