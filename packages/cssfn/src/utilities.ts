@@ -3,6 +3,10 @@ import type {
     // types:
     SingleOrDeepArray,
 }                           from '@cssfn/types'
+import type {
+    CssRawSelector,
+    CssFinalSelector,
+}                           from '@cssfn/css-types'
 
 
 
@@ -41,3 +45,5 @@ export const fastHash = (input: string) => {
     hash = Math.abs(hash);
     return hash.toString(36).slice(-5); // get the last 5 characters
 };
+
+export const isFinalSelector = (selector: CssRawSelector|CssFinalSelector): selector is CssFinalSelector => (typeof(selector) === 'string');

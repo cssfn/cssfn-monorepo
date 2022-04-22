@@ -12,7 +12,6 @@ import type {
     
     CssSelector,
     
-    CssRawSelector,
     CssFinalSelector,
 }                           from '@cssfn/css-types'
 import {
@@ -38,6 +37,7 @@ import {
 // internals:
 import {
     flat,
+    isFinalSelector,
 }                           from './utilities'
 import {
     mergeSelectors,
@@ -81,7 +81,6 @@ const groupByRuleType = (accum: Map<RuleType, CssSelector[]>, selector: CssSelec
     return accum;
 }
 
-const isFinalSelector  = (selector: CssRawSelector|CssFinalSelector): selector is CssFinalSelector => (typeof(selector) === 'string');
 const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector|null => {
     const symbolPropValue    = style[symbolProp]; // get existing prop (if any)
     if (symbolPropValue === undefined) return null;
