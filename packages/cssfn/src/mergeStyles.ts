@@ -12,8 +12,8 @@ import type {
     
     CssSelector,
     
-    RawCssSelector,
-    FinalCssSelector,
+    CssRawSelector,
+    CssFinalSelector,
 }                           from '@cssfn/css-types'
 import {
     // types:
@@ -81,8 +81,8 @@ const groupByRuleType = (accum: Map<RuleType, CssSelector[]>, selector: CssSelec
     return accum;
 }
 
-const isFinalSelector  = (selector: RawCssSelector|FinalCssSelector): selector is FinalCssSelector => (typeof(selector) === 'string');
-const finalizeSelector = (style: CssStyle, symbolProp: symbol): FinalCssSelector|null => {
+const isFinalSelector  = (selector: CssRawSelector|CssFinalSelector): selector is CssFinalSelector => (typeof(selector) === 'string');
+const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector|null => {
     const symbolPropValue    = style[symbolProp]; // get existing prop (if any)
     if (symbolPropValue === undefined) return null;
     const [selector, styles] = symbolPropValue;
@@ -119,25 +119,25 @@ const finalizeSelector = (style: CssStyle, symbolProp: symbol): FinalCssSelector
     // merge selectors:
     const mergedSelectors = mergeSelectors(selectorGroup, options);
     // render back to string:
-    const finalSelector   = isNotEmptySelectors(mergedSelectors) ? (selectorsToString(mergedSelectors) as FinalCssSelector) : null;
+    const finalSelector   = isNotEmptySelectors(mergedSelectors) ? (selectorsToString(mergedSelectors) as CssFinalSelector) : null;
     
     
     
     //#region update (mutate) styles
-    // FinalCssSelector of SelectorRule:
+    // CssFinalSelector of SelectorRule:
     if (finalSelector) {
-        style[symbolProp] = [ // update existing RawCssSelector to FinalCssSelector
+        style[symbolProp] = [ // update existing CssRawSelector to CssFinalSelector
             finalSelector,
             styles
         ] as CssRuleData;
     } else {
-        delete style[symbolProp]; // delete existing RawCssSelector
+        delete style[symbolProp]; // delete existing CssRawSelector
     } // if
     
     
     
-    // FinalCssSelector of AtRule|PropRule === `@media`|`from`|`to`|`25%`:
-    const additionalSymbolProps : FinalCssSelector[] = [ // take all rules except SelectorRule(s):
+    // CssFinalSelector of AtRule|PropRule === `@media`|`from`|`to`|`25%`:
+    const additionalSymbolProps : CssFinalSelector[] = [ // take all rules except SelectorRule(s):
         ...(selectorGroupByRuleType.get(RuleType.AtRule   ) ?? []),
         ...(selectorGroupByRuleType.get(RuleType.PropRule ) ?? []),
     ];
@@ -194,7 +194,7 @@ const ensureSymbolPropsUpdated = (style: CssStyle): void => {
     
     
     
-    // render RawCssSelector to FinalCssSelector (if any)
+    // render CssRawSelector to CssFinalSelector (if any)
     for (const symbolProp of symbolProps) {
         finalizeSelector(style, symbolProp);
     } // for
@@ -241,8 +241,8 @@ export const mergeParent  = (style: CssStyle): void => {
 }
 
 const nestedAtRules = ['@media', '@supports', '@document', '@global'];
-type GroupByNestedEntry = readonly [symbol, FinalCssSelector|null];
-const groupByNested = (accum: Map<FinalCssSelector, symbol[]>, [symbolProp, finalSelector]: GroupByNestedEntry) => {
+type GroupByNestedEntry = readonly [symbol, CssFinalSelector|null];
+const groupByNested = (accum: Map<CssFinalSelector, symbol[]>, [symbolProp, finalSelector]: GroupByNestedEntry) => {
     if (!finalSelector) return accum; // skip empty entry
     
     
@@ -279,7 +279,7 @@ export const mergeNested  = (style: CssStyle): void => {
         ])
         .reduce(
             groupByNested,
-            new Map<FinalCssSelector, symbol[]>()
+            new Map<CssFinalSelector, symbol[]>()
         )
     );
     
