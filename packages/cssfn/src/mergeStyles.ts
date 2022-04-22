@@ -11,20 +11,13 @@ import type {
     CssStyleCollection,
     
     CssSelector,
-    CssSelectorCollection,
-    CssSelectorOptions,
     
     RawCssSelector,
     FinalCssSelector,
 }                           from '@cssfn/css-types'
 import {
     // types:
-    SimpleSelector,
-    Combinator,
-    Selector,
     SelectorGroup,
-    PureSelector,
-    PureSelectorGroup,
     
     
     
@@ -34,38 +27,12 @@ import {
     
     
     // creates & tests:
-    parentSelector,
-    pseudoClassSelector,
-    isSimpleSelector,
-    isParentSelector,
-    isClassOrPseudoClassSelector,
-    isPseudoElementSelector,
-    isNotPseudoElementSelector,
-    isCombinator,
-    createSelector,
-    createPureSelector,
-    createSelectorGroup,
-    createPureSelectorGroup,
-    isNotEmptySelectorEntry,
-    isNotEmptySelector,
     isNotEmptySelectors,
     
     
     
     // renders:
     selectorsToString,
-    
-    
-    
-    // transforms:
-    groupSelectors,
-    groupSelector,
-    ungroupSelector,
-    
-    
-    
-    // measures:
-    calculateSpecificity,
 }                           from '@cssfn/css-selectors'
 
 // internals:
