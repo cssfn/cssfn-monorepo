@@ -128,7 +128,7 @@ const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector
         style[symbolProp] = [ // update existing CssRawSelector to CssFinalSelector
             finalSelector,
             styles
-        ] as CssRuleData;
+        ];
     } else {
         delete style[symbolProp]; // delete existing CssRawSelector
     } // if
@@ -144,7 +144,7 @@ const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector
         style[Symbol()] = [
             otherFinalSelector,
             styles
-        ] as CssRuleData;
+        ];
     } // for
     //#endregion update (mutate) styles
     
