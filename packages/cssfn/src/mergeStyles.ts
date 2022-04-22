@@ -5,8 +5,6 @@ import type {
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
-    CssRuleData,
-    
     CssStyle,
     CssStyleCollection,
     
@@ -118,7 +116,7 @@ const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector
     // merge selectors:
     const mergedSelectors = mergeSelectors(selectorGroup, options);
     // render back to string:
-    const finalSelector   = isNotEmptySelectors(mergedSelectors) ? (selectorsToString(mergedSelectors) as CssFinalSelector) : null;
+    const finalSelector : CssFinalSelector|null = isNotEmptySelectors(mergedSelectors) ? selectorsToString(mergedSelectors) : null;
     
     
     
@@ -298,7 +296,7 @@ export const mergeNested  = (style: CssStyle): void => {
             style[lastMember] = [ // assign mergedStyles to the last member
                 style[lastMember][0],
                 mergedStyles
-            ] as CssRuleData;
+            ];
         }
         else {
             // mergedStyles is empty => delete last member
