@@ -149,6 +149,6 @@ export interface CssSelectorOptions {
     maxSpecificityWeight ?: number|null
 }
 
-export type CssRawSelector        = readonly [CssSelectorCollection, CssSelectorOptions]
+export type CssRawSelector        = readonly [CssSelectorCollection, CssSelectorOptions|undefined]
 export type CssFinalSelector      = CssSelector & {}
 //#endregion cssfn properties
