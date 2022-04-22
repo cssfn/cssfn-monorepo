@@ -6,6 +6,10 @@ type GroupBy
 
 
 
+update parseSelectors to class based
+
+
+
 const\s+(?!create)[\w0-9_-]*GroupBy[\w0-9_-]+\s*=
 const\s+[\w0-9_-]*GroupBy[\w0-9_-]+\s*=
 
