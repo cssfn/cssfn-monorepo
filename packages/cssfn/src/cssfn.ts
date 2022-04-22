@@ -67,13 +67,13 @@ export const globalScope = (...rules :  CssRuleCollection[]) => scopeOf(''     ,
 
 /**
  * Defines a conditional style(s) that is applied when the specified `selectors` meets the conditions.
- * @returns A `Rule` represents a conditional style(s).
+ * @returns A `CssRule` represents a conditional style(s).
  */
 export const rule = (selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => ({
     [Symbol()] : [
-        [selectors, options] as CssRawSelector,
+        [selectors, options],
         styles
-    ] as CssRuleData,
+    ],
 });
 
 // rule groups:
@@ -82,7 +82,7 @@ const overwriteSelectorOptions = (selector: CssRawSelector|CssFinalSelector, opt
         return [
             selector,
             options
-        ] as CssRawSelector;
+        ];
     } // if
     
     
@@ -90,10 +90,10 @@ const overwriteSelectorOptions = (selector: CssRawSelector|CssFinalSelector, opt
     // extract raw selector:
     const [selectors, oldOptions] = selector;
     
-    const groupSelectors       =                      options.groupSelectors       ?? oldOptions.groupSelectors;
-    const specificityWeight    =                      options.specificityWeight    ?? oldOptions.specificityWeight;
-    const minSpecificityWeight = specificityWeight ?? options.minSpecificityWeight ?? oldOptions.minSpecificityWeight;
-    const maxSpecificityWeight = specificityWeight ?? options.maxSpecificityWeight ?? oldOptions.maxSpecificityWeight;
+    const groupSelectors       =                      options.groupSelectors       ?? oldOptions?.groupSelectors;
+    const specificityWeight    =                      options.specificityWeight    ?? oldOptions?.specificityWeight;
+    const minSpecificityWeight = specificityWeight ?? options.minSpecificityWeight ?? oldOptions?.minSpecificityWeight;
+    const maxSpecificityWeight = specificityWeight ?? options.maxSpecificityWeight ?? oldOptions?.maxSpecificityWeight;
     
     return [
         selectors,
@@ -104,7 +104,7 @@ const overwriteSelectorOptions = (selector: CssRawSelector|CssFinalSelector, opt
             minSpecificityWeight,
             maxSpecificityWeight,
         }
-    ] as CssRawSelector;
+    ];
 }
 export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptions): CssRule => {
     const result = (
