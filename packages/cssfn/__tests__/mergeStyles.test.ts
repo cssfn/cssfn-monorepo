@@ -1877,7 +1877,7 @@ test(`mergeNested( &{parent-all} )`, () => {
             paddingInline: '2rem',
         }],
         [rule5]: ['&', {
-            [root]: ['&', {
+            [root]: ['&:root', {
                 background: 'white',
             }],
         }],
@@ -2738,11 +2738,11 @@ test(`mergeStyles({some+symbols}, {some+symbols})`, () => {
             ['-1em', '0', '.4em', 'olive'],
         ],
         paddingInline: '2rem',
-        [symbol1]: ['.boo', {
+        [symbol1]: ['&.boo', {
             margin: '2rem',
             minWidth: '100px',
         }],
-        [symbol2]: ['.foo', {
+        [symbol2]: ['&.foo', {
             gap: '2rem',
             visibility: 'hidden',
             animation: 'none',
