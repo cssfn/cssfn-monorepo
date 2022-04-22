@@ -221,9 +221,9 @@ export const mergeLiteral = (style: CssStyle, newStyle: CssStyle): void => {
 
 
 
-const ensureSymbolPropsUpdated = (style: CssStyle): symbol[] => {
+const ensureSymbolPropsUpdated = (style: CssStyle): void => {
     const symbolProps = Object.getOwnPropertySymbols(style);
-    if (!symbolProps.length) return symbolProps; // there's no (nested) Rule => nothing to do
+    if (!symbolProps.length) return; // there's no (nested) Rule => nothing to do
     
     
     
@@ -231,13 +231,9 @@ const ensureSymbolPropsUpdated = (style: CssStyle): symbol[] => {
     for (const symbolProp of symbolProps) {
         finalizeSelector(style, symbolProp);
     } // for
-    
-    
-    
-    return Object.getOwnPropertySymbols(style); // refresh the `symbolProps`
 }
 export const mergeParent  = (style: CssStyle): void => {
-    const symbolProps = ensureSymbolPropsUpdated(style);
+    const symbolProps = Object.getOwnPropertySymbols(style);
     if (!symbolProps.length) return; // there's no (nested) Rule => nothing to do
     
     
@@ -302,7 +298,7 @@ const groupByNested = (accum: Map<FinalCssSelector, symbol[]>, [symbolProp, fina
     return accum;
 }
 export const mergeNested  = (style: CssStyle): void => {
-    const symbolProps = ensureSymbolPropsUpdated(style);
+    const symbolProps = Object.getOwnPropertySymbols(style);
     if (!symbolProps.length) return; // there's no (nested) Rule => nothing to do
     
     
@@ -379,8 +375,9 @@ export const mergeStyles = (styles: CssStyleCollection): CssStyle|null => {
         
         
         const mergedStyles: CssStyle = (styleValue === styles) ? styleValue : { ...styleValue }; // shallow clone before mutate
-        mergeParent(mergedStyles); // mutate
-        mergeNested(mergedStyles); // mutate
+        ensureSymbolPropsUpdated(mergedStyles); // mutate
+        mergeParent(mergedStyles);              // mutate
+        mergeNested(mergedStyles);              // mutate
         
         
         
@@ -414,15 +411,17 @@ export const mergeStyles = (styles: CssStyleCollection): CssStyle|null => {
         
         
         
+        ensureSymbolPropsUpdated(subStyleValue);   // mutate
+        
         // merge current style to single big style (string props + symbol props):
         mergeLiteral(mergedStyles, subStyleValue); // mutate
         
         // to preserve the order sequence of only_parentSelector
         // we need to unwrap the only_parentSelector before merging with next subStyles
         // by calling `mergeParent()`, the only_parentSelector are unwrapped
-        mergeParent(mergedStyles); // mutate
+        mergeParent(mergedStyles);                 // mutate
     } // for
-    mergeNested(mergedStyles); // mutate
+    mergeNested(mergedStyles);                     // mutate
     
     
     
