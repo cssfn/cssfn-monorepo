@@ -106,7 +106,7 @@ export type CssKnownProps                  = CssKnownStandardProps & CssKnownVen
 //#region cssfn properties
 export type CssProps           = CssCustomProps & CssKnownProps
 
-export type CssRuleData        = readonly [RawCssSelector|FinalCssSelector, CssStyleCollection]
+export type CssRuleData        = readonly [CssRawSelector|CssFinalSelector, CssStyleCollection]
 export type CssRule = { // do not use Record<symbol, CssStyleCollection> => doesn't support circular ref
     [name: symbol] : CssRuleData
 }
@@ -149,6 +149,6 @@ export interface CssSelectorOptions {
     maxSpecificityWeight ?: number|null
 }
 
-export type RawCssSelector        = readonly [CssSelectorCollection, CssSelectorOptions]
-export type FinalCssSelector      = CssSelector & {}
+export type CssRawSelector        = readonly [CssSelectorCollection, CssSelectorOptions]
+export type CssFinalSelector      = CssSelector & {}
 //#endregion cssfn properties
