@@ -138,9 +138,9 @@ const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector
         ...(selectorGroupByRuleType.get(RuleType.AtRule   ) ?? []),
         ...(selectorGroupByRuleType.get(RuleType.PropRule ) ?? []),
     ];
-    for (const otherFinalSelector in additionalSymbolProps) {
+    for (const i in additionalSymbolProps) {
         style[Symbol()] = [
-            otherFinalSelector,
+            additionalSymbolProps[i],
             styles
         ];
     } // for
