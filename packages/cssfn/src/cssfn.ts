@@ -150,7 +150,7 @@ const defaultVariantOptions : CssSelectorOptions = {
 export const variants = (variants: CssRuleCollection, options?: CssSelectorOptions) => rules(variants, normalizeSelectorOptions(options, defaultVariantOptions));
 
 const defaultStateOptions : CssSelectorOptions = {
-    specificityWeight : 3,
+    minSpecificityWeight : 3,
 }
 /**
  * Defines style states.

@@ -1478,3 +1478,58 @@ test(`variants(specific-variants)`, () => {
     );
 });
 //#endregion test variants()
+
+
+
+//#region test states()
+test(`states(simple-states)`, () => {
+    expect(firstSelectorOf(mergeStyles(states([
+        rule(':disabled', {
+            color: 'red',
+        })
+    ]))))
+    .toBe(
+        '&:disabled:disabled:disabled'
+    );
+});
+test(`states(simple-states)`, () => {
+    expect(firstSelectorOf(mergeStyles(states([
+        rule([':disabled', ':active:checked:hover'], {
+            color: 'red',
+        })
+    ]))))
+    .toBe(
+        '&:is(:disabled, :active:checked:hover)'
+    );
+});
+test(`states(specific-states)`, () => {
+    expect(firstSelectorOf(mergeStyles(states([
+        rule(':active:checked:hover:valid', {
+            color: 'red',
+        })
+    ]))))
+    .toBe(
+        '&:active:checked:hover:valid'
+    );
+});
+test(`states(specific-states)`, () => {
+    expect(firstSelectorOf(mergeStyles(states([
+        rule([':active:checked:hover:valid', ':disabled:invalid:first-child'], {
+            color: 'red',
+        })
+    ]))))
+    .toBe(
+        '&:is(:active:checked:hover:valid, :disabled:invalid:first-child)'
+    );
+});
+test(`states(specific-states)`, () => {
+    expect(firstSelectorOf(mergeStyles(states([
+        rule([':disabled', ':active:checked:hover:valid', ':active:checked', ':disabled:invalid:first-child'], {
+            color: 'red',
+        })
+    ]))))
+    .toBe(
+        '&:is(:disabled, :active:checked:hover:valid, :active:checked, :disabled:invalid:first-child)'
+    );
+});
+//#endregion test states()
