@@ -32,7 +32,6 @@ import {
     
     // transforms:
     groupSelectors,
-    groupSelector,
     ungroupSelector,
     
     
@@ -231,12 +230,16 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
             
             
             
+            const eatenSelector: PureSelector = reversedEatenSelector.reverse(); // re-reverse the reversedEatenSelector, so it becomes eatenSelector
+            
+            
+            
             // group the eatenSelector with :where(), so the specificity is zero:
             const [
                 whereSelector,        // grouped selectors inside :where()
                 ...pseudoElmSelectors // ungroupable pseudoElement selectors
-            ] = groupSelector(
-                reversedEatenSelector.reverse(), // re-reverse the reversedEatenSelector, so it becomes eatenSelector
+            ] = groupSelectors(
+                ungroupSelector(eatenSelector),  // if wrapped with :is() or :where() => unwrap
                 { selectorName: 'where' }        // :where
             );
             
@@ -474,7 +477,7 @@ const createSuffixedParentSelectorGroup  = (groupByParentSelectorGroup: PureSele
         createCommonSuffixedParentSelector,
     );
 }
-export const groupSimilarSelectors = (pureSelectorGroup: PureSelector[]): PureSelector[] => {
+export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): PureSelector[] => {
     // we need to unwrap the :is(...) and :where(...) before grouping the similarities
     const normalizedSelectorGroup: PureSelector[] = (
         pureSelectorGroup
