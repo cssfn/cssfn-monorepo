@@ -1467,4 +1467,14 @@ test(`variants(specific-variants)`, () => {
         '&:where(.very.deep.dark.blue, .ultra.reddish.backg):nth-child(n):nth-child(n)'
     );
 });
+test(`variants(specific-variants)`, () => {
+    expect(firstSelectorOf(mergeStyles(variants([
+        rule(['.dark', '.very.deep.dark.blue', '.very.cool', '.ultra.reddish.backg'], {
+            color: 'red',
+        })
+    ]))))
+    .toBe(
+        '&:where(.dark, .very.deep.dark.blue, .very.cool, .ultra.reddish.backg):nth-child(n):nth-child(n)'
+    );
+});
 //#endregion test variants()
