@@ -128,3 +128,267 @@ test(`rules([some-selector])`, () => {
     );
 });
 //#endregion test rules with multi-selectors
+
+
+
+//#region test rules with single-selector + adjust specificity
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('.menu', {
+            color: 'red',
+        })
+    ], { specificityWeight: 5 }))))
+    .toBe(
+        '&.menu.menu.menu.menu.menu'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('.menu', {
+            color: 'red',
+        })
+    ], { specificityWeight: 0 }))))
+    .toBe(
+        '&:where(.menu)'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('.menu', {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 3 }))))
+    .toBe(
+        '&.menu.menu.menu'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('.menu', {
+            color: 'red',
+        })
+    ], { maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&.menu'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('.menu', {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 0, maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&.menu'
+    );
+});
+
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('.menu:first-child', {
+            color: 'red',
+        })
+    ], { specificityWeight: 5 }))))
+    .toBe(
+        '&.menu:first-child:first-child:first-child:first-child'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('.menu:first-child', {
+            color: 'red',
+        })
+    ], { specificityWeight: 0 }))))
+    .toBe(
+        '&:where(.menu:first-child)'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('.menu:first-child', {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 3 }))))
+    .toBe(
+        '&.menu:first-child:first-child'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('.menu:first-child', {
+            color: 'red',
+        })
+    ], { maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&.menu:first-child'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('.menu:first-child', {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 0, maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&.menu:first-child'
+    );
+});
+
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('div:hover', {
+            color: 'red',
+        })
+    ], { specificityWeight: 5 }))))
+    .toBe(
+        '&div:hover:hover:hover:hover:hover'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('div:hover', {
+            color: 'red',
+        })
+    ], { specificityWeight: 0 }))))
+    .toBe(
+        '&div:where(:hover)'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('div:hover', {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 5 }))))
+    .toBe(
+        '&div:hover:hover:hover:hover:hover'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('div:hover', {
+            color: 'red',
+        })
+    ], { maxSpecificityWeight: 5 }))))
+    .toBe(
+        '&div:hover'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('div:hover', {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 0, maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&div:hover'
+    );
+});
+
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('::backdrop:hover', {
+            color: 'red',
+        })
+    ], { specificityWeight: 5 }))))
+    .toBe(
+        '&::backdrop:hover:hover:hover:hover:hover'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('::backdrop:hover', {
+            color: 'red',
+        })
+    ], { specificityWeight: 0 }))))
+    .toBe(
+        '&::backdrop:where(:hover)'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('::backdrop:hover', {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 3 }))))
+    .toBe(
+        '&::backdrop:hover:hover:hover'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('::backdrop:hover', {
+            color: 'red',
+        })
+    ], { maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&::backdrop:hover'
+    );
+});
+test(`rules([single-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule('::backdrop:hover', {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 0, maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&::backdrop:hover'
+    );
+});
+//#endregion test rules with single-selector + adjust specificity
+
+
+
+//#region test rules with multi-selectors + adjust specificity
+test(`rules([some-selector])`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu', '.ads'], {
+            color: 'red',
+        })
+    ], { specificityWeight: 5 }))))
+    .toBe(
+        '&:is(.menu, .ads):nth-child(n):nth-child(n):nth-child(n):nth-child(n)'
+    );
+});
+// test(`rules([some-selector])`, () => {
+//     expect(firstSelectorOf(mergeStyles(rules([
+//         rule(['.menu', '.ads'], {
+//             color: 'red',
+//         })
+//     ], { specificityWeight: 0 }))))
+//     .toBe(
+//         '&:is(:where(.menu), :where(.ads))'
+//     );
+// });
+// test(`rules([some-selector])`, () => {
+//     expect(firstSelectorOf(mergeStyles(rules([
+//         rule(['.menu', '.ads'], {
+//             color: 'red',
+//         })
+//     ], { minSpecificityWeight: 3 }))))
+//     .toBe(
+//         '&:is(.menu.menu.menu, .ads.ads.ads)'
+//     );
+// });
+// test(`rules([some-selector])`, () => {
+//     expect(firstSelectorOf(mergeStyles(rules([
+//         rule(['.menu', '.ads'], {
+//             color: 'red',
+//         })
+//     ], { maxSpecificityWeight: 3 }))))
+//     .toBe(
+//         '&:is(.menu, .ads)'
+//     );
+// });
+// test(`rules([some-selector])`, () => {
+//     expect(firstSelectorOf(mergeStyles(rules([
+//         rule(['.menu', '.ads'], {
+//             color: 'red',
+//         })
+//     ], { minSpecificityWeight: 0, maxSpecificityWeight: 3 }))))
+//     .toBe(
+//         '&:is(.menu, .ads)'
+//     );
+// });
+
+//#endregion test rules with multi-selectors + adjust specificity
