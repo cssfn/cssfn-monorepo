@@ -513,14 +513,6 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
         
         
         
-        // only ParentSelector
-        // &
-        !!onlyParentSelectorGroup.length && (
-            onlyParentSelectorGroup[0] // just take the first one, the rest are guaranteed to be the same
-        ),
-        
-        
-        
         // ParentSelector at beginning
         // &aaa
         // &>aaa
@@ -536,6 +528,14 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
         // :is(aaa, bbb, ccc)&
         // :is(aaa, bbb, ccc)>&
         ...createSuffixedParentSelectorGroup(onlyEndParentSelectorGroup),
+        
+        
+        
+        // only ParentSelector
+        // &
+        !!onlyParentSelectorGroup.length && (
+            onlyParentSelectorGroup[0] // just take the first one, the rest are guaranteed to be the same
+        ),
         
         
         
