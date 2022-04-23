@@ -127,6 +127,28 @@ test(`rules([some-selector])`, () => {
         '&.menu, &::backdrop:hover'
     );
 });
+
+test(`rules([some-selector])`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu.special:valid.things', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ]))))
+    .toBe(
+        '&.menu.special:valid.things, &::backdrop:hover'
+    );
+});
+
+test(`rules([some-selector])`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu:not(.special:valid.things)', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ]))))
+    .toBe(
+        '&.menu:not(.special:valid.things), &::backdrop:hover'
+    );
+});
 //#endregion test rules with multi-selectors
 
 
@@ -592,6 +614,108 @@ test(`rules([some-selector] + adj specificity)`, () => {
     ], { minSpecificityWeight: 0, maxSpecificityWeight: 3 }))))
     .toBe(
         '&.menu, &::backdrop:hover'
+    );
+});
+
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu.special:valid.things', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ], { specificityWeight: 5 }))))
+    .toBe(
+        '&.menu.special:valid.things.things, &::backdrop:hover:hover:hover:hover:hover'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu.special:valid.things', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ], { specificityWeight: 0 }))))
+    .toBe(
+        '&:where(.menu.special:valid.things), &::backdrop:where(:hover)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu.special:valid.things', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 3 }))))
+    .toBe(
+        '&.menu.special:valid.things, &::backdrop:hover:hover:hover'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu.special:valid.things', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ], { maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&::backdrop:hover, &.menu.special:valid:where(.things)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu.special:valid.things', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 0, maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&::backdrop:hover, &.menu.special:valid:where(.things)'
+    );
+});
+
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu:not(.special:valid.things)', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ], { specificityWeight: 5 }))))
+    .toBe(
+        '&.menu:not(.special:valid.things).menu, &::backdrop:hover:hover:hover:hover:hover'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu:not(.special:valid.things)', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ], { specificityWeight: 0 }))))
+    .toBe(
+        '&:where(.menu:not(.special:valid.things)), &::backdrop:where(:hover)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu:not(.special:valid.things)', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 3 }))))
+    .toBe(
+        '&.menu:not(.special:valid.things), &::backdrop:hover:hover:hover'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu:not(.special:valid.things)', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ], { maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&::backdrop:hover, &.menu:where(:not(.special:valid.things)):nth-child(n):nth-child(n)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu:not(.special:valid.things)', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 0, maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&::backdrop:hover, &.menu:where(:not(.special:valid.things)):nth-child(n):nth-child(n)'
     );
 });
 //#endregion test rules with multi-selectors + adjust specificity
