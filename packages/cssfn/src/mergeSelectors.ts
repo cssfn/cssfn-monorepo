@@ -484,8 +484,8 @@ export const groupSimilarSelectors = (pureSelectorGroup: PureSelector[]): PureSe
     
     
     
-    // if selectors less than 2 => nothing to group => return the original:
-    if (normalizedSelectorGroup.length < 2) return pureSelectorGroup;
+    // if selectors less than 2 => nothing to group => return the normalized:
+    if (normalizedSelectorGroup.length < 2) return normalizedSelectorGroup;
     
     
     
