@@ -553,12 +553,13 @@ const defaultCssSelectorOptions : Required<CssSelectorOptions> = {
 }
 export const mergeSelectors = (selectorGroup: SelectorGroup, options: CssSelectorOptions = defaultCssSelectorOptions): SelectorGroup => {
     const {
-        groupSelectors : doGroupSelectors = defaultCssSelectorOptions.groupSelectors,
+        groupSelectors : performGrouping = defaultCssSelectorOptions.groupSelectors,
         
         specificityWeight,
     } = options;
     const minSpecificityWeight = specificityWeight ?? options.minSpecificityWeight ?? null;
     const maxSpecificityWeight = specificityWeight ?? options.maxSpecificityWeight ?? null;
+    const performAdjusting     = (minSpecificityWeight !== null) || (maxSpecificityWeight !== null);
     
     
     
@@ -572,7 +573,6 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: CssSelecto
     
     
     // transform phase 1:
-    const performGrouping  = (doGroupSelectors && (normalizedSelectorGroup.length >= 2));
     const groupedSelectorGroup : PureSelector[] = (
         performGrouping
         ?
@@ -584,7 +584,6 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: CssSelecto
     
     
     // transform phase 2:
-    const performAdjusting = (minSpecificityWeight !== null) || (maxSpecificityWeight !== null);
     const adjustedSelectorGroup: PureSelector[] = (
         performAdjusting
         ?
