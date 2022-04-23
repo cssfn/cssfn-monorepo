@@ -391,4 +391,207 @@ test(`rules([some-selector] + adj specificity)`, () => {
     );
 });
 
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu:first-child', '.ads:hover'], {
+            color: 'red',
+        })
+    ], { specificityWeight: 5 }))))
+    .toBe(
+        '&:is(.menu:first-child, .ads:hover):nth-child(n):nth-child(n):nth-child(n)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu:first-child', '.ads:hover'], {
+            color: 'red',
+        })
+    ], { specificityWeight: 0 }))))
+    .toBe(
+        '&:where(.menu:first-child, .ads:hover)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu:first-child', '.ads:hover'], {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 3 }))))
+    .toBe(
+        '&:is(.menu:first-child, .ads:hover):nth-child(n)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu:first-child', '.ads:hover'], {
+            color: 'red',
+        })
+    ], { maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&:is(.menu:first-child, .ads:hover)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu:first-child', '.ads:hover'], {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 0, maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&:is(.menu:first-child, .ads:hover)'
+    );
+});
+
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['div:first-child', '.ads:hover'], {
+            color: 'red',
+        })
+    ], { specificityWeight: 5 }))))
+    .toBe(
+        '&:is(div:first-child, .ads:hover):nth-child(n):nth-child(n):nth-child(n)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['div:first-child', '.ads:hover'], {
+            color: 'red',
+        })
+    ], { specificityWeight: 0 }))))
+    .toBe(
+        '&:where(div:first-child, .ads:hover)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['div:first-child', '.ads:hover'], {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 3 }))))
+    .toBe(
+        '&:is(div:first-child, .ads:hover):nth-child(n)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['div:first-child', '.ads:hover'], {
+            color: 'red',
+        })
+    ], { maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&:is(div:first-child, .ads:hover)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['div:first-child', '.ads:hover'], {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 0, maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&:is(div:first-child, .ads:hover)'
+    );
+});
+
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu', '::backdrop'], {
+            color: 'red',
+        })
+    ], { specificityWeight: 5 }))))
+    .toBe(
+        '&.menu.menu.menu.menu.menu, &::backdrop:nth-child(n):nth-child(n):nth-child(n):nth-child(n):nth-child(n)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu', '::backdrop'], {
+            color: 'red',
+        })
+    ], { specificityWeight: 0 }))))
+    .toBe(
+        '&::backdrop, &:where(.menu)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu', '::backdrop'], {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 3 }))))
+    .toBe(
+        '&.menu.menu.menu, &::backdrop:nth-child(n):nth-child(n):nth-child(n)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu', '::backdrop'], {
+            color: 'red',
+        })
+    ], { maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&.menu, &::backdrop'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu', '::backdrop'], {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 0, maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&.menu, &::backdrop'
+    );
+});
+
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ], { specificityWeight: 5 }))))
+    .toBe(
+        '&.menu.menu.menu.menu.menu, &::backdrop:hover:hover:hover:hover:hover'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ], { specificityWeight: 0 }))))
+    .toBe(
+        '&:where(.menu), &::backdrop:where(:hover)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 3 }))))
+    .toBe(
+        '&.menu.menu.menu, &::backdrop:hover:hover:hover'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ], { maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&.menu, &::backdrop:hover'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu', '::backdrop:hover'], {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 0, maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&.menu, &::backdrop:hover'
+    );
+});
 //#endregion test rules with multi-selectors + adjust specificity
