@@ -474,47 +474,8 @@ const createSuffixedParentSelectorGroup  = (groupByParentSelectorGroup: PureSele
         createCommonSuffixedParentSelector,
     );
 }
-
-const defaultCssSelectorOptions : Required<CssSelectorOptions> = {
-    groupSelectors       : true,
-    
-    specificityWeight    : null,
-    minSpecificityWeight : null,
-    maxSpecificityWeight : null,
-}
-export const mergeSelectors = (selectorGroup: SelectorGroup, options: CssSelectorOptions = defaultCssSelectorOptions): SelectorGroup => {
-    const {
-        groupSelectors : doGroupSelectors = defaultCssSelectorOptions.groupSelectors,
-        
-        specificityWeight,
-    } = options;
-    const minSpecificityWeight = specificityWeight ?? options.minSpecificityWeight ?? null;
-    const maxSpecificityWeight = specificityWeight ?? options.maxSpecificityWeight ?? null;
-    
-    
-    
-    // remove empty_selector(s) undefined|null|false|true|Selector(...only_emptySelectorEntry...) from selectorGroup,
-    // so we only working with real_selector(s)
-    const pureSelectorGroup: PureSelector[] = (
-        selectorGroup
-        .filter(isNotEmptySelector) // [ Selector...Selector... ]  =>  [ PureSelector...PureSelector... ]
-    );
-    
-    
-    /*
-    DISABLED for handling deep nested :is(:is(:is()))
-    
-    // check for options before performing expensive transformation:
-    if (
-        (!doGroupSelectors || (pureSelectorGroup.length < 2)) // do not perform grouping but still allow to adjust the specificity || only one/no selector => nothing to group
-        &&
-        ((minSpecificityWeight === null) && (maxSpecificityWeight === null)) // no need to adjust the specificity
-    ) return pureSelectorGroup; // no grouping and no adjusting the specificity => nothing to do => returns the simplified original
-    */
-    
-    
-    
-    // we need to unwrap the :is(...) and :where(...) before adjusting the specificity
+export const groupSimilarSelectors = (pureSelectorGroup: PureSelector[]): PureSelector[] => {
+    // we need to unwrap the :is(...) and :where(...) before grouping the similarities
     const normalizedSelectorGroup: PureSelector[] = (
         pureSelectorGroup
         .flatMap((selector) => ungroupSelector(selector)) // SelectorGroup               =>  PureSelectorGroup === Selector[] === [ Selector...Selector... ]
@@ -523,33 +484,13 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: CssSelecto
     
     
     
-    // check for options before performing expensive transformation:
-    if (
-        (!doGroupSelectors || (normalizedSelectorGroup.length < 2)) // do not perform grouping but still allow to adjust the specificity || only one/no selector => nothing to group
-        &&
-        ((minSpecificityWeight === null) && (maxSpecificityWeight === null)) // no need to adjust the specificity
-    ) return normalizedSelectorGroup; // no grouping and no adjusting the specificity => nothing to do => returns the simplified original
-    
-    
-    
-    // transform:
-    const adjustedSelectorGroup: PureSelector[] = adjustSpecificityWeight(
-        normalizedSelectorGroup
-        ,
-        minSpecificityWeight,
-        maxSpecificityWeight
-    );
-    
-    
-    
-    if (
-        (!doGroupSelectors || (adjustedSelectorGroup.length < 2)) // do not perform grouping || only one/no selector => nothing to group
-    ) return adjustedSelectorGroup; // no grouping => nothing to do => returns the adjusted specificity
+    // if selectors less than 2 => nothing to group => return the original:
+    if (normalizedSelectorGroup.length < 2) return pureSelectorGroup;
     
     
     
     // group selectors by parent position:
-    const selectorGroupByParentPosition = adjustedSelectorGroup.reduce(
+    const selectorGroupByParentPosition = normalizedSelectorGroup.reduce(
         groupByParentPosition,
         new Map<ParentPosition, PureSelector[]>()
     );
@@ -562,7 +503,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: CssSelecto
     
     
     
-    const mergedSelectors = createSelectorGroup(
+    return createSelectorGroup(
         // no parent
         // aaa, bbb, ccc
         ...createNoParentSelectorGroup(noParentSelectorGroup),
@@ -598,9 +539,66 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options: CssSelecto
         // parent at random
         // aaa&bbb, aaa&bbb&ccc
         ...randomParentSelectorGroup,
+    ).filter(isNotEmptySelector);
+}
+
+
+
+const defaultCssSelectorOptions : Required<CssSelectorOptions> = {
+    groupSelectors       : true,
+    
+    specificityWeight    : null,
+    minSpecificityWeight : null,
+    maxSpecificityWeight : null,
+}
+export const mergeSelectors = (selectorGroup: SelectorGroup, options: CssSelectorOptions = defaultCssSelectorOptions): SelectorGroup => {
+    const {
+        groupSelectors : doGroupSelectors = defaultCssSelectorOptions.groupSelectors,
+        
+        specificityWeight,
+    } = options;
+    const minSpecificityWeight = specificityWeight ?? options.minSpecificityWeight ?? null;
+    const maxSpecificityWeight = specificityWeight ?? options.maxSpecificityWeight ?? null;
+    
+    
+    
+    // remove empty_selector(s) undefined|null|false|true|Selector(...only_emptySelectorEntry...) from selectorGroup,
+    // so we only working with real_selector(s)
+    const normalizedSelectorGroup: PureSelector[] = (
+        selectorGroup
+        .filter(isNotEmptySelector) // [ Selector...Selector... ]  =>  [ PureSelector...PureSelector... ]
     );
     
     
     
-    return mergedSelectors;
+    // transform phase 1:
+    const performGrouping  = (doGroupSelectors && (normalizedSelectorGroup.length >= 2));
+    const groupedSelectorGroup : PureSelector[] = (
+        performGrouping
+        ?
+        groupSimilarSelectors(normalizedSelectorGroup)
+        :
+        normalizedSelectorGroup
+    );
+    
+    
+    
+    // transform phase 2:
+    const performAdjusting = (minSpecificityWeight !== null) || (maxSpecificityWeight !== null);
+    const adjustedSelectorGroup: PureSelector[] = (
+        performAdjusting
+        ?
+        adjustSpecificityWeight(
+            groupedSelectorGroup
+            ,
+            minSpecificityWeight,
+            maxSpecificityWeight
+        )
+        :
+        groupedSelectorGroup
+    );
+    
+    
+    
+    return adjustedSelectorGroup;
 }
