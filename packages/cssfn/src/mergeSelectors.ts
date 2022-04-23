@@ -547,22 +547,47 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
 
 
 
-const defaultCssSelectorOptions : Required<CssSelectorOptions> = {
+export const normalizeSelectorOptions = (options: CssSelectorOptions|undefined, defaultOptions: Required<CssSelectorOptions>): Required<CssSelectorOptions> => {
+    const performGrouping      = options?.performGrouping ?? defaultOptions.performGrouping;
+    
+    const specificityWeight    =                      ((options?.specificityWeight    !== undefined) ? options.specificityWeight    : defaultOptions.specificityWeight   );
+    const minSpecificityWeight = specificityWeight ?? ((options?.minSpecificityWeight !== undefined) ? options.minSpecificityWeight : defaultOptions.minSpecificityWeight);
+    const maxSpecificityWeight = specificityWeight ?? ((options?.maxSpecificityWeight !== undefined) ? options.maxSpecificityWeight : defaultOptions.maxSpecificityWeight);
+    
+    if ((minSpecificityWeight !== null) && (maxSpecificityWeight !== null) && (minSpecificityWeight > maxSpecificityWeight)) { // invalid
+        return {
+            performGrouping,
+            
+            specificityWeight,
+            minSpecificityWeight : null, // invalid => set to null
+            maxSpecificityWeight : null, // invalid => set to null
+        };
+    } // if
+    
+    return {
+        performGrouping,
+        
+        specificityWeight,
+        minSpecificityWeight,
+        maxSpecificityWeight,
+    };
+}
+const defaultSelectorOptions : Required<CssSelectorOptions> = {
     performGrouping      : true,
     
     specificityWeight    : null,
     minSpecificityWeight : null,
     maxSpecificityWeight : null,
 }
-export const mergeSelectors = (selectorGroup: SelectorGroup, options: CssSelectorOptions = defaultCssSelectorOptions): SelectorGroup => {
+export const mergeSelectors = (selectorGroup: SelectorGroup, options?: CssSelectorOptions): SelectorGroup => {
     const {
-        performGrouping = defaultCssSelectorOptions.performGrouping,
+        performGrouping,
         
-        specificityWeight,
-    } = options;
-    const minSpecificityWeight = specificityWeight ?? options.minSpecificityWeight ?? null;
-    const maxSpecificityWeight = specificityWeight ?? options.maxSpecificityWeight ?? null;
-    const performAdjusting     = (minSpecificityWeight !== null) || (maxSpecificityWeight !== null);
+        minSpecificityWeight,
+        maxSpecificityWeight,
+    } = normalizeSelectorOptions(options, defaultSelectorOptions);
+    
+    const performAdjusting = (minSpecificityWeight !== null) || (maxSpecificityWeight !== null);
     
     
     
