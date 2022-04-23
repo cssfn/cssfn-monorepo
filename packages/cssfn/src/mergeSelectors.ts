@@ -548,7 +548,7 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
 
 
 const defaultCssSelectorOptions : Required<CssSelectorOptions> = {
-    groupSelectors       : true,
+    performGrouping      : true,
     
     specificityWeight    : null,
     minSpecificityWeight : null,
@@ -556,7 +556,7 @@ const defaultCssSelectorOptions : Required<CssSelectorOptions> = {
 }
 export const mergeSelectors = (selectorGroup: SelectorGroup, options: CssSelectorOptions = defaultCssSelectorOptions): SelectorGroup => {
     const {
-        groupSelectors : performGrouping = defaultCssSelectorOptions.groupSelectors,
+        performGrouping = defaultCssSelectorOptions.performGrouping,
         
         specificityWeight,
     } = options;

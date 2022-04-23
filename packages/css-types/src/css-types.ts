@@ -142,7 +142,7 @@ export type CssSelector           = (string & {})
 export type CssSelectorCollection = SingleOrDeepArray<OptionalOrBoolean<CssSelector>>
 
 export interface CssSelectorOptions {
-    groupSelectors       ?: boolean
+    performGrouping      ?: boolean
     
     specificityWeight    ?: number|null
     minSpecificityWeight ?: number|null

@@ -64,7 +64,6 @@ export const globalScope = (...rules :  CssRuleCollection[]) => scopeOf(''     ,
 
 
 // rules:
-
 /**
  * Defines a conditional style(s) that is applied when the specified `selectors` meets the conditions.
  * @returns A `CssRule` represents a conditional style(s).
@@ -75,6 +74,8 @@ export const rule = (selectors: CssSelectorCollection, styles: CssStyleCollectio
         styles
     ],
 });
+
+
 
 // rule groups:
 const overwriteSelectorOptions = (selector: CssRawSelector|CssFinalSelector, options: CssSelectorOptions): CssRawSelector => {
@@ -90,7 +91,7 @@ const overwriteSelectorOptions = (selector: CssRawSelector|CssFinalSelector, opt
     // extract raw selector:
     const [selectors, oldOptions] = selector;
     
-    const groupSelectors       =                      options.groupSelectors       ?? oldOptions?.groupSelectors;
+    const performGrouping      =                      options.performGrouping      ?? oldOptions?.performGrouping;
     const specificityWeight    =                      options.specificityWeight    ?? oldOptions?.specificityWeight;
     const minSpecificityWeight = specificityWeight ?? options.minSpecificityWeight ?? oldOptions?.minSpecificityWeight;
     const maxSpecificityWeight = specificityWeight ?? options.maxSpecificityWeight ?? oldOptions?.maxSpecificityWeight;
@@ -98,7 +99,7 @@ const overwriteSelectorOptions = (selector: CssRawSelector|CssFinalSelector, opt
     return [
         selectors,
         {
-            groupSelectors,
+            performGrouping,
             
             specificityWeight,
             minSpecificityWeight,
@@ -128,7 +129,6 @@ export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptio
                 const [selector, styles] = rule[symbolProp];
                 const rawSelector : CssRawSelector = overwriteSelectorOptions(selector, options);
                 const ruleData    : CssRuleData    = [rawSelector, styles];
-                
                 
                 return [
                     symbolProp,
