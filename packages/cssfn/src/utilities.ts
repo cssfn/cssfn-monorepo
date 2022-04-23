@@ -4,6 +4,8 @@ import type {
     SingleOrDeepArray,
 }                           from '@cssfn/types'
 import type {
+    CssSelectorOptions,
+    
     CssRawSelector,
     CssFinalSelector,
 }                           from '@cssfn/css-types'
@@ -47,3 +49,35 @@ export const fastHash = (input: string) => {
 };
 
 export const isFinalSelector = (selector: CssRawSelector|CssFinalSelector): selector is CssFinalSelector => (typeof(selector) === 'string');
+
+export const normalizeSelectorOptions = <TDefaultOptions extends CssSelectorOptions>(options: CssSelectorOptions|undefined, defaultOptions: TDefaultOptions): TDefaultOptions => {
+    const performGrouping      = options?.performGrouping ?? defaultOptions.performGrouping;
+    
+    const specificityWeight    =                      ((options?.specificityWeight    !== undefined) ? options.specificityWeight    : defaultOptions.specificityWeight   );
+    const minSpecificityWeight = specificityWeight ?? ((options?.minSpecificityWeight !== undefined) ? options.minSpecificityWeight : defaultOptions.minSpecificityWeight);
+    const maxSpecificityWeight = specificityWeight ?? ((options?.maxSpecificityWeight !== undefined) ? options.maxSpecificityWeight : defaultOptions.maxSpecificityWeight);
+    
+    if (
+        ((minSpecificityWeight !== undefined) && (minSpecificityWeight !== null))
+        &&
+        ((maxSpecificityWeight !== undefined) && (maxSpecificityWeight !== null))
+        &&
+        (minSpecificityWeight > maxSpecificityWeight)
+    ) { // invalid
+        return {
+            performGrouping,
+            
+            specificityWeight,
+            minSpecificityWeight : null, // invalid => set to null
+            maxSpecificityWeight : null, // invalid => set to null
+        } as TDefaultOptions;
+    } // if
+    
+    return {
+        performGrouping,
+        
+        specificityWeight,
+        minSpecificityWeight,
+        maxSpecificityWeight,
+    } as TDefaultOptions;
+}

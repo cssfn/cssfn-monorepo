@@ -33,6 +33,7 @@ import type {
 import {
     flat,
     isFinalSelector,
+    normalizeSelectorOptions,
 }                           from './utilities'
 export {
     StyleSheet,
@@ -138,3 +139,21 @@ export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptio
         ))
     );
 };
+
+const defaultVariantOptions : CssSelectorOptions = {
+    maxSpecificityWeight : 2,
+}
+/**
+ * Defines style variants.
+ * @returns A `CssRule` represents a style variants.
+ */
+export const variants = (variants: CssRuleCollection, options?: CssSelectorOptions) => rules(variants, normalizeSelectorOptions(options, defaultVariantOptions));
+
+const defaultStateOptions : CssSelectorOptions = {
+    specificityWeight : 3,
+}
+/**
+ * Defines style states.
+ * @returns A `CssRule` represents a style states.
+ */
+export const states   = (states  : CssRuleCollection, options?: CssSelectorOptions) => rules(states  , normalizeSelectorOptions(options, defaultStateOptions  ));

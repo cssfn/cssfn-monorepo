@@ -40,6 +40,11 @@ import {
     calculateSpecificity,
 }                           from '@cssfn/css-selectors'
 
+// internals:
+import {
+    normalizeSelectorOptions,
+}                           from './utilities'
+
 
 
 // processors:
@@ -547,31 +552,6 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
 
 
 
-export const normalizeSelectorOptions = (options: CssSelectorOptions|undefined, defaultOptions: Required<CssSelectorOptions>): Required<CssSelectorOptions> => {
-    const performGrouping      = options?.performGrouping ?? defaultOptions.performGrouping;
-    
-    const specificityWeight    =                      ((options?.specificityWeight    !== undefined) ? options.specificityWeight    : defaultOptions.specificityWeight   );
-    const minSpecificityWeight = specificityWeight ?? ((options?.minSpecificityWeight !== undefined) ? options.minSpecificityWeight : defaultOptions.minSpecificityWeight);
-    const maxSpecificityWeight = specificityWeight ?? ((options?.maxSpecificityWeight !== undefined) ? options.maxSpecificityWeight : defaultOptions.maxSpecificityWeight);
-    
-    if ((minSpecificityWeight !== null) && (maxSpecificityWeight !== null) && (minSpecificityWeight > maxSpecificityWeight)) { // invalid
-        return {
-            performGrouping,
-            
-            specificityWeight,
-            minSpecificityWeight : null, // invalid => set to null
-            maxSpecificityWeight : null, // invalid => set to null
-        };
-    } // if
-    
-    return {
-        performGrouping,
-        
-        specificityWeight,
-        minSpecificityWeight,
-        maxSpecificityWeight,
-    };
-}
 const defaultSelectorOptions : Required<CssSelectorOptions> = {
     performGrouping      : true,
     
