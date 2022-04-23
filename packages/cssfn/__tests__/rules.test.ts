@@ -340,7 +340,7 @@ test(`rules([single-selector] + adj specificity)`, () => {
 
 
 //#region test rules with multi-selectors + adjust specificity
-test(`rules([some-selector])`, () => {
+test(`rules([some-selector] + adj specificity)`, () => {
     expect(firstSelectorOf(mergeStyles(rules([
         rule(['.menu', '.ads'], {
             color: 'red',
@@ -350,45 +350,45 @@ test(`rules([some-selector])`, () => {
         '&:is(.menu, .ads):nth-child(n):nth-child(n):nth-child(n):nth-child(n)'
     );
 });
-// test(`rules([some-selector])`, () => {
-//     expect(firstSelectorOf(mergeStyles(rules([
-//         rule(['.menu', '.ads'], {
-//             color: 'red',
-//         })
-//     ], { specificityWeight: 0 }))))
-//     .toBe(
-//         '&:is(:where(.menu), :where(.ads))'
-//     );
-// });
-// test(`rules([some-selector])`, () => {
-//     expect(firstSelectorOf(mergeStyles(rules([
-//         rule(['.menu', '.ads'], {
-//             color: 'red',
-//         })
-//     ], { minSpecificityWeight: 3 }))))
-//     .toBe(
-//         '&:is(.menu.menu.menu, .ads.ads.ads)'
-//     );
-// });
-// test(`rules([some-selector])`, () => {
-//     expect(firstSelectorOf(mergeStyles(rules([
-//         rule(['.menu', '.ads'], {
-//             color: 'red',
-//         })
-//     ], { maxSpecificityWeight: 3 }))))
-//     .toBe(
-//         '&:is(.menu, .ads)'
-//     );
-// });
-// test(`rules([some-selector])`, () => {
-//     expect(firstSelectorOf(mergeStyles(rules([
-//         rule(['.menu', '.ads'], {
-//             color: 'red',
-//         })
-//     ], { minSpecificityWeight: 0, maxSpecificityWeight: 3 }))))
-//     .toBe(
-//         '&:is(.menu, .ads)'
-//     );
-// });
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu', '.ads'], {
+            color: 'red',
+        })
+    ], { specificityWeight: 0 }))))
+    .toBe(
+        '&:where(.menu, .ads)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu', '.ads'], {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 3 }))))
+    .toBe(
+        '&:is(.menu, .ads):nth-child(n):nth-child(n)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu', '.ads'], {
+            color: 'red',
+        })
+    ], { maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&:is(.menu, .ads)'
+    );
+});
+test(`rules([some-selector] + adj specificity)`, () => {
+    expect(firstSelectorOf(mergeStyles(rules([
+        rule(['.menu', '.ads'], {
+            color: 'red',
+        })
+    ], { minSpecificityWeight: 0, maxSpecificityWeight: 3 }))))
+    .toBe(
+        '&:is(.menu, .ads)'
+    );
+});
 
 //#endregion test rules with multi-selectors + adjust specificity
