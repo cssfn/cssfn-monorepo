@@ -7,6 +7,8 @@ import {
 import {
     rule,
     rules,
+    variants,
+    states,
 } from '../src/cssfn'
 import {
     isFinalSelector,
@@ -1421,3 +1423,48 @@ test(`rules([some-selector] + adj specificity)`, () => {
 });
 //#endregion test rules with multi-selectors + adjust specificity
 //#endregion test rules()
+
+
+
+//#region test variants()
+test(`variants(simple-variants)`, () => {
+    expect(firstSelectorOf(mergeStyles(variants([
+        rule('.dark', {
+            color: 'red',
+        })
+    ]))))
+    .toBe(
+        '&.dark'
+    );
+});
+test(`variants(simple-variants)`, () => {
+    expect(firstSelectorOf(mergeStyles(variants([
+        rule(['.dark', '.very.cool'], {
+            color: 'red',
+        })
+    ]))))
+    .toBe(
+        '&:is(.dark, .very.cool)'
+    );
+});
+test(`variants(specific-variants)`, () => {
+    expect(firstSelectorOf(mergeStyles(variants([
+        rule('.very.deep.dark.blue', {
+            color: 'red',
+        })
+    ]))))
+    .toBe(
+        '&.very.deep:where(.dark.blue)'
+    );
+});
+test(`variants(specific-variants)`, () => {
+    expect(firstSelectorOf(mergeStyles(variants([
+        rule(['.very.deep.dark.blue', '.ultra.reddish.backg'], {
+            color: 'red',
+        })
+    ]))))
+    .toBe(
+        '&:where(.very.deep.dark.blue, .ultra.reddish.backg):nth-child(n):nth-child(n)'
+    );
+});
+//#endregion test variants()
