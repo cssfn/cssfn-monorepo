@@ -90,7 +90,9 @@ export type CssKnownPropsOf<TName extends CssKnownName, multiValue extends boole
 //#region css special properties
 export type CssLonghandFontFaceProps =
     // required props:
-    & Required<CssKnownPropsOf<'fontFamily', true>>
+    // forced to optional because it may spreaded in partial style(s)
+    // & Required<CssKnownPropsOf<'fontFamily', true>>
+    & CssKnownPropsOf<'fontFamily', true>
     
     // longhand single-value props:
     & CssKnownPropsOf<
