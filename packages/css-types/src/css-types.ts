@@ -115,7 +115,7 @@ export type CssRuleCollection  = ProductOrFactoryOrDeepArray<OptionalOrBoolean<C
 export type CssStyle           = CssProps & CssRule
 export type CssStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssStyle>>
 
-export type CssKeyframes       = Dictionary<CssStyle>
+export type CssKeyframes       = Dictionary<CssStyleCollection>
 
 
 
