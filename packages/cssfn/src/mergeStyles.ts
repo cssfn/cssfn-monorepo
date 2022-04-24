@@ -80,9 +80,9 @@ const groupByRuleType = (accum: Map<RuleType, CssSelector[]>, selector: CssSelec
 }
 
 const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector|null => {
-    const symbolPropValue    = style[symbolProp]; // get existing prop (if any)
-    if (symbolPropValue === undefined) return null;
-    const [selector, styles] = symbolPropValue;
+    const ruleData = style[symbolProp]; // get existing prop (if any)
+    if (ruleData === undefined) return null;
+    const [selector, styles] = ruleData;
     if (isFinalSelector(selector)) return selector;
     
     
@@ -133,10 +133,10 @@ const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector
     
     
     
-    // CssFinalSelector of AtRule|PropRule === `@media`|`from`|`to`|`25%`:
+    // CssFinalSelector of AtRule|PropRule:
     const additionalSymbolProps : CssFinalSelector[] = [ // take all rules except SelectorRule(s):
-        ...(selectorGroupByRuleType.get(RuleType.AtRule   ) ?? []),
-        ...(selectorGroupByRuleType.get(RuleType.PropRule ) ?? []),
+        ...(selectorGroupByRuleType.get(RuleType.AtRule   ) ?? []), // eg: @keyframes
+        ...(selectorGroupByRuleType.get(RuleType.PropRule ) ?? []), // eg: from, to, 25%
     ];
     for (const i in additionalSymbolProps) {
         style[Symbol()] = [
