@@ -86,22 +86,9 @@ export type CssKnownValueOf
 export type CssKnownPropsOf<TName extends CssKnownName, multiValue extends boolean = false> = {
     [name in TName] ?: multiValue extends false ? CssComplexSingleValueOf<CssKnownValueOf<name>> : CssComplexValueOf<CssKnownValueOf<name>>
 }
-export type CssKnownStandardLonghandProps  = CssKnownPropsOf<keyof StandardLonghandProperties, true>  // some_props like boxShadow, filter are comma/space separated values
-export type CssKnownStandardShorthandProps = CssKnownPropsOf<keyof StandardShorthandProperties, true> // all_props are comma/space separated values
-export type CssKnownStandardProps          = CssKnownStandardLonghandProps & CssKnownStandardShorthandProps
-
-export type CssKnownVendorLonghandProps    = CssKnownPropsOf<keyof VendorLonghandProperties, true>  // some_props are comma/space separated values
-export type CssKnownVendorShorthandProps   = CssKnownPropsOf<keyof VendorShorthandProperties, true> // all_props  are comma/space separated values
-export type CssKnownVendorProps            = CssKnownVendorLonghandProps & CssKnownVendorShorthandProps
-
-export type CssKnownObsoleteProps          = CssKnownPropsOf<keyof ObsoleteProperties>
-
-export type CssKnownSvgProps               = CssKnownPropsOf<keyof SvgProperties>
-
-
 
 //#region css special properties
-export type CssFontFaceProps =
+export type CssLonghandFontFaceProps =
     // required props:
     & Required<CssKnownPropsOf<'fontFamily', true>>
     
@@ -128,14 +115,9 @@ export type CssFontFaceProps =
         | 'fontSizeAdjust'
     , true>
     
-    // shorthand props:
-    & CssKnownPropsOf<
-        | 'fontVariant'
-    , true>
-    
     & {
         // additional required props:
-        src              : CssComplexValueOf<CssSimpleLiteralValue|`url(${string})`>
+        src             ?: CssComplexValueOf<CssSimpleLiteralValue|`url(${string})`>
         
         
         
@@ -146,11 +128,33 @@ export type CssFontFaceProps =
         descentOverride ?: CssComplexSingleValueOf<CssSimpleLiteralValue|'normal'>
         lineGapOverride ?: CssComplexSingleValueOf<CssSimpleLiteralValue|'normal'>
     }
+export type CssShorthandFontFaceProps = CssKnownPropsOf<'fontVariant', true>
+export type CssFontFaceProps =
+    & CssLonghandFontFaceProps
+    & CssShorthandFontFaceProps
 //#endregion css special properties
 
+export type CssKnownStandardLonghandProps  =
+    & Omit<CssKnownPropsOf<keyof StandardLonghandProperties , true>, keyof CssLonghandFontFaceProps>
+    & Partial<CssLonghandFontFaceProps>  // some_props like boxShadow, filter are comma/space separated values
+export type CssKnownStandardShorthandProps =
+    & Omit<CssKnownPropsOf<keyof StandardShorthandProperties, true>, keyof CssShorthandFontFaceProps>
+    & Partial<CssShorthandFontFaceProps> // all_props are comma/space separated values
+export type CssKnownStandardProps          = CssKnownStandardLonghandProps & CssKnownStandardShorthandProps
 
+export type CssKnownVendorLonghandProps    = CssKnownPropsOf<keyof VendorLonghandProperties, true>  // some_props are comma/space separated values
+export type CssKnownVendorShorthandProps   = CssKnownPropsOf<keyof VendorShorthandProperties, true> // all_props  are comma/space separated values
+export type CssKnownVendorProps            = CssKnownVendorLonghandProps & CssKnownVendorShorthandProps
 
-export type CssKnownProps                  = CssKnownStandardProps & CssKnownVendorProps & CssKnownObsoleteProps & CssKnownSvgProps & Omit<CssFontFaceProps, 'src'>
+export type CssKnownObsoleteProps          = CssKnownPropsOf<keyof ObsoleteProperties>
+
+export type CssKnownSvgProps               = CssKnownPropsOf<keyof SvgProperties>
+
+export type CssKnownProps =
+    & CssKnownStandardProps
+    & CssKnownVendorProps
+    & CssKnownObsoleteProps
+    & CssKnownSvgProps
 //#endregion css known (standard) properties
 
 
