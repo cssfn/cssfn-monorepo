@@ -13,6 +13,7 @@ import type {
     
     CssStyle,
     CssStyleCollection,
+    CssFontFaceStyleCollection,
     
     CssKeyframes,
     
@@ -178,17 +179,17 @@ export const keyframes         = (name: string, items: CssKeyframes) => atRule(`
 
 
 // rule shortcuts:
-export const noRule            = (...styles: CssStyleCollection[]) => rule('&'                  , styles);
-export const emptyRule         = ()                                => rule(null                 , null  );
-export const fallbacks         = (...styles: CssStyleCollection[]) => rule('@fallbacks'         , styles);
-export const fontFace          = (...styles: CssStyleCollection[]) => rule('@font-face'         , styles);
-export const atGlobal          = (...rules :  CssRuleCollection[]) => rule('@global'            , rules );
+export const noRule            = (...styles:         CssStyleCollection[]) => rule('&'                  , styles);
+export const emptyRule         = ()                                        => rule(null                 , null  );
+export const fallbacks         = (...styles:         CssStyleCollection[]) => atRule('@fallbacks'       , styles);
+export const fontFace          = (...styles: CssFontFaceStyleCollection[]) => atRule('@font-face'       , styles);
+export const atGlobal          = (...rules :          CssRuleCollection[]) => atRule('@global'          , rules );
 
-export const atRoot            = (...styles: CssStyleCollection[]) => rule(':root'              , styles);
-export const isFirstChild      = (...styles: CssStyleCollection[]) => rule(     ':first-child'  , styles);
-export const isNotFirstChild   = (...styles: CssStyleCollection[]) => rule(':not(:first-child)' , styles);
-export const isLastChild       = (...styles: CssStyleCollection[]) => rule(     ':last-child'   , styles);
-export const isNotLastChild    = (...styles: CssStyleCollection[]) => rule(':not(:last-child)'  , styles);
+export const atRoot            = (...styles:         CssStyleCollection[]) => rule(':root'              , styles);
+export const isFirstChild      = (...styles:         CssStyleCollection[]) => rule(     ':first-child'  , styles);
+export const isNotFirstChild   = (...styles:         CssStyleCollection[]) => rule(':not(:first-child)' , styles);
+export const isLastChild       = (...styles:         CssStyleCollection[]) => rule(     ':last-child'   , styles);
+export const isNotLastChild    = (...styles:         CssStyleCollection[]) => rule(':not(:last-child)'  , styles);
 export const isNthChild        = (step: number, offset: number, ...styles: CssStyleCollection[]): CssRule => {
     if (step === 0) { // no step
         if (offset === 0) return emptyRule();                           // 0th => never => return empty rule
@@ -265,13 +266,13 @@ export const isNotNthLastChild = (step: number, offset: number, ...styles: CssSt
         return rule(`:not(:nth-last-child(${step}n+${offset}))`, styles);
     } // if
 };
-export const isActive          = (...styles: CssStyleCollection[]) => rule(     ':active'        , styles);
-export const isNotActive       = (...styles: CssStyleCollection[]) => rule(':not(:active)'       , styles);
-export const isFocus           = (...styles: CssStyleCollection[]) => rule(     ':focus'         , styles);
-export const isNotFocus        = (...styles: CssStyleCollection[]) => rule(':not(:focus)'        , styles);
-export const isFocusVisible    = (...styles: CssStyleCollection[]) => rule(     ':focus-visible' , styles);
-export const isNotFocusVisible = (...styles: CssStyleCollection[]) => rule(':not(:focus-visible)', styles);
-export const isHover           = (...styles: CssStyleCollection[]) => rule(     ':hover'         , styles);
-export const isNotHover        = (...styles: CssStyleCollection[]) => rule(':not(:hover)'        , styles);
-export const isEmpty           = (...styles: CssStyleCollection[]) => rule(     ':empty'         , styles);
-export const isNotEmpty        = (...styles: CssStyleCollection[]) => rule(':not(:empty)'        , styles);
+export const isActive          = (...styles:         CssStyleCollection[]) => rule(     ':active'        , styles);
+export const isNotActive       = (...styles:         CssStyleCollection[]) => rule(':not(:active)'       , styles);
+export const isFocus           = (...styles:         CssStyleCollection[]) => rule(     ':focus'         , styles);
+export const isNotFocus        = (...styles:         CssStyleCollection[]) => rule(':not(:focus)'        , styles);
+export const isFocusVisible    = (...styles:         CssStyleCollection[]) => rule(     ':focus-visible' , styles);
+export const isNotFocusVisible = (...styles:         CssStyleCollection[]) => rule(':not(:focus-visible)', styles);
+export const isHover           = (...styles:         CssStyleCollection[]) => rule(     ':hover'         , styles);
+export const isNotHover        = (...styles:         CssStyleCollection[]) => rule(':not(:hover)'        , styles);
+export const isEmpty           = (...styles:         CssStyleCollection[]) => rule(     ':empty'         , styles);
+export const isNotEmpty        = (...styles:         CssStyleCollection[]) => rule(':not(:empty)'        , styles);

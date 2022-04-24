@@ -15,6 +15,8 @@ import {
     
     noRule,
     emptyRule,
+    fallbacks,
+    fontFace,
 } from '../src/cssfn'
 import {
     isFinalSelector,
@@ -1704,5 +1706,26 @@ test(`emptyRule()`, () => {
     .toExactEqual({
         background: 'pink',
     });
+});
+test(`fallbacks()`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        fallbacks({
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '@fallbacks'
+    );
+});
+test(`fontFace()`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        fontFace({
+            fontFamily: 'Open Sans',
+            src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")',
+        })
+    )))
+    .toBe(
+        '@font-face'
+    );
 });
 //endregion rule shortcuts
