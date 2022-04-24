@@ -135,14 +135,14 @@ const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector
     
     
     // CssFinalSelector of AtRule|PropRule:
-    const additionalSymbolProps : CssFinalSelector[] = [ // take all rules except SelectorRule(s):
+    const additionalFinalProps : CssFinalSelector[] = [ // take all rules except SelectorRule(s):
         ...(selectorGroupByRuleType.get(RuleType.AtRule   ) ?? []), // eg: @keyframes, @font-face (unmergeable nested @rule)
         ...(selectorGroupByRuleType.get(RuleType.PropRule ) ?? []), // eg: from, to, 25% (special properties of @keyframes rule)
     ];
-    for (const additionalSymbolProp of additionalSymbolProps) {
+    for (const additionalFinalProp of additionalFinalProps) {
         style[Symbol()] = [
-            additionalSymbolProp,
-            styles // still the same styles
+            additionalFinalProp, // update CssRawSelector to CssFinalSelector
+            styles               // still the same styles
         ];
     } // for
     //#endregion update (mutate) styles
