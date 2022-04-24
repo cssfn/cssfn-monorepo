@@ -145,13 +145,13 @@ export type CssKnownStandardShorthandProps =
     & Partial<CssShorthandFontFaceProps> // all_props are comma/space separated values
 export type CssKnownStandardProps          = CssKnownStandardLonghandProps & CssKnownStandardShorthandProps
 
-export type CssKnownVendorLonghandProps    = CssKnownPropsOf<keyof VendorLonghandProperties, true>  // some_props are comma/space separated values
+export type CssKnownVendorLonghandProps    = CssKnownPropsOf<keyof VendorLonghandProperties , true> // some_props are comma/space separated values
 export type CssKnownVendorShorthandProps   = CssKnownPropsOf<keyof VendorShorthandProperties, true> // all_props  are comma/space separated values
 export type CssKnownVendorProps            = CssKnownVendorLonghandProps & CssKnownVendorShorthandProps
 
-export type CssKnownObsoleteProps          = CssKnownPropsOf<keyof ObsoleteProperties>
+export type CssKnownObsoleteProps          = CssKnownPropsOf<keyof ObsoleteProperties, true>
 
-export type CssKnownSvgProps               = Omit<CssKnownPropsOf<keyof SvgProperties>, keyof CssFontFaceProps> & CssFontFaceProps
+export type CssKnownSvgProps               = Omit<CssKnownPropsOf<keyof SvgProperties, true>, keyof CssFontFaceProps> & CssFontFaceProps
 
 export type CssKnownProps =
     & CssKnownStandardProps
