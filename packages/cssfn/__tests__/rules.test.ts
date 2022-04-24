@@ -1,5 +1,7 @@
 import type {
+    CssRule,
     CssStyle,
+    CssStyleCollection,
 } from '@cssfn/css-types'
 import {
     mergeStyles,
@@ -17,6 +19,26 @@ import {
     emptyRule,
     fallbacks,
     fontFace,
+    atGlobal,
+    atRoot,
+    isFirstChild,
+    isNotFirstChild,
+    isLastChild,
+    isNotLastChild,
+    isNthChild,
+    isNotNthChild,
+    isNthLastChild,
+    isNotNthLastChild,
+    isActive,
+    isNotActive,
+    isFocus,
+    isNotFocus,
+    isFocusVisible,
+    isNotFocusVisible,
+    isHover,
+    isNotHover,
+    isEmpty,
+    isNotEmpty,
 } from '../src/cssfn'
 import {
     isFinalSelector,
@@ -1681,7 +1703,7 @@ test(`keyframes()`, () => {
         width      : '300px',
     });
 });
-//endregion keyframes
+//#endregion keyframes
 
 
 
@@ -1698,6 +1720,7 @@ test(`noRule()`, () => {
         color: 'red',
     });
 });
+
 test(`emptyRule()`, () => {
     expect(mergeStyles({
         background: 'pink',
@@ -1707,6 +1730,7 @@ test(`emptyRule()`, () => {
         background: 'pink',
     });
 });
+
 test(`fallbacks()`, () => {
     expect(firstSelectorOf(mergeStyles(
         fallbacks({
@@ -1717,15 +1741,165 @@ test(`fallbacks()`, () => {
         '@fallbacks'
     );
 });
+test(`fallbacks()`, () => {
+    expect(firstStylesOf(mergeStyles(
+        fallbacks([
+            {
+                background: 'pink',
+                color: 'red',
+            },
+            {
+                opacity: 0.5,
+                visibility: 'visible',
+            },
+            {
+                display: 'flex',
+                flexDirection: 'column',
+            },
+        ])
+    )))
+    .toExactEqual({
+        background: 'pink',
+        color: 'red',
+        opacity: 0.5,
+        visibility: 'visible',
+        display: 'flex',
+        flexDirection: 'column',
+    });
+});
+
 test(`fontFace()`, () => {
     expect(firstSelectorOf(mergeStyles(
         fontFace({
             fontFamily: 'Open Sans',
             src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")',
-        })
+        }),
     )))
     .toBe(
         '@font-face'
     );
 });
-//endregion rule shortcuts
+test(`fontFace()`, () => {
+    expect(firstStylesOf(mergeStyles(
+        fontFace({
+            fontFamily: 'Open Sans',
+            src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")',
+        }),
+    )))
+    .toExactEqual({
+        fontFamily: 'Open Sans',
+        src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")',
+    });
+});
+test(`fontFace()`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        fontFace([
+            {
+                fontFamily: 'Open Sans',
+            },
+            {
+                src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")',
+            },
+            {
+                fontWeight: 'bold',
+                fontStyle: [['oblique', '40deg']],
+            },
+        ]),
+    )))
+    .toBe(
+        '@font-face'
+    );
+});
+test(`fontFace()`, () => {
+    expect(firstStylesOf(mergeStyles(
+        fontFace([
+            {
+                fontFamily: 'Open Sans',
+            },
+            {
+                src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")',
+            },
+            {
+                fontWeight: 'bold',
+                fontStyle: [['oblique', '40deg']],
+            },
+        ]),
+    )))
+    .toExactEqual({
+        fontFamily: 'Open Sans',
+        src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")',
+        fontWeight: 'bold',
+        fontStyle: [['oblique', '40deg']],
+    });
+});
+
+test(`global()`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        atGlobal({
+            ...rule('.button', {
+                display: 'flex',
+                flexDirection: 'row',
+            }),
+        })
+    )))
+    .toBe(
+        '@global'
+    );
+});
+
+const unparameterizedRules : (readonly [(...styles: CssStyleCollection[]) => CssRule, string ])[] = [
+    [ atRoot           , '&:root'                ],
+    [ isFirstChild     , '&:first-child'         ],
+    [ isNotFirstChild  , '&:not(:first-child)'   ],
+    [ isLastChild      , '&:last-child'          ],
+    [ isNotLastChild   , '&:not(:last-child)'    ],
+    [ isActive         , '&:active'              ],
+    [ isNotActive      , '&:not(:active)'        ],
+    [ isFocus          , '&:focus'               ],
+    [ isNotFocus       , '&:not(:focus)'         ],
+    [ isFocusVisible   , '&:focus-visible'       ],
+    [ isNotFocusVisible, '&:not(:focus-visible)' ],
+    [ isHover          , '&:hover'               ],
+    [ isNotHover       , '&:not(:hover)'         ],
+    [ isEmpty          , '&:empty'               ],
+    [ isNotEmpty       , '&:not(:empty)'         ],
+];
+unparameterizedRules.forEach(([func, expected]) => {
+    test(`func()`, () => {
+        expect(firstSelectorOf(mergeStyles(
+            func({
+                color: 'red',
+            })
+        )))
+        .toBe(
+            expected
+        );
+    });
+    test(`func()`, () => {
+        expect(firstStylesOf(mergeStyles(
+            func([
+                {
+                    background: 'pink',
+                    color: 'red',
+                },
+                {
+                    opacity: 0.5,
+                    visibility: 'visible',
+                },
+                {
+                    display: 'flex',
+                    flexDirection: 'column',
+                },
+            ])
+        )))
+        .toExactEqual({
+            background: 'pink',
+            color: 'red',
+            opacity: 0.5,
+            visibility: 'visible',
+            display: 'flex',
+            flexDirection: 'column',
+        });
+    });
+});
+//#endregion rule shortcuts
