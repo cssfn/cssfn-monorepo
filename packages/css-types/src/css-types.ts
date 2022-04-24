@@ -99,6 +99,56 @@ export type CssKnownObsoleteProps          = CssKnownPropsOf<keyof ObsoletePrope
 export type CssKnownSvgProps               = CssKnownPropsOf<keyof SvgProperties>
 
 export type CssKnownProps                  = CssKnownStandardProps & CssKnownVendorProps & CssKnownObsoleteProps & CssKnownSvgProps
+
+
+
+//#region css special properties
+export type CssFontFaceProps =
+    // required props:
+    & Required<CssKnownPropsOf<'fontFamily', true>>
+    
+    // longhand single-value props:
+    & CssKnownPropsOf<
+        | 'fontVariantCaps'
+        | 'fontVariantLigatures'
+        | 'fontVariantPosition'
+        
+        | 'fontStretch'
+        | 'fontWeight'
+        | 'fontStyle'
+    , false>
+    
+    // longhand multi-value props:
+    & CssKnownPropsOf<
+        | 'fontVariantAlternates'
+        | 'fontVariantEastAsian'
+        | 'fontVariantNumeric'
+        
+        | 'fontFeatureSettings'
+        | 'fontVariationSettings'
+        
+        | 'fontSizeAdjust'
+    , true>
+    
+    // shorthand props:
+    & CssKnownPropsOf<
+        | 'fontVariant'
+    , true>
+    
+    & {
+        // additional required props:
+        src              : CssComplexValueOf<CssSimpleLiteralValue|`url(${string})`>
+        
+        
+        
+        // additional optional props:
+        unicodeRange    ?: CssComplexValueOf<CssSimpleLiteralValue>
+        
+        ascentOverride  ?: CssComplexSingleValueOf<CssSimpleLiteralValue|'normal'>
+        descentOverride ?: CssComplexSingleValueOf<CssSimpleLiteralValue|'normal'>
+        lineGapOverride ?: CssComplexSingleValueOf<CssSimpleLiteralValue|'normal'>
+    }
+//#endregion css special properties
 //#endregion css known (standard) properties
 
 
