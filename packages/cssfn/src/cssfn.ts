@@ -72,6 +72,10 @@ export const rule = (selectors: CssSelectorCollection, styles: CssStyleCollectio
         styles
     ],
 });
+/**
+ * Defines an @rule.
+ * @returns A `CssRule` represents an @rule.
+ */
 export const atRule = (atRule: `@${string}`, styles: CssStyleCollection): CssRule => ({
     [Symbol()] : [
         atRule,
