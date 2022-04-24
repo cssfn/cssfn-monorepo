@@ -121,7 +121,7 @@ const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector
     
     
     //#region update (mutate) styles
-    // CssFinalSelector of SelectorRule:
+    //#region update (primary) SelectorRule
     if (finalSelector) {
         style[symbolProp] = [
             finalSelector, // update CssRawSelector to CssFinalSelector
@@ -131,10 +131,11 @@ const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector
     else {
         delete style[symbolProp]; // delete existing CssRawSelector
     } // if
+    //#endregion update (primary) SelectorRule
     
     
     
-    // CssFinalSelector of AtRule|PropRule:
+    //#region update (additional) AtRule|PropRule
     const additionalFinalProps : CssFinalSelector[] = [ // take all rules except SelectorRule(s):
         ...(selectorGroupByRuleType.get(RuleType.AtRule   ) ?? []), // eg: @keyframes, @font-face (unmergeable nested @rule)
         ...(selectorGroupByRuleType.get(RuleType.PropRule ) ?? []), // eg: from, to, 25% (special properties of @keyframes rule)
@@ -145,6 +146,7 @@ const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector
             styles               // still the same styles
         ];
     } // for
+    //#endregion update (additional) AtRule|PropRule
     //#endregion update (mutate) styles
     
     
