@@ -127,7 +127,8 @@ const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector
             finalSelector, // update CssRawSelector to CssFinalSelector
             styles         // still the same styles
         ];
-    } else {
+    }
+    else {
         delete style[symbolProp]; // delete existing CssRawSelector
     } // if
     
@@ -138,9 +139,9 @@ const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector
         ...(selectorGroupByRuleType.get(RuleType.AtRule   ) ?? []), // eg: @keyframes, @font-face (unmergeable nested @rule)
         ...(selectorGroupByRuleType.get(RuleType.PropRule ) ?? []), // eg: from, to, 25% (special properties of @keyframes rule)
     ];
-    for (const i in additionalSymbolProps) {
+    for (const additionalSymbolProp of additionalSymbolProps) {
         style[Symbol()] = [
-            additionalSymbolProps[i],
+            additionalSymbolProp,
             styles // still the same styles
         ];
     } // for
@@ -240,26 +241,30 @@ export const mergeParent  = (style: CssStyle): void => {
 const mergeableNestedAtRules = ['@media', '@supports', '@document', '@global', '@fallbacks'];
 // const unmergeableNestedAtRules = ['@keyframes', '@font-face'];
 type GroupByFinalSelectorEntry = readonly [symbol, CssFinalSelector|null];
-const groupByFinalSelector = (accum: Map<CssFinalSelector, symbol[]>, [symbolProp, finalSelector]: GroupByFinalSelectorEntry) => {
-    if (!finalSelector) return accum; // skip empty entry
+const groupByFinalSelector = (accum: Map<CssFinalSelector|null, symbol[]>, [symbolProp, finalSelector]: GroupByFinalSelectorEntry) => {
+    if (!finalSelector)        return accum; // skip empty entry
+    if (finalSelector === '&') return accum; // ignore only_parentSelector
     
     
     
     if (
         // nested rules:
-        (
-            (finalSelector !== '&')     // ignore only_parentSelector
-            &&
-            finalSelector.includes('&') // nested rule
-        )
+        finalSelector.includes('&')
         ||
         // conditional rules & globals:
         mergeableNestedAtRules.some((at) => finalSelector.startsWith(at))
     ) {
+        // mergeable rules:
         let group = accum.get(finalSelector);             // get an existing collector
         if (!group) accum.set(finalSelector, group = []); // create a new collector
         group.push(symbolProp);
-    } // if
+    }
+    else {
+        // unmergeable rules:
+        let group = accum.get(null);             // get an existing collector
+        if (!group) accum.set(null, group = []); // create a new collector
+        group.push(symbolProp);
+    }
     return accum;
 }
 export const mergeNested  = (style: CssStyle): void => {
@@ -277,21 +282,47 @@ export const mergeNested  = (style: CssStyle): void => {
         ])
         .reduce(
             groupByFinalSelector,
-            new Map<CssFinalSelector, symbol[]>()
+            new Map<CssFinalSelector|null, symbol[]>()
         )
     );
     
     
     
-    //#region merge duplicates (nested) Rule(s) to unique ones
-    for (const symbolGroup of symbolPropGroupByFinalSelector.values()) {
-        // merge styles from symbolGroup's members to single style:
-        const multipleStyles = symbolGroup.map((symbolProp) => style[symbolProp][1]); // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
+    const unmergeableSymbolGroup = symbolPropGroupByFinalSelector.get(null);
+    if (unmergeableSymbolGroup) {
+        symbolPropGroupByFinalSelector.delete(null); // remove from the Map, so it wouldn't be grouped later
+        
+        for (const symbolProp of unmergeableSymbolGroup) {
+            const styles       = style[symbolProp][1]; // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
+            const mergedStyles = mergeStyles(styles);
+            
+            
+            
+            if (mergedStyles) {
+                // update:
+                style[symbolProp] = [
+                    style[symbolProp][0], // still the same // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
+                    mergedStyles          // update CssStyleCollection to mergedStyles
+                ];
+            }
+            else {
+                // delete:
+                delete style[symbolProp];
+            } // if
+        } // for
+    } // if
+    
+    
+    
+    //#region merge duplicates (nested) mergeable Rule(s) to unique ones
+    for (const mergeableSymbolGroup of symbolPropGroupByFinalSelector.values()) {
+        // merge styles from mergeableSymbolGroup's members to single style:
+        const multipleStyles = mergeableSymbolGroup.map((symbolProp) => style[symbolProp][1]); // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
         const mergedStyles   = mergeStyles(multipleStyles);
         
         
         
-        const lastMember = symbolGroup[symbolGroup.length - 1];
+        const lastMember = mergeableSymbolGroup[mergeableSymbolGroup.length - 1];
         if (mergedStyles) {
             // update last member
             style[lastMember] = [
@@ -305,9 +336,9 @@ export const mergeNested  = (style: CssStyle): void => {
         } // if
         
         // delete first member to second last member:
-        for (const symbolProp of symbolGroup.slice(0, -1)) delete style[symbolProp];
+        for (const symbolProp of mergeableSymbolGroup.slice(0, -1)) delete style[symbolProp];
     } // for
-    //#endregion merge duplicates (nested) Rule to unique ones
+    //#endregion merge duplicates (nested) mergeable Rule(s) to unique ones
 }
 
 
