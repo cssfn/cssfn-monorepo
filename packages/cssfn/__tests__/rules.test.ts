@@ -12,6 +12,9 @@ import {
     states,
     
     keyframes,
+    
+    noRule,
+    emptyRule,
 } from '../src/cssfn'
 import {
     isFinalSelector,
@@ -1599,9 +1602,107 @@ test(`keyframes()`, () => {
         background : 'lightblue',
     });
 });
+
+
+test(`keyframes()`, () => {
+    const testKeyframes = keyframes('fooAnimation', {
+        '0%' : [
+            {
+                color      : 'red',
+                background : 'pink',
+            },
+            {
+                opacity    : 0.1,
+                width      : '100px',
+            },
+        ],
+        '50%': [
+            {
+                color      : 'yellow',
+                background : 'white',
+            },
+            {
+                opacity    : 0.5,
+                width      : '200px',
+            },
+        ],
+        '100%'   : [
+            {
+                color      : 'blue',
+                background : 'lightblue',
+            },
+            {
+                opacity    : 0.9,
+                width      : '300px',
+            },
+        ],
+    });
+    const testMerged = mergeStyles(testKeyframes)
+    
+    expect(firstSelectorOf(
+        testMerged
+    ))
+    .toBe(
+        '@keyframes fooAnimation'
+    );
+    
+    const styles = firstStylesOf(testMerged);
+    expect(styles).not.toBeNull();
+    if (styles === null) throw Error('styles === null');
+    const symbolKeys = Object.getOwnPropertySymbols(styles);
+    const symbolp0   = symbolKeys[0];
+    const symbolp50  = symbolKeys[1];
+    const symbolp100 = symbolKeys[2];
+    expect(symbolp0).not.toBeUndefined();
+    expect(symbolp50).not.toBeUndefined();
+    expect(symbolp100).not.toBeUndefined();
+    
+    const [, p0Styles  ] = styles[symbolp0];
+    const [, p50Styles ] = styles[symbolp50];
+    const [, p100Styles] = styles[symbolp100];
+    expect(p0Styles).toExactEqual({
+        color      : 'red',
+        background : 'pink',
+        opacity    : 0.1,
+        width      : '100px',
+    });
+    expect(p50Styles).toExactEqual({
+        color      : 'yellow',
+        background : 'white',
+        opacity    : 0.5,
+        width      : '200px',
+    });
+    expect(p100Styles).toExactEqual({
+        color      : 'blue',
+        background : 'lightblue',
+        opacity    : 0.9,
+        width      : '300px',
+    });
+});
 //endregion keyframes
 
 
 
 //#region rule shortcuts
+test(`noRule()`, () => {
+    expect(mergeStyles({
+        background: 'pink',
+        ...noRule({
+            color: 'red',
+        })
+    }))
+    .toExactEqual({
+        background: 'pink',
+        color: 'red',
+    });
+});
+test(`emptyRule()`, () => {
+    expect(mergeStyles({
+        background: 'pink',
+        ...emptyRule(),
+    }))
+    .toExactEqual({
+        background: 'pink',
+    });
+});
 //endregion rule shortcuts
