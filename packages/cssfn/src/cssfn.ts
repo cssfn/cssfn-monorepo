@@ -72,6 +72,12 @@ export const rule = (selectors: CssSelectorCollection, styles: CssStyleCollectio
         styles
     ],
 });
+export const atRule = (atRule: `@${string}`, styles: CssStyleCollection): CssRule => ({
+    [Symbol()] : [
+        atRule,
+        styles
+    ],
+});
 
 
 
@@ -158,7 +164,7 @@ export const states   = (states  : CssRuleCollection, options?: CssSelectorOptio
 
 
 // keyframes:
-export const keyframes         = (name: string, items: CssKeyframes) => rule(`@keyframes ${name}`, (Object.fromEntries(
+export const keyframes         = (name: string, items: CssKeyframes) => atRule(`@keyframes ${name}`, (Object.fromEntries(
     Object.entries(items).map(([key, frame]): readonly [symbol, CssRuleData] => [
         Symbol(),
         [key, frame]
