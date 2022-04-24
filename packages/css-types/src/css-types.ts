@@ -98,8 +98,6 @@ export type CssKnownObsoleteProps          = CssKnownPropsOf<keyof ObsoletePrope
 
 export type CssKnownSvgProps               = CssKnownPropsOf<keyof SvgProperties>
 
-export type CssKnownProps                  = CssKnownStandardProps & CssKnownVendorProps & CssKnownObsoleteProps & CssKnownSvgProps
-
 
 
 //#region css special properties
@@ -149,23 +147,28 @@ export type CssFontFaceProps =
         lineGapOverride ?: CssComplexSingleValueOf<CssSimpleLiteralValue|'normal'>
     }
 //#endregion css special properties
+
+
+
+export type CssKnownProps                  = CssKnownStandardProps & CssKnownVendorProps & CssKnownObsoleteProps & CssKnownSvgProps & Omit<CssFontFaceProps, 'src'>
 //#endregion css known (standard) properties
 
 
 
 //#region cssfn properties
-export type CssProps           = CssCustomProps & CssKnownProps
+export type CssProps                   = CssCustomProps & CssKnownProps
 
-export type CssRuleData        = readonly [CssRawSelector|CssFinalSelector, CssStyleCollection]
+export type CssRuleData                = readonly [CssRawSelector|CssFinalSelector, CssStyleCollection]
 export type CssRule = { // do not use Record<symbol, CssStyleCollection> => doesn't support circular ref
     [name: symbol] : CssRuleData
 }
-export type CssRuleCollection  = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssRule>>
+export type CssRuleCollection          = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssRule>>
 
-export type CssStyle           = CssProps & CssRule
-export type CssStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssStyle>>
+export type CssStyle                   = CssProps & CssRule
+export type CssStyleCollection         = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssStyle>>
+export type CssFontFaceStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssFontFaceProps>>
 
-export type CssKeyframes       = Dictionary<CssStyleCollection>
+export type CssKeyframes               = Dictionary<CssStyleCollection>
 
 
 
