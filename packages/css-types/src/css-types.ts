@@ -117,6 +117,7 @@ export type CssLonghandFontFaceProps =
     
     & {
         // additional required props:
+        // forced to optional ( ?: ) because it may spreaded in partial style(s)
         src             ?: CssComplexValueOf<CssSimpleLiteralValue|`url(${string})`>
         
         
