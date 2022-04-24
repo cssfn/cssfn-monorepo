@@ -102,7 +102,6 @@ export type CssLonghandFontFaceProps =
         
         | 'fontStretch'
         | 'fontWeight'
-        | 'fontStyle'
     , false>
     
     // longhand multi-value props:
@@ -110,6 +109,8 @@ export type CssLonghandFontFaceProps =
         | 'fontVariantAlternates'
         | 'fontVariantEastAsian'
         | 'fontVariantNumeric'
+        
+        | 'fontStyle'
         
         | 'fontFeatureSettings'
         | 'fontVariationSettings'
