@@ -192,7 +192,7 @@ export const isLastChild       = (...styles:         CssStyleCollection[]) => ru
 export const isNotLastChild    = (...styles:         CssStyleCollection[]) => rule(':not(:last-child)'  , styles);
 export const isNthChild        = (step: number, offset: number, ...styles: CssStyleCollection[]): CssRule => {
     if (step === 0) { // no step
-        if (offset === 0) return emptyRule();                           // 0th => never => return empty rule
+        if (offset === 0) return emptyRule();                           // 0th => never match => return empty rule
         
         if (offset === 1) return isFirstChild(styles);                  // 1st
         
@@ -211,14 +211,14 @@ export const isNthChild        = (step: number, offset: number, ...styles: CssSt
 };
 export const isNotNthChild     = (step: number, offset: number, ...styles: CssStyleCollection[]): CssRule => {
     if (step === 0) { // no step
-        if (offset === 0) return isNthChild(1, 0, styles);              // not 0th => not never => always match
+        if (offset === 0) return isNthChild(1, 0, styles);              // not 0th => not never match => always match
         
         if (offset === 1) return isNotFirstChild(styles);               // not 1st
         
         return rule(`:not(:nth-child(${offset}))`, styles);             // not 2nd, not 3rd, not 4th, not ...
     }
     else if (step === 1) { // 1 step
-        if (offset === 0) return emptyRule();                           // never match
+        if (offset === 0) return emptyRule();                           // never match => return empty rule
         
         return rule(`:not(:nth-child(n+${offset}))`, styles);
     }
@@ -230,7 +230,7 @@ export const isNotNthChild     = (step: number, offset: number, ...styles: CssSt
 };
 export const isNthLastChild    = (step: number, offset: number, ...styles: CssStyleCollection[]): CssRule => {
     if (step === 0) { // no step
-        if (offset === 0) return emptyRule();                           // 0th => never => return empty rule
+        if (offset === 0) return emptyRule();                           // 0th => never match => return empty rule
         
         if (offset === 1) return isLastChild(styles);                   // 1st
         
@@ -249,14 +249,14 @@ export const isNthLastChild    = (step: number, offset: number, ...styles: CssSt
 };
 export const isNotNthLastChild = (step: number, offset: number, ...styles: CssStyleCollection[]): CssRule => {
     if (step === 0) { // no step
-        if (offset === 0) return isNthChild(1, 0, styles);              // not 0th last => not never => always match
+        if (offset === 0) return isNthChild(1, 0, styles);              // not 0th last => not never match => always match
         
         if (offset === 1) return isNotLastChild(styles);                // not 1st last
         
         return rule(`:not(:nth-last-child(${offset}))`, styles);        // not 2nd last, not 3rd last, not 4th last, not ... last
     }
     else if (step === 1) { // 1 step
-        if (offset === 0) return emptyRule();                           // never match
+        if (offset === 0) return emptyRule();                           // never match => return empty rule
         
         return rule(`:not(:nth-last-child(n+${offset}))`, styles);
     }
