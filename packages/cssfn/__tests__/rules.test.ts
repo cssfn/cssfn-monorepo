@@ -3,16 +3,20 @@ import type {
 } from '@cssfn/css-types'
 import {
     mergeStyles,
+    mergeNested,
 } from '../src/mergeStyles'
 import {
     rule,
     rules,
     variants,
     states,
+    
+    keyframes,
 } from '../src/cssfn'
 import {
     isFinalSelector,
 } from '../src/utilities'
+import './jest-custom'
 
 
 
@@ -22,6 +26,13 @@ const firstSelectorOf = (style: CssStyle|null): string|null => {
     if (symbolProp === undefined) return null;
     const [selector] = style[symbolProp];
     return isFinalSelector(selector) ? selector : null;
+}
+const firstStylesOf = (style: CssStyle|null): CssStyle|null => {
+    if (!style) return null;
+    const symbolProp = Object.getOwnPropertySymbols(style)[0];
+    if (symbolProp === undefined) return null;
+    const [, styles] = style[symbolProp];
+    return styles as CssStyle;
 }
 
 
@@ -1533,3 +1544,64 @@ test(`states(specific-states)`, () => {
     );
 });
 //#endregion test states()
+
+
+
+//#region keyframes
+test(`keyframes()`, () => {
+    const testKeyframes = keyframes('my-animation', {
+        from : {
+            color      : 'red',
+            background : 'pink',
+        },
+        '50%': {
+            color      : 'yellow',
+            background : 'white',
+        },
+        to   : {
+            color      : 'blue',
+            background : 'lightblue',
+        },
+    });
+    const testMerged = mergeStyles(testKeyframes)
+    
+    expect(firstSelectorOf(
+        testMerged
+    ))
+    .toBe(
+        '@keyframes my-animation'
+    );
+    
+    const styles = firstStylesOf(testMerged);
+    expect(styles).not.toBeNull();
+    if (styles === null) throw Error('styles === null');
+    const symbolKeys = Object.getOwnPropertySymbols(styles);
+    const symbolFrom = symbolKeys[0];
+    const symbolp50  = symbolKeys[1];
+    const symbolTo   = symbolKeys[2];
+    expect(symbolFrom).not.toBeUndefined();
+    expect(symbolp50).not.toBeUndefined();
+    expect(symbolTo).not.toBeUndefined();
+    
+    const [, fromStyles] = styles[symbolFrom];
+    const [, p50Styles ] = styles[symbolp50];
+    const [, toStyles  ] = styles[symbolTo];
+    expect(fromStyles).toExactEqual({
+        color      : 'red',
+        background : 'pink',
+    });
+    expect(p50Styles).toExactEqual({
+        color      : 'yellow',
+        background : 'white',
+    });
+    expect(toStyles).toExactEqual({
+        color      : 'blue',
+        background : 'lightblue',
+    });
+});
+//endregion keyframes
+
+
+
+//#region rule shortcuts
+//endregion rule shortcuts
