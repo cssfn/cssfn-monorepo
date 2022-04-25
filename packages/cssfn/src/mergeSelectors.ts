@@ -26,6 +26,7 @@ import {
     createPureSelector,
     createSelectorGroup,
     createPureSelectorGroup,
+    isNotEmptySelectorEntry,
     isNotEmptySelector,
     
     
@@ -111,7 +112,7 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
     
     
     
-    return createPureSelectorGroup(
+    return [
         ...fitSelectors.map((group) => group.selector),
         
         ...tooSmallSelectors.map((group) => createPureSelector(
@@ -268,7 +269,7 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
                 ...pseudoElmSelectors,
             ).filter(isNotEmptySelector);
         }),
-    );
+    ].map((selector) => selector.filter(isNotEmptySelectorEntry));
 }
 
 
