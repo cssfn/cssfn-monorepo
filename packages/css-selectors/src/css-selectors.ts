@@ -715,10 +715,10 @@ export const isSelector = (test: OptionalOrBoolean<SelectorEntry|Selector>): tes
         )
     ); // Selector : the first element (SelectorEntry) must be a NON-string (an array) -or- a string of Combinator
 };
-export const isNotEmptySelector   = (selector  : OptionalOrBoolean<Selector     >): selector  is PureSelector      =>  (!!selector  && (selector  !== true)) &&  selector.some(  isNotEmptySelectorEntry);
-export const isNotEmptySelectors  = (selectors : OptionalOrBoolean<SelectorGroup>): selectors is PureSelectorGroup =>  (!!selectors && (selectors !== true)) && selectors.some(  isNotEmptySelector     );
-export const countSelectorEntries = (selector  : OptionalOrBoolean<Selector     >): number                         => ((!!selector  && (selector  !== true)) &&  selector.filter(isNotEmptySelectorEntry).length) || 0;
-export const countSelectors       = (selectors : OptionalOrBoolean<SelectorGroup>): number                         => ((!!selectors && (selectors !== true)) && selectors.filter(isNotEmptySelector     ).length) || 0;
+export const isNotEmptySelector   = (selector  : OptionalOrBoolean<Selector     >): selector  is Selector      =>  (!!selector  && (selector  !== true)) &&  selector.some(  isNotEmptySelectorEntry);
+export const isNotEmptySelectors  = (selectors : OptionalOrBoolean<SelectorGroup>): selectors is SelectorGroup =>  (!!selectors && (selectors !== true)) && selectors.some(  isNotEmptySelector     );
+export const countSelectorEntries = (selector  : OptionalOrBoolean<Selector     >): number                     => ((!!selector  && (selector  !== true)) &&  selector.filter(isNotEmptySelectorEntry).length) || 0;
+export const countSelectors       = (selectors : OptionalOrBoolean<SelectorGroup>): number                     => ((!!selectors && (selectors !== true)) && selectors.filter(isNotEmptySelector     ).length) || 0;
 
 
 
@@ -864,7 +864,7 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
     
     
     
-    const filteredSelectors         : PureSelector[] = selectors.filter(isNotEmptySelector);
+    const filteredSelectors         : PureSelector[] = selectors.filter(isNotEmptySelector).map((selector) => selector.filter(isNotEmptySelectorEntry));
     const selectorsWithoutPseudoElm : PureSelector[] = filteredSelectors.filter((selector) => selector.every(isNotPseudoElementSelector)); // not contain ::pseudo-element
     const selectorsOnlyPseudoElm    : PureSelector[] = filteredSelectors.filter((selector) => selector.some(isPseudoElementSelector));     // do  contain ::pseudo-element
     
