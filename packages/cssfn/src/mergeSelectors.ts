@@ -165,6 +165,13 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
             
             type SelectorAccum = { remaining: number, eaten: PureSelector }
             const { eaten: reversedEatenSelector, remaining: remainingSpecificityWeight } : SelectorAccum = (
+                (group.specificityWeight === Infinity)
+                ?
+                {
+                    remaining : (minSpecificityWeight !== null) ? -minSpecificityWeight : 0, // eat all => zero specificity => might less than minSpecificityWeight => fix by -minSpecificityWeight
+                    eaten     : reversedSelector           // eat all => zero specificity
+                }
+                :
                 reversedSelector.slice(0) // clone the `reversedSelector` because the `reduce()` uses `splice()` to break the iteration and we still need the `reversedSelector` later
                 .reduce((accum, selectorEntry, index, array): SelectorAccum => {
                     if (accum.remaining <= 0) {
