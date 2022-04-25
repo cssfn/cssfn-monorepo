@@ -250,8 +250,8 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
             
             // group the eatenSelector with :where(), so the specificity is zero:
             const [
-                whereSelector,        // grouped selectorEntries inside :where()
-                ...pseudoElmSelectors // ungroupable ::pseudoElement selectorEntries
+                whereSelector,            // grouped selectorEntries inside :where()
+                ...selectorsWithPseudoElm // ungroupable ::pseudoElement selectorEntries
             ] = groupSelectors(
                 ungroupSelector(eatenSelector),  // if wrapped with :is() or :where() => unwrap
                 { selectorName: 'where' }        // :where
@@ -274,7 +274,7 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
             // done:
             return createSelectorGroup(
                 whereSelector,
-                ...pseudoElmSelectors,
+                ...selectorsWithPseudoElm,
             )
         }),
     );
@@ -445,7 +445,7 @@ const createBaseParentSelectorGroup      = (
         
         
         const conditionalRemoveCommonParentSelector = combinator ? removeCommonParentSelectorWithCombinator : removeCommonParentSelector;
-        const [isSelector, ...pseudoElmSelectors] = groupSelectors(
+        const [isSelector, ...selectorsWithPseudoElm] = groupSelectors(
             conditionalRemoveCommonParentSelector
             ?
             selectors.map(conditionalRemoveCommonParentSelector)
@@ -460,7 +460,7 @@ const createBaseParentSelectorGroup      = (
                 :
                 isSelector
             ),
-            ...pseudoElmSelectors, // ungroupable ::pseudo-element (if any)
+            ...selectorsWithPseudoElm, // ungroupable ::pseudo-element (if any)
         );
     });
 }
