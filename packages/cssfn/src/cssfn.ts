@@ -22,12 +22,17 @@ import type {
     CssScopeName,
     CssScopeEntry,
     
+    CssSelector,
     CssSelectorCollection,
     CssSelectorOptions,
     
     CssRawSelector,
     CssFinalSelector,
 }                           from '@cssfn/css-types'
+import type {
+    // types:
+    Combinator,
+}                           from '@cssfn/css-selectors'
 
 // internals:
 import {
@@ -278,6 +283,28 @@ export const isHover           = (...styles:         CssStyleCollection[]) => ru
 export const isNotHover        = (...styles:         CssStyleCollection[]) => rule(':not(:hover)'        , styles);
 export const isEmpty           = (...styles:         CssStyleCollection[]) => rule(     ':empty'         , styles);
 export const isNotEmpty        = (...styles:         CssStyleCollection[]) => rule(':not(:empty)'        , styles);
+
+
+
+//combinators:
+export const combinators  = (combinator: Combinator, selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
+    const combiSelectors : CssSelector[] = flat(selectors).filter((selector): selector is CssSelector => !!selector && (selector !== true)).map((selector) => {
+        if (selector.includes('&')) return selector; // custom combinator
+        
+        if (selector.startsWith('::')) return `&${selector}`; // pseudo element => directly attach to the parent_selector
+        
+        return `&${combinator}${selector}`;
+    });
+    if (!combiSelectors.length) return emptyRule(); // no selector => return empty
+    
+    
+    
+    return rule(combiSelectors, styles, options);
+};
+export const descendants  = (selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions) => combinators(' ', selectors, styles, options);
+export const children     = (selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions) => combinators('>', selectors, styles, options);
+export const siblings     = (selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions) => combinators('~', selectors, styles, options);
+export const nextSiblings = (selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions) => combinators('+', selectors, styles, options);
 
 
 
