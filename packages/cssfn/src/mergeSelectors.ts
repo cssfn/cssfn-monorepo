@@ -262,7 +262,7 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
             );
             
             // if negative `remainingSpecificityWeight` => increase the specificity until zero
-            if (remainingSpecificityWeight < 0) {
+            if ((remainingSpecificityWeight < 0) && isNotEmptySelector(whereSelector)) {
                 whereSelector.push(
                     ...(new Array<SimpleSelector>(-remainingSpecificityWeight)).fill(
                         nthChildNSelector // or use `nth-child(n)`
