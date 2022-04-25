@@ -2094,3 +2094,188 @@ test(`isNotNthChild(2, 2)`, () => {
 
 
 
+//#region test isNthLastChild()
+test(`isNthLastChild(0, 0)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthLastChild(0, 0, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        null
+    );
+});
+test(`isNthLastChild(0, 1)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthLastChild(0, 1, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:last-child'
+    );
+});
+test(`isNthLastChild(0, 2)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthLastChild(0, 2, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-last-child(2)'
+    );
+});
+test(`isNthLastChild(1, 0)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthLastChild(1, 0, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-child(n)'
+    );
+});
+test(`isNthLastChild(1, 1)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthLastChild(1, 1, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-last-child(n+1)'
+    );
+});
+test(`isNthLastChild(1, 2)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthLastChild(1, 2, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-last-child(n+2)'
+    );
+});
+test(`isNthLastChild(2, 0)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthLastChild(2, 0, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-last-child(2n)'
+    );
+});
+test(`isNthLastChild(2, 1)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthLastChild(2, 1, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-last-child(2n+1)'
+    );
+});
+test(`isNthLastChild(2, 2)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthLastChild(2, 2, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-last-child(2n+2)'
+    );
+});
+//#endregion test isNthLastChild()
+
+//#region test isNotNthLastChild()
+test(`isNotNthLastChild(0, 0)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthLastChild(0, 0, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-child(n)'
+    );
+});
+test(`isNotNthLastChild(0, 1)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthLastChild(0, 1, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:not(:last-child)'
+    );
+});
+test(`isNotNthLastChild(0, 2)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthLastChild(0, 2, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:not(:nth-last-child(2))'
+    );
+});
+test(`isNotNthLastChild(1, 0)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthLastChild(1, 0, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        null
+    );
+});
+test(`isNotNthLastChild(1, 1)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthLastChild(1, 1, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:not(:nth-last-child(n+1))'
+    );
+});
+test(`isNotNthLastChild(1, 2)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthLastChild(1, 2, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:not(:nth-last-child(n+2))'
+    );
+});
+test(`isNotNthLastChild(2, 0)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthLastChild(2, 0, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:not(:nth-last-child(2n))'
+    );
+});
+test(`isNotNthLastChild(2, 1)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthLastChild(2, 1, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:not(:nth-last-child(2n+1))'
+    );
+});
+test(`isNotNthLastChild(2, 2)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthLastChild(2, 2, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:not(:nth-last-child(2n+2))'
+    );
+});
+//#endregion test isNotNthLastChild()

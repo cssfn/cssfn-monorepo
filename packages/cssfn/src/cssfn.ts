@@ -237,7 +237,7 @@ export const isNthLastChild    = (step: number, offset: number, ...styles: CssSt
         return rule(`:nth-last-child(${offset})`, styles);              // 2nd, 3rd, 4th, ...
     }
     else if (step === 1) { // 1 step
-        if (offset === 0) return rule(`:nth-last-child(n)`, styles);    // always match
+        if (offset === 0) return isNthChild(1, 0, styles);              // always match
         
         return rule(`:nth-last-child(n+${offset})`, styles);
     }
