@@ -286,7 +286,7 @@ export const isNotEmpty        = (...styles:         CssStyleCollection[]) => ru
 
 
 
-//combinators:
+// combinators:
 export const combinators  = (combinator: Combinator, selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
     const combiSelectors : CssSelector[] = flat(selectors).filter((selector): selector is CssSelector => !!selector && (selector !== true)).map((selector) => {
         if (selector.includes('&')) return selector; // custom combinator
