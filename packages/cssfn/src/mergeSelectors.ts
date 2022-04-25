@@ -91,7 +91,7 @@ const createGroupBySpecificityWeightStatus = (minSpecificityWeight: number|null,
 }
 
 const nthChildNSelector = pseudoClassSelector('nth-child', 'n');
-export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSpecificityWeight: number|null, maxSpecificityWeight: number|null): PureSelector[] => {
+export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSpecificityWeight: number|null, maxSpecificityWeight: number|null): SelectorGroup => {
     if (
         (minSpecificityWeight == null)
         &&
@@ -112,7 +112,7 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
     
     
     
-    return [
+    return createSelectorGroup(
         ...fitSelectors.map((group) => group.selector),
         
         ...tooSmallSelectors.map((group) => createPureSelector(
@@ -269,7 +269,7 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
                 ...pseudoElmSelectors,
             ).filter(isNotEmptySelector);
         }),
-    ].map((selector) => selector.filter(isNotEmptySelectorEntry));
+    );
 }
 
 
@@ -593,7 +593,7 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options?: CssSelect
     
     
     // transform phase 2:
-    const adjustedSelectorGroup: PureSelector[] = (
+    const adjustedSelectorGroup: SelectorGroup = (
         performAdjusting
         ?
         adjustSpecificityWeight(
