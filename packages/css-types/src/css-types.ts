@@ -55,10 +55,10 @@ export type CssCustomName         = `--${string}`
 
 // values:
 export type CssCustomKeyframesRef = (string & {})           // special value, not included to `CssCustomRef`
-export type CssCustomSingleRef    = `var(${CssCustomName})` // single value
+export type CssCustomSimpleRef    = `var(${CssCustomName})` // single value
 export type CssCustomRef          =
-    | CssCustomSingleRef                                    // single value
-    | `var(${CssCustomName}, ${CssCustomSingleRef})`        // with shallow fallback
+    | CssCustomSimpleRef                                    // single value
+    | `var(${CssCustomName}, ${CssCustomSimpleRef})`        // with shallow fallback
  // | `var(${CssCustomName}, ${CssCustomRef})`              // with nested  fallback(s), can't circular
  // | `var(${CssCustomName}, ${string})`                    // use string for nested fallback(s), not ideal but works
 
@@ -66,7 +66,7 @@ export type CssCustomValue        = CssComplexValueOf<CssSimpleValue>
 
 export type CssCustomProps = {
     [name: CssCustomName     ] : CssCustomValue
-    [name: CssCustomSingleRef] : CssCustomValue
+    [name: CssCustomSimpleRef] : CssCustomValue
 }
 //#endregion css custom properties
 
