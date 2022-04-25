@@ -243,22 +243,23 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
             
             
             
-            const eatenSelector: PureSelector = reversedEatenSelector.reverse(); // re-reverse the reversedEatenSelector, so it becomes eatenSelector
+            const eatenSelector   : PureSelector = reversedEatenSelector.reverse(); // re-reverse the reversedEatenSelector, so it becomes eatenSelector
+            const uneatenSelector : PureSelector = reversedSelector.slice(reversedEatenSelector.length).reverse();
             
             
             
             // group the eatenSelector with :where(), so the specificity is zero:
             const [
-                whereSelector,        // grouped selectors inside :where()
-                ...pseudoElmSelectors // ungroupable pseudoElement selectors
+                whereSelector,        // grouped selectorEntries inside :where()
+                ...pseudoElmSelectors // ungroupable ::pseudoElement selectorEntries
             ] = groupSelectors(
                 ungroupSelector(eatenSelector),  // if wrapped with :is() or :where() => unwrap
                 { selectorName: 'where' }        // :where
             );
             
-            // un-eaten_selectors:where(eaten-selectors):
-            whereSelector.unshift(
-                ...reversedSelector.slice(reversedEatenSelector.length).reverse(), // insert the un-eaten selectors at the beginning
+            // ...uneatenSelectorEntries:where(...eatenSelectorEntries):
+            whereSelector.unshift( // insert the uneatenSelectorEntries at the beginning
+                ...uneatenSelector,
             );
             
             // if negative `remainingSpecificityWeight` => increase the specificity until zero
