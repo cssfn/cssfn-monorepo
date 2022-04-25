@@ -181,17 +181,17 @@ export const keyframes         = (name: string, items: CssKeyframes) => atRule(`
 
 
 // rule shortcuts:
-export const noRule            = (...styles:         CssStyleCollection[]) => rule('&'                  , styles);
-export const emptyRule         = ()                                        => rule(null                 , null  );
-export const fallbacks         = (...styles:         CssStyleCollection[]) => atRule('@fallbacks'       , styles);
-export const fontFace          = (...styles: CssFontFaceStyleCollection[]) => atRule('@font-face'       , styles);
-export const atGlobal          = (...rules :          CssRuleCollection[]) => atRule('@global'          , rules );
+export const noRule            = (...styles:         CssStyleCollection[]) => rule('&'                   , styles);
+export const emptyRule         = ()                                        => rule(null                  , null  );
+export const fallbacks         = (...styles:         CssStyleCollection[]) => atRule('@fallbacks'        , styles);
+export const fontFace          = (...styles: CssFontFaceStyleCollection[]) => atRule('@font-face'        , styles);
+export const atGlobal          = (...rules :          CssRuleCollection[]) => atRule('@global'           , rules );
 
-export const atRoot            = (...styles:         CssStyleCollection[]) => rule(':root'              , styles);
-export const isFirstChild      = (...styles:         CssStyleCollection[]) => rule(     ':first-child'  , styles);
-export const isNotFirstChild   = (...styles:         CssStyleCollection[]) => rule(':not(:first-child)' , styles);
-export const isLastChild       = (...styles:         CssStyleCollection[]) => rule(     ':last-child'   , styles);
-export const isNotLastChild    = (...styles:         CssStyleCollection[]) => rule(':not(:last-child)'  , styles);
+export const atRoot            = (...styles:         CssStyleCollection[]) => rule(':root'               , styles);
+export const isFirstChild      = (...styles:         CssStyleCollection[]) => rule(     ':first-child'   , styles);
+export const isNotFirstChild   = (...styles:         CssStyleCollection[]) => rule(':not(:first-child)'  , styles);
+export const isLastChild       = (...styles:         CssStyleCollection[]) => rule(     ':last-child'    , styles);
+export const isNotLastChild    = (...styles:         CssStyleCollection[]) => rule(':not(:last-child)'   , styles);
 export const isNthChild        = (step: number, offset: number, ...styles: CssStyleCollection[]): CssRule => {
     if (step === 0) { // no step
         if (offset === 0) return emptyRule();                           // 0th => never match => return empty rule
