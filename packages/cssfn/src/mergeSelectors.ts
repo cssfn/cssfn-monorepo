@@ -25,7 +25,6 @@ import {
     createSelector,
     createPureSelector,
     createSelectorGroup,
-    createPureSelectorGroup,
     isNotEmptySelectorEntry,
     isNotEmptySelector,
     
@@ -398,14 +397,14 @@ const removeCommonSuffixedParentSelectorWithCombinator = (pureSelector: PureSele
         (pureSelector.some(isPseudoElementSelector) ? 1 : 0) // exception for ::pseudo-element => do not remove the last_parent
     );
 }
-const createCommonPrefixedParentSelector = (isSelector: PureSelector, combinator: Combinator | null): Selector => {
+const createCommonPrefixedParentSelector = (isSelector: Selector, combinator: Combinator | null): Selector => {
     return createSelector(
         parentSelector(), // add a ParentSelector      before :is(...)
         combinator,       // add a Combinator (if any) before :is(...)
         ...isSelector,    // :is(...)
     );
 }
-const createCommonSuffixedParentSelector = (isSelector: PureSelector, combinator: Combinator | null): Selector => {
+const createCommonSuffixedParentSelector = (isSelector: Selector, combinator: Combinator | null): Selector => {
     return createSelector(
         ...isSelector,    // :is(...)
         combinator,       // add a Combinator (if any) after :is(...)
@@ -417,7 +416,7 @@ const createBaseParentSelectorGroup      = (
         groupByCombinator                        : null | ((accum: GroupByCombinator, pureSelector: PureSelector) => GroupByCombinator),
         removeCommonParentSelector               : null | ((pureSelector: PureSelector) => PureSelector),
         removeCommonParentSelectorWithCombinator : null | ((pureSelector: PureSelector) => PureSelector),
-        createCommonParentSelector               : null | ((isSelector: PureSelector, combinator: Combinator | null) => Selector)
+        createCommonParentSelector               : null | ((isSelector: Selector, combinator: Combinator | null) => Selector)
     ): SelectorGroup => {
     if (groupByParentSelectorGroup.length < 2) return groupByParentSelectorGroup; // must contains at least 2 selectors, if only one/no selector => no need to group
     
