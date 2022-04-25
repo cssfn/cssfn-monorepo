@@ -1903,3 +1903,100 @@ unparameterizedRules.forEach(([func, expected]) => {
     });
 });
 //#endregion rule shortcuts
+
+
+
+//#region test isNthChild()
+test(`isNthChild(0, 0)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthChild(0, 0, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        null
+    );
+});
+test(`isNthChild(0, 1)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthChild(0, 1, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:first-child'
+    );
+});
+test(`isNthChild(0, 2)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthChild(0, 2, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-child(2)'
+    );
+});
+test(`isNthChild(1, 0)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthChild(1, 0, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-child(n)'
+    );
+});
+test(`isNthChild(1, 1)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthChild(1, 1, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-child(n+1)'
+    );
+});
+test(`isNthChild(1, 2)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthChild(1, 2, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-child(n+2)'
+    );
+});
+test(`isNthChild(2, 0)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthChild(2, 0, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-child(2n)'
+    );
+});
+test(`isNthChild(2, 1)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthChild(2, 1, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-child(2n+1)'
+    );
+});
+test(`isNthChild(2, 2)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNthChild(2, 2, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-child(2n+2)'
+    );
+});
+//#endregion test isNthChild()
+
+
