@@ -55,7 +55,8 @@ const enum SpecificityWeightStatus {
     TooSmall,
 }
 const calculateSpecificityWeightStatus = (pureSelector: PureSelector, minSpecificityWeight: number|null, maxSpecificityWeight: number|null): readonly [number, SpecificityWeightStatus] => {
-    const specificityWeight = calculateSpecificity(pureSelector)[1];
+    const specificityWeightParts = calculateSpecificity(pureSelector);
+    const specificityWeight = (specificityWeightParts[0] === 0) ? specificityWeightParts[1] : Infinity;
     
     
     
