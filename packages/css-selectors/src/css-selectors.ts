@@ -866,7 +866,7 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
     
     const filteredSelectors         : PureSelector[] = selectors.filter(isNotEmptySelector).map((selector) => selector.filter(isNotEmptySelectorEntry));
     const selectorsWithoutPseudoElm : PureSelector[] = filteredSelectors.filter((selector) => selector.every(isNotPseudoElementSelector)); // not contain ::pseudo-element
-    const selectorsOnlyPseudoElm    : PureSelector[] = filteredSelectors.filter((selector) => selector.some(isPseudoElementSelector));     // do  contain ::pseudo-element
+    const selectorsWithPseudoElm    : PureSelector[] = filteredSelectors.filter((selector) => selector.some(isPseudoElementSelector));     // is  contain ::pseudo-element
     
     
     
@@ -875,7 +875,7 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
             /* an empty Selector */
         ),
         
-        ...selectorsOnlyPseudoElm, // additional pseudoElm(s) (if any)
+        ...selectorsWithPseudoElm, // additional ungroupable selector(s) (if any)
     ); // empty selectors => nothing to group => return a SelectorGroup with an empty Selector + additional pseudoElm(s) (if any)
     
     
@@ -898,7 +898,7 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
             )
         ),
         
-        ...selectorsOnlyPseudoElm,
+        ...selectorsWithPseudoElm,
     );
 }
 export const groupSelector  = (selector : OptionalOrBoolean<Selector>     , options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorGroup & [Selector, ...Selector[]] => {
