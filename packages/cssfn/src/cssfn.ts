@@ -7,6 +7,8 @@ import type {
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
+    CssCustomProps,
+    
     CssRuleData,
     CssRule,
     CssRuleCollection,
@@ -276,3 +278,18 @@ export const isHover           = (...styles:         CssStyleCollection[]) => ru
 export const isNotHover        = (...styles:         CssStyleCollection[]) => rule(':not(:hover)'        , styles);
 export const isEmpty           = (...styles:         CssStyleCollection[]) => rule(     ':empty'         , styles);
 export const isNotEmpty        = (...styles:         CssStyleCollection[]) => rule(':not(:empty)'        , styles);
+
+
+
+// styles:
+/**
+ * Defines css properties.
+ * @returns A `CssRule` represents the css properties.
+ */
+export const style   = (style: CssStyle)                 => noRule(style);
+/**
+ * Defines css variables.
+ * @returns A `CssRule` represents the css variables.
+ */
+export const vars    = (items: CssCustomProps)           => noRule(items);
+export const imports = (...styles: CssStyleCollection[]) => noRule(...styles);
