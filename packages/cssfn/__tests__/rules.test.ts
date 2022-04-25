@@ -39,6 +39,10 @@ import {
     isNotHover,
     isEmpty,
     isNotEmpty,
+    
+    style,
+    vars,
+    imports,
 } from '../src/cssfn'
 import {
     isFinalSelector,
@@ -2279,3 +2283,70 @@ test(`isNotNthLastChild(2, 2)`, () => {
     );
 });
 //#endregion test isNotNthLastChild()
+
+
+
+test(`style()`, () => {
+    expect(mergeStyles(
+        style({
+            color      : 'blue',
+            background : 'lightblue',
+        })
+    ))
+    .toExactEqual({
+        color      : 'blue',
+        background : 'lightblue',
+    });
+});
+test(`vars()`, () => {
+    expect(mergeStyles(
+        vars({
+            '--site-name'      : 'bob',
+            '--bg-color'       : 'blue',
+            '--default-border' : [['solid', '1px', 'red'], '!important'],
+            'var(--myVar)'     : '"boo"',
+            'var(--myBorder)'  : [['dashed', '2px', 'blue']],
+        })
+    ))
+    .toExactEqual({
+        '--site-name'      : 'bob',
+        '--bg-color'       : 'blue',
+        '--default-border' : [['solid', '1px', 'red'], '!important'],
+        'var(--myVar)'     : '"boo"',
+        'var(--myBorder)'  : [['dashed', '2px', 'blue']],
+    });
+});
+test(`imports()`, () => {
+    expect(mergeStyles(
+        imports(
+            {
+                color      : 'blue',
+                background : 'lightblue',
+            },
+        )
+    ))
+    .toExactEqual({
+        color      : 'blue',
+        background : 'lightblue',
+    });
+});
+test(`imports()`, () => {
+    expect(mergeStyles(
+        imports(
+            {
+                color      : 'blue',
+                background : 'lightblue',
+            },
+            {
+                opacity    : 0.9,
+                width      : '300px',
+            },
+        )
+    ))
+    .toExactEqual({
+        color      : 'blue',
+        background : 'lightblue',
+        opacity    : 0.9,
+        width      : '300px',
+    });
+});
