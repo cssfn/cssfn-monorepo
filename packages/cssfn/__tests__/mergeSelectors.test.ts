@@ -21,6 +21,7 @@ import {
     
     // Selector creates & tests:
     pureSelectorGroup,
+    isNotEmptySelector,
     
     
     
@@ -180,7 +181,7 @@ groupList.forEach((group) => {
                         minSpecificityWeight,
                         maxSpecificityWeight
                     );
-                    newSelectors.forEach((newSelector) => {
+                    newSelectors.filter(isNotEmptySelector).forEach((newSelector) => {
                         const specificityWeight = calculateSpecificity(newSelector)[1];
                         
                         if (maxSpecificityWeight === 0) {
