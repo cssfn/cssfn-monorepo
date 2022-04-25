@@ -487,8 +487,9 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
     // we need to unwrap the :is(...) and :where(...) before grouping the similarities
     const normalizedSelectorGroup: PureSelector[] = (
         pureSelectorGroup
-        .flatMap((selector) => ungroupSelector(selector)) // SelectorGroup               =>  PureSelectorGroup === Selector[] === [ Selector...Selector... ]
-        .filter(isNotEmptySelector)                       // [ Selector...Selector... ]  =>  [ PureSelector...PureSelector... ]
+        .flatMap((selector) => ungroupSelector(selector))            // SelectorGroup  =>  PureSelectorGroup === Selector[] === [ Selector...Selector... ]
+        .filter(isNotEmptySelector)                                  // remove undefined|null|false|true|Selector(empty) => only real Selector
+        .map((selector) => selector.filter(isNotEmptySelectorEntry)) // remove undefined|null|false|true                 => only real SelectorEntry
     );
     
     
@@ -576,7 +577,8 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options?: CssSelect
     // so we only working with real_selector(s)
     const normalizedSelectorGroup: PureSelector[] = (
         selectorGroup
-        .filter(isNotEmptySelector) // [ Selector...Selector... ]  =>  [ PureSelector...PureSelector... ]
+        .filter(isNotEmptySelector)                                  // remove undefined|null|false|true|Selector(empty) => only real Selector
+        .map((selector) => selector.filter(isNotEmptySelectorEntry)) // remove undefined|null|false|true                 => only real SelectorEntry
     );
     
     
