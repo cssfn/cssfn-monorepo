@@ -2286,6 +2286,7 @@ test(`isNotNthLastChild(2, 2)`, () => {
 
 
 
+//#region styles
 test(`style()`, () => {
     expect(mergeStyles(
         style({
@@ -2350,3 +2351,4 @@ test(`imports()`, () => {
         width      : '300px',
     });
 });
+//#endregion styles

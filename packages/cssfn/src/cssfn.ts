@@ -43,7 +43,7 @@ import {
 export {
     StyleSheet,
     styleSheet,
-}                           from './styleSheet'
+}                           from './styleSheets'
 
 
 

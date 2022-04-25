@@ -12,7 +12,7 @@ import type {
 } from '../src/cssfn'
 import type {
     styleSheets as _styleSheets,
-} from '../src/styleSheet'
+} from '../src/styleSheets'
 import {
     jest,
 } from '@jest/globals'
@@ -60,7 +60,7 @@ jest.isolateModules(() => {
         simulateBrowserSide();
         
         const cssfnModule      = await import('../src/cssfn')
-        const styleSheetModule = await import('../src/styleSheet')
+        const styleSheetModule = await import('../src/styleSheets')
         
         styleSheet  = cssfnModule.styleSheet
         scopeOf     = cssfnModule.scopeOf
@@ -265,7 +265,7 @@ jest.isolateModules(() => {
         simulateServerSide();
         
         const cssfnModule      = await import('../src/cssfn')
-        const styleSheetModule = await import('../src/styleSheet')
+        const styleSheetModule = await import('../src/styleSheets')
         
         styleSheet  = cssfnModule.styleSheet
         scopeOf     = cssfnModule.scopeOf
