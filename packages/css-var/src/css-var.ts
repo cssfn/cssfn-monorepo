@@ -4,6 +4,7 @@ import type {
 }                           from '@cssfn/types'
 import type {
     CssCustomName,
+    CssCustomSimpleRef,
     CssCustomRef,
 }                           from '@cssfn/css-types'
 
@@ -20,7 +21,7 @@ import {
 
 
 // types:
-export type ReadonlyCssCustomRefs<TCssCustomProps extends {}> = Readonly<{ [key in keyof TCssCustomProps]: CssCustomRef  }>
+export type ReadonlyCssCustomRefs<TCssCustomProps extends {}> = Readonly<{ [key in keyof TCssCustomProps]: CssCustomSimpleRef  }>
 export type CssVar<TCssCustomProps extends {}>                = readonly [ReadonlyCssCustomRefs<TCssCustomProps>, LiveCssVarOptions]
 
 
@@ -122,9 +123,9 @@ export const createCssVar = <TCssCustomProps extends {}>(options: CssVarOptions 
     /**
      * Gets the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
      * @param propName The prop name to retrieve.
-     * @returns A `CssCustomRef` represents the expression for retrieving the value of the specified `propName`.
+     * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName`.
      */
-    const ref = (propName: string): CssCustomRef => {
+    const ref = (propName: string): CssCustomSimpleRef => {
         return `var(${decl(propName)})`;
     };
     
@@ -132,7 +133,7 @@ export const createCssVar = <TCssCustomProps extends {}>(options: CssVarOptions 
     
     return [
         // data proxy:
-        new Proxy<Dictionary<CssCustomRef>>(unusedObj, {
+        new Proxy<Dictionary<CssCustomSimpleRef>>(unusedObj, {
             get : (_unusedObj, propName: string) => ref(propName),
             set : setReadonlyHandler,
         }) as ReadonlyCssCustomRefs<TCssCustomProps>,
