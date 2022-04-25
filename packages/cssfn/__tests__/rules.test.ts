@@ -1999,4 +1999,98 @@ test(`isNthChild(2, 2)`, () => {
 });
 //#endregion test isNthChild()
 
+//#region test isNotNthChild()
+test(`isNotNthChild(0, 0)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthChild(0, 0, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:nth-child(n)'
+    );
+});
+test(`isNotNthChild(0, 1)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthChild(0, 1, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:not(:first-child)'
+    );
+});
+test(`isNotNthChild(0, 2)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthChild(0, 2, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:not(:nth-child(2))'
+    );
+});
+test(`isNotNthChild(1, 0)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthChild(1, 0, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        null
+    );
+});
+test(`isNotNthChild(1, 1)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthChild(1, 1, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:not(:nth-child(n+1))'
+    );
+});
+test(`isNotNthChild(1, 2)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthChild(1, 2, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:not(:nth-child(n+2))'
+    );
+});
+test(`isNotNthChild(2, 0)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthChild(2, 0, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:not(:nth-child(2n))'
+    );
+});
+test(`isNotNthChild(2, 1)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthChild(2, 1, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:not(:nth-child(2n+1))'
+    );
+});
+test(`isNotNthChild(2, 2)`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        isNotNthChild(2, 2, {
+            color: 'red',
+        })
+    )))
+    .toBe(
+        '&:not(:nth-child(2n+2))'
+    );
+});
+//#endregion test isNotNthChild()
+
+
 
