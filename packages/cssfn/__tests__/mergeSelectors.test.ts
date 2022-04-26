@@ -79,82 +79,82 @@ groupList.forEach((group) => {
             selector    : `:${group}(::before)`,
             specificity : isZeroSpecificity ? zeroSpecificity : [0, 0, 1],
         },
-        // {
-        //     selector    : `#product>.item::after`,
-        //     specificity : [1, 1, 1],
-        // },
-        // {
-        //     selector    : `:${group}(#product>.item::after)`,
-        //     specificity : isZeroSpecificity ? zeroSpecificity : [1, 1, 1],
-        // },
-        // {
-        //     selector    : `.product.unused>#some[thing="bleh"]:valid+:garbage:first-child`,
-        //     specificity : [1, 6, 0],
-        // },
-        // {
-        //     selector    : `:${group}(.product.unused>#some[thing="bleh"]:valid+:garbage:first-child)`,
-        //     specificity : isZeroSpecificity ? zeroSpecificity : [1, 6, 0],
-        // },
-        // {
-        //     selector    : `.ultra :deep #field+:nth-child(2n+3)`,
-        //     specificity : [1, 3, 0],
-        // },
-        // {
-        //     selector    : `:${group}(.ultra :deep #field+:nth-child(2n+3))`,
-        //     specificity : isZeroSpecificity ? zeroSpecificity : [1, 3, 0],
-        // },
-        // {
-        //     selector    : `#this:is(#very .exciting .thing)`,
-        //     specificity : [2, 2, 0],
-        // },
-        // {
-        //     selector    : `:${group}(#this:is(#very .exciting .thing))`,
-        //     specificity : isZeroSpecificity ? zeroSpecificity : [2, 2, 0],
-        // },
-        // {
-        //     selector    : `&>.sub+next`,
-        //     specificity : [0, 1, 1],
-        // },
-        // {
-        //     selector    : `:${group}(&>.sub+next)`,
-        //     specificity : isZeroSpecificity ? zeroSpecificity : [0, 1, 1],
-        // },
-        // {
-        //     selector    : `.ultra&:deep #field+:nth-child(2n+3)`,
-        //     specificity : [1, 3, 0],
-        // },
-        // {
-        //     selector    : `:${group}(.ultra&:deep #field+:nth-child(2n+3))`,
-        //     specificity : isZeroSpecificity ? zeroSpecificity : [1, 3, 0],
-        // },
-        // {
-        //     selector    : `#this:is(#very&.exciting>.thing)`,
-        //     specificity : [2, 2, 0],
-        // },
-        // {
-        //     selector    : `:${group}(#this:is(#very&.exciting>.thing))`,
-        //     specificity : isZeroSpecificity ? zeroSpecificity : [2, 2, 0],
-        // },
-        // {
-        //     selector    : `::backdrop[title="you & me"]`,
-        //     specificity : [0, 1, 1],
-        // },
-        // {
-        //     selector    : `:${group}(::backdrop[title="you & me"])`,
-        //     specificity : isZeroSpecificity ? zeroSpecificity : [0, 1, 1],
-        // },
-        // {
-        //     selector    : `:${group}(.ultra :deep #field+:nth-child(2n+3), #this:is(#very .exciting .thing))`,
-        //     specificity : isZeroSpecificity ? zeroSpecificity : [2, 2, 0], // max([1.3.0], [2.2.0]) === [2.2.0]
-        // },
-        // {
-        //     selector    : `:${group}(&>.sub+next, .ultra&:deep #field+:nth-child(2n+3), #this:is(#very&.exciting>.thing))`,
-        //     specificity : isZeroSpecificity ? zeroSpecificity : [2, 2, 0], // max([0.1.1], [1.3.0], [2.2.0]) === [2.2.0]
-        // },
-        // {
-        //     selector    : `:${group}(&>.sub+next, .ultra&:deep #field+:nth-child(2n+3), #this:is(#very&.exciting>.thing), #this:is(#very#specific#thing#ever))`,
-        //     specificity : isZeroSpecificity ? zeroSpecificity : [5, 0, 0], // max([0.1.1], [1.3.0], [2.2.0], [5.0.0]) === [5.0.0]
-        // },
+        {
+            selector    : `#product>.item::after`,
+            specificity : [1, 1, 1],
+        },
+        {
+            selector    : `:${group}(#product>.item::after)`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [1, 1, 1],
+        },
+        {
+            selector    : `.product.unused>#some[thing="bleh"]:valid+:garbage:first-child`,
+            specificity : [1, 6, 0],
+        },
+        {
+            selector    : `:${group}(.product.unused>#some[thing="bleh"]:valid+:garbage:first-child)`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [1, 6, 0],
+        },
+        {
+            selector    : `.ultra :deep #field+:nth-child(2n+3)`,
+            specificity : [1, 3, 0],
+        },
+        {
+            selector    : `:${group}(.ultra :deep #field+:nth-child(2n+3))`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [1, 3, 0],
+        },
+        {
+            selector    : `#this:is(#very .exciting .thing)`,
+            specificity : [2, 2, 0],
+        },
+        {
+            selector    : `:${group}(#this:is(#very .exciting .thing))`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [2, 2, 0],
+        },
+        {
+            selector    : `&>.sub+next`,
+            specificity : [0, 1, 1],
+        },
+        {
+            selector    : `:${group}(&>.sub+next)`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [0, 1, 1],
+        },
+        {
+            selector    : `.ultra&:deep #field+:nth-child(2n+3)`,
+            specificity : [1, 3, 0],
+        },
+        {
+            selector    : `:${group}(.ultra&:deep #field+:nth-child(2n+3))`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [1, 3, 0],
+        },
+        {
+            selector    : `#this:is(#very&.exciting>.thing)`,
+            specificity : [2, 2, 0],
+        },
+        {
+            selector    : `:${group}(#this:is(#very&.exciting>.thing))`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [2, 2, 0],
+        },
+        {
+            selector    : `::backdrop[title="you & me"]`,
+            specificity : [0, 1, 1],
+        },
+        {
+            selector    : `:${group}(::backdrop[title="you & me"])`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [0, 1, 1],
+        },
+        {
+            selector    : `:${group}(.ultra :deep #field+:nth-child(2n+3), #this:is(#very .exciting .thing))`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [2, 2, 0], // max([1.3.0], [2.2.0]) === [2.2.0]
+        },
+        {
+            selector    : `:${group}(&>.sub+next, .ultra&:deep #field+:nth-child(2n+3), #this:is(#very&.exciting>.thing))`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [2, 2, 0], // max([0.1.1], [1.3.0], [2.2.0]) === [2.2.0]
+        },
+        {
+            selector    : `:${group}(&>.sub+next, .ultra&:deep #field+:nth-child(2n+3), #this:is(#very&.exciting>.thing), #this:is(#very#specific#thing#ever))`,
+            specificity : isZeroSpecificity ? zeroSpecificity : [5, 0, 0], // max([0.1.1], [1.3.0], [2.2.0], [5.0.0]) === [5.0.0]
+        },
     ];
     tests.forEach(({ selector: selectorStr, specificity }) => {
         const selector = parseSelectors(
@@ -183,13 +183,6 @@ groupList.forEach((group) => {
                     );
                     newSelectors.filter(isNotEmptySelector).forEach((newSelector) => {
                         const specificityWeight = calculateSpecificity(newSelector)[1];
-                        
-                        if (maxSpecificityWeight === 0) {
-                            if ((specificityWeight === 1) && newSelector.some(isPseudoElementSelector)) {
-                                // console.log(newSelector, minSpecificityWeight, '<', specificityWeight, '<', maxSpecificityWeight);
-                                return; // skip to check, because ::pseudoElement cannot be wrapped with :where() to neutraize the specificity
-                            }
-                        } // if
                         
                         expect(specificityWeight)
                         .toBeGreaterThanOrEqual(minSpecificityWeight);
