@@ -1,21 +1,10 @@
 Optimize mergeSelectors => pure*** => ***
 
-type GroupBy
 
 
 // immediately invoked function:
 )()
 
-
-
-update parseSelectors to class based
-
-
-
-const\s+(?!create)[\w0-9_-]*GroupBy[\w0-9_-]+\s*=
-const\s+[\w0-9_-]*GroupBy[\w0-9_-]+\s*=
-
-type\s+GroupBy[\w0-9_-]+
 
 
 // accumulator reduce handler:
