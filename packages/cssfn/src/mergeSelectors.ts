@@ -253,8 +253,8 @@ const reduceSpecificity = (accum: ReducedSpecificity, selectorEntry: SelectorEnt
     // loop to next selectorEntry:
     return accum;
 }
-const lowerSpecificity = (pureSelector: PureSelector, excess: number): Selector => {
-    const reducedSpecificity = pureSelector.reduceRight(reduceSpecificity, { excess, unchanged: [], quarantined: [], buffered: [] });
+const lowerSpecificity = (pureSelector: PureSelector, excessSpecificityWeight: number, minSpecificityWeight: number|null): Selector => {
+    const reducedSpecificity = pureSelector.reduceRight(reduceSpecificity, { excess: excessSpecificityWeight, unchanged: [], quarantined: [], buffered: [] });
     if (reducedSpecificity.buffered.length) {
         reducedSpecificity.quarantined.unshift(reducedSpecificity.buffered);
     } // if
@@ -282,19 +282,29 @@ const lowerSpecificity = (pureSelector: PureSelector, excess: number): Selector 
     
     
     
+    const adjustSpecificitySelector : Selector = (
+        (reducedSpecificity.excess < 0)
+        ?
+        (new Array<SimpleSelector>(
+            (reducedSpecificity.excess !== Infinity)
+            ?
+            -reducedSpecificity.excess
+            :
+            ((minSpecificityWeight !== null) ? -minSpecificityWeight : 0) // eat all => zero specificity => might less than minSpecificityWeight => fix by -minSpecificityWeight
+        )).fill(
+            nthChildNSelector // or use `nth-child(n)`
+        )
+        :
+        []
+    );
+    
+    
+    
     // done:
     return createSelector(
         ...reducedSpecificity.unchanged,
         ...neutralizedSelector,
-        ...(
-            (reducedSpecificity.excess < 0)
-            ?
-            (new Array<SimpleSelector>(-reducedSpecificity.excess)).fill(
-                nthChildNSelector // or use `nth-child(n)`
-            )
-            :
-            []
-        ),
+        ...adjustSpecificitySelector,
     );
 }
 
@@ -371,7 +381,8 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
         ...tooBigSelectors.flatMap((group) => {
             const lowered = lowerSpecificity(
                 group.selector,
-                (group.specificityWeight - (maxSpecificityWeight ?? group.specificityWeight))
+                (group.specificityWeight - (maxSpecificityWeight ?? group.specificityWeight)),
+                minSpecificityWeight
             );
             
             const reversedSelector : PureSelector = group.selector.reverse(); // reverse & mutate the current `group.selector` array. It's okay to mutate the `selector` because it was cloned by `selector.filter()` when grouped
