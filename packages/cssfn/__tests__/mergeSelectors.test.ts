@@ -487,6 +487,83 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
     );
 });
 //#endregion test with some selectors
+
+
+
+//#region test with some selectors + ::pseudoElm
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa:active:first-child, .bbb[title="bleh"], #ccc::before`
+    )!)))
+    .toBe(
+        `:is(.aaa:active:first-child, .bbb[title="bleh"]), #ccc::before`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa:active:first-child, :is(.bbb[title="bleh"]), #ccc::before`
+    )!)))
+    .toBe(
+        `:is(.aaa:active:first-child, .bbb[title="bleh"]), #ccc::before`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa:active:first-child, :where(.bbb[title="bleh"]), #ccc::before`
+    )!)))
+    .toBe(
+        `:is(.aaa:active:first-child, .bbb[title="bleh"]), #ccc::before`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa:active:first-child, :not(.bbb[title="bleh"]), #ccc::before`
+    )!)))
+    .toBe(
+        `:is(.aaa:active:first-child, :not(.bbb[title="bleh"])), #ccc::before`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `.aaa:active:first-child, :has(.bbb[title="bleh"]), #ccc::before`
+    )!)))
+    .toBe(
+        `:is(.aaa:active:first-child, :has(.bbb[title="bleh"])), #ccc::before`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(.aaa:active:first-child), :is(:is(:is(.bbb[title="bleh"]))), #ccc::before`
+    )!)))
+    .toBe(
+        `:is(.aaa:active:first-child, .bbb[title="bleh"]), #ccc::before`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:is(:is(.aaa:active:first-child), :is(:is(:is(.bbb[title="bleh"]))))), #ccc::before`
+    )!)))
+    .toBe(
+        `:is(.aaa:active:first-child, .bbb[title="bleh"]), #ccc::before`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(.aaa:active:first-child), :where(:is(:is(.bbb[title="bleh"]))), #ccc::before`
+    )!)))
+    .toBe(
+        `:is(.aaa:active:first-child, .bbb[title="bleh"]), #ccc::before`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:where(:is(.aaa:active:first-child), :where(:is(:is(.bbb[title="bleh"]))))), #ccc::before`
+    )!)))
+    .toBe(
+        `:is(.aaa:active:first-child, .bbb[title="bleh"]), #ccc::before`
+    );
+});
+//#endregion test with some selectors + ::pseudoElm
 //#endregion test with mergeable no-parent selectors
 
 
@@ -611,6 +688,83 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
     );
 });
 //#endregion test with some selectors
+
+
+
+//#region test with some selectors + ::pseudoElm
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `&, &, &, &::before`
+    )!)))
+    .toBe(
+        `&::before, &`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `&, :is(&, &), &::before`
+    )!)))
+    .toBe(
+        `&::before, &`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `&, :where(&, &), &::before`
+    )!)))
+    .toBe(
+        `&::before, &`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `&, :not(&, &), &::before`
+    )!)))
+    .toBe(
+        `:not(&, &), &::before, &`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `&, :has(&, &), &::before`
+    )!)))
+    .toBe(
+        `:has(&, &), &::before, &`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(&), :is(:is(:is(&), :is(&))), &::before`
+    )!)))
+    .toBe(
+        `&::before, &`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:is(:is(&), :is(:is(:is(&), :is(&))))), &::before`
+    )!)))
+    .toBe(
+        `&::before, &`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:where(&), :where(:is(:is(&), :where(&))), &::before`
+    )!)))
+    .toBe(
+        `&::before, &`
+    );
+});
+test(`mergeSelectors([mergeable-selectors...])`, () => {
+    expect(selectorsToString(mergeSelectors(parseSelectors(
+        `:is(:where(:is(&), :where(:is(:is(&), :where(&))))), &::before`
+    )!)))
+    .toBe(
+        `&::before, &`
+    );
+});
+//#endregion test with some selectors + ::pseudoElm
 //#endregion test with mergeable only-parent selectors
 
 
