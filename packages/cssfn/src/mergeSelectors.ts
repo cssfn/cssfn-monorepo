@@ -283,14 +283,14 @@ const lowerSpecificity = (pureSelector: PureSelector, excessSpecificityWeight: n
     
     
     const adjustSpecificitySelector : Selector = (
-        (reducedSpecificity.excess < 0)
+        ((reducedSpecificity.excess === Infinity) || (reducedSpecificity.excess < 0))
         ?
         (new Array<SimpleSelector>(
-            (reducedSpecificity.excess !== Infinity)
+            (reducedSpecificity.excess === Infinity)
             ?
-            -reducedSpecificity.excess
-            :
             ((minSpecificityWeight !== null) ? -minSpecificityWeight : 0) // eat all => zero specificity => might less than minSpecificityWeight => fix by -minSpecificityWeight
+            :
+            -reducedSpecificity.excess
         )).fill(
             nthChildNSelector // or use `nth-child(n)`
         )
