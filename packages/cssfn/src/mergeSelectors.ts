@@ -288,7 +288,7 @@ const lowerSpecificity = (pureSelector: PureSelector, excessSpecificityWeight: n
         (
             (reducedSpecificity.excess === Infinity)
             ?
-            ((minSpecificityWeight !== null) ? -minSpecificityWeight : 0) // eat all => zero specificity => might less than minSpecificityWeight => fix by -minSpecificityWeight
+            (minSpecificityWeight ?? 0) // eat all => zero specificity => might less than minSpecificityWeight => fix by assigning minSpecificityWeight
             :
             -reducedSpecificity.excess
         )
