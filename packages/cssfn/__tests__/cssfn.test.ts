@@ -2532,3 +2532,37 @@ test(`iif(true, isFirstChild())`, () => {
     });
 });
 //#endregion test iif()
+
+
+
+//#region test escapeSvg()
+test(`escapeSvg()`, () => {
+    expect(escapeSvg(
+        `<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#000'/></svg>`
+    ))
+    .toBe(
+        `%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23000'/%3e%3c/svg%3e`
+    );
+});
+//#endregion test escapeSvg()
+
+
+
+//#region test solidBackg()
+test(`solidBackg()`, () => {
+    expect(solidBackg(
+        'red'
+    ))
+    .toEqual(
+        [['linear-gradient(red, red)', 'border-box']]
+    );
+});
+test(`solidBackg()`, () => {
+    expect(solidBackg(
+        'var(--myFavColor)'
+    ))
+    .toEqual(
+        [['linear-gradient(var(--myFavColor), var(--myFavColor))', 'border-box']]
+    );
+});
+//#endregion test solidBackg()

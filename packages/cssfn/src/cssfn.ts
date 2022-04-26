@@ -362,5 +362,5 @@ export const escapeSvg = (svgData: string): string => {
  * @returns A `CssCustomValue` represents a solid background.
  */
 export const solidBackg = (color: CssCustomValue, clip : CssKnownValueOf<'backgroundClip'> = 'border-box'): CssCustomValue => {
-    return [[`linear-gradient(${color},${color})`, clip]];
+    return [[`linear-gradient(${color}, ${color})`, clip]];
 }
