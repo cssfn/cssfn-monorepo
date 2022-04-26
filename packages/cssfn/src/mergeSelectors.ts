@@ -282,20 +282,21 @@ const lowerSpecificity = (pureSelector: PureSelector, excessSpecificityWeight: n
     
     
     
-    const adjustSpecificitySelector : Selector = (
+    const missingSpecificityWeight : number = (
         ((reducedSpecificity.excess === Infinity) || (reducedSpecificity.excess < 0))
         ?
-        (new Array<SimpleSelector>(
+        (
             (reducedSpecificity.excess === Infinity)
             ?
             ((minSpecificityWeight !== null) ? -minSpecificityWeight : 0) // eat all => zero specificity => might less than minSpecificityWeight => fix by -minSpecificityWeight
             :
             -reducedSpecificity.excess
-        )).fill(
-            nthChildNSelector // or use `nth-child(n)`
         )
         :
-        []
+        0
+    );
+    const adjustSpecificitySelector : Selector = new Array<SimpleSelector>(missingSpecificityWeight).fill(
+        nthChildNSelector // or use `nth-child(n)`
     );
     
     
