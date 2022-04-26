@@ -91,8 +91,8 @@ const createGroupBySpecificityWeightStatus = (minSpecificityWeight: number|null,
     return accum;
 }
 
-type EatExcessSelectorEntry = { remaining: number, eaten: PureSelector }
-const eatExcessSelectorEntry = (accum: EatExcessSelectorEntry, selectorEntry: SelectorEntry, index: number, array: SelectorEntry[]): EatExcessSelectorEntry => {
+type EatenExcessSelectorEntry = { remaining: number, eaten: PureSelector }
+const eatExcessSelectorEntry = (accum: EatenExcessSelectorEntry, selectorEntry: SelectorEntry, index: number, array: SelectorEntry[]): EatenExcessSelectorEntry => {
     if (accum.remaining <= 0) {
         array.splice(1); // eject early by mutating iterated copy - it's okay to **mutate** the `array` because it already cloned at `slice(0)`
         return accum;    // the final accumulation result
@@ -229,7 +229,7 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
         ...tooBigSelectors.flatMap((group) => {
             const reversedSelector : PureSelector = group.selector.reverse(); // reverse & mutate the current `group.selector` array. It's okay to mutate the `selector` because it was cloned by `selector.filter()` when grouped
             
-            const { eaten: reversedEatenSelector, remaining: remainingSpecificityWeight } : EatExcessSelectorEntry = (
+            const { eaten: reversedEatenSelector, remaining: remainingSpecificityWeight } : EatenExcessSelectorEntry = (
                 (group.specificityWeight === Infinity)
                 ?
                 {
@@ -241,7 +241,7 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
                 .reduce(eatExcessSelectorEntry, ({
                     remaining : (group.specificityWeight - (maxSpecificityWeight ?? group.specificityWeight)),
                     eaten     : [],
-                } as EatExcessSelectorEntry))
+                } as EatenExcessSelectorEntry))
             );
             
             
