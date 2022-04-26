@@ -53,6 +53,10 @@ import {
     style,
     vars,
     imports,
+    
+    iif,
+    escapeSvg,
+    solidBackg,
 } from '../src/cssfn'
 import {
     isFinalSelector,
@@ -2425,3 +2429,106 @@ test(`imports()`, () => {
     });
 });
 //#endregion styles
+
+
+
+//#region test iif()
+test(`iif()`, () => {
+    expect(mergeStyles({
+        opacity: 0.5,
+        visibility: 'visible',
+        ...iif(false, style({
+            background: 'pink',
+            color: 'red',
+        })),
+    }))
+    .toExactEqual({
+        opacity: 0.5,
+        visibility: 'visible',
+    });
+});
+test(`iif()`, () => {
+    expect(mergeStyles({
+        opacity: 0.5,
+        visibility: 'visible',
+        ...iif(true, style({
+            background: 'pink',
+            color: 'red',
+        })),
+    }))
+    .toExactEqual({
+        opacity: 0.5,
+        visibility: 'visible',
+        background: 'pink',
+        color: 'red',
+    });
+});
+
+test(`iif(false, isFirstChild())`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        iif(false, isFirstChild({
+            color: 'red',
+        }))
+    )))
+    .toBe(
+        null
+    );
+});
+test(`iif(false, isFirstChild())`, () => {
+    expect(firstStylesOf(mergeStyles(
+        iif(false, isFirstChild([
+            {
+                background: 'pink',
+                color: 'red',
+            },
+            {
+                opacity: 0.5,
+                visibility: 'visible',
+            },
+            {
+                display: 'flex',
+                flexDirection: 'column',
+            },
+        ]))
+    )))
+    .toBe(
+        null
+    );
+});
+test(`iif(true, isFirstChild())`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        iif(true, isFirstChild({
+            color: 'red',
+        }))
+    )))
+    .toBe(
+        '&:first-child'
+    );
+});
+test(`iif(true, isFirstChild())`, () => {
+    expect(firstStylesOf(mergeStyles(
+        iif(true, isFirstChild([
+            {
+                background: 'pink',
+                color: 'red',
+            },
+            {
+                opacity: 0.5,
+                visibility: 'visible',
+            },
+            {
+                display: 'flex',
+                flexDirection: 'column',
+            },
+        ]))
+    )))
+    .toExactEqual({
+        background: 'pink',
+        color: 'red',
+        opacity: 0.5,
+        visibility: 'visible',
+        display: 'flex',
+        flexDirection: 'column',
+    });
+});
+//#endregion test iif()

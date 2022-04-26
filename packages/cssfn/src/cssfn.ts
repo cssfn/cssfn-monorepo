@@ -4,10 +4,17 @@ import type {
     OptionalOrBoolean,
     
     Factory,
+    
+    Dictionary,
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
+    CssCustomValue,
     CssCustomProps,
+    
+    CssKnownValueOf,
+    
+    CssProps,
     
     CssRuleData,
     CssRule,
@@ -320,3 +327,40 @@ export const style   = (style: CssStyle)                 => noRule(style);
  */
 export const vars    = (items: CssCustomProps)           => noRule(items);
 export const imports = (...styles: CssStyleCollection[]) => noRule(...styles);
+
+
+
+// utilities:
+export const iif = <TCssStyle extends (CssProps|CssRule|CssStyle)>(condition: boolean, content: TCssStyle): TCssStyle => {
+    return condition ? content : ({} as TCssStyle);
+};
+/**
+ * Escapes some sets of character in svg data, so it will be valid to be written in css.
+ * @param svgData The raw svg data to be escaped.
+ * @returns A `string` represents an escaped svg data.
+ */
+export const escapeSvg = (svgData: string): string => {
+    const escapedChars: Dictionary<string> = {
+        '<': '%3c',
+        '>': '%3e',
+        '#': '%23',
+        '(': '%28',
+        ')': '%29',
+    };
+    
+    const svgDataCopy = Array.from(svgData);
+    for (const index in svgDataCopy) {
+        const char = svgDataCopy[index];
+        if (char in escapedChars) svgDataCopy[index] = escapedChars[char];
+    }
+    
+    return svgDataCopy.join('');
+};
+/**
+ * Creates a single layer of solid background based on the specified `color`.
+ * @param color The color of the solid background to create.
+ * @returns A `CssCustomValue` represents a solid background.
+ */
+export const solidBackg = (color: CssCustomValue, clip : CssKnownValueOf<'backgroundClip'> = 'border-box'): CssCustomValue => {
+    return [[`linear-gradient(${color},${color})`, clip]];
+}
