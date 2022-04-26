@@ -413,6 +413,7 @@ test(`mergeSelectors([((.only-one))])`, () => {
 
 
 
+//#region test with some selectors
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `.aaa:active:first-child, .bbb[title="bleh"], #ccc`
@@ -469,7 +470,6 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
         `:is(.aaa:active:first-child, .bbb[title="bleh"], #ccc)`
     );
 });
-
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `:where(.aaa:active:first-child), :where(:is(:is(.bbb[title="bleh"]), :where(#ccc)))`
@@ -486,6 +486,7 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
         `:is(.aaa:active:first-child, .bbb[title="bleh"], #ccc)`
     );
 });
+//#endregion test with some selectors
 //#endregion test with mergeable no-parent selectors
 
 
@@ -536,6 +537,7 @@ test(`mergeSelectors([((.only-one))])`, () => {
 
 
 
+//#region test with some selectors
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `&, &, &`
@@ -608,6 +610,7 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
         `&`
     );
 });
+//#endregion test with some selectors
 //#endregion test with mergeable only-parent selectors
 
 
@@ -658,6 +661,7 @@ test(`mergeSelectors([((.only-one))])`, () => {
 
 
 
+//#region test with some selectors
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `&.aaa:active:first-child, &.bbb[title="bleh"], &#ccc`
@@ -714,7 +718,6 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
         `&:is(.aaa:active:first-child, .bbb[title="bleh"], #ccc)`
     );
 });
-
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `:where(&.aaa:active:first-child), :where(:is(:is(&.bbb[title="bleh"]), :where(&#ccc)))`
@@ -731,6 +734,7 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
         `&:is(.aaa:active:first-child, .bbb[title="bleh"], #ccc)`
     );
 });
+//#endregion test with some selectors
 //#endregion test with mergeable prefixed-parent selectors
 
 //#region test with mergeable prefixed-parent-combinator selectors
@@ -779,6 +783,7 @@ test(`mergeSelectors([((.only-one))])`, () => {
 
 
 
+//#region test with some selectors
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `&>.aaa:active:first-child, &>.bbb[title="bleh"], &>#ccc`
@@ -835,7 +840,6 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
         `&>:is(.aaa:active:first-child, .bbb[title="bleh"], #ccc)`
     );
 });
-
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `:where(&>.aaa:active:first-child), :where(:is(:is(&>.bbb[title="bleh"]), :where(&>#ccc)))`
@@ -852,6 +856,7 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
         `&>:is(.aaa:active:first-child, .bbb[title="bleh"], #ccc)`
     );
 });
+//#endregion test with some selectors
 //#endregion test with mergeable prefixed-parent-combinator selectors
 
 
@@ -902,6 +907,7 @@ test(`mergeSelectors([((.only-one))])`, () => {
 
 
 
+//#region test with some selectors
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `.aaa:active:first-child&, .bbb[title="bleh"]&, #ccc&`
@@ -958,7 +964,6 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
         `:is(.aaa:active:first-child, .bbb[title="bleh"], #ccc)&`
     );
 });
-
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `:where(.aaa:active:first-child&), :where(:is(:is(.bbb[title="bleh"]&), :where(#ccc&)))`
@@ -975,6 +980,7 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
         `:is(.aaa:active:first-child, .bbb[title="bleh"], #ccc)&`
     );
 });
+//#endregion test with some selectors
 //#endregion test with mergeable suffixed-parent selectors
 
 //#region test with mergeable suffixed-parent-combinator selectors
@@ -1023,6 +1029,7 @@ test(`mergeSelectors([((.only-one))])`, () => {
 
 
 
+//#region test with some selectors
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `.aaa:active:first-child>&, .bbb[title="bleh"]>&, #ccc>&`
@@ -1079,7 +1086,6 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
         `:is(.aaa:active:first-child, .bbb[title="bleh"], #ccc)>&`
     );
 });
-
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `:where(.aaa:active:first-child>&), :where(:is(:is(.bbb[title="bleh"]>&), :where(#ccc>&)))`
@@ -1096,6 +1102,7 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
         `:is(.aaa:active:first-child, .bbb[title="bleh"], #ccc)>&`
     );
 });
+//#endregion test with some selectors
 //#endregion test with mergeable suffixed-parent-combinator selectors
 
 
@@ -1146,6 +1153,7 @@ test(`mergeSelectors([((.only-one))])`, () => {
 
 
 
+//#region test with some selectors
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `.aaa:active&:first-child, .bbb&[title="bleh"], #ccc&:valid`
@@ -1202,7 +1210,6 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
         `.aaa:active&:first-child, .bbb&[title="bleh"], #ccc&:valid`
     );
 });
-
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `:where(.aaa:active&:first-child), :where(:is(:is(.bbb&[title="bleh"]), :where(#ccc&:valid)))`
@@ -1219,6 +1226,7 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
         `.aaa:active&:first-child, .bbb&[title="bleh"], #ccc&:valid`
     );
 });
+//#endregion test with some selectors
 //#endregion test with mergeable random-parent selectors
 
 //#region test with mergeable random-parent-combinator selectors
@@ -1267,6 +1275,7 @@ test(`mergeSelectors([((.only-one))])`, () => {
 
 
 
+//#region test with some selectors
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `.aaa:active&>:first-child, .bbb>&[title="bleh"], #ccc>&:valid`
@@ -1323,7 +1332,6 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
         `.aaa:active&>:first-child, .bbb>&[title="bleh"], #ccc>&:valid`
     );
 });
-
 test(`mergeSelectors([mergeable-selectors...])`, () => {
     expect(selectorsToString(mergeSelectors(parseSelectors(
         `:where(.aaa:active&>:first-child), :where(:is(:is(.bbb>&[title="bleh"]), :where(#ccc>&:valid)))`
@@ -1340,6 +1348,7 @@ test(`mergeSelectors([mergeable-selectors...])`, () => {
         `.aaa:active&>:first-child, .bbb>&[title="bleh"], #ccc>&:valid`
     );
 });
+//#endregion test with some selectors
 //#endregion test with mergeable random-parent-combinator selectors
 
 //#endregion test mergeSelectors()
