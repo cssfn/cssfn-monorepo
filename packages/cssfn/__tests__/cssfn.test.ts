@@ -2,10 +2,15 @@ import type {
     CssRule,
     CssStyle,
     CssStyleCollection,
+    
+    CssSelectorCollection,
+    CssSelectorOptions,
 } from '@cssfn/css-types'
+import type {
+    Combinator,
+} from '@cssfn/css-selectors'
 import {
     mergeStyles,
-    mergeNested,
 } from '../src/mergeStyles'
 import {
     rule,
@@ -39,6 +44,11 @@ import {
     isNotHover,
     isEmpty,
     isNotEmpty,
+    
+    descendants,
+    children,
+    siblings,
+    nextSiblings,
     
     style,
     vars,
@@ -2283,6 +2293,69 @@ test(`isNotNthLastChild(2, 2)`, () => {
     );
 });
 //#endregion test isNotNthLastChild()
+
+
+
+//#region combinators
+const combinators : (readonly [((selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions) => CssRule), Combinator])[] = [
+    [descendants , ' '],
+    [children    , '>'],
+    [siblings    , '~'],
+    [nextSiblings, '+'],
+];
+combinators.forEach(([combinatorFunc, combinator]) => {
+    test(`${combinatorFunc.name}()`, () => {
+        expect(firstSelectorOf(mergeStyles(
+            combinatorFunc(`.boo`, {
+                color: `red`,
+            })
+        )))
+        .toBe(
+            `&${combinator}.boo`
+        );
+    });
+    test(`${combinatorFunc.name}()`, () => {
+        expect(firstSelectorOf(mergeStyles(
+            combinatorFunc([`.boo`, `:foo`], {
+                color: `red`,
+            })
+        )))
+        .toBe(
+            `&${combinator}:is(.boo, :foo)`
+        );
+    });
+    test(`${combinatorFunc.name}()`, () => {
+        expect(firstSelectorOf(mergeStyles(
+            combinatorFunc([`.boo`, `:foo`, `::doo`], {
+                color: `red`,
+            })
+        )))
+        .toBe(
+            `&${combinator}:is(.boo, :foo), &::doo`
+        );
+    });
+    test(`${combinatorFunc.name}()`, () => {
+        expect(firstSelectorOf(mergeStyles(
+            combinatorFunc([`.boo`, `:foo`, `::doo`], {
+                color: `red`,
+            }, { minSpecificityWeight: 3 })
+        )))
+        .toBe(
+            `&${combinator}:is(.boo, :foo):nth-child(n):nth-child(n), &::doo:nth-child(n):nth-child(n):nth-child(n)`
+        );
+    });
+    test(`${combinatorFunc.name}()`, () => {
+        expect(firstSelectorOf(mergeStyles(
+            combinatorFunc([`.boo`, `:foo`, `::doo`], {
+                color: `red`,
+            }, { maxSpecificityWeight: 0 })
+        )))
+        .toBe(
+            `&::doo, &${combinator}:where(.boo, :foo)`
+        );
+    });
+});
+//#endregion combinators
 
 
 
