@@ -380,30 +380,22 @@ const groupBySuffixCombinator = createGroupByCombinator(/* groupByCombinator: */
 
 const removeCommonPrefixedParentSelector               = (pureSelector: PureSelector): PureSelector => {
     return pureSelector.slice(
-        1 // remove the ParentSelector
-        +
-        (pureSelector.some(isPseudoElementSelector) ? -1 : 0) // exception for ::pseudo-element => do not remove the ParentSelector
+        1 // remove the prefixed ParentSelector
     );
 }
 const removeCommonPrefixedParentSelectorWithCombinator = (pureSelector: PureSelector): PureSelector => {
     return pureSelector.slice(
-        2 // remove the ParentSelector & Combinator
-        +
-        (pureSelector.some(isPseudoElementSelector) ? -1 : 0) // exception for ::pseudo-element => do not remove the ParentSelector
+        2 // remove the prefixed ParentSelector & Combinator
     );
 }
 const removeCommonSuffixedParentSelector               = (pureSelector: PureSelector): PureSelector => {
     return pureSelector.slice(0,
-        -1 // remove the ParentSelector
-        +
-        (pureSelector.some(isPseudoElementSelector) ? 1 : 0) // exception for ::pseudo-element => do not remove the ParentSelector
+        -1 // remove the suffixed ParentSelector
     );
 }
 const removeCommonSuffixedParentSelectorWithCombinator = (pureSelector: PureSelector): PureSelector => {
     return pureSelector.slice(0,
-        -2 // remove the Combinator & ParentSelector
-        +
-        (pureSelector.some(isPseudoElementSelector) ? 1 : 0) // exception for ::pseudo-element => do not remove the ParentSelector
+        -2 // remove the suffixed Combinator & ParentSelector
     );
 }
 const createCommonPrefixedParentSelector = (isSelector: Selector, combinator: Combinator | null): Selector => {
@@ -448,7 +440,13 @@ const createBaseParentSelectorGroup      = (
         const [isSelector, ...selectorsWithPseudoElm] = groupSelectors(
             conditionalRemoveCommonParentSelector
             ?
-            selectors.map(conditionalRemoveCommonParentSelector)
+            selectors.map((selector) =>
+                selector.some(isPseudoElementSelector)
+                ?
+                selector
+                :
+                conditionalRemoveCommonParentSelector(selector)
+            )
             :
             selectors
         );
