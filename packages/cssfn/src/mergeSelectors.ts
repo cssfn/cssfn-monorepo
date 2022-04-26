@@ -380,30 +380,30 @@ const groupBySuffixCombinator = createGroupByCombinator(/* groupByCombinator: */
 
 const removeCommonPrefixedParentSelector               = (pureSelector: PureSelector): PureSelector => {
     return pureSelector.slice(
-        1 // remove the first_parent
+        1 // remove the ParentSelector
         +
-        (pureSelector.some(isPseudoElementSelector) ? -1 : 0) // exception for ::pseudo-element => do not remove the first_parent
+        (pureSelector.some(isPseudoElementSelector) ? -1 : 0) // exception for ::pseudo-element => do not remove the ParentSelector
     );
 }
 const removeCommonPrefixedParentSelectorWithCombinator = (pureSelector: PureSelector): PureSelector => {
     return pureSelector.slice(
-        2 // remove the first_parent & combinator
+        2 // remove the ParentSelector & Combinator
         +
-        (pureSelector.some(isPseudoElementSelector) ? -1 : 0) // exception for ::pseudo-element => do not remove the first_parent
+        (pureSelector.some(isPseudoElementSelector) ? -1 : 0) // exception for ::pseudo-element => do not remove the ParentSelector
     );
 }
 const removeCommonSuffixedParentSelector               = (pureSelector: PureSelector): PureSelector => {
     return pureSelector.slice(0,
-        -1 // remove the last_parent
+        -1 // remove the ParentSelector
         +
-        (pureSelector.some(isPseudoElementSelector) ? 1 : 0) // exception for ::pseudo-element => do not remove the last_parent
+        (pureSelector.some(isPseudoElementSelector) ? 1 : 0) // exception for ::pseudo-element => do not remove the ParentSelector
     );
 }
 const removeCommonSuffixedParentSelectorWithCombinator = (pureSelector: PureSelector): PureSelector => {
     return pureSelector.slice(0,
-        -2 // remove the combinator & last_parent
+        -2 // remove the Combinator & ParentSelector
         +
-        (pureSelector.some(isPseudoElementSelector) ? 1 : 0) // exception for ::pseudo-element => do not remove the last_parent
+        (pureSelector.some(isPseudoElementSelector) ? 1 : 0) // exception for ::pseudo-element => do not remove the ParentSelector
     );
 }
 const createCommonPrefixedParentSelector = (isSelector: Selector, combinator: Combinator | null): Selector => {
