@@ -25,7 +25,6 @@ import {
     isNotPseudoElementSelector,
     isCombinator,
     createSelector,
-    createPureSelector,
     createSelectorGroup,
     isNotEmptySelectorEntry,
     isNotEmptySelector,
@@ -92,71 +91,7 @@ const createGroupBySpecificityWeightStatus = (minSpecificityWeight: number|null,
     return accum;
 }
 
-type EatenExcessSelectorEntry = { remaining: number, eaten: PureSelector }
-const eatExcessSelectorEntry = (accum: EatenExcessSelectorEntry, selectorEntry: SelectorEntry, index: number, array: SelectorEntry[]): EatenExcessSelectorEntry => {
-    if (accum.remaining <= 0) {
-        array.splice(1); // eject early by mutating iterated copy - it's okay to **mutate** the `array` because it already cloned at `slice(0)`
-        return accum;    // the final accumulation result
-    } // if
-    
-    
-    
-    if (isSimpleSelector(selectorEntry)) { // only interested of SimpleSelector, ignore the Combinator
-        const [
-            /*
-                selector tokens:
-                '&'  = parent         selector
-                '*'  = universal      selector
-                '['  = attribute      selector
-                ''   = element        selector
-                '#'  = ID             selector
-                '.'  = class          selector
-                ':'  = pseudo class   selector
-                '::' = pseudo element selector
-            */
-            selectorToken,
-            
-            /*
-                selector name:
-                string = the name of [element, ID, class, pseudo class, pseudo element] selector
-            */
-            selectorName,
-            
-            /*
-                selector parameter(s):
-                string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
-                array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
-                SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
-            */
-            // selectorParams,
-        ] = selectorEntry;
-        if (selectorToken === ':') { // pseudo class selector
-            switch (selectorName) {
-                case 'is':
-                case 'not':
-                case 'has':
-                    const specificityWeight = calculateSpecificity([selectorEntry])[1];
-                    accum.remaining -= specificityWeight; // reduce the counter (might be a negative value if `specificityWeight` > `accum.remaining`)
-                    break;
-                
-                case 'where':
-                    break; // don't reduce the counter
-                
-                default:
-                    accum.remaining--; // reduce the counter
-            } // switch
-        }
-        else if (['.', '[',].includes(selectorToken)) { // class selector or attribute selector
-            accum.remaining--; // reduce the counter
-        } // if
-    } // if
-    
-    
-    
-    accum.eaten.push(selectorEntry); // eat the current SimpleSelector or Combinator
-    return accum;
-}
-
+const nthChildNSelector = pseudoClassSelector('nth-child', 'n');
 type ReducedSpecificity = { excess: number, unchanged: SelectorEntry[], quarantined: (SelectorEntry[]|PseudoElementSelector)[], buffered: SelectorEntry[] }
 const reduceSpecificity = (accum: ReducedSpecificity, selectorEntry: SelectorEntry): ReducedSpecificity => {
     if (accum.excess <= 0) {
@@ -253,7 +188,7 @@ const reduceSpecificity = (accum: ReducedSpecificity, selectorEntry: SelectorEnt
     // loop to next selectorEntry:
     return accum;
 }
-const lowerSpecificity = (pureSelector: PureSelector, excessSpecificityWeight: number, minSpecificityWeight: number|null): Selector => {
+const decreaseSpecificity = (pureSelector: PureSelector, excessSpecificityWeight: number, minSpecificityWeight: number|null): Selector => {
     const reducedSpecificity = pureSelector.reduceRight(reduceSpecificity, { excess: excessSpecificityWeight, unchanged: [], quarantined: [], buffered: [] });
     if (reducedSpecificity.buffered.length) {
         reducedSpecificity.quarantined.unshift(reducedSpecificity.buffered);
@@ -308,8 +243,58 @@ const lowerSpecificity = (pureSelector: PureSelector, excessSpecificityWeight: n
         ...adjustSpecificitySelector,
     );
 }
+const increaseSpecificity = (pureSelector: PureSelector, missingSpecificityWeight: number) => {
+    const adjustSpecificitySelector : Selector = new Array<SimpleSelector>(missingSpecificityWeight).fill(
+        pureSelector
+        .filter(isClassOrPseudoClassSelector) // only interested to class selector -or- pseudo class selector
+        .filter((simpleSelector) => {         // pseudo class selector without parameters
+            const [
+                /*
+                    selector tokens:
+                    '&'  = parent         selector
+                    '*'  = universal      selector
+                    '['  = attribute      selector
+                    ''   = element        selector
+                    '#'  = ID             selector
+                    '.'  = class          selector
+                    ':'  = pseudo class   selector
+                    '::' = pseudo element selector
+                */
+                // selectorToken
+                ,
+                
+                /*
+                    selector name:
+                    string = the name of [element, ID, class, pseudo class, pseudo element] selector
+                */
+                // selectorName
+                ,
+                
+                /*
+                    selector parameter(s):
+                    string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
+                    array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
+                    SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
+                */
+                selectorParams,
+            ] = simpleSelector;
+            
+            return (selectorParams === undefined);
+        })
+        .pop()            // take the last interested selector. It's okay to mutate the `selector` because it was cloned by `filter()`
+        ??
+        nthChildNSelector // or use `nth-child(n)`
+    );
+    
+    
+    
+    // done:
+    return createSelector(
+        ...pureSelector,
+        ...adjustSpecificitySelector,
+    );
+}
 
-const nthChildNSelector = pseudoClassSelector('nth-child', 'n');
 export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSpecificityWeight: number|null, maxSpecificityWeight: number|null): SelectorGroup => {
     if (
         (minSpecificityWeight == null)
@@ -334,55 +319,15 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
     return createSelectorGroup(
         ...fitSelectors.map((group) => group.selector),
         
-        ...tooSmallSelectors.map((group) => createPureSelector(
-            ...group.selector,
-            ...(new Array<SimpleSelector>((minSpecificityWeight ?? 1) - group.specificityWeight)).fill(
-                group.selector
-                .filter(isClassOrPseudoClassSelector) // only interested to class selector -or- pseudo class selector
-                .filter((simpleSelector) => {         // pseudo class selector without parameters
-                    const [
-                        /*
-                            selector tokens:
-                            '&'  = parent         selector
-                            '*'  = universal      selector
-                            '['  = attribute      selector
-                            ''   = element        selector
-                            '#'  = ID             selector
-                            '.'  = class          selector
-                            ':'  = pseudo class   selector
-                            '::' = pseudo element selector
-                        */
-                        // selectorToken
-                        ,
-                        
-                        /*
-                            selector name:
-                            string = the name of [element, ID, class, pseudo class, pseudo element] selector
-                        */
-                        // selectorName
-                        ,
-                        
-                        /*
-                            selector parameter(s):
-                            string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
-                            array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
-                            SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
-                        */
-                        selectorParams,
-                    ] = simpleSelector;
-                    
-                    return (selectorParams === undefined);
-                })
-                .pop()            // take the last interested selector. It's okay to mutate the `selector` because it was cloned by `filter()`
-                ??
-                nthChildNSelector // or use `nth-child(n)`
-            )
+        ...tooSmallSelectors.map((group) => increaseSpecificity(
+            group.selector,
+            ((minSpecificityWeight ?? 1) - group.specificityWeight)
         )),
         
-        ...tooBigSelectors.map((group) => lowerSpecificity(
-                group.selector,
-                (group.specificityWeight - (maxSpecificityWeight ?? group.specificityWeight)),
-                minSpecificityWeight
+        ...tooBigSelectors.map((group) => decreaseSpecificity(
+            group.selector,
+            (group.specificityWeight - (maxSpecificityWeight ?? group.specificityWeight)),
+            minSpecificityWeight
         )),
     );
 }
