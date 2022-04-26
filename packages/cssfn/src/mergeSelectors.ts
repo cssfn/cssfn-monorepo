@@ -160,7 +160,7 @@ const eatExcessSelectorEntry = (accum: EatenExcessSelectorEntry, selectorEntry: 
 type ReducedSpecificity = { excess: number, unchanged: SelectorEntry[], quarantined: (SelectorEntry[]|PseudoElementSelector)[], buffered: SelectorEntry[] }
 const reduceSpecificity = (accum: ReducedSpecificity, selectorEntry: SelectorEntry): ReducedSpecificity => {
     if (accum.excess <= 0) {
-        accum.unchanged.push(selectorEntry);
+        accum.unchanged.unshift(selectorEntry);
         
         
         
@@ -173,7 +173,7 @@ const reduceSpecificity = (accum: ReducedSpecificity, selectorEntry: SelectorEnt
     if (isPseudoElementSelector(selectorEntry)) {
         //#region flush & reset the buffer
         if (accum.buffered.length) {
-            accum.quarantined.push(accum.buffered);
+            accum.quarantined.unshift(accum.buffered);
             accum.buffered = [];
         } // if
         //#endregion flush & reset the buffer
@@ -181,7 +181,7 @@ const reduceSpecificity = (accum: ReducedSpecificity, selectorEntry: SelectorEnt
         
         
         // collect the ::pseudoElm to quarantined, so the PureSelector structure is preserved
-        accum.quarantined.push(selectorEntry);
+        accum.quarantined.unshift(selectorEntry);
         
         
         
@@ -192,7 +192,7 @@ const reduceSpecificity = (accum: ReducedSpecificity, selectorEntry: SelectorEnt
     
     
     // eat the selectorEntry:
-    accum.buffered.push(selectorEntry);
+    accum.buffered.unshift(selectorEntry);
     
     
     
@@ -256,7 +256,7 @@ const reduceSpecificity = (accum: ReducedSpecificity, selectorEntry: SelectorEnt
 const lowerSpecificity = (pureSelector: PureSelector, excess: number): Selector => {
     const reducedSpecificity = pureSelector.reduceRight(reduceSpecificity, { excess, unchanged: [], quarantined: [], buffered: [] });
     if (reducedSpecificity.buffered.length) {
-        reducedSpecificity.quarantined.push(reducedSpecificity.buffered);
+        reducedSpecificity.quarantined.unshift(reducedSpecificity.buffered);
     } // if
     
     
