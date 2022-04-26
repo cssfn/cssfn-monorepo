@@ -57,6 +57,9 @@ import {
     iif,
     escapeSvg,
     solidBackg,
+    
+    camelCase,
+    pascalCase,
 } from '../src/cssfn'
 import {
     isFinalSelector,
@@ -2566,3 +2569,43 @@ test(`solidBackg()`, () => {
     );
 });
 //#endregion test solidBackg()
+
+
+
+//#region test camelCase()
+test(`camelCase()`, () => {
+    expect(camelCase(
+        'BooFooBleh'
+    ))
+    .toEqual(
+        'booFooBleh'
+    );
+});
+test(`camelCase()`, () => {
+    expect(camelCase(
+        'booFooBleh'
+    ))
+    .toEqual(
+        'booFooBleh'
+    );
+});
+//#endregion test camelCase()
+
+//#region test pascalCase()
+test(`pascalCase()`, () => {
+    expect(pascalCase(
+        'BooFooBleh'
+    ))
+    .toEqual(
+        'BooFooBleh'
+    );
+});
+test(`pascalCase()`, () => {
+    expect(pascalCase(
+        'booFooBleh'
+    ))
+    .toEqual(
+        'BooFooBleh'
+    );
+});
+//#endregion test pascalCase()

@@ -51,6 +51,12 @@ export {
     StyleSheet,
     styleSheet,
 }                           from './styleSheets'
+export {
+    camelCase,
+}                           from 'camel-case'
+export {
+    pascalCase,
+}                           from 'pascal-case'
 
 
 
