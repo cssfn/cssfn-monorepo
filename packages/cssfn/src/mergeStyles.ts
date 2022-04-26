@@ -36,10 +36,10 @@ import {
 import {
     flat,
     isFinalSelector,
-}                           from './utilities'
+}                           from './utilities.js'
 import {
     mergeSelectors,
-}                           from './mergeSelectors'
+}                           from './mergeSelectors.js'
 
 
 

@@ -46,11 +46,11 @@ import {
     flat,
     isFinalSelector,
     normalizeSelectorOptions,
-}                           from './utilities'
+}                           from './utilities.js'
 export {
     StyleSheet,
     styleSheet,
-}                           from './styleSheets'
+}                           from './styleSheets.js'
 export {
     camelCase,
 }                           from 'camel-case'

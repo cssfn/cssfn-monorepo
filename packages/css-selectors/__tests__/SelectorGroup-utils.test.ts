@@ -53,7 +53,7 @@ import {
     // measures:
     Specificity,
     calculateSpecificity,
-} from '../src/css-selectors'
+} from '../dist/css-selectors.js'
 
 
 

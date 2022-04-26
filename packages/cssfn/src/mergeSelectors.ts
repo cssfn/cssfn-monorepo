@@ -44,7 +44,7 @@ import {
 // internals:
 import {
     normalizeSelectorOptions,
-}                           from './utilities'
+}                           from './utilities.js'
 
 
 

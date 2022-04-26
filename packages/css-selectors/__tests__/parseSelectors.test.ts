@@ -21,7 +21,7 @@ import {
     // Selector creates & tests:
     selector,
     selectorGroup,
-} from '../src/css-selectors'
+} from '../dist/css-selectors.js'
 
 
 

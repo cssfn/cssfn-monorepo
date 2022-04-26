@@ -68,7 +68,7 @@ import {
     
     isNotEmptySelectorEntry,
     isSelector,
-} from '../src/css-selectors'
+} from '../dist/css-selectors.js'
 
 
 

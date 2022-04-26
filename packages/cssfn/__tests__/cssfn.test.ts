@@ -11,7 +11,7 @@ import type {
 } from '@cssfn/css-selectors'
 import {
     mergeStyles,
-} from '../src/mergeStyles'
+} from '../dist/mergeStyles.js'
 import {
     rule,
     rules,
@@ -60,10 +60,10 @@ import {
     
     camelCase,
     pascalCase,
-} from '../src/cssfn'
+} from '../dist/cssfn.js'
 import {
     isFinalSelector,
-} from '../src/utilities'
+} from '../dist/utilities.js'
 import './jest-custom'
 
 

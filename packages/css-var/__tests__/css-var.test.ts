@@ -1,7 +1,7 @@
 import {
     createCssVar,
     fallbacks,
-} from '../src/css-var'
+} from '../dist/css-var.js'
 
 
 

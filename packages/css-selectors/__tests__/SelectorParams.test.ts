@@ -25,7 +25,7 @@ import {
     
     // renders:
     selectorParamsToString,
-} from '../src/css-selectors'
+} from '../dist/css-selectors.js'
 
 
 

@@ -31,7 +31,7 @@ import {
     
     // renders:
     selectorToString,
-} from '../src/css-selectors'
+} from '../dist/css-selectors.js'
 
 
 

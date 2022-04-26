@@ -9,10 +9,10 @@ import type {
     scopeOf     as _scopeOf,
     mainScope   as _mainScope,
     globalScope as _globalScope,
-} from '../src/cssfn'
+} from '../dist/cssfn.js'
 import type {
     styleSheets as _styleSheets,
-} from '../src/styleSheets'
+} from '../dist/styleSheets.js'
 import {
     jest,
 } from '@jest/globals'
@@ -59,8 +59,8 @@ jest.isolateModules(() => {
     beforeAll(async () => {
         simulateBrowserSide();
         
-        const cssfnModule      = await import('../src/cssfn')
-        const styleSheetModule = await import('../src/styleSheets')
+        const cssfnModule      = await import('../dist/cssfn')
+        const styleSheetModule = await import('../dist/styleSheets')
         
         styleSheet  = cssfnModule.styleSheet
         scopeOf     = cssfnModule.scopeOf
@@ -264,8 +264,8 @@ jest.isolateModules(() => {
     beforeAll(async () => {
         simulateServerSide();
         
-        const cssfnModule      = await import('../src/cssfn')
-        const styleSheetModule = await import('../src/styleSheets')
+        const cssfnModule      = await import('../dist/cssfn')
+        const styleSheetModule = await import('../dist/styleSheets')
         
         styleSheet  = cssfnModule.styleSheet
         scopeOf     = cssfnModule.scopeOf

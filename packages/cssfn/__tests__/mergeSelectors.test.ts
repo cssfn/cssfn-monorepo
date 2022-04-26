@@ -1,7 +1,7 @@
 import {
     adjustSpecificityWeight,
     mergeSelectors,
-} from '../src/mergeSelectors'
+} from '../dist/mergeSelectors.js'
 import {
     // types:
     SelectorName,

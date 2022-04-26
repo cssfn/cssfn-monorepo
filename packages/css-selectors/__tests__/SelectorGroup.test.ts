@@ -30,7 +30,7 @@ import {
     
     // renders:
     selectorsToString,
-} from '../src/css-selectors'
+} from '../dist/css-selectors.js'
 
 
 
