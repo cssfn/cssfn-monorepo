@@ -379,66 +379,11 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
             )
         )),
         
-        ...tooBigSelectors.flatMap((group) => {
-            const lowered = lowerSpecificity(
+        ...tooBigSelectors.map((group) => lowerSpecificity(
                 group.selector,
                 (group.specificityWeight - (maxSpecificityWeight ?? group.specificityWeight)),
                 minSpecificityWeight
-            );
-            
-            const reversedSelector : PureSelector = group.selector.reverse(); // reverse & mutate the current `group.selector` array. It's okay to mutate the `selector` because it was cloned by `selector.filter()` when grouped
-            
-            const { eaten: reversedEatenSelector, remaining: remainingSpecificityWeight } : EatenExcessSelectorEntry = (
-                (group.specificityWeight === Infinity)
-                ?
-                {
-                    remaining : (minSpecificityWeight !== null) ? -minSpecificityWeight : 0, // eat all => zero specificity => might less than minSpecificityWeight => fix by -minSpecificityWeight
-                    eaten     : reversedSelector           // eat all => zero specificity
-                }
-                :
-                reversedSelector.slice(0) // clone the `reversedSelector` because the `reduce()` uses `splice()` to break the iteration and we still need the `reversedSelector` later
-                .reduce(eatExcessSelectorEntry, ({
-                    remaining : (group.specificityWeight - (maxSpecificityWeight ?? group.specificityWeight)),
-                    eaten     : [],
-                } as EatenExcessSelectorEntry))
-            );
-            
-            
-            
-            const eatenSelector   : PureSelector = reversedEatenSelector.reverse(); // re-reverse the reversedEatenSelector, so it becomes eatenSelector
-            const uneatenSelector : PureSelector = reversedSelector.slice(reversedEatenSelector.length).reverse();
-            
-            
-            
-            // group the eatenSelector with :where(), so the specificity is zero:
-            const [
-                whereSelector,            // grouped selectorEntries inside :where()
-                ...selectorsWithPseudoElm // ungroupable ::pseudoElement selectorEntries
-            ] = groupSelectors(
-                ungroupSelector(eatenSelector),  // if wrapped with :is() or :where() => unwrap
-                { selectorName: 'where' }        // :where
-            );
-            
-            // ...uneatenSelectorEntries:where(...eatenSelectorEntries):
-            whereSelector.unshift( // insert the uneatenSelectorEntries at the beginning
-                ...uneatenSelector,
-            );
-            
-            // if negative `remainingSpecificityWeight` => increase the specificity until zero
-            if ((remainingSpecificityWeight < 0) && isNotEmptySelector(whereSelector)) {
-                whereSelector.push(
-                    ...(new Array<SimpleSelector>(-remainingSpecificityWeight)).fill(
-                        nthChildNSelector // or use `nth-child(n)`
-                    ),
-                );
-            } // if
-            
-            // done:
-            return createSelectorGroup(
-                whereSelector,
-                ...selectorsWithPseudoElm,
-            )
-        }),
+        )),
     );
 }
 
