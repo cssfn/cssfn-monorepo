@@ -181,6 +181,22 @@ export type CssKeyframes               = Dictionary<CssStyleCollection>
 
 
 
+export type CssSelector           = (string & {})
+export type CssSelectorCollection = SingleOrDeepArray<OptionalOrBoolean<CssSelector>>
+
+export interface CssSelectorOptions {
+    performGrouping      ?: boolean
+    
+    specificityWeight    ?: number|null
+    minSpecificityWeight ?: number|null
+    maxSpecificityWeight ?: number|null
+}
+
+export type CssRawSelector        = readonly [CssSelectorCollection, CssSelectorOptions|undefined]
+export type CssFinalSelector      = CssSelector & {}
+
+
+
 export type CssClassName = string & {} // not a really string: [A-Z_a-z-]+
 // TODO: remove
 // export type CssClassEntry
@@ -198,20 +214,4 @@ export type CssScopeList
 export type CssScopeMap<TCssScopeName extends CssScopeName> = {
     [name in TCssScopeName] : CssClassName
 }
-
-
-
-export type CssSelector           = (string & {})
-export type CssSelectorCollection = SingleOrDeepArray<OptionalOrBoolean<CssSelector>>
-
-export interface CssSelectorOptions {
-    performGrouping      ?: boolean
-    
-    specificityWeight    ?: number|null
-    minSpecificityWeight ?: number|null
-    maxSpecificityWeight ?: number|null
-}
-
-export type CssRawSelector        = readonly [CssSelectorCollection, CssSelectorOptions|undefined]
-export type CssFinalSelector      = CssSelector & {}
 //#endregion cssfn properties
