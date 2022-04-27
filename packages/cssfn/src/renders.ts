@@ -132,6 +132,7 @@ class RenderRules {
             const ruleData = finalStyle[symbolProp];
             if (ruleData === undefined) continue;
             const [selector, styles] = ruleData;
+            if (typeof(selector) !== 'string') continue;
             if (Array.isArray(styles)) continue;
             if (typeof(styles) === 'function') continue;
             if (!styles || (styles === true)) continue;
@@ -144,7 +145,10 @@ class RenderRules {
             }
             else if (selector === '@global') {
                 //
-            } // if
+            }
+            else if (selector.startsWith('@keyframes ')) {
+                
+            }
         } // for
     }
     #renderStyle(finalStyle: CssStyle): void {

@@ -242,6 +242,8 @@ export const mergeParent  = (style: CssStyle): void => {
 
 const mergeableNestedAtRules = ['@media', '@supports', '@document', '@global', '@fallbacks'];
 // const unmergeableNestedAtRules = ['@keyframes', '@font-face'];
+export const isMergeableNestedAtRule = (finalSelector: CssFinalSelector) => mergeableNestedAtRules.some((at) => finalSelector.startsWith(at))
+
 type GroupByFinalSelectorEntry = readonly [symbol, CssFinalSelector|null];
 const groupByFinalSelector = (accum: Map<CssFinalSelector|null, symbol[]>, [symbolProp, finalSelector]: GroupByFinalSelectorEntry) => {
     if (!finalSelector)        return accum; // skip empty entry
@@ -254,7 +256,7 @@ const groupByFinalSelector = (accum: Map<CssFinalSelector|null, symbol[]>, [symb
         finalSelector.includes('&')
         ||
         // conditional rules & globals:
-        mergeableNestedAtRules.some((at) => finalSelector.startsWith(at))
+        isMergeableNestedAtRule(finalSelector)
     ) {
         // mergeable rules:
         let group = accum.get(finalSelector);             // get an existing collector
