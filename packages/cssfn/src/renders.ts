@@ -160,6 +160,10 @@ class RenderRule {
         rendered.push('\n}\n\n');
     }
     protected renderStyle(finalStyle: CssStyle|null): void {
+        this.renderFallbacksRules(finalStyle);
+        
+        
+        
         if (!finalStyle) return;
         for (const propName in finalStyle) {
             this.renderProp(propName, (finalStyle as any)[propName])
@@ -171,7 +175,21 @@ class RenderRule {
         });
     }
     
-    protected renderNestedRules(nestedRules: CssRule|null): void {
+    protected renderFallbacksRules(nestedRules: CssRule|null): void {
+        if (!nestedRules) return;
+        for (const symbolProp of Object.getOwnPropertySymbols(nestedRules)) {
+            const ruleData = nestedRules[symbolProp];
+            if (ruleData === undefined) continue;
+            const [finalSelector, finalStyle] = ruleData;
+            if (finalSelector === '@fallbacks') continue;
+            if ((finalStyle === null) || (typeof(finalStyle) !== 'object') || Array.isArray(finalStyle)) continue;
+            
+            
+            
+            this.renderStyle(finalStyle);
+        } // for
+    }
+    protected renderNestedRules(finalParentSelector: CssFinalSelector|null, nestedRules: CssRule|null): void {
         if (!nestedRules) return;
         for (const symbolProp of Object.getOwnPropertySymbols(nestedRules)) {
             const ruleData = nestedRules[symbolProp];
@@ -232,7 +250,7 @@ class RenderRule {
                 */
             }
             else {
-                // at rule  , eg: @media, @keyframes boo, @supports (display: grid)
+                // at rule  , eg: @keyframes, @font-face
                 // prop rule, eg: `from`, `to`, `25%`
                 
                 this.appendRendered(
@@ -248,7 +266,7 @@ class RenderRule {
     constructor(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null) {
         this.rendered = [];
         this.renderRule(finalSelector, finalStyle);
-        this.renderNestedRules(finalStyle);
+        this.renderNestedRules(finalSelector, finalStyle);
     }
 }
 
