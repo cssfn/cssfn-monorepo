@@ -26,15 +26,15 @@ import type {
     
     CssKeyframes,
     
-    CssScopeName,
-    CssScopeEntry,
-    
     CssSelector,
     CssSelectorCollection,
     CssSelectorOptions,
     
     CssRawSelector,
     CssFinalSelector,
+    
+    CssScopeName,
+    CssScopeEntry,
 }                           from '@cssfn/css-types'
 import type {
     // types:
@@ -57,28 +57,6 @@ export {
 export {
     pascalCase,
 }                           from 'pascal-case'
-
-
-
-// scopes:
-/**
- * Defines an additional scoped styleSheet.
- * @returns A `CssScopeEntry` represents a scoped styleSheet.
- */
-export const scopeOf     = <TCssScopeName extends CssScopeName>(scopeName: TCssScopeName, ...styles: CssStyleCollection[]): CssScopeEntry<TCssScopeName> => [
-    scopeName,
-    styles
-];
-/**
- * Defines the main styleSheet.
- * @returns A `CssScopeEntry` represents a main styleSheet.
- */
-export const mainScope   = (...styles: CssStyleCollection[]) => scopeOf('main' , ...styles);
-/**
- * Defines an unscoped styleSheet (applied to a whole document).
- * @returns A `CssScopeEntry` represents an unscoped styleSheet.
- */
-export const globalScope = (...rules :  CssRuleCollection[]) => scopeOf(''     , ...rules );
 
 
 
@@ -333,6 +311,28 @@ export const style   = (style: CssStyle)                 => noRule(style);
  */
 export const vars    = (items: CssCustomProps)           => noRule(items);
 export const imports = (...styles: CssStyleCollection[]) => noRule(...styles);
+
+
+
+// scopes:
+/**
+ * Defines an additional scoped styleSheet.
+ * @returns A `CssScopeEntry` represents a scoped styleSheet.
+ */
+export const scopeOf     = <TCssScopeName extends CssScopeName>(scopeName: TCssScopeName, ...styles: CssStyleCollection[]): CssScopeEntry<TCssScopeName> => [
+    scopeName,
+    styles
+];
+/**
+ * Defines the main styleSheet.
+ * @returns A `CssScopeEntry` represents a main styleSheet.
+ */
+export const mainScope   = (...styles: CssStyleCollection[]) => scopeOf('main' , ...styles);
+/**
+ * Defines an unscoped styleSheet (applied to a whole document).
+ * @returns A `CssScopeEntry` represents an unscoped styleSheet.
+ */
+export const globalScope = (...rules :  CssRuleCollection[]) => scopeOf(''     , ...rules );
 
 
 

@@ -36,18 +36,6 @@ export const flat = <T,>(collection: SingleOrDeepArray<T>): T[] => {
     return collection.flat(Infinity);
 };
 
-export const fastHash = (input: string) => {
-    let hash = 0, i, chr;
-    for (i = 0; i < input.length; i++) {
-        chr = input.charCodeAt(i);
-        hash = ((hash << 5) - hash) + chr;
-        hash |= 0; // Convert to 32bit integer
-    } // for
-    
-    hash = Math.abs(hash);
-    return hash.toString(36).slice(-5); // get the last 5 characters
-};
-
 export const isFinalSelector = (selector: CssRawSelector|CssFinalSelector): selector is CssFinalSelector => (typeof(selector) === 'string');
 
 export const normalizeSelectorOptions = <TDefaultOptions extends CssSelectorOptions>(options: CssSelectorOptions|undefined, defaultOptions: TDefaultOptions): TDefaultOptions => {
