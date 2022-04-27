@@ -56,7 +56,7 @@ jest.isolateModules(() => {
         ], { id: '#sheet#1' });
         expect(render(sheet1))
         .toEqual(
-`&.z7qv1 {
+`.z7qv1 {
 background: pink;
 padding-inline: 1rem;
 border-start-end-radius: 0.5px;
@@ -79,7 +79,7 @@ border-start-end-radius: 0.5px;
         ], { id: '#sheet#2' });
         expect(render(sheet1))
         .toEqual(
-`&.yny9o {
+`.yny9o {
 --custProp1: "yeah";
 --custProp2: "cool";
 --my-custProp1: "okay";

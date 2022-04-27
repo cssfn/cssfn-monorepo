@@ -30,6 +30,36 @@ import type {
     CssScopeName,
     CssScopeEntry,
 }                           from '@cssfn/css-types'
+import {
+    // types:
+    SelectorGroup,
+    
+    
+    
+    // parses:
+    parseSelectors,
+    
+    
+    
+    // SelectorEntry creates & tests:
+    isParentSelector,
+    
+    
+    
+    // SimpleSelector & Selector creates & tests:
+    createSelector,
+    createSelectorGroup,
+    
+    
+    
+    // renders:
+    selectorsToString,
+    
+    
+    
+    // transforms:
+    replaceSelectors,
+}                           from '@cssfn/css-selectors'
 
 // internals:
 import type {
@@ -54,6 +84,48 @@ import {
 // utilities:
 const conditionalNestedAtRules = ['@media', '@supports', '@document'];
 export const isConditionalNestedAtRules = (finalSelector: CssFinalSelector) => conditionalNestedAtRules.some((at) => finalSelector.startsWith(at));
+
+const combineSelector = (parentSelector: CssFinalSelector|null, nestedSelector: CssFinalSelector): CssFinalSelector|null => {
+    //#region parse parentSelector & nestedSelector
+    const parentSelectors : SelectorGroup|null = (
+        parentSelector
+        ?
+        parseSelectors(parentSelector)
+        :
+        createSelectorGroup(
+            createSelector(
+                /* an empty Selector */
+            )
+        )
+    );
+    if (!parentSelectors) return null; // parsing error => invalid parentSelector
+    
+    const nestedSelectors : SelectorGroup|null = parseSelectors(nestedSelector);
+    if (!nestedSelectors) return null; // parsing error => invalid nestedSelector
+    //#endregion parse parentSelector & nestedSelector
+    
+    
+    
+    //#region combine parentSelector & nestedSelector
+    const combinedSelectors : SelectorGroup = (
+        parentSelectors
+        .flatMap((parentSelector) =>
+            replaceSelectors(nestedSelectors, (selectorEntry) => {
+                // we're only interested of ParentSelector:
+                if (isParentSelector(selectorEntry)) return parentSelector;
+                
+                // preserve the another selectorEntry:
+                return selectorEntry;
+            })
+        )
+    );
+    //#endregion combine parentSelector & nestedSelector
+    
+    
+    
+    // convert back the parsed_object_tree to string:
+    return selectorsToString(combinedSelectors);
+};
 
 
 
@@ -235,8 +307,9 @@ class RenderRule {
                 // at rule  , eg: @keyframes, @font-face
                 // prop rule, eg: `from`, `to`, `25%`
                 
+                const combinedSelector = combineSelector(finalParentSelector, finalSelector) ?? finalSelector;
                 this.#appendRendered(
-                    (new RenderRule(finalSelector, finalStyle)).toString()
+                    (new RenderRule(combinedSelector, finalStyle)).toString()
                 );
             } // if
         } // for
