@@ -163,7 +163,7 @@ class RenderRule {
             const ruleData = nestedRules[symbolProp];
             if (ruleData === undefined) continue;
             const [finalSelector, finalStyle] = ruleData;
-            if (finalSelector === '@fallbacks') continue;
+            if (finalSelector !== '@fallbacks') continue; // only interested in @fallbacks
             if ((finalStyle === null) || (typeof(finalStyle) !== 'object') || Array.isArray(finalStyle)) continue;
             
             
@@ -178,7 +178,7 @@ class RenderRule {
             if (ruleData === undefined) continue;
             const [finalSelector, finalStyle] = ruleData;
             if (typeof(finalSelector) !== 'string') continue;
-            if (finalSelector === '@fallbacks') continue;
+            if (finalSelector === '@fallbacks') continue; // skip @fallbacks
             if ((finalStyle === null) || (typeof(finalStyle) !== 'object') || Array.isArray(finalStyle)) continue;
             
             
