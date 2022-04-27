@@ -242,7 +242,7 @@ export const mergeParent  = (style: CssStyle): void => {
 
 const mergeableNestedAtRules = ['@media', '@supports', '@document', '@global', '@fallbacks'];
 // const unmergeableNestedAtRules = ['@keyframes', '@font-face'];
-export const isMergeableNestedAtRule = (finalSelector: CssFinalSelector) => mergeableNestedAtRules.some((at) => finalSelector.startsWith(at))
+export const isMergeableNestedAtRule = (finalSelector: CssFinalSelector) => mergeableNestedAtRules.some((at) => finalSelector.startsWith(at));
 
 type GroupByFinalSelectorEntry = readonly [symbol, CssFinalSelector|null];
 const groupByFinalSelector = (accum: Map<CssFinalSelector|null, symbol[]>, [symbolProp, finalSelector]: GroupByFinalSelectorEntry) => {

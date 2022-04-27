@@ -104,6 +104,9 @@ export const generateId = (styleSheetId: string, scopeName: CssScopeName): strin
     return myHash;
 };
 
+const conditionalNestedAtRules = ['@media', '@supports', '@document'];
+export const isConditionalNestedAtRules = (finalSelector: CssFinalSelector) => conditionalNestedAtRules.some((at) => finalSelector.startsWith(at));
+
 
 
 type RuleEntry = readonly [CssFinalSelector, CssStyle]
@@ -184,6 +187,49 @@ class RenderRule {
                 this.appendRendered(
                     (new RenderRule(null, finalStyle)).result
                 );
+            }
+            else if (isConditionalNestedAtRules(finalSelector)) {
+                /*
+                    for non-@global parent:
+                    
+                    from:
+                    .parent {                                // parentRule
+                        .awesome { fontSize: 'small' }
+                        @media (min-width: 1024px) {         // nested conditional
+                            .awesome { fontSize: 'large' }   // the nestedStyles
+                        }
+                    }
+                    
+                    to:
+                    .parent {
+                        .awesome { fontSize: 'small' }
+                    }
+                    @media (min-width: 1024px) {             // move up the nestedSelectorStr
+                        .parent {                            // duplicate the parentRule selector
+                            .awesome { fontSize: 'large' }   // move the nestedStyles
+                        }
+                    }
+                    
+                    
+                    
+                    for @global parent:
+                    
+                    from:
+                    @global {                                // parentRule
+                        .awesome { fontSize: 'small' }
+                        @media (min-width: 1024px) {         // nested conditional
+                            .awesome { fontSize: 'large' }   // the nestedStyles
+                        }
+                    }
+                    
+                    to:
+                    @global {
+                        .awesome { fontSize: 'small' }
+                    }
+                    @media (min-width: 1024px) {             // move up the nestedSelectorStr
+                        .awesome { fontSize: 'large' }       // keep the nestedStyles
+                    }
+                */
             }
             else {
                 // at rule  , eg: @media, @keyframes boo, @supports (display: grid)
