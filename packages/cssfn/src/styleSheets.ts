@@ -5,10 +5,15 @@ import type {
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
+    CssClassName,
+    
     CssScopeName,
     CssScopeList,
     CssScopeMap,
 }                           from '@cssfn/css-types'
+import {
+    generateId,
+}                           from './utilities.js'
 
 // other libs:
 import {
@@ -35,26 +40,43 @@ const defaultStyleSheetOptions : Required<StyleSheetOptions> = {
 type StyleSheetUpdatedCallback<TCssScopeName extends CssScopeName> = (styleSheet: StyleSheet<TCssScopeName>) => void;
 class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements Required<StyleSheetOptions> {
     //#region private properties
-    #options         : Required<StyleSheetOptions>
-    #updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>|null
+    readonly #options         : Required<StyleSheetOptions>
+    readonly #updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>|null
     
-    #scopes          : ProductOrFactory<CssScopeList<TCssScopeName>>
-    #classes         : CssScopeMap<TCssScopeName>
+    readonly #scopes          : ProductOrFactory<CssScopeList<TCssScopeName>>
+    readonly #classes         : CssScopeMap<TCssScopeName>
     //#endregion private properties
     
     
     
     //#region constructors
     constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
-        this.#options         = {
+        const styleSheetOptions : Required<StyleSheetOptions> = {
             ...(options ?? {}),
             enabled : options?.enabled ?? defaultStyleSheetOptions.enabled,
             id      : options?.id      ?? defaultStyleSheetOptions.id,
         };
+        this.#options = styleSheetOptions;
         this.#updatedCallback = updatedCallback;
         
         this.#scopes          = scopes;
-        this.#classes         = ({} as CssScopeMap<TCssScopeName>);
+        this.#classes         = new Proxy<CssScopeMap<TCssScopeName>>(({} as CssScopeMap<TCssScopeName>), {
+            get(scopeMap: object, scopeName: TCssScopeName): CssClassName {
+                // if already cached => return immediately:
+                if (scopeName in scopeMap) return (scopeMap as any)[scopeName];
+                
+                
+                
+                // calculate unique class:
+                const uniqueClass : CssClassName = generateId(styleSheetOptions.id, scopeName);
+                
+                
+                
+                // update the cache & return:
+                (scopeMap as any)[scopeName] = uniqueClass;
+                return uniqueClass;
+            },
+        });
     }
     //#endregion constructors
     

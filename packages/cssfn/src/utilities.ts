@@ -8,7 +8,15 @@ import type {
     
     CssRawSelector,
     CssFinalSelector,
+    
+    CssScopeName,
 }                           from '@cssfn/css-types'
+
+// other libs:
+import {
+    // tests:
+    default as warning,
+}                           from 'tiny-warning'
 
 
 
@@ -69,3 +77,50 @@ export const normalizeSelectorOptions = <TDefaultOptions extends CssSelectorOpti
         maxSpecificityWeight,
     } as TDefaultOptions;
 }
+
+const fastHash = (input: string) => {
+    let hash = 0, i, chr;
+    for (i = 0; i < input.length; i++) {
+        chr   = input.charCodeAt(i);
+        hash  = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    } // for
+    
+    hash = Math.abs(hash);
+    return hash.toString(36).slice(-5); // get the last 5 characters
+};
+
+const takenHashes = new Map</*hash :*/string, /*owner :*/string>();
+export const generateId = (styleSheetId: string, scopeName: CssScopeName): string => {
+    const mySelf = `${styleSheetId}${scopeName}`;
+    let   myHash = fastHash(mySelf);
+    
+    
+    
+    const maxCounter  = 1e10;
+    let   counterSalt = 2;
+    for (; counterSalt <= maxCounter; counterSalt++) {
+        // get the owner of current hash (if already taken):
+        const owner = takenHashes.get(myHash);
+        
+        // the hash is already taken by myself => return myHash:
+        if (owner === mySelf) return myHash;
+        
+        // the owner is free => claim it => return myHash:
+        if (owner === undefined) {
+            takenHashes.set(myHash, mySelf);
+            return myHash;
+        } // if
+        
+        // try to re-generate a unique hash by adding a counter salt (not SSR friendly):
+        myHash = fastHash(`${mySelf}${counterSalt}`);
+        if ((counterSalt === 2) && (styleSheetId !== '')) {
+            warning(false, `[cssfn] The styleSheetId of ${styleSheetId} is not a unique ID. Please re-generate another random ID.`);
+        } // if
+    } // for
+    
+    
+    
+    warning(false, `[cssfn] You might have a memory leak. ID counter is at ${counterSalt}.`);
+    return myHash;
+};
