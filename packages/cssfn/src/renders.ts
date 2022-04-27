@@ -59,8 +59,8 @@ const fastHash = (input: string) => {
 };
 
 const takenHashes = new Map</*hash :*/string, /*owner :*/string>();
-const generateId = (sheetId: string, className: CssClassName) => {
-    const mySelf = `${sheetId}${className}`;
+export const generateId = (sheetId: string, scopeName: CssScopeName): string => {
+    const mySelf = `${sheetId}${scopeName}`;
     let   myHash = fastHash(mySelf);
     
     
@@ -74,13 +74,13 @@ const generateId = (sheetId: string, className: CssClassName) => {
         // the hash is already taken by myself => return myHash:
         if (owner === mySelf) return myHash;
         
-        // the hash is free => claim it => return myHash:
+        // the owner is free => claim it => return myHash:
         if (owner === undefined) {
             takenHashes.set(myHash, mySelf);
             return myHash;
         } // if
         
-        // try to re-generate a unique hash by adding a counter salt:
+        // try to re-generate a unique hash by adding a counter salt (not SSR friendly):
         myHash = fastHash(`${mySelf}${counterSalt}`);
         if ((counterSalt === 2) && (sheetId !== '')) {
             warning(false, `[cssfn] The sheetId of ${sheetId} is not a unique ID. Please re-generate another random ID.`);
