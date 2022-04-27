@@ -37,8 +37,13 @@ import type {
     StyleSheet,
 }                           from './styleSheets.js'
 import {
+    isMergeableNestedAtRule,
     mergeStyles,
 }                           from './mergeStyles.js'
+import {
+    rule,
+    rules,
+}                           from './cssfn.js'
 
 // other libs:
 import {
@@ -101,89 +106,103 @@ export const generateId = (styleSheetId: string, scopeName: CssScopeName): strin
 
 
 
-type RuleEntry = readonly [CssFinalSelector, CssStyleCollection]
-class RenderRules {
-    //#region private fields
-    #rendered : string[]
-    //#endregion private fields
+type RuleEntry = readonly [CssFinalSelector, CssStyle]
+class RenderRule {
+    //#region protected fields
+    protected rendered : string[]
+    //#endregion protected fields
     
     //#region public fields
-    readonly result : string|null
+    get result() : string|null {
+        return this.rendered.join('');
+    }
     //#endregion public fields
     
     
     
-    //#region private methods
-    #renderPropName(propName: string): string {
+    //#region protected methods
+    protected appendRendered(rendered: string|null): void {
+        if (!rendered) return;
+        this.rendered.push(rendered);
+    }
+    
+    protected renderPropName(propName: string): string {
         return camelCase(propName);
     }
-    #renderPropValue(propValue: CssCustomValue): string {
+    protected renderPropValue(propValue: CssCustomValue): string {
         return `${propValue}`;
     }
-    #renderProp(propName: string, propValue: CssCustomValue): void {
-        const rendered = this.#rendered;
-        rendered.push(this.#renderPropName(propName));
+    protected renderProp(propName: string, propValue: CssCustomValue): void {
+        const rendered = this.rendered;
+        rendered.push(this.renderPropName(propName));
         rendered.push(': ');
-        rendered.push(this.#renderPropValue(propValue));
+        rendered.push(this.renderPropValue(propValue));
         rendered.push(';\n');
     }
-    #renderNested(finalStyle: CssStyle): void {
-        for (const symbolProp of Object.getOwnPropertySymbols(finalStyle)) {
-            const ruleData = finalStyle[symbolProp];
-            if (ruleData === undefined) continue;
-            const [selector, styles] = ruleData;
-            if (typeof(selector) !== 'string') continue;
-            if (Array.isArray(styles)) continue;
-            if (typeof(styles) === 'function') continue;
-            if (!styles || (styles === true)) continue;
-            const nestedFinalStyle = styles;
-            
-            
-            
-            if (selector === '@fallbacks') {
-                this.#renderStyle(nestedFinalStyle);
-            }
-            else if (selector === '@global') {
-                //
-            }
-            else if (selector.startsWith('@keyframes ')) {
-                
-            }
-        } // for
-    }
-    #renderStyle(finalStyle: CssStyle): void {
-        for (const propName in finalStyle) {
-            this.#renderProp(propName, (finalStyle as any)[propName])
-        } // for
-    }
-    #renderRule(finalSelector: CssFinalSelector, finalStyle: CssStyle): void {
-        const rendered = this.#rendered;
+    
+    protected renderSelector(finalSelector: CssFinalSelector|null, renderfinalStyle: () => void): void {
+        if (!finalSelector) {
+            renderfinalStyle();
+            return;
+        } // if
+        
+        
+        
+        const rendered = this.rendered;
         rendered.push(finalSelector);
         rendered.push(' {\n');
         {
-            this.#renderNested(finalStyle);
-            this.#renderStyle(finalStyle);
+            renderfinalStyle();
         }
         rendered.push('\n}\n\n');
     }
-    //#endregion private methods
-    
-    
-    
-    constructor(rules: RuleEntry[]) {
-        this.#rendered = [];
-        for (const [finalSelector, styles] of rules) {
-            const finalStyle = mergeStyles(styles);
-            if (!finalStyle) continue; // blank style => nothing to render
-            
-            
-            
-            this.#renderRule(finalSelector, finalStyle);
+    protected renderStyle(finalStyle: CssStyle|null): void {
+        if (!finalStyle) return;
+        for (const propName in finalStyle) {
+            this.renderProp(propName, (finalStyle as any)[propName])
         } // for
-        
-        
-        
-        this.result = this.#rendered.join('') || null;
+    }
+    protected renderRule(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null): void {
+        this.renderSelector(finalSelector, () => {
+            this.renderStyle(finalStyle);
+        });
+    }
+    
+    protected renderNestedRules(nestedRules: CssRule|null): void {
+        if (!nestedRules) return;
+        for (const symbolProp of Object.getOwnPropertySymbols(nestedRules)) {
+            const ruleData = nestedRules[symbolProp];
+            if (ruleData === undefined) continue;
+            const [finalSelector, finalStyle] = ruleData;
+            if (typeof(finalSelector) !== 'string') continue;
+            if (finalSelector === '@fallbacks') continue;
+            if ((finalStyle === null) || (typeof(finalStyle) !== 'object') || Array.isArray(finalStyle)) continue;
+            
+            
+            
+            if (finalSelector === '@global') { // special @global rule
+                this.appendRendered(
+                    (new RenderRule(null, finalStyle)).result
+                );
+            }
+            else {
+                // at rule  , eg: @media, @keyframes boo, @supports (display: grid)
+                // prop rule, eg: `from`, `to`, `25%`
+                
+                this.appendRendered(
+                    (new RenderRule(finalSelector, finalStyle)).result
+                );
+            } // if
+        } // for
+    }
+    //#endregion protected methods
+    
+    
+    
+    constructor(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null) {
+        this.rendered = [];
+        this.renderRule(finalSelector, finalStyle);
+        this.renderNestedRules(finalStyle);
     }
 }
 
@@ -200,7 +219,7 @@ export const render = (styleSheet: StyleSheet): string|null => {
     const styleSheetId = styleSheet.id;
     const classes      = styleSheet.classes;
     
-    const rules : RuleEntry[] = scopeList.map(([scopeName, styles]): RuleEntry => {
+    const scopeRules : CssRule[] = scopeList.map(([scopeName, styles]): CssRule|null => {
         // generate unique class:
         const uniqueClass    : CssClassName     = generateId(styleSheetId, scopeName);
         const uniqueSelector : CssFinalSelector = `.${uniqueClass}`;
@@ -208,14 +227,20 @@ export const render = (styleSheet: StyleSheet): string|null => {
         // map each scopeName => uniqueClass:
         classes[scopeName] = uniqueClass;
         
-        return [
+        // render the styles to single style:
+        const style = mergeStyles(styles);
+        if(!style) return null;
+        
+        // the top level rule (scope rule):
+        return rule(
             uniqueSelector,
-            styles,
-        ];
-    });
+            style
+        );
+    }).filter((rule): rule is CssRule => !!rule);
+    const styleSheetRule = rules(scopeRules);
     
     
     
     // finally, render the structures:
-    return (new RenderRules(rules)).result;
+    return (new RenderRule(null, styleSheetRule)).result;
 }
