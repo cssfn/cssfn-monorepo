@@ -182,14 +182,15 @@ export type CssKeyframes               = Dictionary<CssStyleCollection>
 
 
 export type CssClassName = string & {} // not a really string: [A-Z_a-z-]+
-export type CssClassEntry
-    <TCssClassName extends CssClassName> = readonly [TCssClassName, CssStyleCollection]
-export type CssClassList
-    <TCssClassName extends CssClassName> = CssClassEntry<TCssClassName>[]
+// TODO: remove
+// export type CssClassEntry
+//     <TCssClassName extends CssClassName> = readonly [TCssClassName, CssStyleCollection]
+// export type CssClassList
+//     <TCssClassName extends CssClassName> = CssClassEntry<TCssClassName>[]
 
 
 
-export type CssScopeName = CssClassName & {}
+export type CssScopeName = string & {} // not a really string: [A-Z_a-z-]+
 export type CssScopeEntry
     <TCssScopeName extends CssScopeName> = readonly [TCssScopeName, CssStyleCollection]
 export type CssScopeList
