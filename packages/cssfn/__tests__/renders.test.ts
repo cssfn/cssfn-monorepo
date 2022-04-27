@@ -44,7 +44,7 @@ jest.isolateModules(() => {
     
     
     
-    test(`render()`, () => {
+    test(`render() # test standard propName`, () => {
         const sheet1 = styleSheet(() => [
             mainScope(
                 style({
@@ -56,13 +56,34 @@ jest.isolateModules(() => {
         ], { id: '#sheet#1' });
         expect(render(sheet1))
         .toEqual(
-`background: pink;
-padding-inline: 1rem;
-border-start-end-radius: 0.5px;
-&.z7qv1 {
+`&.z7qv1 {
 background: pink;
 padding-inline: 1rem;
 border-start-end-radius: 0.5px;
+
+}
+
+`
+        );
+    });
+    test(`render() # test custom propName`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    '--custProp1': '"yeah"',
+                    'var(--custProp2)': '"cool"',
+                    '--my-custProp1': '"okay"',
+                    'var(--my-custProp2)': '"good"',
+                })
+            )
+        ], { id: '#sheet#2' });
+        expect(render(sheet1))
+        .toEqual(
+`&.yny9o {
+--custProp1: "yeah";
+--custProp2: "cool";
+--my-custProp1: "okay";
+--my-custProp2: "good";
 
 }
 
