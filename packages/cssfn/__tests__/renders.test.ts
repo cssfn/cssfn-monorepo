@@ -66,6 +66,30 @@ border-start-end-radius: 0.5px;
 `
         );
     });
+    test(`render() # test vendor propName`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    WebkitAnimationDelay: '500ms',
+                    MozAnimationDelay: '500ms',
+                    OAnimationDelay: '500ms',
+                    msFlexDirection: 'column',
+                })
+            )
+        ], { id: '#sheet#2' });
+        expect(render(sheet1))
+        .toEqual(
+`.yny9o {
+-webkit-animation-delay: 500ms;
+-moz-animation-delay: 500ms;
+-o-animation-delay: 500ms;
+-ms-flex-direction: column;
+
+}
+
+`
+        );
+    });
     test(`render() # test custom propName`, () => {
         const sheet1 = styleSheet(() => [
             mainScope(
@@ -76,10 +100,10 @@ border-start-end-radius: 0.5px;
                     'var(--my-custProp2)': '"good"',
                 })
             )
-        ], { id: '#sheet#2' });
+        ], { id: '#sheet#3' });
         expect(render(sheet1))
         .toEqual(
-`.yny9o {
+`.y45ob {
 --custProp1: "yeah";
 --custProp2: "cool";
 --my-custProp1: "okay";
