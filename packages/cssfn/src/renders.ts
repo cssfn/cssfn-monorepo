@@ -262,7 +262,7 @@ class RenderRule {
 
 
 
-export const render = (styleSheet: StyleSheet): string|null => {
+export const render = <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): string|null => {
     if (!styleSheet.enabled) return null;
     
     
