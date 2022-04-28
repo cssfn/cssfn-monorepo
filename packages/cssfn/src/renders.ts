@@ -191,10 +191,11 @@ class RenderRule {
     }
     #renderProp(propName: string, propValue: CssCustomValue): void {
         const rendered = this.#rendered;
+        rendered.push('\n');
         rendered.push(this.#renderPropName(propName));
         rendered.push(': ');
         rendered.push(this.#renderPropValue(propValue));
-        rendered.push(';\n');
+        rendered.push(';');
     }
     
     #renderSelector(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null, renderStyle: (finalStyle: CssStyle|null) => void): void {
@@ -210,12 +211,13 @@ class RenderRule {
         
         //#region render complete .selector { style }
         const rendered = this.#rendered;
+        rendered.push('\n');
         rendered.push(finalSelector);
-        rendered.push(' {\n');
+        rendered.push(' {');
         {
             renderStyle.call(this, finalStyle);
         }
-        rendered.push('\n}\n\n');
+        rendered.push('\n}\n');
         //#endregion render complete .selector { style }
     }
     #renderStyle(finalStyle: CssStyle|null): void {

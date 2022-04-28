@@ -67,13 +67,12 @@ jest.isolateModules(() => {
         ], { id: '#sheet#1' });
         expect(render(sheet1))
         .toEqual(
-`.z7qv1 {
+`
+.z7qv1 {
 background: pink;
 padding-inline: 1rem;
 border-start-end-radius: 0.5px;
-
 }
-
 `
         );
     });
@@ -90,14 +89,13 @@ border-start-end-radius: 0.5px;
         ], { id: '#sheet#2' });
         expect(render(sheet1))
         .toEqual(
-`.yny9o {
+`
+.yny9o {
 -webkit-animation-delay: 500ms;
 -moz-animation-delay: 500ms;
 -o-animation-delay: 500ms;
 -ms-flex-direction: column;
-
 }
-
 `
         );
     });
@@ -114,14 +112,13 @@ border-start-end-radius: 0.5px;
         ], { id: '#sheet#3' });
         expect(render(sheet1))
         .toEqual(
-`.y45ob {
+`
+.y45ob {
 --custProp1: "yeah";
 --custProp2: "cool";
 --my-custProp1: "okay";
 --my-custProp2: "good";
-
 }
-
 `
         );
     });
@@ -146,7 +143,8 @@ border-start-end-radius: 0.5px;
         ], { id: '#sheet#4' });
         expect(render(sheet1))
         .toEqual(
-`.xkd2y {
+`
+.xkd2y {
 color: pink;
 opacity: 0.5;
 content: "hello world";
@@ -156,9 +154,7 @@ border: solid 2px red;
 padding: 10px 0 5px 3% !important;
 box-shadow: 10px 5px 5px black, inset 5em 1em gold;
 background-position: 0 0, 1cm 2cm, center !important;
-
 }
-
 `
         );
     });
@@ -180,12 +176,11 @@ background-position: 0 0, 1cm 2cm, center !important;
         ], { id: '#sheet#5' });
         expect(render(sheet1))
         .toEqual(
-`.x0khl {
+`
+.x0khl {
 background: red;
 background: linear-gradient(to right, red 0%, green 100%);
-
 }
-
 `
         );
     });
@@ -211,15 +206,14 @@ background: linear-gradient(to right, red 0%, green 100%);
         ], { id: '#sheet#6' });
         expect(render(sheet1))
         .toEqual(
-`.wgrw8 {
+`
+.wgrw8 {
 display: none;
 display: inline;
 display: block;
 display: flex;
 display: grid;
-
 }
-
 `
         );
     });
@@ -243,14 +237,13 @@ display: grid;
         ], { id: '#sheet#7' });
         expect(render(sheet1))
         .toEqual(
-`@font-face {
+`
+@font-face {
 font-family: Open Sans;
 src: url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf");
 font-weight: bold;
 font-style: oblique 40deg;
-
 }
-
 `
         );
     });
