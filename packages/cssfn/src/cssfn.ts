@@ -34,6 +34,7 @@ import type {
     CssFinalSelector,
     
     CssScopeName,
+    CssScopeOptions,
     CssScopeEntry,
 }                           from '@cssfn/css-types'
 import type {
@@ -322,20 +323,21 @@ export const imports = (...styles: CssStyleCollection[]) => noRule(...styles);
  * Defines an additional scoped styleSheet.
  * @returns A `CssScopeEntry` represents a scoped styleSheet.
  */
-export const scopeOf     = <TCssScopeName extends CssScopeName>(scopeName: TCssScopeName, ...styles: CssStyleCollection[]): CssScopeEntry<TCssScopeName> => [
+export const scopeOf     = <TCssScopeName extends CssScopeName>(scopeName: TCssScopeName, styles: CssStyleCollection[], options?: CssScopeOptions): CssScopeEntry<TCssScopeName> => [
     scopeName,
-    styles
+    styles,
+    options
 ];
 /**
  * Defines the main styleSheet.
  * @returns A `CssScopeEntry` represents a main styleSheet.
  */
-export const mainScope   = (...styles: CssStyleCollection[]) => scopeOf('main' , ...styles);
+export const mainScope   = (styles: CssStyleCollection[], options?: CssScopeOptions) => scopeOf('main' , styles, options);
 /**
  * Defines an unscoped styleSheet (applied to a whole document).
  * @returns A `CssScopeEntry` represents an unscoped styleSheet.
  */
-export const globalScope = (...rules :  CssRuleCollection[]) => scopeOf(''     , ...rules );
+export const globalScope = (rules :  CssRuleCollection[]                           ) => scopeOf(''     , rules          );
 
 
 
