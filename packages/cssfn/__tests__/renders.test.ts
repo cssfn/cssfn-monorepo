@@ -535,5 +535,164 @@ overflow: auto;
 `
         );
     });
+    test(`render() # test .rule`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    background: 'pink',
+                    ...rule('.rule', {
+                        paddingInline: '1rem',
+                        borderStartEndRadius: '0.5px',
+                    }),
+                    ...rule(':hover', {
+                        color: 'red',
+                        opacity: 0.3,
+                    }),
+                    ...rule([':active', ':checked'], {
+                        display: 'grid',
+                        border: [['solid', '2px', 'red']],
+                    }),
+                    ...rule(['.menu', ':valid', '::before'], {
+                        visibility: 'visible',
+                        overflow: 'auto',
+                    }),
+                }),
+                { specificityWeight: 3 }
+            )
+        ], { id: '#sheet#12' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.wjq1t.wjq1t.wjq1t {
+background: pink;
+}
+
+.wjq1t.wjq1t.wjq1t.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+.wjq1t.wjq1t.wjq1t:hover {
+color: red;
+opacity: 0.3;
+}
+
+.wjq1t.wjq1t.wjq1t:is(:active, :checked) {
+display: grid;
+border: solid 2px red;
+}
+
+.wjq1t.wjq1t.wjq1t:is(.menu, :valid), .wjq1t.wjq1t.wjq1t::before {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...rule('.rule', {
+                        paddingInline: '1rem',
+                        borderStartEndRadius: '0.5px',
+                    }, { minSpecificityWeight: 3 }),
+                    ...rule(':hover', {
+                        color: 'red',
+                        opacity: 0.3,
+                    }, { maxSpecificityWeight: 0 }),
+                    ...rule([':active', ':checked'], {
+                        display: 'grid',
+                        border: [['solid', '2px', 'red']],
+                    }, { specificityWeight: 2 }),
+                    ...rule(['.menu', ':valid', '::before'], {
+                        visibility: 'visible',
+                        overflow: 'auto',
+                    }, { specificityWeight: 2 }),
+                }),
+                { specificityWeight: 2 }
+            ),
+        ], { id: '#sheet#13' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.x3in6.x3in6.rule.rule.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+.x3in6.x3in6:where(:hover) {
+color: red;
+opacity: 0.3;
+}
+
+.x3in6.x3in6:is(:active, :checked):nth-child(n) {
+display: grid;
+border: solid 2px red;
+}
+
+.x3in6.x3in6:is(.menu, :valid):nth-child(n), .x3in6.x3in6::before:nth-child(n):nth-child(n) {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    background: 'pink',
+                    ...rules([
+                        rule('.rule', {
+                            paddingInline: '1rem',
+                            borderStartEndRadius: '0.5px',
+                        }),
+                        rule(':hover', {
+                            color: 'red',
+                            opacity: 0.3,
+                        }),
+                        rule([':active', ':checked'], {
+                            display: 'grid',
+                            border: [['solid', '2px', 'red']],
+                        }),
+                        rule(['.menu', ':valid', '::before'], {
+                            visibility: 'visible',
+                            overflow: 'auto',
+                        }),
+                    ], { specificityWeight: 3 }),
+                }),
+                { specificityWeight: 2 }
+            )
+        ], { id: '#sheet#14' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.xnb8j.xnb8j {
+background: pink;
+}
+
+.xnb8j.xnb8j.rule.rule.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+.xnb8j.xnb8j:hover:hover:hover {
+color: red;
+opacity: 0.3;
+}
+
+.xnb8j.xnb8j:is(:active, :checked):nth-child(n):nth-child(n) {
+display: grid;
+border: solid 2px red;
+}
+
+.xnb8j.xnb8j:is(.menu, :valid):nth-child(n):nth-child(n), .xnb8j.xnb8j::before:nth-child(n):nth-child(n):nth-child(n) {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
     //#endregion test .rule
 });
