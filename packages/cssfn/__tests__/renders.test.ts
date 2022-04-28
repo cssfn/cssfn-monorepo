@@ -423,5 +423,90 @@ border: solid 2px red;
 `
         );
     });
+    test(`render() # test .rule`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...rule('.rule', {
+                        paddingInline: '1rem',
+                        borderStartEndRadius: '0.5px',
+                    }, { minSpecificityWeight: 3 }),
+                    ...rule(':hover', {
+                        color: 'red',
+                        opacity: 0.3,
+                    }, { maxSpecificityWeight: 0 }),
+                    ...rule([':active', ':checked'], {
+                        display: 'grid',
+                        border: [['solid', '2px', 'red']],
+                    }, { specificityWeight: 2 }),
+                })
+            )
+        ], { id: '#sheet#10' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.vg4v3.rule.rule.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+.vg4v3:where(:hover) {
+color: red;
+opacity: 0.3;
+}
+
+.vg4v3:is(:active, :checked):nth-child(n) {
+display: grid;
+border: solid 2px red;
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    background: 'pink',
+                    ...rules([
+                        rule('.rule', {
+                            paddingInline: '1rem',
+                            borderStartEndRadius: '0.5px',
+                        }),
+                        rule(':hover', {
+                            color: 'red',
+                            opacity: 0.3,
+                        }),
+                        rule([':active', ':checked'], {
+                            display: 'grid',
+                            border: [['solid', '2px', 'red']],
+                        }),
+                    ], { specificityWeight: 3 }),
+                })
+            )
+        ], { id: '#sheet#11' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.vzxgg {
+background: pink;
+}
+
+.vzxgg.rule.rule.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+.vzxgg:hover:hover:hover {
+color: red;
+opacity: 0.3;
+}
+
+.vzxgg:is(:active, :checked):nth-child(n):nth-child(n) {
+display: grid;
+border: solid 2px red;
+}
+`
+        );
+    });
     //#endregion test .rule
 });
