@@ -131,18 +131,13 @@ const combineSelector = (parentSelector: CssFinalSelector|null, nestedSelector: 
 
 type RuleEntry = readonly [CssFinalSelector, CssStyle]
 class RenderRule {
-    //#region private fields
-    readonly #rendered : string[]
-    //#endregion private fields
+    //#region public fields
+    rendered : string
+    //#endregion public fields
     
     
     
     //#region private methods
-    #appendRendered(rendered: string|null): void {
-        if (!rendered) return;
-        this.#rendered.push(rendered);
-    }
-    
     #renderPropName(propName: string): string {
         if (propName.startsWith('--')) return propName; // css custom prop
         if (propName.startsWith('var(')) return propName.slice(4, -1); // fix: var(--customProp) => --customProp
@@ -190,12 +185,11 @@ class RenderRule {
         );
     }
     #renderProp(propName: string, propValue: CssCustomValue): void {
-        const rendered = this.#rendered;
-        rendered.push('\n');
-        rendered.push(this.#renderPropName(propName));
-        rendered.push(': ');
-        rendered.push(this.#renderPropValue(propValue));
-        rendered.push(';');
+        this.rendered += '\n';
+        this.rendered += this.#renderPropName(propName);
+        this.rendered += ': ';
+        this.rendered += this.#renderPropValue(propValue);
+        this.rendered += ';';
     }
     
     #hasPropRule(finalStyle: CssStyle): boolean {
@@ -230,14 +224,13 @@ class RenderRule {
         
         
         //#region render complete .selector { style }
-        const rendered = this.#rendered;
-        rendered.push('\n');
-        rendered.push(finalSelector);
-        rendered.push(' {');
+        this.rendered += '\n';
+        this.rendered += finalSelector;
+        this.rendered += ' {';
         {
             renderStyle.call(this, finalStyle);
         }
-        rendered.push('\n}\n');
+        this.rendered += '\n}\n';
         //#endregion render complete .selector { style }
     }
     #renderStyle(finalStyle: CssStyle|null): void {
@@ -282,12 +275,10 @@ class RenderRule {
             
             
             
-            this.#appendRendered(
-                (new RenderRule(
-                    finalSelector.slice(1), // remove PropRule token (single prefix space)
-                    finalStyle
-                )).toString()
-            );
+            this.rendered += (new RenderRule(
+                finalSelector.slice(1), // remove PropRule token (single prefix space)
+                finalStyle
+            )).rendered;
         } // for
     }
     #renderNestedRules(finalParentSelector: CssFinalSelector|null, nestedRules: CssRule|null): void {
@@ -303,9 +294,7 @@ class RenderRule {
             
             
             if (finalSelector === '@global') { // special @global rule
-                this.#appendRendered(
-                    (new RenderRule(null, finalStyle)).toString()
-                );
+                this.rendered += (new RenderRule(null, finalStyle)).rendered;
             }
             else if (isConditionalNestedAtRules(finalSelector)) {
                 /*
@@ -353,17 +342,13 @@ class RenderRule {
             else if (finalSelector[0] === '@') {
                 // top_level at rule  , eg: @keyframes, @font-face
                 
-                this.#appendRendered(
-                    (new RenderRule(finalSelector, finalStyle)).toString()
-                );
+                this.rendered += (new RenderRule(finalSelector, finalStyle)).rendered;
             }
             else {
                 // nested rule, eg: &.boo, &>:foo, .bleh>&>.feh
                 
                 const combinedSelector = combineSelector(finalParentSelector, finalSelector) ?? finalSelector;
-                this.#appendRendered(
-                    (new RenderRule(combinedSelector, finalStyle)).toString()
-                );
+                this.rendered += (new RenderRule(combinedSelector, finalStyle)).rendered;
             } // if
         } // for
     }
@@ -371,16 +356,8 @@ class RenderRule {
     
     
     
-    //#region public methods
-    toString() : string|null {
-        return this.#rendered.join('');
-    }
-    //#endregion public methods
-    
-    
-    
     constructor(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null) {
-        this.#rendered = [];
+        this.rendered = '';
         this.#renderRule(finalSelector, finalStyle);
         this.#renderNestedRules(finalSelector, finalStyle);
     }
@@ -417,5 +394,5 @@ export const render = <TCssScopeName extends CssScopeName = CssScopeName>(styleS
     
     
     // finally, render the structures:
-    return (new RenderRule(null, mergedStyleSheetRule)).toString();
+    return (new RenderRule(null, mergedStyleSheetRule)).rendered || null;
 }
