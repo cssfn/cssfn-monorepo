@@ -1868,7 +1868,7 @@ test(`global()`, () => {
     );
 });
 
-const unparameterizedRules : (readonly [(...styles: CssStyleCollection[]) => CssRule, string ])[] = [
+const unparameterizedRules : (readonly [(styles: CssStyleCollection) => CssRule, string ])[] = [
     [ atRoot           , '&:root'                ],
     [ isFirstChild     , '&:first-child'         ],
     [ isNotFirstChild  , '&:not(:first-child)'   ],
