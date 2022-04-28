@@ -375,7 +375,7 @@ export const render = <TCssScopeName extends CssScopeName = CssScopeName>(styleS
     
     const scopeMap     = styleSheet.classes;
     
-    const scopeRules : CssRule[] = scopeList.map(([scopeName, styles]): CssRule|null => {
+    const scopeRules : CssRule[] = scopeList.map(([scopeName, styles, options]): CssRule|null => {
         // calculate unique class:
         const uniqueClass    : CssClassName     = scopeMap[scopeName];
         const uniqueSelector : CssFinalSelector = `.${uniqueClass}`;
@@ -385,7 +385,8 @@ export const render = <TCssScopeName extends CssScopeName = CssScopeName>(styleS
         // the top level rule (scope rule):
         return rule(
             uniqueSelector,
-            styles
+            styles,
+            { ...options, performGrouping: false }
         );
     }).filter((rule): rule is CssRule => !!rule);
     const styleSheetRule       = rules(scopeRules);
