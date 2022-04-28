@@ -321,5 +321,52 @@ opacity: 0.9;
 `
         );
     });
+    test(`render() # test @keyframes`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...keyframes('awesome', {
+                        from: {
+                            background: 'pink',
+                            color: 'red',
+                            ...style({
+                                opacity: 0.3,
+                                border: [['solid', '2px', 'red']],
+                            }),
+                        },
+                        to: {
+                            background: 'lightblue',
+                            color: 'blue',
+                            ...style({
+                                opacity: 0.9,
+                                border: [['solid', '4px', 'blue']],
+                            }),
+                        },
+                    }),
+                })
+            )
+        ], { id: '#sheet#8' });
+        expect(render(sheet1))
+        .toEqual(
+`
+@keyframes awesome {
+from {
+background: pink;
+color: red;
+opacity: 0.3;
+border: solid 2px red;
+}
+
+to {
+background: lightblue;
+color: blue;
+opacity: 0.9;
+border: solid 4px blue;
+}
+
+}
+`
+        );
+    });
     //#endregion test @keyframes
 });
