@@ -308,13 +308,13 @@ export const nextSiblings = (selectors: CssSelectorCollection, styles: CssStyleC
  * Defines css properties.
  * @returns A `CssRule` represents the css properties.
  */
-export const style   = (style: CssStyle)              => noRule(style);
+export const style   = (style: CssStyle)            => noRule(style);
 /**
  * Defines css variables.
  * @returns A `CssRule` represents the css variables.
  */
-export const vars    = (items: CssCustomProps)        => noRule(items);
-export const imports = (styles: CssStyleCollection[]) => noRule(...styles);
+export const vars    = (items: CssCustomProps)      => noRule(items);
+export const imports = (styles: CssStyleCollection) => noRule(styles);
 
 
 
