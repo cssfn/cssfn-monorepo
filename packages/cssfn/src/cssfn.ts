@@ -181,8 +181,8 @@ export const keyframes         = (name: string, items: CssKeyframes) => atRule(`
 
 
 // rule shortcuts:
-export const noRule            = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule('&'                   , styles, options);
-export const emptyRule         = ()                                        => rule(null                  , null  );
+export const noRule            = (styles:         CssStyleCollection                              ) => rule('&'                   , styles         );
+export const emptyRule         = (                                                                ) => rule(null                  , null           );
 export const fallbacks         = (styles:         CssStyleCollection                              ) => atRule('@fallbacks'        , styles         );
 export const fontFace          = (styles: CssFontFaceStyleCollection                              ) => atRule('@font-face'        , styles         );
 export const atGlobal          = (rules :          CssRuleCollection                              ) => atRule('@global'           , rules          );
@@ -314,7 +314,7 @@ export const style   = (style: CssStyle)              => noRule(style);
  * @returns A `CssRule` represents the css variables.
  */
 export const vars    = (items: CssCustomProps)        => noRule(items);
-export const imports = (styles: CssStyleCollection[]) => noRule(...styles); // force to use an array bracket [] for syntax consistency
+export const imports = (styles: CssStyleCollection[]) => noRule(styles); // force to use an array bracket [] for syntax consistency
 
 
 
