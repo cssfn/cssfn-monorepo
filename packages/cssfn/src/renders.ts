@@ -197,21 +197,26 @@ class RenderRule {
         rendered.push(';\n');
     }
     
-    #renderSelector(finalSelector: CssFinalSelector|null, renderfinalStyle: () => void): void {
+    #renderSelector(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null, renderStyle: (finalStyle: CssStyle|null) => void): void {
+        if (!finalStyle || !Object.keys(finalStyle).length) {
+            return; // empty style => no need to render the .selector { /* empty style */ }
+        } // if
         if (!finalSelector) {
-            renderfinalStyle();
+            renderStyle.call(this, finalStyle); // just render the style without selector, eg: @global rule => no selector but has style
             return;
         } // if
         
         
         
+        //#region render complete .selector { style }
         const rendered = this.#rendered;
         rendered.push(finalSelector);
         rendered.push(' {\n');
         {
-            renderfinalStyle();
+            renderStyle.call(this, finalStyle);
         }
         rendered.push('\n}\n\n');
+        //#endregion render complete .selector { style }
     }
     #renderStyle(finalStyle: CssStyle|null): void {
         this.#renderFallbacksRules(finalStyle);
@@ -224,9 +229,7 @@ class RenderRule {
         } // for
     }
     #renderRule(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null): void {
-        this.#renderSelector(finalSelector, () => {
-            this.#renderStyle(finalStyle);
-        });
+        this.#renderSelector(finalSelector, finalStyle, this.#renderStyle);
     }
     
     #renderFallbacksRules(nestedRules: CssRule|null): void {
@@ -303,8 +306,14 @@ class RenderRule {
                     }
                 */
             }
+            else if (finalSelector[0] === '@') {
+                // top_level at rule  , eg: @keyframes, @font-face
+                
+                this.#appendRendered(
+                    (new RenderRule(finalSelector, finalStyle)).toString()
+                );
+            }
             else {
-                // at rule  , eg: @keyframes, @font-face
                 // prop rule, eg: `from`, `to`, `25%`
                 
                 const combinedSelector = combineSelector(finalParentSelector, finalSelector) ?? finalSelector;

@@ -9,6 +9,7 @@ import {
     
     // rule shortcuts:
     fallbacks   as _fallbacks,
+    fontFace    as _fontFace,
     
     
     
@@ -30,6 +31,7 @@ import {
 
 jest.isolateModules(() => {
     let fallbacks   : typeof _fallbacks   = undefined as any;
+    let fontFace    : typeof _fontFace    = undefined as any;
     let style       : typeof _style       = undefined as any;
     let styleSheet  : typeof _styleSheet  = undefined as any;
     let scopeOf     : typeof _scopeOf     = undefined as any;
@@ -41,6 +43,7 @@ jest.isolateModules(() => {
         const renderModule     = await import('../dist/renders.js')
         
         fallbacks   = cssfnModule.fallbacks
+        fontFace    = cssfnModule.fontFace
         style       = cssfnModule.style
         styleSheet  = cssfnModule.styleSheet
         scopeOf     = cssfnModule.scopeOf
@@ -163,8 +166,8 @@ background-position: 0 0, 1cm 2cm, center !important;
     
     
     
-    //#region test fallbacks
-    test(`render() # test standard propName`, () => {
+    //#region test @fallbacks
+    test(`render() # test @fallbacks`, () => {
         const sheet1 = styleSheet(() => [
             mainScope(
                 style({
@@ -186,7 +189,7 @@ background: linear-gradient(to right, red 0%, green 100%);
 `
         );
     });
-    test(`render() # test standard propName`, () => {
+    test(`render() # test @fallbacks`, () => {
         const sheet1 = styleSheet(() => [
             mainScope(
                 style({
@@ -220,5 +223,36 @@ display: grid;
 `
         );
     });
-    //#endregion test fallbacks
+    //#endregion test @fallbacks
+    
+    
+    
+    //#region test @font-face
+    test(`render() # test @font-face`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...fontFace({
+                        fontFamily: 'Open Sans',
+                        src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")',
+                        fontWeight: 'bold',
+                        fontStyle: [['oblique', '40deg']],
+                    }),
+                })
+            )
+        ], { id: '#sheet#7' });
+        expect(render(sheet1))
+        .toEqual(
+`@font-face {
+font-family: Open Sans;
+src: url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf");
+font-weight: bold;
+font-style: oblique 40deg;
+
+}
+
+`
+        );
+    });
+    //#endregion test @font-face
 });
