@@ -247,5 +247,32 @@ font-style: oblique 40deg;
 `
         );
     });
+    test(`render() # test @font-face`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...fontFace({
+                        fontFamily: 'Open Sans',
+                        src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")',
+                        ...style({
+                            fontWeight: 'bold',
+                            fontStyle: [['oblique', '40deg']],
+                        }),
+                    }),
+                })
+            )
+        ], { id: '#sheet#7' });
+        expect(render(sheet1))
+        .toEqual(
+`
+@font-face {
+font-family: Open Sans;
+src: url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf");
+font-weight: bold;
+font-style: oblique 40deg;
+}
+`
+        );
+    });
     //#endregion test @font-face
 });
