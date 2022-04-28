@@ -240,8 +240,8 @@ export const mergeParent  = (style: CssStyle): void => {
     } // for
 }
 
-const mergeableNestedAtRules = ['@media', '@supports', '@document', '@global', '@fallbacks'];
-// const unmergeableNestedAtRules = ['@keyframes', '@font-face'];
+const mergeableNestedAtRules = ['@media', '@supports', '@document', '@global'];
+// const unmergeableNestedAtRules = ['@keyframes', '@font-face', '@fallbacks'];
 export const isMergeableNestedAtRule = (finalSelector: CssFinalSelector) => mergeableNestedAtRules.some((at) => finalSelector.startsWith(at));
 
 type GroupByFinalSelectorEntry = readonly [symbol, CssFinalSelector|null];

@@ -231,7 +231,7 @@ class RenderRule {
     
     #renderFallbacksRules(nestedRules: CssRule|null): void {
         if (!nestedRules) return;
-        for (const symbolProp of Object.getOwnPropertySymbols(nestedRules)) {
+        for (const symbolProp of Object.getOwnPropertySymbols(nestedRules).reverse()) { // reverse the @fallbacks order
             const ruleData = nestedRules[symbolProp];
             if (ruleData === undefined) continue;
             const [finalSelector, finalStyle] = ruleData;

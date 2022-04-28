@@ -1,9 +1,14 @@
 import type {
     render      as _render,
 } from '../dist/renders.js'
-import type {
+import {
     // style sheets:
     styleSheet  as _styleSheet,
+    
+    
+    
+    // rule shortcuts:
+    fallbacks   as _fallbacks,
     
     
     
@@ -24,6 +29,7 @@ import {
 
 
 jest.isolateModules(() => {
+    let fallbacks   : typeof _fallbacks   = undefined as any;
     let style       : typeof _style       = undefined as any;
     let styleSheet  : typeof _styleSheet  = undefined as any;
     let scopeOf     : typeof _scopeOf     = undefined as any;
@@ -34,6 +40,7 @@ jest.isolateModules(() => {
         const cssfnModule      = await import('../dist/cssfn.js')
         const renderModule     = await import('../dist/renders.js')
         
+        fallbacks   = cssfnModule.fallbacks
         style       = cssfnModule.style
         styleSheet  = cssfnModule.styleSheet
         scopeOf     = cssfnModule.scopeOf
@@ -44,6 +51,7 @@ jest.isolateModules(() => {
     
     
     
+    //#region test properties
     test(`render() # test standard propName`, () => {
         const sheet1 = styleSheet(() => [
             mainScope(
@@ -114,4 +122,103 @@ border-start-end-radius: 0.5px;
 `
         );
     });
+    test(`render() # test propValue`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    color: 'pink',
+                    opacity: 0.5,
+                    content: '"hello world"',
+                    
+                    fontFamily: ['Arial', 'sans-serif'],
+                    background: ['url(image1.png)', 'url(image2.png)', '!important'],
+                    
+                    border: [['solid', '2px', 'red']],
+                    padding: [['10px', 0, '5px', '3%'], '!important'],
+                    
+                    boxShadow: [['10px', '5px', '5px', 'black'], ['inset', '5em', '1em', 'gold']],
+                    backgroundPosition: [[0, 0], ['1cm', '2cm'], ['center'], '!important'],
+                })
+            )
+        ], { id: '#sheet#4' });
+        expect(render(sheet1))
+        .toEqual(
+`.xkd2y {
+color: pink;
+opacity: 0.5;
+content: "hello world";
+font-family: Arial, sans-serif;
+background: url(image1.png), url(image2.png) !important;
+border: solid 2px red;
+padding: 10px 0 5px 3% !important;
+box-shadow: 10px 5px 5px black, inset 5em 1em gold;
+background-position: 0 0, 1cm 2cm, center !important;
+
+}
+
+`
+        );
+    });
+    //#endregion test properties
+    
+    
+    
+    //#region test fallbacks
+    test(`render() # test standard propName`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    background: 'linear-gradient(to right, red 0%, green 100%)',
+                    ...fallbacks({
+                        background: 'red',
+                    }),
+                })
+            )
+        ], { id: '#sheet#5' });
+        expect(render(sheet1))
+        .toEqual(
+`.x0khl {
+background: red;
+background: linear-gradient(to right, red 0%, green 100%);
+
+}
+
+`
+        );
+    });
+    test(`render() # test standard propName`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    display: 'grid',
+                    ...fallbacks({
+                        display: 'flex',
+                    }),
+                    ...fallbacks({
+                        display: 'block',
+                    }),
+                    ...fallbacks({
+                        display: 'inline',
+                    }),
+                    ...fallbacks({
+                        display: 'none',
+                    }),
+                })
+            )
+        ], { id: '#sheet#6' });
+        expect(render(sheet1))
+        .toEqual(
+`.wgrw8 {
+display: none;
+display: inline;
+display: block;
+display: flex;
+display: grid;
+
+}
+
+`
+        );
+    });
+    //#endregion test fallbacks
 });
