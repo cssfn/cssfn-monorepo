@@ -14,11 +14,6 @@ import {
     
     
     
-    // SelectorEntry creates & tests:
-    isPseudoElementSelector,
-    
-    
-    
     // Selector creates & tests:
     pureSelectorGroup,
     isNotEmptySelector,
