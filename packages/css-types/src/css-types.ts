@@ -206,9 +206,10 @@ export type CssClassName = string & {} // not a really string: [A-Z_a-z-]+
 
 
 
-export type CssScopeName = string & {} // not a really string: [A-Z_a-z-]+
+export type CssScopeName    = string & {} // not a really string: [A-Z_a-z-]+
+export type CssScopeOptions = Omit<CssSelectorOptions, 'performGrouping'>
 export type CssScopeEntry
-    <TCssScopeName extends CssScopeName> = readonly [TCssScopeName, CssStyleCollection]
+    <TCssScopeName extends CssScopeName> = readonly [TCssScopeName, CssStyleCollection, CssScopeOptions|undefined]
 export type CssScopeList
     <TCssScopeName extends CssScopeName> = CssScopeEntry<TCssScopeName>[]
 export type CssScopeMap<TCssScopeName extends CssScopeName> = {
