@@ -535,6 +535,7 @@ overflow: auto;
 `
         );
     });
+    
     test(`render() # test .rule`, () => {
         const sheet1 = styleSheet(() => [
             mainScope(
@@ -688,6 +689,166 @@ border: solid 2px red;
 }
 
 .xnb8j.xnb8j:is(.menu, :valid):nth-child(n):nth-child(n), .xnb8j.xnb8j::before:nth-child(n):nth-child(n):nth-child(n) {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    
+    test(`render() # test .rule`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    background: 'pink',
+                    ...rule('.rule', {
+                        paddingInline: '1rem',
+                        borderStartEndRadius: '0.5px',
+                    }),
+                    ...rule(':hover', {
+                        color: 'red',
+                        opacity: 0.3,
+                    }),
+                    ...rule([':active', ':checked'], {
+                        display: 'grid',
+                        border: [['solid', '2px', 'red']],
+                    }),
+                    ...rule(['.menu', ':valid', '::before'], {
+                        visibility: 'visible',
+                        overflow: 'auto',
+                    }),
+                }),
+                { specificityWeight: 0 }
+            )
+        ], { id: '#sheet#15' });
+        expect(render(sheet1))
+        .toEqual(
+`
+:where(.y73tw) {
+background: pink;
+}
+
+:where(.y73tw).rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+:where(.y73tw):hover {
+color: red;
+opacity: 0.3;
+}
+
+:where(.y73tw):is(:active, :checked) {
+display: grid;
+border: solid 2px red;
+}
+
+:where(.y73tw):is(.menu, :valid), :where(.y73tw)::before {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...rule('.rule', {
+                        paddingInline: '1rem',
+                        borderStartEndRadius: '0.5px',
+                    }, { minSpecificityWeight: 3 }),
+                    ...rule(':hover', {
+                        color: 'red',
+                        opacity: 0.3,
+                    }, { maxSpecificityWeight: 0 }),
+                    ...rule([':active', ':checked'], {
+                        display: 'grid',
+                        border: [['solid', '2px', 'red']],
+                    }, { specificityWeight: 2 }),
+                    ...rule(['.menu', ':valid', '::before'], {
+                        visibility: 'visible',
+                        overflow: 'auto',
+                    }, { specificityWeight: 2 }),
+                }),
+                { specificityWeight: 0 }
+            ),
+        ], { id: '#sheet#16' });
+        expect(render(sheet1))
+        .toEqual(
+`
+:where(.yqwf9).rule.rule.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+:where(.yqwf9):where(:hover) {
+color: red;
+opacity: 0.3;
+}
+
+:where(.yqwf9):is(:active, :checked):nth-child(n) {
+display: grid;
+border: solid 2px red;
+}
+
+:where(.yqwf9):is(.menu, :valid):nth-child(n), :where(.yqwf9)::before:nth-child(n):nth-child(n) {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    background: 'pink',
+                    ...rules([
+                        rule('.rule', {
+                            paddingInline: '1rem',
+                            borderStartEndRadius: '0.5px',
+                        }),
+                        rule(':hover', {
+                            color: 'red',
+                            opacity: 0.3,
+                        }),
+                        rule([':active', ':checked'], {
+                            display: 'grid',
+                            border: [['solid', '2px', 'red']],
+                        }),
+                        rule(['.menu', ':valid', '::before'], {
+                            visibility: 'visible',
+                            overflow: 'auto',
+                        }),
+                    ], { specificityWeight: 3 }),
+                }),
+                { specificityWeight: 0 }
+            )
+        ], { id: '#sheet#17' });
+        expect(render(sheet1))
+        .toEqual(
+`
+:where(.zap0m) {
+background: pink;
+}
+
+:where(.zap0m).rule.rule.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+:where(.zap0m):hover:hover:hover {
+color: red;
+opacity: 0.3;
+}
+
+:where(.zap0m):is(:active, :checked):nth-child(n):nth-child(n) {
+display: grid;
+border: solid 2px red;
+}
+
+:where(.zap0m):is(.menu, :valid):nth-child(n):nth-child(n), :where(.zap0m)::before:nth-child(n):nth-child(n):nth-child(n) {
 visibility: visible;
 overflow: auto;
 }
