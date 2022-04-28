@@ -396,6 +396,10 @@ border: solid 4px blue;
                         display: 'grid',
                         border: [['solid', '2px', 'red']],
                     }),
+                    ...rule(['.menu', ':valid', '::before'], {
+                        visibility: 'visible',
+                        overflow: 'auto',
+                    }),
                 })
             )
         ], { id: '#sheet#9' });
@@ -420,6 +424,11 @@ opacity: 0.3;
 display: grid;
 border: solid 2px red;
 }
+
+.ute45:is(.menu, :valid), .ute45::before {
+visibility: visible;
+overflow: auto;
+}
 `
         );
     });
@@ -438,6 +447,10 @@ border: solid 2px red;
                     ...rule([':active', ':checked'], {
                         display: 'grid',
                         border: [['solid', '2px', 'red']],
+                    }, { specificityWeight: 2 }),
+                    ...rule(['.menu', ':valid', '::before'], {
+                        visibility: 'visible',
+                        overflow: 'auto',
                     }, { specificityWeight: 2 }),
                 })
             )
@@ -459,6 +472,11 @@ opacity: 0.3;
 display: grid;
 border: solid 2px red;
 }
+
+.vg4v3:is(.menu, :valid):nth-child(n), .vg4v3::before:nth-child(n):nth-child(n) {
+visibility: visible;
+overflow: auto;
+}
 `
         );
     });
@@ -479,6 +497,10 @@ border: solid 2px red;
                         rule([':active', ':checked'], {
                             display: 'grid',
                             border: [['solid', '2px', 'red']],
+                        }),
+                        rule(['.menu', ':valid', '::before'], {
+                            visibility: 'visible',
+                            overflow: 'auto',
                         }),
                     ], { specificityWeight: 3 }),
                 })
@@ -504,6 +526,11 @@ opacity: 0.3;
 .vzxgg:is(:active, :checked):nth-child(n):nth-child(n) {
 display: grid;
 border: solid 2px red;
+}
+
+.vzxgg:is(.menu, :valid):nth-child(n):nth-child(n), .vzxgg::before:nth-child(n):nth-child(n):nth-child(n) {
+visibility: visible;
+overflow: auto;
 }
 `
         );
