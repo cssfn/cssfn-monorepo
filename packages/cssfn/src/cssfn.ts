@@ -170,7 +170,10 @@ export const states   = (states  : CssRuleCollection, options?: CssSelectorOptio
 export const keyframes         = (name: string, items: CssKeyframes) => atRule(`@keyframes ${name}`, (Object.fromEntries(
     Object.entries(items).map(([key, frame]): readonly [symbol, CssRuleData] => [
         Symbol(),
-        [key, frame]
+        [
+            ` ${key}`, // add a single space as PropRule token
+            frame
+        ]
     ])
 ) as CssRule));
 

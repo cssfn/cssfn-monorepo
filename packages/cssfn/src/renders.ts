@@ -198,8 +198,28 @@ class RenderRule {
         rendered.push(';');
     }
     
+    #hasPropRule(finalStyle: CssStyle): boolean {
+        for (const symbolProp of Object.getOwnPropertySymbols(finalStyle)) {
+            const ruleData = finalStyle[symbolProp];
+            const [finalSelector] = ruleData;
+            if (typeof(finalSelector) !== 'string') continue;
+            if (finalSelector[0] === ' ') return true; // found a PropRule
+        } // for
+        return false; // not found any PropRule
+    }
     #renderSelector(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null, renderStyle: (finalStyle: CssStyle|null) => void): void {
-        if (!finalStyle || !Object.keys(finalStyle).length) {
+        if (
+            !finalStyle // no style defined
+            ||
+            // a style defined, but:
+            (
+                // there is no any prop:
+                !Object.keys(finalStyle).length)
+                &&
+                // there is no any PropRule:
+                !this.#hasPropRule(finalStyle)
+            )
+        {
             return; // empty style => no need to render the .selector { /* empty style */ }
         } // if
         if (!finalSelector) {
@@ -229,6 +249,10 @@ class RenderRule {
         for (const propName in finalStyle) {
             this.#renderProp(propName, (finalStyle as any)[propName])
         } // for
+        
+        
+        
+        this.#renderPropRules(finalStyle);
     }
     #renderRule(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null): void {
         this.#renderSelector(finalSelector, finalStyle, this.#renderStyle);
@@ -238,7 +262,6 @@ class RenderRule {
         if (!nestedRules) return;
         for (const symbolProp of Object.getOwnPropertySymbols(nestedRules).reverse()) { // reverse the @fallbacks order
             const ruleData = nestedRules[symbolProp];
-            if (ruleData === undefined) continue;
             const [finalSelector, finalStyle] = ruleData;
             if (finalSelector !== '@fallbacks') continue; // only interested in @fallbacks
             if ((finalStyle === null) || (typeof(finalStyle) !== 'object') || Array.isArray(finalStyle)) continue;
@@ -248,13 +271,32 @@ class RenderRule {
             this.#renderStyle(finalStyle);
         } // for
     }
+    #renderPropRules(nestedRules: CssRule|null): void {
+        if (!nestedRules) return;
+        for (const symbolProp of Object.getOwnPropertySymbols(nestedRules)) {
+            const ruleData = nestedRules[symbolProp];
+            const [finalSelector, finalStyle] = ruleData;
+            if (typeof(finalSelector) !== 'string') continue;
+            if (finalSelector[0] !== ' ') continue; // only interested in PropRule
+            if ((finalStyle === null) || (typeof(finalStyle) !== 'object') || Array.isArray(finalStyle)) continue;
+            
+            
+            
+            this.#appendRendered(
+                (new RenderRule(
+                    finalSelector.slice(1), // remove PropRule token (single prefix space)
+                    finalStyle
+                )).toString()
+            );
+        } // for
+    }
     #renderNestedRules(finalParentSelector: CssFinalSelector|null, nestedRules: CssRule|null): void {
         if (!nestedRules) return;
         for (const symbolProp of Object.getOwnPropertySymbols(nestedRules)) {
             const ruleData = nestedRules[symbolProp];
-            if (ruleData === undefined) continue;
             const [finalSelector, finalStyle] = ruleData;
             if (typeof(finalSelector) !== 'string') continue;
+            if (finalSelector[0] === ' ') continue; // skip PropRule
             if (finalSelector === '@fallbacks') continue; // skip @fallbacks
             if ((finalStyle === null) || (typeof(finalStyle) !== 'object') || Array.isArray(finalStyle)) continue;
             
@@ -316,7 +358,7 @@ class RenderRule {
                 );
             }
             else {
-                // prop rule, eg: `from`, `to`, `25%`
+                // nested rule, eg: &.boo, &>:foo, .bleh>&>.feh
                 
                 const combinedSelector = combineSelector(finalParentSelector, finalSelector) ?? finalSelector;
                 this.#appendRendered(

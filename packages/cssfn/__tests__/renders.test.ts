@@ -10,6 +10,7 @@ import {
     // rule shortcuts:
     fallbacks   as _fallbacks,
     fontFace    as _fontFace,
+    keyframes   as _keyframes,
     
     
     
@@ -32,6 +33,7 @@ import {
 jest.isolateModules(() => {
     let fallbacks   : typeof _fallbacks   = undefined as any;
     let fontFace    : typeof _fontFace    = undefined as any;
+    let keyframes   : typeof _keyframes   = undefined as any;
     let style       : typeof _style       = undefined as any;
     let styleSheet  : typeof _styleSheet  = undefined as any;
     let scopeOf     : typeof _scopeOf     = undefined as any;
@@ -44,6 +46,7 @@ jest.isolateModules(() => {
         
         fallbacks   = cssfnModule.fallbacks
         fontFace    = cssfnModule.fontFace
+        keyframes   = cssfnModule.keyframes
         style       = cssfnModule.style
         styleSheet  = cssfnModule.styleSheet
         scopeOf     = cssfnModule.scopeOf
@@ -261,7 +264,7 @@ font-style: oblique 40deg;
                     }),
                 })
             )
-        ], { id: '#sheet#7' });
+        ], { id: '#sheet#8' });
         expect(render(sheet1))
         .toEqual(
 `
@@ -275,4 +278,48 @@ font-style: oblique 40deg;
         );
     });
     //#endregion test @font-face
+    
+    
+    
+    //#region test @keyframes
+    test(`render() # test @keyframes`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...keyframes('awesome', {
+                        from: {
+                            background: 'pink',
+                            color: 'red',
+                            opacity: 0.3,
+                        },
+                        to: {
+                            background: 'lightblue',
+                            color: 'blue',
+                            opacity: 0.9,
+                        },
+                    }),
+                })
+            )
+        ], { id: '#sheet#7' });
+        expect(render(sheet1))
+        .toEqual(
+`
+@keyframes awesome {
+from {
+background: pink;
+color: red;
+opacity: 0.3;
+}
+
+to {
+background: lightblue;
+color: blue;
+opacity: 0.9;
+}
+
+}
+`
+        );
+    });
+    //#endregion test @keyframes
 });
