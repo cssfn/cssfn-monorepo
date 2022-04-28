@@ -2399,12 +2399,12 @@ test(`vars()`, () => {
 });
 test(`imports()`, () => {
     expect(mergeStyles(
-        imports(
+        imports([
             {
                 color      : 'blue',
                 background : 'lightblue',
             },
-        )
+        ])
     ))
     .toExactEqual({
         color      : 'blue',
@@ -2413,7 +2413,7 @@ test(`imports()`, () => {
 });
 test(`imports()`, () => {
     expect(mergeStyles(
-        imports(
+        imports([
             {
                 color      : 'blue',
                 background : 'lightblue',
@@ -2422,7 +2422,7 @@ test(`imports()`, () => {
                 opacity    : 0.9,
                 width      : '300px',
             },
-        )
+        ])
     ))
     .toExactEqual({
         color      : 'blue',

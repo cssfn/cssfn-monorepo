@@ -66,13 +66,13 @@ jest.isolateModules(() => {
     //#region test properties
     test(`render() # test standard propName`, () => {
         const sheet1 = styleSheet(() => [
-            mainScope(
+            mainScope([
                 style({
                     background: 'pink',
                     paddingInline: '1rem',
                     borderStartEndRadius: '0.5px',
                 })
-            )
+            ])
         ], { id: '#sheet#1' });
         expect(render(sheet1))
         .toEqual(
@@ -87,14 +87,14 @@ border-start-end-radius: 0.5px;
     });
     test(`render() # test vendor propName`, () => {
         const sheet1 = styleSheet(() => [
-            mainScope(
+            mainScope([
                 style({
                     WebkitAnimationDelay: '500ms',
                     MozAnimationDelay: '500ms',
                     OAnimationDelay: '500ms',
                     msFlexDirection: 'column',
                 })
-            )
+            ])
         ], { id: '#sheet#2' });
         expect(render(sheet1))
         .toEqual(
@@ -110,14 +110,14 @@ border-start-end-radius: 0.5px;
     });
     test(`render() # test custom propName`, () => {
         const sheet1 = styleSheet(() => [
-            mainScope(
+            mainScope([
                 style({
                     '--custProp1': '"yeah"',
                     'var(--custProp2)': '"cool"',
                     '--my-custProp1': '"okay"',
                     'var(--my-custProp2)': '"good"',
                 })
-            )
+            ])
         ], { id: '#sheet#3' });
         expect(render(sheet1))
         .toEqual(
@@ -133,7 +133,7 @@ border-start-end-radius: 0.5px;
     });
     test(`render() # test propValue`, () => {
         const sheet1 = styleSheet(() => [
-            mainScope(
+            mainScope([
                 style({
                     color: 'pink',
                     opacity: 0.5,
@@ -148,7 +148,7 @@ border-start-end-radius: 0.5px;
                     boxShadow: [['10px', '5px', '5px', 'black'], ['inset', '5em', '1em', 'gold']],
                     backgroundPosition: [[0, 0], ['1cm', '2cm'], ['center'], '!important'],
                 })
-            )
+            ])
         ], { id: '#sheet#4' });
         expect(render(sheet1))
         .toEqual(
@@ -174,14 +174,14 @@ background-position: 0 0, 1cm 2cm, center !important;
     //#region test @fallbacks
     test(`render() # test @fallbacks`, () => {
         const sheet1 = styleSheet(() => [
-            mainScope(
+            mainScope([
                 style({
                     background: 'linear-gradient(to right, red 0%, green 100%)',
                     ...fallbacks({
                         background: 'red',
                     }),
                 })
-            )
+            ])
         ], { id: '#sheet#5' });
         expect(render(sheet1))
         .toEqual(
@@ -195,7 +195,7 @@ background: linear-gradient(to right, red 0%, green 100%);
     });
     test(`render() # test @fallbacks`, () => {
         const sheet1 = styleSheet(() => [
-            mainScope(
+            mainScope([
                 style({
                     display: 'grid',
                     ...fallbacks({
@@ -211,7 +211,7 @@ background: linear-gradient(to right, red 0%, green 100%);
                         display: 'none',
                     }),
                 })
-            )
+            ])
         ], { id: '#sheet#6' });
         expect(render(sheet1))
         .toEqual(
@@ -233,7 +233,7 @@ display: grid;
     //#region test @font-face
     test(`render() # test @font-face`, () => {
         const sheet1 = styleSheet(() => [
-            mainScope(
+            mainScope([
                 style({
                     ...fontFace({
                         fontFamily: 'Open Sans',
@@ -242,7 +242,7 @@ display: grid;
                         fontStyle: [['oblique', '40deg']],
                     }),
                 })
-            )
+            ])
         ], { id: '#sheet#7' });
         expect(render(sheet1))
         .toEqual(
@@ -258,7 +258,7 @@ font-style: oblique 40deg;
     });
     test(`render() # test @font-face`, () => {
         const sheet1 = styleSheet(() => [
-            mainScope(
+            mainScope([
                 style({
                     ...fontFace({
                         fontFamily: 'Open Sans',
@@ -269,7 +269,7 @@ font-style: oblique 40deg;
                         }),
                     }),
                 })
-            )
+            ])
         ], { id: '#sheet#8' });
         expect(render(sheet1))
         .toEqual(
@@ -290,7 +290,7 @@ font-style: oblique 40deg;
     //#region test @keyframes
     test(`render() # test @keyframes`, () => {
         const sheet1 = styleSheet(() => [
-            mainScope(
+            mainScope([
                 style({
                     ...keyframes('awesome', {
                         from: {
@@ -305,7 +305,7 @@ font-style: oblique 40deg;
                         },
                     }),
                 })
-            )
+            ])
         ], { id: '#sheet#7' });
         expect(render(sheet1))
         .toEqual(
@@ -329,7 +329,7 @@ opacity: 0.9;
     });
     test(`render() # test @keyframes`, () => {
         const sheet1 = styleSheet(() => [
-            mainScope(
+            mainScope([
                 style({
                     ...keyframes('awesome', {
                         from: {
@@ -350,7 +350,7 @@ opacity: 0.9;
                         },
                     }),
                 })
-            )
+            ])
         ], { id: '#sheet#8' });
         expect(render(sheet1))
         .toEqual(
@@ -381,7 +381,7 @@ border: solid 4px blue;
     //#region test .rule
     test(`render() # test .rule`, () => {
         const sheet1 = styleSheet(() => [
-            mainScope(
+            mainScope([
                 style({
                     background: 'pink',
                     ...rule('.rule', {
@@ -401,7 +401,7 @@ border: solid 4px blue;
                         overflow: 'auto',
                     }),
                 })
-            )
+            ])
         ], { id: '#sheet#9' });
         expect(render(sheet1))
         .toEqual(
@@ -434,7 +434,7 @@ overflow: auto;
     });
     test(`render() # test .rule`, () => {
         const sheet1 = styleSheet(() => [
-            mainScope(
+            mainScope([
                 style({
                     ...rule('.rule', {
                         paddingInline: '1rem',
@@ -453,7 +453,7 @@ overflow: auto;
                         overflow: 'auto',
                     }, { specificityWeight: 2 }),
                 })
-            )
+            ])
         ], { id: '#sheet#10' });
         expect(render(sheet1))
         .toEqual(
@@ -482,7 +482,7 @@ overflow: auto;
     });
     test(`render() # test .rule`, () => {
         const sheet1 = styleSheet(() => [
-            mainScope(
+            mainScope([
                 style({
                     background: 'pink',
                     ...rules([
@@ -504,7 +504,7 @@ overflow: auto;
                         }),
                     ], { specificityWeight: 3 }),
                 })
-            )
+            ])
         ], { id: '#sheet#11' });
         expect(render(sheet1))
         .toEqual(
