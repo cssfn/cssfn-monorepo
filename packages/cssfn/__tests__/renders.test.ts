@@ -11,6 +11,8 @@ import {
     fallbacks   as _fallbacks,
     fontFace    as _fontFace,
     keyframes   as _keyframes,
+    rule        as _rule,
+    rules       as _rules,
     
     
     
@@ -34,6 +36,8 @@ jest.isolateModules(() => {
     let fallbacks   : typeof _fallbacks   = undefined as any;
     let fontFace    : typeof _fontFace    = undefined as any;
     let keyframes   : typeof _keyframes   = undefined as any;
+    let rule        : typeof _rule        = undefined as any;
+    let rules       : typeof _rules       = undefined as any;
     let style       : typeof _style       = undefined as any;
     let styleSheet  : typeof _styleSheet  = undefined as any;
     let scopeOf     : typeof _scopeOf     = undefined as any;
@@ -47,6 +51,8 @@ jest.isolateModules(() => {
         fallbacks   = cssfnModule.fallbacks
         fontFace    = cssfnModule.fontFace
         keyframes   = cssfnModule.keyframes
+        rule        = cssfnModule.rule,
+        rules       = cssfnModule.rules,
         style       = cssfnModule.style
         styleSheet  = cssfnModule.styleSheet
         scopeOf     = cssfnModule.scopeOf
@@ -369,4 +375,53 @@ border: solid 4px blue;
         );
     });
     //#endregion test @keyframes
+    
+    
+    
+    //#region test .rule
+    test(`render() # test .rule`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    background: 'pink',
+                    ...rule('.rule', {
+                        paddingInline: '1rem',
+                        borderStartEndRadius: '0.5px',
+                    }),
+                    ...rule(':hover', {
+                        color: 'red',
+                        opacity: 0.3,
+                    }),
+                    ...rule([':active', ':checked'], {
+                        display: 'grid',
+                        border: [['solid', '2px', 'red']],
+                    }),
+                })
+            )
+        ], { id: '#sheet#9' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.ute45 {
+background: pink;
+}
+
+.ute45.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+.ute45:hover {
+color: red;
+opacity: 0.3;
+}
+
+.ute45:is(:active, :checked) {
+display: grid;
+border: solid 2px red;
+}
+`
+        );
+    });
+    //#endregion test .rule
 });
