@@ -384,8 +384,16 @@ class RenderRule {
                     this.#renderConditionalSelector(finalSelector, finalStyle);
                 }
                 else {
-                    console.log('finalParentSelector', finalParentSelector);
-                    throw Error('under construction');
+                    this.#renderConditionalSelector(finalSelector,
+                        //#region wrap the style with a duplicated parentRule selector
+                        {
+                            [Symbol()] : [
+                                finalParentSelector,
+                                finalStyle
+                            ],
+                        }
+                        //#endregion wrap the style with a duplicated parentRule selector
+                    );
                 } // if
             }
             else if (finalSelector[0] === '@') {

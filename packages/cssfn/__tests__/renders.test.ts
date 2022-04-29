@@ -1560,5 +1560,254 @@ justify-content: center;
         );
     });
     //#endregion @global
+    
+    
+    
+    //#region .rule
+    test(`render() # test @global`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...rule('.btn', {
+                        background: 'pink',
+                        color: 'red',
+                    }),
+                    ...atRule('@media (min-width: 1024px)', {
+                        opacity: 0.5,
+                        cursor: 'pointer',
+                        
+                        ...rule('.sub-menu', {
+                            margin: 0,
+                            padding: 0,
+                            background: 'white',
+                            
+                            ...children(['div', '.container'], {
+                                border: [['solid', '2px', 'black']],
+                                display: 'block',
+                            }),
+                        }),
+                        ...rule(['.checkbox', 'input[type="checkbox"]'], {
+                            appearance: 'none',
+                            display: 'flex',
+                            
+                            ...style({
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                            })
+                        }, { specificityWeight: 2 }),
+                    }),
+                    ...rule('.footer', {
+                        ...vars({
+                            '--gutter': '10px',
+                            '--gapSm': '0.5rem',
+                            '--gapLg': '2rem',
+                            '--btn-minHeight': '1.5rem',
+                        })
+                    }),
+                })
+            )
+        ], { id: '#sheet#28' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.gw406.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+.gw406 {
+opacity: 0.5;
+cursor: pointer;
+}
+
+.gw406.sub-menu {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+.gw406.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+.gw406:is(.checkbox, input[type="checkbox"]):nth-child(n) {
+appearance: none;
+display: flex;
+flex-direction: row;
+justify-content: center;
+}
+
+}
+
+.gw406.footer {
+--gutter: 10px;
+--gapSm: 0.5rem;
+--gapLg: 2rem;
+--btn-minHeight: 1.5rem;
+}
+`
+        );
+    });
+    test(`render() # test @global`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...rule('.menu', {
+                        ...rule('.btn', {
+                            background: 'pink',
+                            color: 'red',
+                        }),
+                        ...atRule('@media (min-width: 1024px)', {
+                            opacity: 0.5,
+                            cursor: 'pointer',
+                            
+                            ...rule('.sub-menu', {
+                                margin: 0,
+                                padding: 0,
+                                background: 'white',
+                                
+                                ...children(['div', '.container'], {
+                                    border: [['solid', '2px', 'black']],
+                                    display: 'block',
+                                }),
+                            }),
+                            ...rule(['.checkbox', 'input[type="checkbox"]'], {
+                                appearance: 'none',
+                                display: 'flex',
+                                
+                                ...style({
+                                    flexDirection: 'row',
+                                    justifyContent: 'center',
+                                })
+                            }, { specificityWeight: 2 }),
+                        }),
+                        ...rule('.footer', {
+                            ...vars({
+                                '--gutter': '10px',
+                                '--gapSm': '0.5rem',
+                                '--gapLg': '2rem',
+                                '--btn-minHeight': '1.5rem',
+                            })
+                        }),
+                    }),
+                })
+            )
+        ], { id: '#sheet#29' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.hfwlj.menu.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+.hfwlj.menu {
+opacity: 0.5;
+cursor: pointer;
+}
+
+.hfwlj.menu.sub-menu {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+.hfwlj.menu.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+.hfwlj.menu:is(.checkbox, input[type="checkbox"]):nth-child(n) {
+appearance: none;
+display: flex;
+flex-direction: row;
+justify-content: center;
+}
+
+}
+
+.hfwlj.menu.footer {
+--gutter: 10px;
+--gapSm: 0.5rem;
+--gapLg: 2rem;
+--btn-minHeight: 1.5rem;
+}
+`
+        );
+    });
+    test(`render() # test @global`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...rule('.menu', {
+                        ...rule('.sub-menu', {
+                            margin: 0,
+                            padding: 0,
+                            background: 'white',
+                            
+                            ...children(['div', '.container'], {
+                                ...atRule('@media (min-width: 1024px)', {
+                                    border: [['solid', '2px', 'black']],
+                                    display: 'block',
+                                }),
+                            }),
+                        }),
+                    }),
+                })
+            )
+        ], { id: '#sheet#30' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.tjdnh.menu.sub-menu {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+@media (min-width: 1024px) {
+.tjdnh.menu.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+}
+`
+        );
+    });
+    test(`render() # test @global`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...rule('.menu', {
+                        ...rule('.sub-menu', {
+                            ...children(['div', '.container'], {
+                                ...atRule('@media (min-width: 1024px)', {
+                                    border: [['solid', '2px', 'black']],
+                                    display: 'block',
+                                }),
+                            }),
+                        }),
+                    }),
+                })
+            )
+        ], { id: '#sheet#31' });
+        expect(render(sheet1))
+        .toEqual(
+`
+@media (min-width: 1024px) {
+.u368u.menu.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+}
+`
+        );
+    });
+    //#endregion .rule
     //#endregion test @conditionalRule
 });
