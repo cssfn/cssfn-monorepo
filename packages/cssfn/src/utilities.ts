@@ -78,7 +78,7 @@ export const normalizeSelectorOptions = <TDefaultOptions extends CssSelectorOpti
     } as TDefaultOptions;
 }
 
-const fastHash = (input: string) => {
+const fastHash = (input: string): string => {
     let hash = 0, i, chr;
     for (i = 0; i < input.length; i++) {
         chr   = input.charCodeAt(i);
@@ -87,7 +87,16 @@ const fastHash = (input: string) => {
     } // for
     
     hash = Math.abs(hash);
-    return hash.toString(36).slice(-5); // get the last 5 characters
+    const hashStr  = hash.toString(36).slice(-5); // get the last 5 characters
+    const firstChr = hashStr[0];
+    if ((firstChr >= '0') && (firstChr <= '9')) {
+        return (
+            ((hash % 26) + 10).toString(36) // always produces a-z
+            +
+            hashStr.slice(1) // remove first char
+        );
+    } // if
+    return hashStr;
 };
 
 const takenHashes = new Map</*hash :*/string, /*owner :*/string>();
