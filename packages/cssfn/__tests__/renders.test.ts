@@ -1327,6 +1327,82 @@ justify-content: center;
 `
         );
     });
-    //#region @global
+    test(`render() # test globalScope`, () => {
+        const sheet1 = styleSheet(() => [
+            globalScope({
+                ...rule('.btn', {
+                    background: 'pink',
+                    color: 'red',
+                }),
+                ...atRule('@media (min-width: 1024px)', {
+                    ...rule('body', {
+                        margin: 0,
+                        padding: 0,
+                        background: 'white',
+                        
+                        ...children(['div', '.container'], {
+                            border: [['solid', '2px', 'black']],
+                            display: 'block',
+                        }),
+                    }),
+                    ...rule(['.checkbox', 'input[type="checkbox"]'], {
+                        appearance: 'none',
+                        display: 'flex',
+                        
+                        ...style({
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                        })
+                    }, { specificityWeight: 2 }),
+                }),
+                ...rule(':root', {
+                    ...vars({
+                        '--gutter': '10px',
+                        '--gapSm': '0.5rem',
+                        '--gapLg': '2rem',
+                        '--btn-minHeight': '1.5rem',
+                    })
+                }),
+            }),
+        ], { id: '#sheet#25' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+body {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+body>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+:is(.checkbox, input[type="checkbox"]):nth-child(n) {
+appearance: none;
+display: flex;
+flex-direction: row;
+justify-content: center;
+}
+
+}
+
+:root {
+--gutter: 10px;
+--gapSm: 0.5rem;
+--gapLg: 2rem;
+--btn-minHeight: 1.5rem;
+}
+`
+        );
+    });
+    //#endregion @global
     //#endregion test @conditionalRule
 });
