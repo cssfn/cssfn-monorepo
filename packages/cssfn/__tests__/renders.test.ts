@@ -1261,6 +1261,7 @@ flex: 0 0 auto !important;
                                 margin: 0,
                                 padding: 0,
                                 background: 'white',
+                                
                                 ...children(['div', '.container'], {
                                     border: [['solid', '2px', 'black']],
                                     display: 'block',
