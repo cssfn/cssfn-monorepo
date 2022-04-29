@@ -13,6 +13,9 @@ import {
     keyframes   as _keyframes,
     rule        as _rule,
     rules       as _rules,
+    atGlobal    as _atGlobal,
+    children    as _children,
+    vars        as _vars,
     
     
     
@@ -38,6 +41,9 @@ jest.isolateModules(() => {
     let keyframes   : typeof _keyframes   = undefined as any;
     let rule        : typeof _rule        = undefined as any;
     let rules       : typeof _rules       = undefined as any;
+    let atGlobal    : typeof _atGlobal    = undefined as any;
+    let children    : typeof _children    = undefined as any;
+    let vars        : typeof _vars        = undefined as any;
     let style       : typeof _style       = undefined as any;
     let styleSheet  : typeof _styleSheet  = undefined as any;
     let scopeOf     : typeof _scopeOf     = undefined as any;
@@ -51,8 +57,11 @@ jest.isolateModules(() => {
         fallbacks   = cssfnModule.fallbacks
         fontFace    = cssfnModule.fontFace
         keyframes   = cssfnModule.keyframes
-        rule        = cssfnModule.rule,
-        rules       = cssfnModule.rules,
+        rule        = cssfnModule.rule
+        rules       = cssfnModule.rules
+        atGlobal    = cssfnModule.atGlobal
+        children    = cssfnModule.children
+        vars        = cssfnModule.vars
         style       = cssfnModule.style
         styleSheet  = cssfnModule.styleSheet
         scopeOf     = cssfnModule.scopeOf
@@ -1055,4 +1064,179 @@ overflow: auto;
         );
     });
     //#endregion test .rule1 x .rule2
+    
+    
+    
+    //#region test @global
+    test(`render() # test @global`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...atGlobal({
+                        ...rule('.btn', {
+                            background: 'pink',
+                            color: 'red',
+                        }),
+                        ...rule('body', {
+                            margin: 0,
+                            padding: 0,
+                            background: 'white',
+                            ...children(['div', '.container'], {
+                                border: [['solid', '2px', 'black']],
+                                display: 'block',
+                            }),
+                        }),
+                        ...rule(['.checkbox', 'input[type="checkbox"]'], {
+                            appearance: 'none',
+                            display: 'flex',
+                            
+                            ...style({
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                            })
+                        }, { specificityWeight: 2 }),
+                        ...rule(':root', {
+                            ...vars({
+                                '--gutter': '10px',
+                                '--gapSm': '0.5rem',
+                                '--gapLg': '2rem',
+                                '--btn-minHeight': '1.5rem',
+                            })
+                        }),
+                    }),
+                })
+            )
+        ], { id: '#sheet#22' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.btn {
+background: pink;
+color: red;
+}
+
+body {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+body>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+:is(.checkbox, input[type="checkbox"]):nth-child(n) {
+appearance: none;
+display: flex;
+flex-direction: row;
+justify-content: center;
+}
+
+:root {
+--gutter: 10px;
+--gapSm: 0.5rem;
+--gapLg: 2rem;
+--btn-minHeight: 1.5rem;
+}
+`
+        );
+    });
+    test(`render() # test @global`, () => {
+        const sheet1 = styleSheet(() => [
+            globalScope({
+                ...rule('.navbar', {
+                    display: 'grid',
+                    background: 'pink',
+                }),
+                ...rule('html', {
+                    margin: 0,
+                    padding: 0,
+                    background: 'unset',
+                    ...children(['div', '.container'], {
+                        border: [['solid', '2px', 'black']],
+                        display: 'block',
+                        
+                        ...children('.item', {
+                            display: 'inline-flex',
+                            margin: '1rem',
+                            padding: [['2rem', '1rem']],
+                            
+                            ...children(['img', '.image'], {
+                                boxShadow: [['inset', '5em', '1em', 'gold']],
+                                width: 'fit-content',
+                                height: '100%',
+                            }),
+                        })
+                    }),
+                }),
+                ...rule(['.checkbox', 'input[type="checkbox"]', '.btn-check'], {
+                    appearance: 'none',
+                    display: 'inline-flex',
+                    
+                    ...style({
+                        flexDirection: 'row',
+                        justifyContent: 'stretch',
+                        flex: [[0, 0, 'auto'], '!important'],
+                    })
+                }, { specificityWeight: 2 }),
+                ...rule(':root', {
+                    ...vars({
+                        '--gutter': '10px',
+                        '--gapSm': '0.5rem',
+                        '--gapLg': '2rem',
+                        '--btn-minHeight': '1.5rem',
+                    })
+                }),
+            }),
+        ], { id: '#sheet#23' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.navbar {
+display: grid;
+background: pink;
+}
+
+html {
+margin: 0;
+padding: 0;
+background: unset;
+}
+
+html>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+html>:is(div, .container)>.item {
+display: inline-flex;
+margin: 1rem;
+padding: 2rem 1rem;
+}
+
+html>:is(div, .container)>.item>:is(img, .image) {
+box-shadow: inset 5em 1em gold;
+width: fit-content;
+height: 100%;
+}
+
+:is(.checkbox, input[type="checkbox"], .btn-check):nth-child(n) {
+appearance: none;
+display: inline-flex;
+flex-direction: row;
+justify-content: stretch;
+flex: 0 0 auto !important;
+}
+
+:root {
+--gutter: 10px;
+--gapSm: 0.5rem;
+--gapLg: 2rem;
+--btn-minHeight: 1.5rem;
+}
+`
+        );
+    });
+    //#endregion test @global
 });

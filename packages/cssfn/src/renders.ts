@@ -70,8 +70,18 @@ import {
     mergeStyles,
 }                           from './mergeStyles.js'
 import {
+    // rules:
     rule,
+    
+    
+    
+    // rule groups:
     rules,
+    
+    
+    
+    // rule shortcuts:
+    atGlobal,
 }                           from './cssfn.js'
 
 // other libs:
@@ -376,6 +386,14 @@ export const render = <TCssScopeName extends CssScopeName = CssScopeName>(styleS
     const scopeMap     = styleSheet.classes;
     
     const scopeRules : CssRule[] = scopeList.map(([scopeName, styles, options]): CssRule|null => {
+        if (scopeName === '') { // globalScope => aliased to @global rule
+            return atGlobal(
+                styles
+            );
+        } // if
+        
+        
+        
         // calculate unique class:
         const uniqueClass    : CssClassName     = scopeMap[scopeName];
         const uniqueSelector : CssFinalSelector = `.${uniqueClass}`;
