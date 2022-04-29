@@ -1808,6 +1808,281 @@ display: block;
 `
         );
     });
+    
+    test(`render() # test .rule`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...rule('.btn', {
+                        background: 'pink',
+                        color: 'red',
+                    }),
+                    ...atRule('@media (min-width: 1024px)', {
+                        opacity: 0.5,
+                        cursor: 'pointer',
+                        
+                        ...atRule('@supports (display: grid)', {
+                            ...rule('.sub-menu', {
+                                margin: 0,
+                                padding: 0,
+                                background: 'white',
+                                
+                                ...children(['div', '.container'], {
+                                    border: [['solid', '2px', 'black']],
+                                    display: 'block',
+                                }),
+                            }),
+                            ...rule(['.checkbox', 'input[type="checkbox"]'], {
+                                appearance: 'none',
+                                display: 'flex',
+                                
+                                ...style({
+                                    flexDirection: 'row',
+                                    justifyContent: 'center',
+                                })
+                            }, { specificityWeight: 2 }),
+                        }),
+                    }),
+                })
+            )
+        ], { id: '#sheet#32' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.umyu7.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+.umyu7 {
+opacity: 0.5;
+cursor: pointer;
+}
+
+@supports (display: grid) {
+.umyu7.sub-menu {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+.umyu7.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+.umyu7:is(.checkbox, input[type="checkbox"]):nth-child(n) {
+appearance: none;
+display: flex;
+flex-direction: row;
+justify-content: center;
+}
+
+}
+
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...rule('.btn', {
+                        background: 'pink',
+                        color: 'red',
+                    }),
+                    ...atRule('@media (min-width: 1024px)', {
+                        ...atRule('@supports (display: grid)', {
+                            ...rule('.sub-menu', {
+                                margin: 0,
+                                padding: 0,
+                                background: 'white',
+                                
+                                ...children(['div', '.container'], {
+                                    border: [['solid', '2px', 'black']],
+                                    display: 'block',
+                                }),
+                            }),
+                        }),
+                    }),
+                })
+            )
+        ], { id: '#sheet#33' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.v6rfk.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+@supports (display: grid) {
+.v6rfk.sub-menu {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+.v6rfk.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+}
+
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...rule('.btn', {
+                        background: 'pink',
+                        color: 'red',
+                    }),
+                    ...atRule('@media (min-width: 1024px)', {
+                        ...rule('.sub-menu', {
+                            ...atRule('@supports (display: grid)', {
+                                margin: 0,
+                                padding: 0,
+                                background: 'white',
+                                
+                                ...children(['div', '.container'], {
+                                    border: [['solid', '2px', 'black']],
+                                    display: 'block',
+                                }),
+                            }),
+                        }),
+                    }),
+                })
+            )
+        ], { id: '#sheet#34' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.vqk0x.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+@supports (display: grid) {
+.vqk0x.sub-menu {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+.vqk0x.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+}
+
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...rule('.btn', {
+                        background: 'pink',
+                        color: 'red',
+                    }),
+                    ...atRule('@media (min-width: 1024px)', {
+                        ...rule('.sub-menu', {
+                            margin: 0,
+                            padding: 0,
+                            background: 'white',
+                            
+                            ...children(['div', '.container'], {
+                                ...atRule('@supports (display: grid)', {
+                                    border: [['solid', '2px', 'black']],
+                                    display: 'block',
+                                }),
+                            }),
+                        }),
+                    }),
+                })
+            )
+        ], { id: '#sheet#35' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.wacma.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+.wacma.sub-menu {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+@supports (display: grid) {
+.wacma.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+}
+
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...rule('.btn', {
+                        background: 'pink',
+                        color: 'red',
+                    }),
+                    ...atRule('@media (min-width: 1024px)', {
+                        ...rule('.sub-menu', {
+                            ...children(['div', '.container'], {
+                                ...atRule('@supports (display: grid)', {
+                                    border: [['solid', '2px', 'black']],
+                                    display: 'block',
+                                }),
+                            }),
+                        }),
+                    }),
+                })
+            )
+        ], { id: '#sheet#36' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.wu57n.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+@supports (display: grid) {
+.wu57n.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+}
+
+}
+`
+        );
+    });
     //#endregion .rule
     //#endregion test @conditionalRule
 });
