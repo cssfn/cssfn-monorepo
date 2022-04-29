@@ -1022,5 +1022,37 @@ overflow: auto;
 `
         );
     });
+    
+    test(`render() # test .rule`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...rule([':hover', '::backdrop'], {
+                        color: 'red',
+                        opacity: 0.3,
+                        
+                        ...rule(['.menu', ':valid', '::before', '::after'], {
+                            visibility: 'visible',
+                            overflow: 'auto',
+                        }),
+                    }),
+                })
+            )
+        ], { id: '#sheet#bleh' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.rmnfx:hover, .rmnfx::backdrop {
+color: red;
+opacity: 0.3;
+}
+
+.rmnfx:hover:is(.menu, :valid), .rmnfx:hover::before, .rmnfx:hover::after, .rmnfx::backdrop:is(.menu, :valid), .rmnfx::backdrop::before, .rmnfx::backdrop::after {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
     //#endregion test .rule1 x .rule2
 });
