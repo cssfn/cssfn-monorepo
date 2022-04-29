@@ -1142,7 +1142,7 @@ justify-content: center;
 `
         );
     });
-    test(`render() # test @global`, () => {
+    test(`render() # test globalScope`, () => {
         const sheet1 = styleSheet(() => [
             globalScope({
                 ...rule('.navbar', {
