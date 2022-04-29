@@ -380,10 +380,14 @@ class RenderRule {
                     }
                 */
                 if (finalParentSelector === null) { // RenderRule(null, finalStyle) by @global
+                    // top_level at rule with nestedRules
+                    
                     // this.rendered += (new RenderRule(finalSelector, finalStyle)).rendered; doesn't work, the nested will automatically unnested
                     this.#renderConditionalSelector(finalSelector, finalStyle);
                 }
                 else {
+                    // top_level at rule with nestedRules
+                    
                     this.#renderConditionalSelector(finalSelector,
                         //#region wrap the style with a duplicated parentRule selector
                         {

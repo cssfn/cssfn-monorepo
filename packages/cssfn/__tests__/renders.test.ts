@@ -1564,7 +1564,7 @@ justify-content: center;
     
     
     //#region .rule
-    test(`render() # test @global`, () => {
+    test(`render() # test .rule`, () => {
         const sheet1 = styleSheet(() => [
             mainScope(
                 style({
@@ -1650,7 +1650,7 @@ justify-content: center;
 `
         );
     });
-    test(`render() # test @global`, () => {
+    test(`render() # test .rule`, () => {
         const sheet1 = styleSheet(() => [
             mainScope(
                 style({
@@ -1738,7 +1738,7 @@ justify-content: center;
 `
         );
     });
-    test(`render() # test @global`, () => {
+    test(`render() # test .rule`, () => {
         const sheet1 = styleSheet(() => [
             mainScope(
                 style({
@@ -1778,7 +1778,7 @@ display: block;
 `
         );
     });
-    test(`render() # test @global`, () => {
+    test(`render() # test .rule`, () => {
         const sheet1 = styleSheet(() => [
             mainScope(
                 style({
