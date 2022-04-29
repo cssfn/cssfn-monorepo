@@ -348,6 +348,14 @@ class RenderRule {
                         .awesome { fontSize: 'large' }       // keep the nestedStyles
                     }
                 */
+                if (finalParentSelector === null) { // RenderRule(null, finalStyle) by @global
+                    const combinedSelector = combineSelector(null, finalSelector) ?? finalSelector; // remove parentSelector (&)
+                    this.rendered += (new RenderRule(combinedSelector, finalStyle)).rendered;
+                }
+                else {
+                    console.log('finalParentSelector', finalParentSelector);
+                    throw Error('under construction');
+                } // if
             }
             else if (finalSelector[0] === '@') {
                 // top_level at rule  , eg: @keyframes, @font-face
@@ -357,7 +365,7 @@ class RenderRule {
             else {
                 // nested rule, eg: &.boo, &>:foo, .bleh>&>.feh
                 
-                const combinedSelector = combineSelector(finalParentSelector, finalSelector) ?? finalSelector;
+                const combinedSelector = combineSelector(finalParentSelector, finalSelector) ?? finalSelector; // replace parentSelector (&) with finalParentSelector
                 this.rendered += (new RenderRule(combinedSelector, finalStyle)).rendered;
             } // if
         } // for

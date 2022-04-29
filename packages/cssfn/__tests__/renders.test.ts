@@ -12,6 +12,7 @@ import {
     fontFace    as _fontFace,
     keyframes   as _keyframes,
     rule        as _rule,
+    atRule      as _atRule,
     rules       as _rules,
     atGlobal    as _atGlobal,
     children    as _children,
@@ -40,6 +41,7 @@ jest.isolateModules(() => {
     let fontFace    : typeof _fontFace    = undefined as any;
     let keyframes   : typeof _keyframes   = undefined as any;
     let rule        : typeof _rule        = undefined as any;
+    let atRule      : typeof _atRule      = undefined as any;
     let rules       : typeof _rules       = undefined as any;
     let atGlobal    : typeof _atGlobal    = undefined as any;
     let children    : typeof _children    = undefined as any;
@@ -58,6 +60,7 @@ jest.isolateModules(() => {
         fontFace    = cssfnModule.fontFace
         keyframes   = cssfnModule.keyframes
         rule        = cssfnModule.rule
+        atRule      = cssfnModule.atRule
         rules       = cssfnModule.rules
         atGlobal    = cssfnModule.atGlobal
         children    = cssfnModule.children
@@ -1239,4 +1242,90 @@ flex: 0 0 auto !important;
         );
     });
     //#endregion test @global
+    
+    
+    
+    //#region test @conditionalRule
+    //#region @global
+    test(`render() # test @global`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...atGlobal({
+                        ...rule('.btn', {
+                            background: 'pink',
+                            color: 'red',
+                        }),
+                        ...atRule('@media (min-width: 1024px)', {
+                            ...rule('body', {
+                                margin: 0,
+                                padding: 0,
+                                background: 'white',
+                                ...children(['div', '.container'], {
+                                    border: [['solid', '2px', 'black']],
+                                    display: 'block',
+                                }),
+                            }),
+                            ...rule(['.checkbox', 'input[type="checkbox"]'], {
+                                appearance: 'none',
+                                display: 'flex',
+                                
+                                ...style({
+                                    flexDirection: 'row',
+                                    justifyContent: 'center',
+                                })
+                            }, { specificityWeight: 2 }),
+                        }),
+                        ...rule(':root', {
+                            ...vars({
+                                '--gutter': '10px',
+                                '--gapSm': '0.5rem',
+                                '--gapLg': '2rem',
+                                '--btn-minHeight': '1.5rem',
+                            })
+                        }),
+                    }),
+                })
+            )
+        ], { id: '#sheet#24' });
+        expect(render(sheet1))
+        .toEqual(
+`
+.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+body {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+body>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+:is(.checkbox, input[type="checkbox"]):nth-child(n) {
+appearance: none;
+display: flex;
+flex-direction: row;
+justify-content: center;
+}
+
+}
+
+:root {
+--gutter: 10px;
+--gapSm: 0.5rem;
+--gapLg: 2rem;
+--btn-minHeight: 1.5rem;
+}
+`
+        );
+    });
+    //#region @global
+    //#endregion test @conditionalRule
 });
