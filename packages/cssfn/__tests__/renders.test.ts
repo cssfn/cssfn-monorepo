@@ -1403,6 +1403,162 @@ justify-content: center;
 `
         );
     });
+    test(`render() # test @global`, () => {
+        const sheet1 = styleSheet(() => [
+            mainScope(
+                style({
+                    ...atGlobal({
+                        ...atRule('@media (min-width: 1024px)', {
+                            ...rule('.btn', {
+                                background: 'pink',
+                                color: 'red',
+                            }),
+                            ...rule('body', {
+                                margin: 0,
+                                padding: 0,
+                                background: 'white',
+                                
+                                ...children(['div', '.container'], {
+                                    border: [['solid', '2px', 'black']],
+                                    display: 'block',
+                                }),
+                            }),
+                            ...rule(['.checkbox', 'input[type="checkbox"]'], {
+                                appearance: 'none',
+                                display: 'flex',
+                                
+                                ...style({
+                                    flexDirection: 'row',
+                                    justifyContent: 'center',
+                                })
+                            }, { specificityWeight: 2 }),
+                            ...rule(':root', {
+                                ...vars({
+                                    '--gutter': '10px',
+                                    '--gapSm': '0.5rem',
+                                    '--gapLg': '2rem',
+                                    '--btn-minHeight': '1.5rem',
+                                })
+                            }),
+                        }),
+                    }),
+                })
+            )
+        ], { id: '#sheet#26' });
+        expect(render(sheet1))
+        .toEqual(
+`
+@media (min-width: 1024px) {
+.btn {
+background: pink;
+color: red;
+}
+
+body {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+body>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+:is(.checkbox, input[type="checkbox"]):nth-child(n) {
+appearance: none;
+display: flex;
+flex-direction: row;
+justify-content: center;
+}
+
+:root {
+--gutter: 10px;
+--gapSm: 0.5rem;
+--gapLg: 2rem;
+--btn-minHeight: 1.5rem;
+}
+
+}
+`
+        );
+    });
+    test(`render() # test globalScope`, () => {
+        const sheet1 = styleSheet(() => [
+            globalScope({
+                ...atRule('@media (min-width: 1024px)', {
+                    ...rule('.btn', {
+                        background: 'pink',
+                        color: 'red',
+                    }),
+                    ...rule('body', {
+                        margin: 0,
+                        padding: 0,
+                        background: 'white',
+                        
+                        ...children(['div', '.container'], {
+                            border: [['solid', '2px', 'black']],
+                            display: 'block',
+                        }),
+                    }),
+                    ...rule(['.checkbox', 'input[type="checkbox"]'], {
+                        appearance: 'none',
+                        display: 'flex',
+                        
+                        ...style({
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                        })
+                    }, { specificityWeight: 2 }),
+                    ...rule(':root', {
+                        ...vars({
+                            '--gutter': '10px',
+                            '--gapSm': '0.5rem',
+                            '--gapLg': '2rem',
+                            '--btn-minHeight': '1.5rem',
+                        })
+                    }),
+                }),
+            }),
+        ], { id: '#sheet#27' });
+        expect(render(sheet1))
+        .toEqual(
+`
+@media (min-width: 1024px) {
+.btn {
+background: pink;
+color: red;
+}
+
+body {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+body>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+:is(.checkbox, input[type="checkbox"]):nth-child(n) {
+appearance: none;
+display: flex;
+flex-direction: row;
+justify-content: center;
+}
+
+:root {
+--gutter: 10px;
+--gapSm: 0.5rem;
+--gapLg: 2rem;
+--btn-minHeight: 1.5rem;
+}
+
+}
+`
+        );
+    });
     //#endregion @global
     //#endregion test @conditionalRule
 });
