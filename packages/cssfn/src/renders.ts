@@ -211,23 +211,31 @@ class RenderRule {
         } // for
         return false; // not found any PropRule
     }
-    #renderSelector(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null, renderStyle: (finalStyle: CssStyle|null) => void): void {
+    #renderSelector(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null): void {
         if (
             !finalStyle // no style defined
             ||
             // a style defined, but:
             (
                 // there is no any prop:
-                !Object.keys(finalStyle).length)
+                // in case of the parentRule is only containing nestedRule(s)
+                !Object.keys(finalStyle).length
+                
                 &&
+                
                 // there is no any PropRule:
+                // in case of the @keyframes rule is always contains PropRule(s) but not contains nestedRule(s)
                 !this.#hasPropRule(finalStyle)
             )
+        )
         {
             return; // empty style => no need to render the .selector { /* empty style */ }
         } // if
+        
+        
+        
         if (!finalSelector) {
-            renderStyle.call(this, finalStyle); // just render the style without selector, eg: @global rule => no selector but has style
+            this.#renderStyle(finalStyle); // just render the style without selector, eg: @global rule => no selector but has style
             return;
         } // if
         
@@ -238,7 +246,22 @@ class RenderRule {
         this.rendered += finalSelector;
         this.rendered += ' {';
         {
-            renderStyle.call(this, finalStyle);
+            this.#renderStyle(finalStyle);
+        }
+        this.rendered += '\n}\n';
+        //#endregion render complete .selector { style }
+    }
+    #renderConditionalSelector(finalSelector: CssFinalSelector, nestedRules: CssRule|null): void {
+        if (!nestedRules) return;
+        
+        
+        
+        //#region render complete .selector { style }
+        this.rendered += '\n';
+        this.rendered += finalSelector;
+        this.rendered += ' {';
+        {
+            this.#renderNestedRules(null, nestedRules);
         }
         this.rendered += '\n}\n';
         //#endregion render complete .selector { style }
@@ -258,7 +281,7 @@ class RenderRule {
         this.#renderPropRules(finalStyle);
     }
     #renderRule(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null): void {
-        this.#renderSelector(finalSelector, finalStyle, this.#renderStyle);
+        this.#renderSelector(finalSelector, finalStyle);
     }
     
     #renderFallbacksRules(nestedRules: CssRule|null): void {
@@ -312,19 +335,23 @@ class RenderRule {
                     
                     from:
                     .parent {                                // parentRule
+                        color: black;
                         .awesome { fontSize: 'small' }
                         @media (min-width: 1024px) {         // nested conditional
-                            .awesome { fontSize: 'large' }   // the nestedStyles
+                            color: red;                      // the nestedStyles
+                            .awesome { fontSize: 'large' }   // the nestedRules
                         }
                     }
                     
                     to:
                     .parent {
+                        color: black;
                         .awesome { fontSize: 'small' }
                     }
                     @media (min-width: 1024px) {             // move up the nestedSelectorStr
-                        .parent {                            // duplicate the parentRule selector
-                            .awesome { fontSize: 'large' }   // move the nestedStyles
+                        .parent {                            // __duplicate__ the parentRule selector
+                            color: red; // valid             // __move_in__ the nestedStyles
+                            .awesome { fontSize: 'large' }   // __move_in__ the nestedRules
                         }
                     }
                     
@@ -334,23 +361,27 @@ class RenderRule {
                     
                     from:
                     @global {                                // parentRule
+                        color: black;
                         .awesome { fontSize: 'small' }
                         @media (min-width: 1024px) {         // nested conditional
-                            .awesome { fontSize: 'large' }   // the nestedStyles
+                            color: red;                      // the nestedStyles
+                            .awesome { fontSize: 'large' }   // the nestedRules
                         }
                     }
                     
                     to:
                     @global {
+                        color: black; // invalid
                         .awesome { fontSize: 'small' }
                     }
                     @media (min-width: 1024px) {             // move up the nestedSelectorStr
-                        .awesome { fontSize: 'large' }       // keep the nestedStyles
+                        color: red; // invalid               // __not_needed__ the nestedStyles
+                        .awesome { fontSize: 'large' }       // __keep__ the nestedRules
                     }
                 */
                 if (finalParentSelector === null) { // RenderRule(null, finalStyle) by @global
-                    const combinedSelector = combineSelector(null, finalSelector) ?? finalSelector; // remove parentSelector (&)
-                    this.rendered += (new RenderRule(combinedSelector, finalStyle)).rendered;
+                    // this.rendered += (new RenderRule(finalSelector, finalStyle)).rendered; doesn't work, the nested will automatically unnested
+                    this.#renderConditionalSelector(finalSelector, finalStyle);
                 }
                 else {
                     console.log('finalParentSelector', finalParentSelector);
@@ -365,7 +396,12 @@ class RenderRule {
             else {
                 // nested rule, eg: &.boo, &>:foo, .bleh>&>.feh
                 
-                const combinedSelector = combineSelector(finalParentSelector, finalSelector) ?? finalSelector; // replace parentSelector (&) with finalParentSelector
+                // replace parentSelector (&) with finalParentSelector:
+                const combinedSelector = combineSelector(
+                    (!finalParentSelector || (finalParentSelector[0] === '@')) ? null : finalParentSelector,
+                    finalSelector
+                ) ?? finalSelector;
+                
                 this.rendered += (new RenderRule(combinedSelector, finalStyle)).rendered;
             } // if
         } // for
