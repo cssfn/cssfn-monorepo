@@ -20,9 +20,6 @@ import {
 let styleGroupElm : HTMLDivElement|null = null;
 const styleElms = new WeakMap<StyleSheet, HTMLStyleElement>();
 const handleUpdate = (styleSheet: StyleSheet): void => {
-    if (!styleGroupElm) {
-        styleGroupElm = document.createElement('div');
-    } // if
     const rendered = (styleSheet.enabled || null) && render(styleSheet);
     if (!rendered) {
         // remove the styleSheet:
@@ -39,7 +36,14 @@ const handleUpdate = (styleSheet: StyleSheet): void => {
             // add the styleSheet:
             styleElm = document.createElement('style');
             styleElm.textContent = rendered;
+            
+            if (!styleGroupElm) {
+                styleGroupElm = document.createElement('div');
+                styleGroupElm.dataset.cssfnDomStyles = '';
+                document.head.appendChild(styleGroupElm);
+            } // if
             styleGroupElm.appendChild(styleElm);
+            
             styleElms.set(styleSheet, styleElm);
         }
         else {

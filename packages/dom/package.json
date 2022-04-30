@@ -30,5 +30,9 @@
   "dependencies": {
     "@cssfn/cssfn": "^2.0.0",
     "is-in-browser": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^16.2.14",
+    "jsdom": "^19.0.0"
   }
 }
