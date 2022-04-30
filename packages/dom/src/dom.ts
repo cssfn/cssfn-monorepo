@@ -13,7 +13,12 @@ import {
 import {
     // tests:
     isBrowser,
+    isJsDom,
 }                           from 'is-in-browser'
+
+
+
+const isClientSide : boolean = isBrowser || isJsDom;
 
 
 
@@ -52,4 +57,4 @@ const handleUpdate = (styleSheet: StyleSheet): void => {
         } // if
     } // if
 }
-if (isBrowser) styleSheets.subscribe(handleUpdate);
+if (isClientSide) styleSheets.subscribe(handleUpdate);

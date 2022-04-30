@@ -12,11 +12,16 @@ import type {
 import {
     // tests:
     isBrowser,
+    isJsDom,
 }                           from 'is-in-browser'
 import {
     // tests:
     default as warning,
 }                           from 'tiny-warning'
+
+
+
+const isClientSide : boolean = isBrowser || isJsDom;
 
 
 
@@ -93,7 +98,7 @@ export const createCssVar = <TCssCustomProps extends {}>(options: CssVarOptions 
     const decl = (propName: string): CssCustomName => {
         if (process.env.NODE_ENV === 'dev') {
             warning(
-                isBrowser           // must run in browser
+                isClientSide        // must run in browser
                 ||                  // or
                 !liveOptions.minify // not minified
                 ,

@@ -19,10 +19,15 @@ import {
 import {
     // tests:
     isBrowser,
+    isJsDom,
 }                           from 'is-in-browser'
 import {
     Subject,
 }                           from 'rxjs'
+
+
+
+const isClientSide : boolean = isBrowser || isJsDom;
 
 
 
@@ -135,7 +140,7 @@ class StyleSheetRegistry {
     
     //#region public methods
     add<TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, options?: StyleSheetOptions) {
-        if (!isBrowser) { // on server side => just pass a StyleSheet object
+        if (!isClientSide) { // on server side => just pass a StyleSheet object
             return new StyleSheet<TCssScopeName>(
                 scopes,
                 null, // not listen for future updates
@@ -164,7 +169,7 @@ class StyleSheetRegistry {
     }
     
     subscribe(subscriber: (styleSheet: StyleSheet<CssScopeName>) => void) {
-        if (!isBrowser) return; // client side only
+        if (!isClientSide) return; // client side only
         
         
         
