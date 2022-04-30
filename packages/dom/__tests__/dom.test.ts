@@ -2,17 +2,49 @@
 import type {
     JSDOM as _JSDOM,
 } from 'jsdom'
+import type {
+    // style sheets:
+    styleSheet as _styleSheet,
+    
+    
+    // scopes:
+    globalScope as _globalScope,
+    mainScope   as _mainScope,
+    rule as _rule,
+}                           from '@cssfn/cssfn'
 import {
     jest,
 } from '@jest/globals'
 
 
 
+const simulateBrowserSide = (dom: _JSDOM) => {
+    jest.resetModules();
+    
+    const oriWindow   = (typeof(window) === 'undefined'  ) ? undefined : window;
+    const oriDocument = (typeof(document) === 'undefined') ? undefined : document;
+    if (oriWindow === undefined) {
+        const mockWindow : Window = dom.window as any;
+        (globalThis as any).window = mockWindow;
+    } // if
+    if (oriDocument === undefined) {
+        const mockDocument : Document = dom.window.document;
+        (globalThis as any).document = mockDocument;
+        // (globalThis as any).window.document = mockDocument;
+    } // if
+};
+
+
+
 jest.isolateModules(() => {
-    let JSDOM : typeof _JSDOM = undefined as any;
-    let dom   : _JSDOM = undefined as any;
+    let JSDOM       : typeof _JSDOM = undefined as any;
+    let dom         : _JSDOM = undefined as any;
+    let styleSheet  : typeof _styleSheet = undefined as any;
+    let globalScope : typeof _globalScope = undefined as any;
+    let rule        : typeof _rule = undefined as any;
+    // let mainScope  : typeof _mainScope = undefined as any;
     beforeAll(async () => {
-        const jsdomModule = await import('jsdom')
+        const jsdomModule    = await import('jsdom')
         
         JSDOM = jsdomModule.JSDOM
         dom = new JSDOM(
@@ -21,17 +53,47 @@ jest.isolateModules(() => {
 <html>
     <head></head>
     <body>
-        <p id="main">My First JSDOM!</p>
+        <button>Click Me!</button>
     </body>
 </html>
 `
         );
+        simulateBrowserSide(dom);
+        
+        const cssfnModule    = await import('@cssfn/cssfn')
+        //@ts-ignore
+        const cssfnDomModule = await import('../dist/dom.js')
+        
+        
+        
+        styleSheet  = cssfnModule.styleSheet
+        globalScope = cssfnModule.globalScope
+        // mainScope  = cssfnModule.mainScope
+        rule        = cssfnModule.rule
     });
     
     
     
-    test('test attached stylesheets', () => {
+    test('test no any attached stylesheet', () => {
         let stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
         expect(stylesElm).toBe(null); // no any attached stylesheet yet
+    });
+    
+    
+    
+    test('test stylesheet-1', () => {
+        styleSheet(() => [
+            globalScope({
+                ...rule(['button', '.btn'], {
+                    appearance: 'none',
+                    display: 'flex',
+                    flexDirection: 'row',
+                })
+            }),
+        ]);
+        
+        let stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
+        expect(stylesElm).not.toBe(null); // has some attached stylesheet
+        console.log(stylesElm?.textContent);
     });
 });
