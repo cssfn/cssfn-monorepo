@@ -4,7 +4,10 @@
   "description": "CSS typescript definitions.",
   "keywords": [
     "css",
-    "typescript"
+    "typescript",
+    "stylesheet",
+    "javascript",
+    "css-in-js"
   ],
   "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
   "homepage": "https://nodestrap.org",
@@ -17,7 +20,8 @@
     "access": "public"
   },
   "scripts": {
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "tsc:watch": "tsc --watch"
   },
   "dependencies": {
     "@cssfn/types": "^2.0.0",

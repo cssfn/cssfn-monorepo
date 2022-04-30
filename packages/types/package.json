@@ -18,6 +18,7 @@
     "access": "public"
   },
   "scripts": {
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "tsc:watch": "tsc --watch"
   }
 }

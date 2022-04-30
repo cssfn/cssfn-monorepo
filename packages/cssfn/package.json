@@ -1,13 +1,13 @@
 {
   "name": "@cssfn/cssfn",
   "version": "2.0.0",
-  "description": "Manipulates css selector - parse, transform, calculate specificity, and more.",
+  "description": "Writes, imports, and exports css stylesheets as javascript modules.",
   "keywords": [
     "css",
     "stylesheet",
-    "selector",
-    "combinator",
-    "attributes"
+    "javascript",
+    "module",
+    "css-in-js"
   ],
   "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
   "homepage": "https://nodestrap.org",
