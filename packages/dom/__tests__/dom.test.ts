@@ -11,6 +11,7 @@ import type {
     globalScope as _globalScope,
     mainScope   as _mainScope,
     rule as _rule,
+    // children as _children,
 }                           from '@cssfn/cssfn'
 import {
     jest,
@@ -42,6 +43,7 @@ jest.isolateModules(() => {
     let styleSheet  : typeof _styleSheet = undefined as any;
     let globalScope : typeof _globalScope = undefined as any;
     let rule        : typeof _rule = undefined as any;
+    // let children    : typeof _children = undefined as any;
     // let mainScope  : typeof _mainScope = undefined as any;
     beforeAll(async () => {
         const jsdomModule    = await import('jsdom')
@@ -53,7 +55,7 @@ jest.isolateModules(() => {
 <html>
     <head></head>
     <body>
-        <button>Click Me!</button>
+        <button id="btn1">Click Me!</button>
     </body>
 </html>
 `
@@ -70,6 +72,7 @@ jest.isolateModules(() => {
         globalScope = cssfnModule.globalScope
         // mainScope  = cssfnModule.mainScope
         rule        = cssfnModule.rule
+        // children    = cssfnModule.children
     });
     
     
@@ -84,16 +87,23 @@ jest.isolateModules(() => {
     test('test stylesheet-1', () => {
         styleSheet(() => [
             globalScope({
-                ...rule(['button', '.btn'], {
+                ...rule('button', {
                     appearance: 'none',
                     display: 'flex',
                     flexDirection: 'row',
-                })
+                }),
             }),
         ]);
         
-        let stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
+        const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
         expect(stylesElm).not.toBe(null); // has some attached stylesheet
-        console.log(stylesElm?.textContent);
+        // console.log(stylesElm?.outerHTML);
+        
+        const compStyle1 = dom.window.getComputedStyle(
+            dom.window.document.querySelector('#btn1')!
+        );
+        expect(compStyle1.appearance).toBe('none');
+        expect(compStyle1.display).toBe('flex');
+        expect(compStyle1.flexDirection).toBe('row');
     });
 });
