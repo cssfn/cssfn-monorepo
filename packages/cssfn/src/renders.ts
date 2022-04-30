@@ -280,9 +280,6 @@ class RenderRule {
         
         this.#renderPropRules(finalStyle);
     }
-    #renderRule(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null): void {
-        this.#renderSelector(finalSelector, finalStyle);
-    }
     
     #renderFallbacksRules(nestedRules: CssRule|null): void {
         if (!nestedRules) return;
@@ -424,7 +421,7 @@ class RenderRule {
     
     constructor(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null) {
         this.rendered = '';
-        this.#renderRule(finalSelector, finalStyle);
+        this.#renderSelector(finalSelector, finalStyle);
         this.#renderNestedRules(finalSelector, finalStyle);
     }
 }
