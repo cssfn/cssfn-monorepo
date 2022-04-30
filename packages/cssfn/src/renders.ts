@@ -305,10 +305,17 @@ class RenderRule {
             
             
             
-            this.rendered += (new RenderRule(
+            // this.rendered += (new RenderRule(
+            //     finalSelector.slice(1), // remove PropRule token (single prefix space)
+            //     finalStyle
+            // )).rendered;
+            // >>> not reusable : equivalent as the code below
+            
+            // >>> reusable     : equivalent as the code above
+            this.rendered += reusableRenderRule3.renderRule(
                 finalSelector.slice(1), // remove PropRule token (single prefix space)
                 finalStyle
-            )).rendered;
+            );
         } // for
     }
     #renderNestedRules(finalParentSelector: CssFinalSelector|null, nestedRules: CssRule|null): void {
@@ -324,7 +331,8 @@ class RenderRule {
             
             
             if (finalSelector === '@global') { // special @global rule
-                this.rendered += (new RenderRule(null, finalStyle)).rendered;
+                // this.rendered +=                (new RenderRule(null, finalStyle)).rendered; // >>> not reusable : equivalent as the code below
+                this.rendered    += reusableRenderRule2.renderRule(null, finalStyle);           // >>> reusable     : equivalent as the code above
             }
             else if (isConditionalNestedAtRules(finalSelector)) {
                 /*
@@ -400,7 +408,8 @@ class RenderRule {
             else if (finalSelector[0] === '@') {
                 // top_level at rule  , eg: @keyframes, @font-face
                 
-                this.rendered += (new RenderRule(finalSelector, finalStyle)).rendered;
+                // this.rendered +=                (new RenderRule(finalSelector, finalStyle)).rendered; // >>> not reusable : equivalent as the code below
+                this.rendered    += reusableRenderRule2.renderRule(finalSelector, finalStyle);           // >>> reusable     : equivalent as the code above
             }
             else {
                 // nested rule, eg: &.boo, &>:foo, .bleh>&>.feh
@@ -411,7 +420,8 @@ class RenderRule {
                     finalSelector
                 ) ?? finalSelector;
                 
-                this.rendered += (new RenderRule(combinedSelector, finalStyle)).rendered;
+                // this.rendered +=                (new RenderRule(combinedSelector, finalStyle)).rendered; // >>> not reusable : equivalent as the code below
+                this.rendered    += reusableRenderRule2.renderRule(combinedSelector, finalStyle);           // >>> reusable     : equivalent as the code above
             } // if
         } // for
     }
@@ -419,12 +429,39 @@ class RenderRule {
     
     
     
+    //#region public methods
+    // for reusable class RenderRule:
+    renderRule(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null): string {
+        // reset:
+        this.rendered = '';
+        
+        
+        
+        // render:
+        if ((finalSelector !== null) || (finalStyle !== null)) {
+            this.#renderSelector(finalSelector, finalStyle);
+            this.#renderNestedRules(finalSelector, finalStyle);
+        } // if
+        
+        
+        
+        // the result:
+        const result = this.rendered;
+        this.rendered = ''; // unlink the reference
+        return result;
+    }
+    //#endregion public methods
+    
+    
+    
     constructor(finalSelector: CssFinalSelector|null, finalStyle: CssStyle|null) {
         this.rendered = '';
-        this.#renderSelector(finalSelector, finalStyle);
-        this.#renderNestedRules(finalSelector, finalStyle);
+        this.renderRule(finalSelector, finalStyle);
     }
 }
+const reusableRenderRule1 = new RenderRule(null, null),
+      reusableRenderRule2 = new RenderRule(null, null),
+      reusableRenderRule3 = new RenderRule(null, null);
 
 
 
@@ -466,5 +503,6 @@ export const render = <TCssScopeName extends CssScopeName = CssScopeName>(styleS
     
     
     // finally, render the structures:
-    return (new RenderRule(null, mergedStyleSheetRule)).rendered || null;
+    // return             (new RenderRule(null, mergedStyleSheetRule)).rendered || null; // >>> not reusable : equivalent as the code below
+    return reusableRenderRule1.renderRule(null, mergedStyleSheetRule)           || null; // >>> reusable     : equivalent as the code above
 }
