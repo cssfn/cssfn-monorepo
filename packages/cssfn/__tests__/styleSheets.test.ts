@@ -92,14 +92,18 @@ jest.isolateModules(() => {
             scopeOf('menuBar',[]),
             globalScope([]),
         ], { id: 'sheet1' });
+        // @ts-ignore
         const sheet2 = styleSheet(() => [
             mainScope([]),
         ], { id: 'sheet2', enabled: false });
+        // @ts-ignore
         const sheet3 = styleSheet(() => [
             mainScope([]),
         ], { id: 'sheet3' });
         
+        // @ts-ignore
         const mainClass    = sheet1.classes.main;
+        // @ts-ignore
         const menuBarClass = sheet1.classes.menuBar;
         
         
@@ -286,14 +290,18 @@ jest.isolateModules(() => {
             scopeOf('menuBar', []),
             globalScope([]),
         ], { id: 'sheet1' });
+        // @ts-ignore
         const sheet2 = styleSheet(() => [
             mainScope([]),
         ], { id: 'sheet2', enabled: false });
+        // @ts-ignore
         const sheet3 = styleSheet(() => [
             mainScope([]),
         ], { id: 'sheet3' });
         
+        // @ts-ignore
         const mainClass    = sheet1.classes.main;
+        // @ts-ignore
         const menuBarClass = sheet1.classes.menuBar;
         
         
