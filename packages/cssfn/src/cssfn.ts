@@ -51,6 +51,7 @@ import {
 export {
     StyleSheet,
     styleSheet,
+    styleSheets,
 }                           from './styleSheets.js'
 export {
     camelCase,
