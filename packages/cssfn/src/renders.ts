@@ -2,33 +2,16 @@
 import type {
     // cssfn properties:
     CssCustomValue,
-    CssCustomProps,
     
-    CssKnownValueOf,
-    
-    CssProps,
-    
-    CssRuleData,
     CssRule,
-    CssRuleCollection,
     
     CssStyle,
-    CssStyleCollection,
-    CssFontFaceStyleCollection,
     
-    CssKeyframes,
-    
-    CssSelector,
-    CssSelectorCollection,
-    CssSelectorOptions,
-    
-    CssRawSelector,
     CssFinalSelector,
     
     CssClassName,
     
     CssScopeName,
-    CssScopeEntry,
 }                           from '@cssfn/css-types'
 import {
     // types:
@@ -139,7 +122,6 @@ const combineSelector = (parentSelector: CssFinalSelector|null, nestedSelector: 
 
 
 
-type RuleEntry = readonly [CssFinalSelector, CssStyle]
 class RenderRule {
     //#region public fields
     rendered : string
