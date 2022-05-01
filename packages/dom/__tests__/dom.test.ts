@@ -77,14 +77,20 @@ jest.isolateModules(() => {
     
     
     
-    test('test no any attached stylesheet', () => {
-        let stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
-        expect(stylesElm).toBe(null); // no any attached stylesheet yet
+    test('test no any attached stylesheet', async () => {
+        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
+            let stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
+            expect(stylesElm).toBe(null); // no any attached stylesheet yet
+            
+            
+            
+            resolve();
+        }, 0)});
     });
     
     
     
-    test('test stylesheet-1', () => {
+    test('test stylesheet-1', async () => {
         styleSheet(() => [
             globalScope({
                 ...rule('button', {
@@ -95,15 +101,21 @@ jest.isolateModules(() => {
             }),
         ]);
         
-        const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
-        expect(stylesElm).not.toBe(null); // has some attached stylesheet
-        // console.log(stylesElm?.outerHTML);
-        
-        const compStyle1 = dom.window.getComputedStyle(
-            dom.window.document.querySelector('#btn1')!
-        );
-        expect(compStyle1.appearance).toBe('none');
-        expect(compStyle1.display).toBe('flex');
-        expect(compStyle1.flexDirection).toBe('row');
+        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
+            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
+            expect(stylesElm).not.toBe(null); // has some attached stylesheet
+            console.log(stylesElm?.outerHTML);
+            
+            const compStyle1 = dom.window.getComputedStyle(
+                dom.window.document.querySelector('#btn1')!
+            );
+            expect(compStyle1.appearance).toBe('none');
+            expect(compStyle1.display).toBe('flex');
+            expect(compStyle1.flexDirection).toBe('row');
+            
+            
+            
+            resolve();
+        }, 0)});
     });
 });
