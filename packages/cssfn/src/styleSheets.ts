@@ -66,8 +66,8 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
         this.#options = styleSheetOptions;
         this.#updatedCallback = updatedCallback;
         
-        this.#scopes = [];
-        this.#loaded = false;
+        this.#scopes = [];    // initial
+        this.#loaded = false; // initial
         this.#updateScopes(scopes);
         
         this.#classes         = new Proxy<CssScopeMap<TCssScopeName>>(({} as CssScopeMap<TCssScopeName>), {
@@ -98,11 +98,15 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
             this.#scopes     = [];    // initially empty scope, until the Observable gives the first update
             this.#loaded     = false; // partially initialized => not ready
             
+            let asyncUpdate = false;
             scopes.subscribe((newScopes) => {
                 this.#scopes = newScopes;
                 this.#loaded = true;  // fully initialized => ready
-                this.update();        // notify a StyleSheet updated
+                if (asyncUpdate) {
+                    this.update();    // notify a StyleSheet updated
+                } // if
             });
+            asyncUpdate = true;       // any updates after this mark is async update
         }
         else {
             this.#scopes     = scopes;
@@ -117,13 +121,6 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     update(newScopes?: ProductOrFactory<CssScopeList<TCssScopeName>> | Observable<CssScopeList<TCssScopeName>>) {
         if (newScopes !== undefined) {
             this.#updateScopes(newScopes); // assign #scopes & #loaded
-            
-            /*
-                newScopes is not Observable              => #loaded is always true  => will trigger #updatedCallback
-                
-                newScopes is Observable & async callback => #loaded is always false => not trigger #updatedCallback
-                newScopes is Observable & sync  callback => #loaded is always true  (and update() internally)
-            */
         } // if
         
         
