@@ -133,7 +133,7 @@ jest.isolateModules(() => {
         await new Promise<void>((resolve) => { setTimeout(() => {
             const mainScope = styleSheet4.classes.main;
             expect(mainScope).toBe('ysbco');
-            console.log('scopeName', mainScope);
+            // console.log('scopeName', mainScope);
             
             
             
@@ -365,7 +365,7 @@ jest.isolateModules(() => {
             const mainScope = styleSheet4.classes.main;
             expect(mainScope).toBe('ysbco');
             expect(stylesElm?.outerHTML.includes(`.${mainScope}.${mainScope}.${mainScope} {`)).toBe(true);
-            console.log('scopeName', mainScope);
+            // console.log('scopeName', mainScope);
             
             
             
