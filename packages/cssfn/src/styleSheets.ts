@@ -166,7 +166,7 @@ class StyleSheetRegistry {
     
     
     //#region public methods
-    add<TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, options?: StyleSheetOptions) {
+    add<TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>> | Observable<CssScopeList<TCssScopeName>>, options?: StyleSheetOptions) {
         if (!isClientSide) { // on server side => just pass a StyleSheet object
             return new StyleSheet<TCssScopeName>(
                 scopes,
@@ -227,6 +227,6 @@ export type { StyleSheetRegistry } // only export the type but not the actual cl
 
 
 export const styleSheets = new StyleSheetRegistry();
-export const styleSheet = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, options?: StyleSheetOptions): StyleSheet<TCssScopeName> => {
+export const styleSheet = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>> | Observable<CssScopeList<TCssScopeName>>, options?: StyleSheetOptions): StyleSheet<TCssScopeName> => {
     return styleSheets.add(scopes, options);
 }
