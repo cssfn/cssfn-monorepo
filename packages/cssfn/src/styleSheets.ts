@@ -100,13 +100,13 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
             
             scopes.subscribe((newScopes) => {
                 this.#scopes = newScopes;
-                this.#loaded = true; // fully initialized => ready
-                this.update();       // notify a StyleSheet updated
+                this.#loaded = true;  // fully initialized => ready
+                this.update();        // notify a StyleSheet updated
             });
         }
         else {
             this.#scopes     = scopes;
-            this.#loaded     = true; // fully initialized => ready
+            this.#loaded     = true;  // fully initialized => ready
         } // if
     }
     //#region private methods
@@ -117,6 +117,13 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     update(newScopes?: ProductOrFactory<CssScopeList<TCssScopeName>> | Observable<CssScopeList<TCssScopeName>>) {
         if (newScopes !== undefined) {
             this.#updateScopes(newScopes); // assign #scopes & #loaded
+            
+            /*
+                newScopes is not Observable              => #loaded is always true  => will trigger #updatedCallback
+                
+                newScopes is Observable & async callback => #loaded is always false => not trigger #updatedCallback
+                newScopes is Observable & sync  callback => #loaded is always true  (and update() internally)
+            */
         } // if
         
         
