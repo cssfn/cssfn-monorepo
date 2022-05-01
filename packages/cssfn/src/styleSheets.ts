@@ -115,7 +115,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     set id(value: string) {
         if (this.#options.id === value) return; // no change => no need to update
         
-        this.#options.id = value;      // update
+        this.#options.id = value; // update
         this.refresh(); // notify a StyleSheet updated
     }
     //#endregion public options
