@@ -56,6 +56,8 @@ jest.isolateModules(() => {
     <head></head>
     <body>
         <button id="btn1">Click Me!</button>
+        <input id="check1" type="checkbox" />
+        <input id="text1" type="text" />
     </body>
 </html>
 `
@@ -104,18 +106,132 @@ jest.isolateModules(() => {
         await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
             const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
             expect(stylesElm).not.toBe(null); // has some attached stylesheet
-            console.log(stylesElm?.outerHTML);
+            // console.log(stylesElm?.outerHTML);
             
-            const compStyle1 = dom.window.getComputedStyle(
+            
+            
+            expect(stylesElm?.outerHTML.includes('button {')).toBe(true);
+            const btn1Style = dom.window.getComputedStyle(
                 dom.window.document.querySelector('#btn1')!
             );
-            expect(compStyle1.appearance).toBe('none');
-            expect(compStyle1.display).toBe('flex');
-            expect(compStyle1.flexDirection).toBe('row');
+            expect(btn1Style.appearance).toBe('none');
+            expect(btn1Style.display).toBe('flex');
+            expect(btn1Style.flexDirection).toBe('row');
             
             
             
             resolve();
         }, 0)});
+    });
+    
+    
+    
+    test('test stylesheet-2 [+] stylesheet-3 [-] stylesheet-2', async () => {
+        const stylesheet2 = styleSheet(() => [
+            globalScope({
+                ...rule('input[type="checkbox"]', {
+                    display: 'inline-flex',
+                    flexDirection: 'row',
+                    background: 'pink',
+                }),
+            }),
+        ]);
+        styleSheet(() => [
+            globalScope({
+                ...rule('input[type="text"]', {
+                    display: 'grid',
+                    background: 'gray',
+                    color: 'darkgray',
+                }),
+            }),
+        ]);
+        
+        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
+            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
+            expect(stylesElm).not.toBe(null); // has some attached stylesheet
+            // console.log(stylesElm?.outerHTML);
+            
+            
+            
+            expect(stylesElm?.outerHTML.includes('button {')).toBe(true);
+            const btn1Style = dom.window.getComputedStyle(
+                dom.window.document.querySelector('#btn1')!
+            );
+            expect(btn1Style.appearance).toBe('none');
+            expect(btn1Style.display).toBe('flex');
+            expect(btn1Style.flexDirection).toBe('row');
+            
+            
+            
+            expect(stylesElm?.outerHTML.includes('input[type="checkbox"] {')).toBe(true);
+            const check1Style = dom.window.getComputedStyle(
+                dom.window.document.querySelector('#check1')!
+            );
+            expect(check1Style.display).toBe('inline-flex');
+            expect(check1Style.flexDirection).toBe('row');
+            expect(check1Style.background).toBe('pink');
+            
+            
+            
+            expect(stylesElm?.outerHTML.includes('input[type="text"] {')).toBe(true);
+            const text1Style = dom.window.getComputedStyle(
+                dom.window.document.querySelector('#text1')!
+            );
+            expect(text1Style.display).toBe('grid');
+            expect(text1Style.background).toBe('gray');
+            expect(text1Style.color).toBe('darkgray');
+            
+            
+            
+            resolve();
+        }, 0)});
+        
+        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
+            stylesheet2.enabled = false;
+            
+            
+            
+            dom.window.setTimeout(() => {
+                const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
+                expect(stylesElm).not.toBe(null); // has some attached stylesheet
+                // console.log(stylesElm?.outerHTML);
+                
+                
+                
+                expect(stylesElm?.outerHTML.includes('button {')).toBe(true);
+                const btn1Style = dom.window.getComputedStyle(
+                    dom.window.document.querySelector('#btn1')!
+                );
+                expect(btn1Style.appearance).toBe('none');
+                expect(btn1Style.display).toBe('flex');
+                expect(btn1Style.flexDirection).toBe('row');
+                
+                
+                
+                expect(stylesElm?.outerHTML.includes('input[type="checkbox"] {')).toBe(false);
+                // jsdom doesn't update the css correctly:
+                // const check1Style = dom.window.getComputedStyle(
+                //     dom.window.document.querySelector('#check1')!
+                // );
+                // expect(check1Style.display).toBe('');
+                // expect(check1Style.flexDirection).toBe('');
+                // expect(check1Style.background).toBe('');
+                
+                
+                
+                expect(stylesElm?.outerHTML.includes('input[type="text"] {')).toBe(true);
+                const text1Style = dom.window.getComputedStyle(
+                    dom.window.document.querySelector('#text1')!
+                );
+                expect(text1Style.display).toBe('grid');
+                expect(text1Style.background).toBe('gray');
+                expect(text1Style.color).toBe('darkgray');
+                
+                
+                
+                resolve();
+            }, 10);
+        }, 10)});
+        
     });
 });
