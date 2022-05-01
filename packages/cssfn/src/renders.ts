@@ -71,6 +71,12 @@ import {
 import {
     default as hyphenate,
 }                           from 'hyphenate-style-name' // faster than camel-case
+import {
+    supportedProperty,
+    supportedValue,
+    
+    // @ts-ignore
+}                           from 'css-vendor'
 
 
 
@@ -136,9 +142,17 @@ class RenderRule {
         
         
         
-        return hyphenate(propName); // faster than camelCase
+        const camelCasedPropName      : string       = hyphenate(propName); // faster than camelCase
+        const browserSpecificPropName : string|false = supportedProperty(camelCasedPropName);
+        return (
+            browserSpecificPropName
+            ?
+            browserSpecificPropName
+            :
+            camelCasedPropName
+        );
     }
-    #renderPropValue(propValue: CssCustomValue): string {
+    #renderPropValue(renderedPropName: string, propValue: CssCustomValue): string {
         if (!Array.isArray(propValue)) {
             if (typeof(propValue) === 'number') return `${propValue}`; // CssSimpleNumericValue => number => convert to string
             return propValue; // CssSimpleLiteralValue|CssCustomRef => string
@@ -147,7 +161,7 @@ class RenderRule {
         
         
         let hasImportant = false;
-        return (
+        const renderedPropValue : string = (
             propValue
             .map((propSubValue, index, array): string|null => {
                 if (!Array.isArray(propSubValue)) {
@@ -175,12 +189,24 @@ class RenderRule {
             +
             (hasImportant ? ' !important' : '')
         );
+        
+        
+        
+        const browserSpecificPropValue : string|false = supportedValue(renderedPropName, renderedPropValue);
+        return (
+            browserSpecificPropValue
+            ?
+            browserSpecificPropValue
+            :
+            renderedPropValue
+        );
     }
     #renderProp(propName: string, propValue: CssCustomValue): void {
         this.rendered += '\n';
-        this.rendered += this.#renderPropName(propName);
+        const renderedPropName = this.#renderPropName(propName);
+        this.rendered += renderedPropName;
         this.rendered += ': ';
-        this.rendered += this.#renderPropValue(propValue);
+        this.rendered += this.#renderPropValue(renderedPropName, propValue);
         this.rendered += ';';
     }
     

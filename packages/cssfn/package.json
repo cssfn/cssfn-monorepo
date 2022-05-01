@@ -30,6 +30,7 @@
     "@cssfn/types": "^2.0.0",
     "@types/hyphenate-style-name": "^1.0.0",
     "camel-case": "^4.1.2",
+    "css-vendor": "^2.0.8",
     "hyphenate-style-name": "^1.0.4",
     "is-in-browser": "^2.0.0",
     "pascal-case": "^3.1.2",
