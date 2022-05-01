@@ -1,5 +1,5 @@
 {
-  "name": "@cssfn/dom",
+  "name": "@cssfn/cssfn-dom",
   "version": "2.0.0",
   "description": "Automatically attaches the registered css(fn) to DOM.",
   "keywords": [
@@ -15,8 +15,8 @@
   "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
   "homepage": "https://nodestrap.org",
   "license": "ISC",
-  "main": "dist/dom.js",
-  "types": "dist/dom.d.ts",
+  "main": "dist/cssfn-dom.js",
+  "types": "dist/cssfn-dom.d.ts",
   "type": "module",
   "sideEffects": true,
   "publishConfig": {

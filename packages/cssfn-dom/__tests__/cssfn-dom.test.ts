@@ -66,7 +66,7 @@ jest.isolateModules(() => {
         
         const cssfnModule    = await import('@cssfn/cssfn')
         //@ts-ignore
-        const cssfnDomModule = await import('../dist/dom.js')
+        const cssfnDomModule = await import('../dist/cssfn-dom.js')
         
         
         
@@ -179,7 +179,7 @@ jest.isolateModules(() => {
         
         const cssfnModule    = await import('@cssfn/cssfn')
         //@ts-ignore
-        const cssfnDomModule = await import('../dist/dom.js')
+        const cssfnDomModule = await import('../dist/cssfn-dom.js')
         const rxjsModule     = await import('rxjs')
         
         
