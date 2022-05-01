@@ -66,7 +66,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
         this.#options = styleSheetOptions;
         this.#updatedCallback = updatedCallback;
         
-        if (scopes instanceof Observable) {
+        if (scopes && (typeof(scopes) === 'object') && !Array.isArray(scopes)) {
             this.#scopes      = [];    // initially empty scope, until the Observable gives the first update
             this.#loaded      = false; // partially initialized => not ready
             
