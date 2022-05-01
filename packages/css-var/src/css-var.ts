@@ -1,8 +1,10 @@
 // cssfn:
 import type {
+    // types:
     Dictionary,
 }                           from '@cssfn/types'
 import type {
+    // css custom properties:
     CssCustomName,
     CssCustomSimpleRef,
     CssCustomRef,
