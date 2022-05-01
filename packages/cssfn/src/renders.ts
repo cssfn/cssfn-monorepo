@@ -126,6 +126,21 @@ const combineSelector = (parentSelector: CssFinalSelector|null, nestedSelector: 
     return selectorsToString(combinedSelectors);
 };
 
+const shortProps: Record<string, string> = {
+    foreg       : 'color',
+    
+    backg       : 'background',
+    'backgClip' : 'backgroundClip',
+    
+    anim        : 'animation',
+    transf      : 'transform',
+    
+    'gapX'      : 'columnGap',
+    'gapY'      : 'rowGap',
+    'gapInline' : 'columnGap',
+    'gapBlock'  : 'rowGap',
+};
+
 
 
 class RenderRule {
@@ -142,7 +157,8 @@ class RenderRule {
         
         
         
-        const camelCasedPropName      : string       = hyphenate(propName); // faster than camelCase
+        const unshortPropName         : string       = shortProps[propName] ?? propName;
+        const camelCasedPropName      : string       = hyphenate(unshortPropName); // faster than camelCase
         const browserSpecificPropName : string|false = supportedProperty(camelCasedPropName);
         return (
             browserSpecificPropName
