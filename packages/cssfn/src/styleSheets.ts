@@ -22,6 +22,7 @@ import {
     isJsDom,
 }                           from 'is-in-browser'
 import {
+    Observable,
     Subject,
 }                           from 'rxjs'
 
@@ -48,14 +49,15 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     readonly #options         : Required<StyleSheetOptions>
     readonly #updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>|null
     
-    readonly #scopes          : ProductOrFactory<CssScopeList<TCssScopeName>>
+             #scopes          : ProductOrFactory<CssScopeList<TCssScopeName>>
     readonly #classes         : CssScopeMap<TCssScopeName>
+             #loaded          : boolean
     //#endregion private properties
     
     
     
     //#region constructors
-    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
+    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>> | Observable<CssScopeList<TCssScopeName>>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
         const styleSheetOptions : Required<StyleSheetOptions> = {
             ...(options ?? {}),
             enabled : options?.enabled ?? defaultStyleSheetOptions.enabled,
@@ -64,7 +66,20 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
         this.#options = styleSheetOptions;
         this.#updatedCallback = updatedCallback;
         
-        this.#scopes          = scopes;
+        if (scopes instanceof Observable) {
+            this.#scopes      = [];    // initially empty scope, until the Observable gives the first update
+            this.#loaded      = false; // partially initialized => not ready
+            
+            scopes.subscribe((newScopes) => {
+                this.#scopes  = newScopes;
+                this.#loaded  = true; // fully initialized => ready
+                this.refresh();       // notify a StyleSheet updated
+            });
+        }
+        else {
+            this.#scopes      = scopes;
+            this.#loaded      = true; // fully initialized => ready
+        } // if
         this.#classes         = new Proxy<CssScopeMap<TCssScopeName>>(({} as CssScopeMap<TCssScopeName>), {
             get(scopeMap: object, scopeName: TCssScopeName): CssClassName {
                 // if already cached => return immediately:
@@ -88,12 +103,12 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     
     
     //#region public options
-    get enabled() { return this.#options.enabled }
+    get enabled() { return this.#options.enabled && this.#loaded }
     set enabled(value: boolean) {
         if (this.#options.enabled === value) return; // no change => no need to update
         
         this.#options.enabled = value; // update
-        this.#updatedCallback?.(this); // notify a StyleSheet updated
+        this.refresh(); // notify a StyleSheet updated
     }
     
     get id() { return this.#options.id }
@@ -101,7 +116,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
         if (this.#options.id === value) return; // no change => no need to update
         
         this.#options.id = value;      // update
-        this.#updatedCallback?.(this); // notify a StyleSheet updated
+        this.refresh(); // notify a StyleSheet updated
     }
     //#endregion public options
     
@@ -116,6 +131,18 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
         return this.#classes;
     }
     //#endregion public properties
+    
+    
+    
+    //#region public methods
+    refresh() {
+        if (!this.#loaded) return; // partially initialized => not ready to render
+        
+        
+        
+        this.#updatedCallback?.(this); // notify a StyleSheet updated
+    }
+    //#endregion public methods
 }
 export type { StyleSheet } // only export the type but not the actual class
 
