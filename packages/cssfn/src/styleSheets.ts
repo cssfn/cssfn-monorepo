@@ -66,20 +66,10 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
         this.#options = styleSheetOptions;
         this.#updatedCallback = updatedCallback;
         
-        if (scopes && (typeof(scopes) === 'object') && !Array.isArray(scopes)) {
-            this.#scopes      = [];    // initially empty scope, until the Observable gives the first update
-            this.#loaded      = false; // partially initialized => not ready
-            
-            scopes.subscribe((newScopes) => {
-                this.#scopes  = newScopes;
-                this.#loaded  = true; // fully initialized => ready
-                this.refresh();       // notify a StyleSheet updated
-            });
-        }
-        else {
-            this.#scopes      = scopes;
-            this.#loaded      = true; // fully initialized => ready
-        } // if
+        this.#scopes = [];
+        this.#loaded = false;
+        this.#updateScopes(scopes);
+        
         this.#classes         = new Proxy<CssScopeMap<TCssScopeName>>(({} as CssScopeMap<TCssScopeName>), {
             get(scopeMap: object, scopeName: TCssScopeName): CssClassName {
                 // if already cached => return immediately:
@@ -102,13 +92,52 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     
     
     
+    //#region private methods
+    #updateScopes(scopes: ProductOrFactory<CssScopeList<TCssScopeName>> | Observable<CssScopeList<TCssScopeName>>) {
+        if (scopes && (typeof(scopes) === 'object') && !Array.isArray(scopes)) {
+            this.#scopes     = [];    // initially empty scope, until the Observable gives the first update
+            this.#loaded     = false; // partially initialized => not ready
+            
+            scopes.subscribe((newScopes) => {
+                this.#scopes = newScopes;
+                this.#loaded = true; // fully initialized => ready
+                this.update();       // notify a StyleSheet updated
+            });
+        }
+        else {
+            this.#scopes     = scopes;
+            this.#loaded     = true; // fully initialized => ready
+        } // if
+    }
+    //#region private methods
+    
+    
+    
+    //#region public methods
+    update(newScopes?: ProductOrFactory<CssScopeList<TCssScopeName>> | Observable<CssScopeList<TCssScopeName>>) {
+        if (newScopes !== undefined) {
+            this.#updateScopes(newScopes); // assign #scopes & #loaded
+        } // if
+        
+        
+        
+        if (!this.#loaded) return; // partially initialized => not ready to render
+        
+        
+        
+        this.#updatedCallback?.(this); // notify a StyleSheet updated
+    }
+    //#endregion public methods
+    
+    
+    
     //#region public options
     get enabled() { return this.#options.enabled && this.#loaded }
     set enabled(value: boolean) {
         if (this.#options.enabled === value) return; // no change => no need to update
         
         this.#options.enabled = value; // update
-        this.refresh(); // notify a StyleSheet updated
+        this.update(); // notify a StyleSheet updated
     }
     
     get id() { return this.#options.id }
@@ -116,7 +145,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
         if (this.#options.id === value) return; // no change => no need to update
         
         this.#options.id = value; // update
-        this.refresh(); // notify a StyleSheet updated
+        this.update(); // notify a StyleSheet updated
     }
     //#endregion public options
     
@@ -131,18 +160,6 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
         return this.#classes;
     }
     //#endregion public properties
-    
-    
-    
-    //#region public methods
-    refresh() {
-        if (!this.#loaded) return; // partially initialized => not ready to render
-        
-        
-        
-        this.#updatedCallback?.(this); // notify a StyleSheet updated
-    }
-    //#endregion public methods
 }
 export type { StyleSheet } // only export the type but not the actual class
 
