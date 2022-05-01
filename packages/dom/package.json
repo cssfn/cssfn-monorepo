@@ -32,7 +32,9 @@
     "is-in-browser": "^2.0.0"
   },
   "devDependencies": {
+    "@cssfn/css-types": "^2.0.0",
     "@types/jsdom": "^16.2.14",
-    "jsdom": "^19.0.0"
+    "jsdom": "^19.0.0",
+    "rxjs": "^7.5.5"
   }
 }

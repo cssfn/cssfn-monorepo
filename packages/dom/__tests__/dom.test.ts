@@ -2,6 +2,10 @@ import type {
     JSDOM as _JSDOM,
 } from 'jsdom'
 import type {
+    // cssfn properties:
+    CssScopeList,
+}                           from '@cssfn/css-types'
+import type {
     // style sheets:
     styleSheet as _styleSheet,
     
@@ -12,6 +16,9 @@ import type {
     rule as _rule,
     // children as _children,
 }                           from '@cssfn/cssfn'
+import type {
+    Subject as _Subject,
+}                           from 'rxjs'
 import {
     jest,
 } from '@jest/globals'
@@ -129,9 +136,9 @@ jest.isolateModules(() => {
         ], { id: 'stylesheet#4' });
         
         await new Promise<void>((resolve) => { setTimeout(() => {
-            const mainScope = styleSheet4.classes.main;
-            expect(mainScope).toBe('ysbco');
-            // console.log('scopeName', mainScope);
+            const mainScopeClass = styleSheet4.classes.main;
+            expect(mainScopeClass).toBe('ysbco');
+            // console.log('scopeName', mainScopeClass);
             
             
             
@@ -150,6 +157,7 @@ jest.isolateModules(() => {
     let rule        : typeof _rule = undefined as any;
     // let children    : typeof _children = undefined as any;
     let mainScope   : typeof _mainScope = undefined as any;
+    let Subject     : typeof _Subject = undefined as any;
     beforeAll(async () => {
         const jsdomModule    = await import('jsdom')
         
@@ -172,6 +180,7 @@ jest.isolateModules(() => {
         const cssfnModule    = await import('@cssfn/cssfn')
         //@ts-ignore
         const cssfnDomModule = await import('../dist/dom.js')
+        const rxjsModule     = await import('rxjs')
         
         
         
@@ -180,6 +189,7 @@ jest.isolateModules(() => {
         mainScope   = cssfnModule.mainScope
         rule        = cssfnModule.rule
         // children    = cssfnModule.children
+        Subject     = rxjsModule.Subject
     });
     
     
@@ -360,14 +370,86 @@ jest.isolateModules(() => {
             
             
             expect(stylesElm?.outerHTML.includes('--sheetId: "ss4"')).toBe(true);
-            const mainScope = styleSheet4.classes.main;
-            expect(mainScope).toBe('ysbco');
-            expect(stylesElm?.outerHTML.includes(`.${mainScope}.${mainScope}.${mainScope} {`)).toBe(true);
-            // console.log('scopeName', mainScope);
+            const mainScopeClass = styleSheet4.classes.main;
+            expect(mainScopeClass).toBe('ysbco');
+            expect(stylesElm?.outerHTML.includes(`.${mainScopeClass}.${mainScopeClass}.${mainScopeClass} {`)).toBe(true);
+            // console.log('scopeName', mainScopeClass);
             
             
             
             resolve();
+        }, 0)});
+    });
+    
+    
+    
+    test('test stylesheet-5', async () => {
+        const styleSheet5DynContent = new Subject<CssScopeList<'main'>>();
+        const styleSheet5 = styleSheet(styleSheet5DynContent, { id: 'stylesheet#5' });
+        
+        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
+            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
+            expect(stylesElm).not.toBe(null); // has some attached stylesheet
+            // console.log(stylesElm?.outerHTML);
+            
+            
+            expect(stylesElm?.outerHTML.includes('--sheetId: "ss5"')).toBe(false);
+            expect(stylesElm?.outerHTML.includes('--myFavColor:')).toBe(false);
+            
+            
+            styleSheet5DynContent.next([
+                mainScope({
+                    '--sheetId': '"ss5"',
+                    '--myFavColor' : 'yellow',
+                }),
+            ])
+            dom.window.setTimeout(() => {
+                expect(stylesElm?.outerHTML.includes('--sheetId: "ss5"')).toBe(true);
+                expect(stylesElm?.outerHTML.includes('--myFavColor: yellow')).toBe(true);
+                const mainScopeClass = styleSheet5.classes.main;
+                expect(mainScopeClass).toBe('zc3y1');
+                expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
+                // console.log('scopeName', mainScopeClass);
+                
+                
+                
+                styleSheet5DynContent.next([
+                    mainScope({
+                        '--sheetId': '"ss5b"',
+                        '--myFavColor' : 'purple',
+                    }),
+                ])
+                dom.window.setTimeout(() => {
+                    expect(stylesElm?.outerHTML.includes('--sheetId: "ss5b"')).toBe(true);
+                    expect(stylesElm?.outerHTML.includes('--myFavColor: purple')).toBe(true);
+                    const mainScopeClass = styleSheet5.classes.main;
+                    expect(mainScopeClass).toBe('zc3y1');
+                    expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
+                    // console.log('scopeName', mainScopeClass);
+                    
+                    
+                    
+                    styleSheet5DynContent.next([
+                        mainScope({
+                            '--sheetId': '"ss5c"',
+                            '--myFavColor' : 'cornflowerblue',
+                        }),
+                    ])
+                    dom.window.setTimeout(() => {
+                        expect(stylesElm?.outerHTML.includes('--sheetId: "ss5c"')).toBe(true);
+                        expect(stylesElm?.outerHTML.includes('--myFavColor: cornflowerblue')).toBe(true);
+                        // console.log(stylesElm?.outerHTML);
+                        const mainScopeClass = styleSheet5.classes.main;
+                        expect(mainScopeClass).toBe('zc3y1');
+                        expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
+                        // console.log('scopeName', mainScopeClass);
+                        
+                        
+                        
+                        resolve();
+                    }, 10);
+                }, 10);
+            }, 10);
         }, 0)});
     });
 });
