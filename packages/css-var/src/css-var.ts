@@ -147,7 +147,7 @@ export const createCssVar = <TCssCustomProps extends {}>(options: CssVarOptions 
         
         
         
-        // settings:
+        // options:
         liveOptions,
     ];
 }
