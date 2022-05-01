@@ -1,4 +1,7 @@
 import type {
+    JSDOM as _JSDOM,
+} from 'jsdom'
+import type {
     // style sheets:
     StyleSheet,
     styleSheet  as _styleSheet,
@@ -25,26 +28,25 @@ const simulateServerSide = () => {
     const oriWindow   = (typeof(window) === 'undefined'  ) ? undefined : window;
     const oriDocument = (typeof(document) === 'undefined') ? undefined : document;
     if (oriWindow !== undefined) {
-        (globalThis as any).window = undefined;
+        delete (globalThis as any).window;
     } // if
     if (oriDocument !== undefined) {
-        (globalThis as any).document = undefined;
-        if (typeof(window) !== 'undefined') window.document = undefined as any;
+        delete (globalThis as any).document;
+        if (typeof(window) !== 'undefined') delete (window as any).document;
     } // if
 };
-const simulateBrowserSide = () => {
+const simulateBrowserSide = (dom: _JSDOM) => {
     jest.resetModules();
     
     const oriWindow   = (typeof(window) === 'undefined'  ) ? undefined : window;
     const oriDocument = (typeof(document) === 'undefined') ? undefined : document;
     if (oriWindow === undefined) {
-        const mockWindow = {} as Window;
+        const mockWindow : Window = dom.window as any;
         (globalThis as any).window = mockWindow;
     } // if
     if (oriDocument === undefined) {
-        const mockDocument = { nodeType: 9 } as Document;
+        const mockDocument : Document = dom.window.document;
         (globalThis as any).document = mockDocument;
-        (globalThis as any).window.document = mockDocument;
     } // if
 };
 
@@ -200,13 +202,28 @@ jest.isolateModules(() => {
 
 
 jest.isolateModules(() => {
+    let JSDOM       : typeof _JSDOM = undefined as any;
+    let dom         : _JSDOM = undefined as any;
     let styleSheet  : typeof _styleSheet  = undefined as any;
     let scopeOf     : typeof _scopeOf     = undefined as any;
     let mainScope   : typeof _mainScope   = undefined as any;
     let globalScope : typeof _globalScope = undefined as any;
     let styleSheets : typeof _styleSheets = undefined as any;
     beforeAll(async () => {
-        simulateBrowserSide();
+        const jsdomModule    = await import('jsdom')
+        
+        JSDOM = jsdomModule.JSDOM
+        dom = new JSDOM(
+`
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+    </body>
+</html>
+`
+        );
+        simulateBrowserSide(dom);
         
         const cssfnModule      = await import('../dist/cssfn')
         const styleSheetModule = await import('../dist/styleSheets')

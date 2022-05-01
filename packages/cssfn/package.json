@@ -35,5 +35,9 @@
     "pascal-case": "^3.1.2",
     "rxjs": "^7.5.5",
     "tiny-warning": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^16.2.14",
+    "jsdom": "^19.0.0"
   }
 }
