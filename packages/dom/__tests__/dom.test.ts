@@ -19,6 +19,19 @@ import {
 
 
 
+const simulateServerSide = () => {
+    jest.resetModules();
+    
+    const oriWindow   = (typeof(window) === 'undefined'  ) ? undefined : window;
+    const oriDocument = (typeof(document) === 'undefined') ? undefined : document;
+    if (oriWindow !== undefined) {
+        delete (globalThis as any).window;
+    } // if
+    if (oriDocument !== undefined) {
+        delete (globalThis as any).document;
+        if (typeof(window) !== 'undefined') delete (window as any).document;
+    } // if
+};
 const simulateBrowserSide = (dom: _JSDOM) => {
     jest.resetModules();
     
@@ -38,13 +51,107 @@ const simulateBrowserSide = (dom: _JSDOM) => {
 
 
 jest.isolateModules(() => {
+    let styleSheet  : typeof _styleSheet = undefined as any;
+    let globalScope : typeof _globalScope = undefined as any;
+    let rule        : typeof _rule = undefined as any;
+    // let children    : typeof _children = undefined as any;
+    let mainScope   : typeof _mainScope = undefined as any;
+    beforeAll(async () => {
+        simulateServerSide();
+        
+        const cssfnModule    = await import('@cssfn/cssfn')
+        //@ts-ignore
+        const cssfnDomModule = await import('../dist/dom.js')
+        
+        
+        
+        styleSheet  = cssfnModule.styleSheet
+        globalScope = cssfnModule.globalScope
+        mainScope   = cssfnModule.mainScope
+        rule        = cssfnModule.rule
+        // children    = cssfnModule.children
+    });
+    
+    
+    
+    test('test no any attached stylesheet', async () => {
+        styleSheet(() => [
+            globalScope({
+                ...rule('button', {
+                    appearance: 'none',
+                    display: 'flex',
+                    flexDirection: 'row',
+                }),
+            }),
+        ]);
+    });
+    
+    
+    
+    test('test no any attached stylesheet', async () => {
+        const stylesheet2 = styleSheet(() => [
+            globalScope({
+                ...rule('input[type="checkbox"]', {
+                    display: 'inline-flex',
+                    flexDirection: 'row',
+                    background: 'pink',
+                }),
+            }),
+        ]);
+        styleSheet(() => [
+            globalScope({
+                ...rule('input[type="text"]', {
+                    display: 'grid',
+                    background: 'gray',
+                    color: 'darkgray',
+                }),
+            }),
+        ]);
+        
+        await new Promise<void>((resolve) => { setTimeout(() => {
+            stylesheet2.enabled = false;
+            
+            
+            
+            resolve();
+        }, 10)});
+        
+    });
+    
+    
+    
+    test('test no any attached stylesheet', async () => {
+        const styleSheet4 = styleSheet(() => [
+            mainScope({
+                display: 'grid',
+                gridAutoFlow: 'column',
+                gap: '1.25rem',
+                '--sheetId': '"ss4"',
+            }, { specificityWeight: 3 }),
+        ], { id: 'stylesheet#4' });
+        
+        await new Promise<void>((resolve) => { setTimeout(() => {
+            const mainScope = styleSheet4.classes.main;
+            expect(mainScope).toBe('ysbco');
+            console.log('scopeName', mainScope);
+            
+            
+            
+            resolve();
+        }, 0)});
+    });
+});
+
+
+
+jest.isolateModules(() => {
     let JSDOM       : typeof _JSDOM = undefined as any;
     let dom         : _JSDOM = undefined as any;
     let styleSheet  : typeof _styleSheet = undefined as any;
     let globalScope : typeof _globalScope = undefined as any;
     let rule        : typeof _rule = undefined as any;
     // let children    : typeof _children = undefined as any;
-    // let mainScope  : typeof _mainScope = undefined as any;
+    let mainScope   : typeof _mainScope = undefined as any;
     beforeAll(async () => {
         const jsdomModule    = await import('jsdom')
         
@@ -72,7 +179,7 @@ jest.isolateModules(() => {
         
         styleSheet  = cssfnModule.styleSheet
         globalScope = cssfnModule.globalScope
-        // mainScope  = cssfnModule.mainScope
+        mainScope   = cssfnModule.mainScope
         rule        = cssfnModule.rule
         // children    = cssfnModule.children
     });
@@ -233,5 +340,36 @@ jest.isolateModules(() => {
             }, 10);
         }, 10)});
         
+    });
+    
+    
+    
+    test('test stylesheet-4', async () => {
+        const styleSheet4 = styleSheet(() => [
+            mainScope({
+                display: 'grid',
+                gridAutoFlow: 'column',
+                gap: '1.25rem',
+                '--sheetId': '"ss4"',
+            }, { specificityWeight: 3 }),
+        ], { id: 'stylesheet#4' });
+        
+        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
+            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
+            expect(stylesElm).not.toBe(null); // has some attached stylesheet
+            // console.log(stylesElm?.outerHTML);
+            
+            
+            
+            expect(stylesElm?.outerHTML.includes('--sheetId: "ss4"')).toBe(true);
+            const mainScope = styleSheet4.classes.main;
+            expect(mainScope).toBe('ysbco');
+            expect(stylesElm?.outerHTML.includes(`.${mainScope}.${mainScope}.${mainScope} {`)).toBe(true);
+            console.log('scopeName', mainScope);
+            
+            
+            
+            resolve();
+        }, 0)});
     });
 });
