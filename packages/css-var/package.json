@@ -1,13 +1,14 @@
 {
   "name": "@cssfn/css-var",
   "version": "2.0.0",
-  "description": "Manipulates css selector - parse, transform, calculate specificity, and more.",
+  "description": "Reads/Writes CSS variables (CSS custom properties) in javascript property.",
   "keywords": [
     "css",
     "stylesheet",
-    "selector",
-    "combinator",
-    "attributes"
+    "variables",
+    "property",
+    "javascript",
+    "typescript"
   ],
   "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
   "homepage": "https://nodestrap.org",
