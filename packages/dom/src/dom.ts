@@ -75,7 +75,15 @@ const batchUpdate = () => {
                 if (!styleGroupElm) {
                     styleGroupElm = document.createElement('div');
                     styleGroupElm.dataset.cssfnDomStyles = '';
-                    document.head.appendChild(styleGroupElm);
+                    
+                    if (updates.length >= 2) {
+                        Promise.resolve(styleGroupElm).then((styleGroupElm) => {
+                            document.head.appendChild(styleGroupElm);
+                        });
+                    }
+                    else {
+                        document.head.appendChild(styleGroupElm);
+                    } // if
                 } // if
                 styleGroupElm.appendChild(styleElm);
                 
