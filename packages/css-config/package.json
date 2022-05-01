@@ -1,0 +1,32 @@
+{
+  "name": "@cssfn/css-config",
+  "version": "2.0.0",
+  "description": "Reads/Writes CSS configuration of HTML components using centralized CSS variables.",
+  "keywords": [
+    "css",
+    "stylesheet",
+    "config",
+    "configuration",
+    "variables",
+    "property",
+    "javascript",
+    "typescript"
+  ],
+  "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
+  "homepage": "https://nodestrap.org",
+  "license": "ISC",
+  "main": "dist/css-config.js",
+  "types": "dist/css-config.d.ts",
+  "type": "module",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "tsc:watch": "tsc --watch",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
+  },
+  "dependencies": {
+  }
+}
