@@ -1,4 +1,3 @@
-// import '../dist/dom.js'
 import type {
     JSDOM as _JSDOM,
 } from 'jsdom'
@@ -44,7 +43,6 @@ const simulateBrowserSide = (dom: _JSDOM) => {
     if (oriDocument === undefined) {
         const mockDocument : Document = dom.window.document;
         (globalThis as any).document = mockDocument;
-        // (globalThis as any).window.document = mockDocument;
     } // if
 };
 
