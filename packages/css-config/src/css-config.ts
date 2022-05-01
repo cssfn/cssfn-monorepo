@@ -28,8 +28,8 @@ import type {
 
 // general types:
 export interface CssConfigProps { }
-export type Refs     <TProps extends CssConfigProps> = { [key in keyof TProps]: CssCustomSimpleRef }
-export type Vals     <TProps extends CssConfigProps> = { [key in keyof TProps]: TProps[key]        }
+export type Refs<TProps extends CssConfigProps> = { [key in keyof TProps]: CssCustomSimpleRef }
+export type Vals<TProps extends CssConfigProps> = { [key in keyof TProps]: TProps[key]        }
 
 export interface CssConfigOptions {
     /**
@@ -76,25 +76,25 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
         if (this.#prefix === value) return; // no change => no need to update
         
         this.#prefix = value; // update
-        this.refresh(); // notify a css-config updated
+        this.update(); // notify a css-config updated
     }
     
     get selector() {
         return this.#selector;
     }
-    set selector(value: string) {
+    set selector(value: CssSelector) {
         value = value || defaultOptions.selector; // an empty selector is not allowed
         if (this.#selector === value) return; // no change => no need to update
         
         this.#selector = value; // update
-        this.refresh(); // notify a css-config updated
+        this.update(); // notify a css-config updated
     }
     //#endregion public properties
     
     
     
     //#region public methods
-    refresh() {
+    update() {
         this.#updatedCallback?.(); // notify a css-config updated
     }
     //#endregion public methods
