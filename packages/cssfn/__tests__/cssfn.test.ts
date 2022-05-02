@@ -1,6 +1,7 @@
 import type {
     CssRule,
     CssStyle,
+    CssStyleCollection,
     
     CssSelectorCollection,
     CssSelectorOptions,
@@ -1650,24 +1651,36 @@ test(`keyframes()`, () => {
 
 test(`keyframes()`, () => {
     const testKeyframes = keyframes('fooAnimation', {
-        '0%' : {
-            color      : 'red',
-            background : 'pink',
-            opacity    : 0.1,
-            width      : '100px',
-        },
-        '50%': {
-            color      : 'yellow',
-            background : 'white',
-            opacity    : 0.5,
-            width      : '200px',
-        },
-        '100%'   : {
-            color      : 'blue',
-            background : 'lightblue',
-            opacity    : 0.9,
-            width      : '300px',
-        },
+        '0%' : [
+            {
+                color      : 'red',
+                background : 'pink',
+            },
+            {
+                opacity    : 0.1,
+                width      : '100px',
+            },
+        ],
+        '50%': [
+            {
+                color      : 'yellow',
+                background : 'white',
+            },
+            {
+                opacity    : 0.5,
+                width      : '200px',
+            },
+        ],
+        '100%'   : [
+            {
+                color      : 'blue',
+                background : 'lightblue',
+            },
+            {
+                opacity    : 0.9,
+                width      : '300px',
+            },
+        ],
     });
     const testMerged = mergeStyles(testKeyframes)
     
@@ -1751,14 +1764,20 @@ test(`fallbacks()`, () => {
 });
 test(`fallbacks()`, () => {
     expect(firstStylesOf(mergeStyles(
-        fallbacks({
-            background: 'pink',
-            color: 'red',
-            opacity: 0.5,
-            visibility: 'visible',
-            display: 'flex',
-            flexDirection: 'column',
-        })
+        fallbacks([
+            {
+                background: 'pink',
+                color: 'red',
+            },
+            {
+                opacity: 0.5,
+                visibility: 'visible',
+            },
+            {
+                display: 'flex',
+                flexDirection: 'column',
+            },
+        ])
     )))
     .toExactEqual({
         background: 'pink',
@@ -1795,12 +1814,18 @@ test(`fontFace()`, () => {
 });
 test(`fontFace()`, () => {
     expect(firstSelectorOf(mergeStyles(
-        fontFace({
-            fontFamily: 'Open Sans',
-            src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")',
-            fontWeight: 'bold',
-            fontStyle: [['oblique', '40deg']],
-        }),
+        fontFace([
+            {
+                fontFamily: 'Open Sans',
+            },
+            {
+                src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")',
+            },
+            {
+                fontWeight: 'bold',
+                fontStyle: [['oblique', '40deg']],
+            },
+        ]),
     )))
     .toBe(
         '@font-face'
@@ -1808,12 +1833,18 @@ test(`fontFace()`, () => {
 });
 test(`fontFace()`, () => {
     expect(firstStylesOf(mergeStyles(
-        fontFace({
-            fontFamily: 'Open Sans',
-            src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")',
-            fontWeight: 'bold',
-            fontStyle: [['oblique', '40deg']],
-        }),
+        fontFace([
+            {
+                fontFamily: 'Open Sans',
+            },
+            {
+                src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")',
+            },
+            {
+                fontWeight: 'bold',
+                fontStyle: [['oblique', '40deg']],
+            },
+        ]),
     )))
     .toExactEqual({
         fontFamily: 'Open Sans',
@@ -1837,7 +1868,7 @@ test(`global()`, () => {
     );
 });
 
-const unparameterizedRules : (readonly [(style: CssStyle) => CssRule, string ])[] = [
+const unparameterizedRules : (readonly [(styles: CssStyleCollection) => CssRule, string ])[] = [
     [ atRoot           , '&:root'                ],
     [ isFirstChild     , '&:first-child'         ],
     [ isNotFirstChild  , '&:not(:first-child)'   ],
@@ -1867,14 +1898,20 @@ unparameterizedRules.forEach(([func, expected]) => {
     });
     test(`func()`, () => {
         expect(firstStylesOf(mergeStyles(
-            func({
-                background: 'pink',
-                color: 'red',
-                opacity: 0.5,
-                visibility: 'visible',
-                display: 'flex',
-                flexDirection: 'column',
-            })
+            func([
+                {
+                    background: 'pink',
+                    color: 'red',
+                },
+                {
+                    opacity: 0.5,
+                    visibility: 'visible',
+                },
+                {
+                    display: 'flex',
+                    flexDirection: 'column',
+                },
+            ])
         )))
         .toExactEqual({
             background: 'pink',
@@ -2267,7 +2304,7 @@ test(`isNotNthLastChild(2, 2)`, () => {
 
 
 //#region combinators
-const combinators : (readonly [((selectors: CssSelectorCollection, style: CssStyle, options?: CssSelectorOptions) => CssRule), Combinator])[] = [
+const combinators : (readonly [((selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions) => CssRule), Combinator])[] = [
     [descendants , ' '],
     [children    , '>'],
     [siblings    , '~'],
@@ -2442,14 +2479,20 @@ test(`iif(false, isFirstChild())`, () => {
 });
 test(`iif(false, isFirstChild())`, () => {
     expect(firstStylesOf(mergeStyles(
-        iif(false, isFirstChild({
-            background: 'pink',
-            color: 'red',
-            opacity: 0.5,
-            visibility: 'visible',
-            display: 'flex',
-            flexDirection: 'column',
-        }))
+        iif(false, isFirstChild([
+            {
+                background: 'pink',
+                color: 'red',
+            },
+            {
+                opacity: 0.5,
+                visibility: 'visible',
+            },
+            {
+                display: 'flex',
+                flexDirection: 'column',
+            },
+        ]))
     )))
     .toBe(
         null
@@ -2467,14 +2510,20 @@ test(`iif(true, isFirstChild())`, () => {
 });
 test(`iif(true, isFirstChild())`, () => {
     expect(firstStylesOf(mergeStyles(
-        iif(true, isFirstChild({
-            background: 'pink',
-            color: 'red',
-            opacity: 0.5,
-            visibility: 'visible',
-            display: 'flex',
-            flexDirection: 'column',
-        }))
+        iif(true, isFirstChild([
+            {
+                background: 'pink',
+                color: 'red',
+            },
+            {
+                opacity: 0.5,
+                visibility: 'visible',
+            },
+            {
+                display: 'flex',
+                flexDirection: 'column',
+            },
+        ]))
     )))
     .toExactEqual({
         background: 'pink',

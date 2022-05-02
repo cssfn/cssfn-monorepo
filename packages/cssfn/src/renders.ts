@@ -469,10 +469,10 @@ export const render = <TCssScopeName extends CssScopeName = CssScopeName>(styleS
     
     const scopeMap     = styleSheet.classes;
     
-    const scopeRules : CssRule[] = scopeList.map(([scopeName, style, options]): CssRule|null => {
+    const scopeRules : CssRule[] = scopeList.map(([scopeName, styles, options]): CssRule|null => {
         if (scopeName === '') { // globalScope => aliased to @global rule
             return atGlobal(
-                style
+                styles
             );
         } // if
         
@@ -487,7 +487,7 @@ export const render = <TCssScopeName extends CssScopeName = CssScopeName>(styleS
         // the top level rule (scope rule):
         return rule(
             uniqueSelector,
-            style,
+            styles,
             { ...options, performGrouping: false }
         );
     }).filter((rule): rule is CssRule => !!rule);

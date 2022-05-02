@@ -1,11 +1,12 @@
 // cssfn:
 import type {
     // types:
-    SingleOrArray,
+    OptionalOrBoolean,
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
     CssStyle,
+    CssStyleCollection,
     
     CssSelector,
     
@@ -81,7 +82,7 @@ const groupByRuleType = (accum: Map<RuleType, CssSelector[]>, selector: CssSelec
 const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector|null => {
     const ruleData = style[symbolProp]; // get existing prop (if any)
     if (ruleData === undefined) return null;
-    const [selector, nestedStyle] = ruleData;
+    const [selector, styles] = ruleData;
     if (isFinalSelector(selector)) return selector;
     
     
@@ -119,12 +120,12 @@ const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector
     
     
     
-    //#region update (mutate) nestedStyle
+    //#region update (mutate) styles
     //#region update (primary) SelectorRule
     if (finalSelector) {
         style[symbolProp] = [
             finalSelector, // update CssRawSelector to CssFinalSelector
-            nestedStyle    // still the same nestedStyle
+            styles         // still the same styles
         ];
     }
     else {
@@ -142,11 +143,11 @@ const finalizeSelector = (style: CssStyle, symbolProp: symbol): CssFinalSelector
     for (const additionalFinalProp of additionalFinalProps) {
         style[Symbol()] = [
             additionalFinalProp, // update CssRawSelector to CssFinalSelector
-            nestedStyle          // still the same nestedStyle
+            styles               // still the same styles
         ];
     } // for
     //#endregion update (additional) AtRule|PropRule
-    //#endregion update (mutate) nestedStyle
+    //#endregion update (mutate) styles
     
     
     
@@ -212,20 +213,20 @@ export const mergeParent  = (style: CssStyle): void => {
             
             
             
-            const [, parentStyle]   = style[symbolProp];
-            const mergedParentStyle = mergeStyles(parentStyle);
-            if (mergedParentStyle) {
+            const [, styles]         = style[symbolProp];
+            const mergedParentStyles = mergeStyles(styles);
+            if (mergedParentStyles) {
                 if (!needToReorderOtherSymbolProps) {
-                    /* if mergedParentStyle has any (nested) Rule => all (nested) Rule in current style need to rearrange to preserve the order */
-                    const hasNestedRule  = !!Object.getOwnPropertySymbols(mergedParentStyle).length;
+                    /* if mergedParentStyles has any (nested) Rule => all (nested) Rule in current style need to rearrange to preserve the order */
+                    const hasNestedRule  = !!Object.getOwnPropertySymbols(mergedParentStyles).length;
                     if (hasNestedRule) needToReorderOtherSymbolProps = true;
                 } // if
                 
                 
                 
-                mergeLiteral(style, mergedParentStyle); // merge into current style
+                mergeLiteral(style, mergedParentStyles); // merge into current style
             } // if
-            delete style[symbolProp];                   // merged => delete source
+            delete style[symbolProp];                    // merged => delete source
         }
         else if (needToReorderOtherSymbolProps) {
             /* preserve the order of another (nested)Rules */
@@ -296,16 +297,16 @@ export const mergeNested  = (style: CssStyle): void => {
         symbolPropGroupByFinalSelector.delete(null); // remove from the Map, so it wouldn't be grouped later
         
         for (const symbolProp of unmergeableSymbolGroup) {
-            const nestedStyle       = style[symbolProp][1]; // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyle
-            const mergedNestedStyle = mergeStyles(nestedStyle);
+            const styles       = style[symbolProp][1]; // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
+            const mergedStyles = mergeStyles(styles);
             
             
             
-            if (mergedNestedStyle) {
+            if (mergedStyles) {
                 // update:
                 style[symbolProp] = [
-                    style[symbolProp][0], // still the same // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyle
-                    mergedNestedStyle     // update CssStyle to mergedNestedStyle
+                    style[symbolProp][0], // still the same // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
+                    mergedStyles          // update CssStyleCollection to mergedStyles
                 ];
             }
             else {
@@ -319,22 +320,22 @@ export const mergeNested  = (style: CssStyle): void => {
     
     //#region merge duplicates (nested) mergeable Rule(s) to unique ones
     for (const mergeableSymbolGroup of symbolPropGroupByFinalSelector.values()) {
-        // merge multiple styles from mergeableSymbolGroup's members to single style:
-        const nestedStyles       = mergeableSymbolGroup.map((symbolProp) => style[symbolProp][1]); // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyle
-        const mergedNestedStyles = mergeStyles(nestedStyles);
+        // merge styles from mergeableSymbolGroup's members to single style:
+        const multipleStyles = mergeableSymbolGroup.map((symbolProp) => style[symbolProp][1]); // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
+        const mergedStyles   = mergeStyles(multipleStyles);
         
         
         
         const lastMember = mergeableSymbolGroup[mergeableSymbolGroup.length - 1];
-        if (mergedNestedStyles) {
+        if (mergedStyles) {
             // update last member
             style[lastMember] = [
-                style[lastMember][0], // still the same // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyle
-                mergedNestedStyles    // update CssStyle to mergedNestedStyles
+                style[lastMember][0], // still the same // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
+                mergedStyles          // update CssStyleCollection to mergedStyles
             ];
         }
         else {
-            // mergedNestedStyles is empty => delete last member
+            // mergedStyles is empty => delete last member
             delete style[lastMember];
         } // if
         
@@ -347,14 +348,35 @@ export const mergeNested  = (style: CssStyle): void => {
 
 
 /**
- * Merges `SingleOrArray<CssStyle>` to single `CssStyle`.
- * @returns A `CssStyle` represents the merged `styles`.
+ * Merges `CssStyleCollection` to single `CssStyle`.
+ * @returns A `CssStyle` represents the merged `CssStyleCollection`.
  * -or-  
  * `null` represents an empty `CssStyle`.
  */
-export const mergeStyles = (styles: SingleOrArray<CssStyle>): CssStyle|null => {
+export const mergeStyles = (styles: CssStyleCollection): CssStyle|null => {
+    /*
+        CssStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssStyle>>
+        CssStyleCollection = ProductOrFactory<OptionalOrBoolean<CssStyle>> | ProductOrFactoryDeepArray<OptionalOrBoolean<CssStyle>>
+        typeof             = -------- nullable_object or function -------- | ---------------------- an array ----------------------
+    */
+    
+    
+    
     if (!Array.isArray(styles)) {
-        const mergedStyles: CssStyle = { ...styles }; // shallow clone before mutate
+        // nullable_object or function => ProductOrFactory<OptionalOrBoolean<CssStyle>>
+        
+        const styleValue: OptionalOrBoolean<CssStyle> = (
+            (typeof(styles) === 'function')
+            ?
+            styles() // a function => Factory<OptionalOrBoolean<CssStyle>>
+            :
+            styles   // a product  => OptionalOrBoolean<CssStyle>
+        );
+        if (!styleValue || (styleValue === true)) return null; // undefined|null|false|true => return `null`
+        
+        
+        
+        const mergedStyles: CssStyle = (styleValue === styles) ? styleValue : { ...styleValue }; // shallow clone before mutate
         ensureSymbolPropsUpdated(mergedStyles); // mutate
         mergeParent(mergedStyles);              // mutate
         mergeNested(mergedStyles);              // mutate
@@ -371,18 +393,37 @@ export const mergeStyles = (styles: SingleOrArray<CssStyle>): CssStyle|null => {
     
     
     const mergedStyles: CssStyle = {};
-    for (const style of styles) { // shallow iterating array
-        ensureSymbolPropsUpdated(style);   // mutate
+    for (const subStyles of styles) { // shallow iterating array
+        const subStyleValue: OptionalOrBoolean<CssStyle> = (
+            Array.isArray(subStyles)
+            ?
+            // deep iterating array
+            mergeStyles(subStyles) // an array => ProductOrFactoryDeepArray<OptionalOrBoolean<CssStyle>> => recursively `mergeStyles()`
+            :
+            // not an array => nullable_object or function => ProductOrFactory<OptionalOrBoolean<CssStyle>>
+            (
+                (typeof(subStyles) === 'function')
+                ?
+                subStyles() // a function => Factory<OptionalOrBoolean<CssStyle>>
+                :
+                subStyles   // a product  => OptionalOrBoolean<CssStyle>
+            )
+        );
+        if (!subStyleValue || (subStyleValue === true)) continue; // undefined|null|false|true => skip
+        
+        
+        
+        ensureSymbolPropsUpdated(subStyleValue);   // mutate
         
         // merge current style to single big style (string props + symbol props):
-        mergeLiteral(mergedStyles, style); // mutate
+        mergeLiteral(mergedStyles, subStyleValue); // mutate
         
         // to preserve the order sequence of only_parentSelector
-        // we need to unwrap the only_parentSelector before merging with next style
+        // we need to unwrap the only_parentSelector before merging with next subStyles
         // by calling `mergeParent()`, the only_parentSelector are unwrapped
-        mergeParent(mergedStyles);         // mutate
+        mergeParent(mergedStyles);                 // mutate
     } // for
-    mergeNested(mergedStyles);             // mutate
+    mergeNested(mergedStyles);                     // mutate
     
     
     

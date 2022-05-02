@@ -167,15 +167,17 @@ export type CssKnownProps =
 //#region cssfn properties
 export type CssProps                   = CssCustomProps & CssKnownProps
 
-export type CssRuleData                = readonly [CssRawSelector|CssFinalSelector, CssStyle]
+export type CssRuleData                = readonly [CssRawSelector|CssFinalSelector, CssStyleCollection]
 export type CssRule = { // do not use Record<symbol, CssRuleData> => doesn't support circular ref
     [name: symbol] : CssRuleData
 }
 export type CssRuleCollection          = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssRule>>
 
 export type CssStyle                   = CssProps & CssRule
+export type CssStyleCollection         = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssStyle>>
+export type CssFontFaceStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssFontFaceProps>>
 
-export type CssKeyframes               = Dictionary<CssStyle>
+export type CssKeyframes               = Dictionary<CssStyleCollection>
 
 
 
@@ -202,7 +204,7 @@ export type CssClassName = string & {} // not a really string: [A-Z_a-z-]+
 export type CssScopeName    = string & {} // not a really string: [A-Z_a-z-]+
 export type CssScopeOptions = Omit<CssSelectorOptions, 'performGrouping'>
 export type CssScopeEntry
-    <TCssScopeName extends CssScopeName> = readonly [TCssScopeName, CssStyle, CssScopeOptions|undefined]
+    <TCssScopeName extends CssScopeName> = readonly [TCssScopeName, CssStyleCollection, CssScopeOptions|undefined]
 export type CssScopeList
     <TCssScopeName extends CssScopeName> = CssScopeEntry<TCssScopeName>[]
 export type CssScopeMap<TCssScopeName extends CssScopeName> = {
