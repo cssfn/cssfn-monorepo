@@ -14,6 +14,8 @@ import type {
     CssCustomSimpleRef,
     CssCustomValue,
     
+    CssCustomProps,
+    
     
     
     // cssfn properties:
@@ -778,13 +780,13 @@ class CssConfigBuilder<TProps extends CssConfigProps, TValue = ValueOf<TProps>> 
     
     
     
-    // data sources:
+    //#region data sources
+    #_propsCache : DictionaryOf<TProps>|null = null
     /**
      * A *virtual css*.  
      * The source of truth.  
      * If mutated, the `#genProps` and `#genKeyframes` need to `update()`.
      */
-    #_propsCache : DictionaryOf<TProps>|null = null
     get #props() : DictionaryOf<TProps> {
         if (!this.#_propsCache) {
             const props : TProps = (
@@ -799,6 +801,38 @@ class CssConfigBuilder<TProps extends CssConfigProps, TValue = ValueOf<TProps>> 
         
         return this.#_propsCache;
     }
+    //#endregion data sources
+    
+    
+    
+    //#region generated data
+    /**
+     * The *generated css custom props* as an editable_config_storage.  
+     * Similar to `#props` but all keys has been prefixed and some values has been partially/fully *transformed*.  
+     * The duplicate values has been replaced with a `var(...)` linked to the previously existing ones.  
+     * eg:  
+     * // origin:  
+     * #props = {  
+     *    colRed      : '#ff0000',  
+     *    colBlue     : '#0000ff',  
+     *    bdWidth     : '1px',  
+     *    
+     *    colFavorite : '#ff0000',  
+     *    theBorder   : [[ 'solid', '1px', '#0000ff' ]],  
+     * };  
+     *   
+     * // transformed:  
+     * #genProps = {  
+     *    --navb-colRed      : '#ff0000',  
+     *    --navb-colBlue     : '#0000ff',  
+     *    --navb-bdWidth     : '1px',  
+     *    
+     *    --navb-colFavorite : 'var(--navb-colRed)',  
+     *    --navb-theBorder   : [[ 'solid', 'var(--navb-bdWidth)', 'var(--navb-colBlue)' ]],  
+     * };  
+     */
+    #genProps : CssCustomProps = {}
+    //#endregion generated data
     //#endregion private properties
     
     
