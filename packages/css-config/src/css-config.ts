@@ -148,7 +148,7 @@ const unusedObj = {};
 const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrFactory<TProps>, options?: CssConfigOptions): CssConfig<TProps> => {
     // options:
     const liveOptions = new LiveCssConfigOptions(() => {
-        //   
+        update();
     }, options);
     
     
@@ -160,7 +160,7 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
     /**
      * A *virtual css*.  
      * The source of truth.  
-     * If modified, causing the `genProps` & `genKeyframes` need to `refresh()`.
+     * If modified, causing the `genProps` & `genKeyframes` need to `update()`.
      */
     let _propsCache    : Dictionary</*original: */TValue>|null = null;
     const getProps    = (): Dictionary</*original: */TValue> => {
@@ -578,9 +578,9 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
     
     /**
      * Regenerates the `genProps` & `genKeyframes`.
-     * @param immediately `true` to refresh immediately (guaranteed has been refreshed after `refresh()` returned) -or- `false` to refresh shortly after current execution finished.
+     * @param immediately `true` to update immediately (guaranteed has fully updated after `update()` returned) -or- `false` to update shortly after current execution finished.
      */
-    const refresh = (immediately = false): void => {
+    const update = (immediately = false): void => {
         if (immediately) {
             // regenerate the data now:
             
@@ -600,20 +600,20 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
             });
         } // if
     }
-    refresh(); // regenerate the `genProps` & `genKeyframes` for the first time
+    update(); // regenerate the `genProps` & `genKeyframes` for the first time
     
     /**
      * Ensures the `genProps` & `genKeyframes` was fully generated.
      */
     const ensureGenerated = () => {
         if (_valid) {
-            // console.log('refresh not required');
+            // console.log('update not required');
             return; // if was valid => return immediately
         } // if
         
         
-        refresh(/*immediately*/true); // regenerate the `genProps` & `genKeyframes` and wait until completed
-        // console.log(`refresh done - prefix: ${prefix}`);
+        update(/*immediately*/true); // regenerate the `genProps` & `genKeyframes` and wait until completed
+        // console.log(`update done - prefix: ${prefix}`);
     }
     
     
@@ -695,14 +695,14 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
         if ((newValue === undefined) || (newValue === null)) {
             delete props[propName];
             
-            refresh(); // setting changed => need to `refresh()` the jss
+            update(); // setting changed => need to `update()` the jss
         }
         else
         {
             if (props[propName] !== newValue) {
                 props[propName] = newValue; // oldValue is different than newValue => update the value
                 
-                refresh(); // setting changed => need to `refresh()` the jss
+                update(); // setting changed => need to `update()` the jss
             } // if
         } // if
         
@@ -768,3 +768,55 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
     ];
 }
 export { createCssConfig, createCssConfig as default }
+
+
+
+class CssConfigBuilder<TProps extends CssConfigProps, TValue = ValueOf<TProps>> {
+    //#region private properties
+    readonly #propsFactory : ProductOrFactory<TProps>
+    readonly #options      : LiveCssConfigOptions
+    
+    
+    
+    // data sources:
+    /**
+     * A *virtual css*.  
+     * The source of truth.  
+     * If mutated, the `#genProps` and `#genKeyframes` need to `update()`.
+     */
+    #_propsCache : DictionaryOf<TProps>|null = null
+    get #props() : DictionaryOf<TProps> {
+        if (!this.#_propsCache) {
+            const props : TProps = (
+                (typeof(this.#propsFactory) === 'function')
+                ?
+                (this.#propsFactory as Factory<TProps>)()
+                :
+                this.#propsFactory
+            );
+            this.#_propsCache = props as unknown as DictionaryOf<TProps>;
+        } // if
+        
+        return this.#_propsCache;
+    }
+    //#endregion private properties
+    
+    
+    
+    //#region constructors
+    constructor(initialProps: ProductOrFactory<TProps>, options?: CssConfigOptions) {
+        this.#propsFactory = initialProps;
+        this.#options = new LiveCssConfigOptions(() => {
+            // TODO:
+            // this.update();
+        }, options);
+    }
+    //#endregion constructors
+    
+    
+    
+    //#region public properties
+    // TODO:
+    // get options() { return this.#options }
+    //#endregion public properties
+}
