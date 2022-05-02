@@ -168,7 +168,7 @@ export type CssKnownProps =
 export type CssProps                   = CssCustomProps & CssKnownProps
 
 export type CssRuleData                = readonly [CssRawSelector|CssFinalSelector, CssStyleCollection]
-export type CssRule = { // do not use Record<symbol, CssStyleCollection> => doesn't support circular ref
+export type CssRule = { // do not use Record<symbol, CssRuleData> => doesn't support circular ref
     [name: symbol] : CssRuleData
 }
 export type CssRuleCollection          = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssRule>>
