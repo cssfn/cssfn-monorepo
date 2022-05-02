@@ -265,7 +265,7 @@ const isObservable = (styles: CssStyleCollection | Observable<SingleOrDeepArray<
     &&
     (styles.constructor !== {}.constructor)
 )
-export const ss = (styles: CssStyleCollection | Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>>, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
+export const styleClass = (styles: CssStyleCollection | Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>>, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
     if (isObservable(styles)) {
         const subject = new Subject<CssScopeList<'main'>>();
         const { classes } = styleSheet(
