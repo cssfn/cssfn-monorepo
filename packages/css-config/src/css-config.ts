@@ -180,28 +180,28 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
     // data generates:
     
     /**
-     * The *generated css* resides on memory only.  
-     * Similar to `props` but some values has been partially/fully *transformed*.  
-     * The duplicate values has been replaced with a `var(...)` linked to the existing ones.  
+     * The *generated css custom props* as an editable_config_storage.  
+     * Similar to `#props` but all keys has been prefixed and some values has been partially/fully *transformed*.  
+     * The duplicate values has been replaced with a `var(...)` linked to the previously existing ones.  
      * eg:  
      * // origin:  
-     * props = {  
-     *    --col-red      : '#ff0000',  
-     *    --col-blue     : '#0000ff',  
-     *    --bd-width     : '1px',  
+     * #props = {  
+     *    colRed      : '#ff0000',  
+     *    colBlue     : '#0000ff',  
+     *    bdWidth     : '1px',  
      *    
-     *    --col-favorite : '#ff0000',  
-     *    --the-border   : [[ 'solid', '1px', '#0000ff' ]],  
+     *    colFavorite : '#ff0000',  
+     *    theBorder   : [[ 'solid', '1px', '#0000ff' ]],  
      * };  
      *   
      * // transformed:  
-     * genProps = {  
-     *    --col-red      : '#ff0000',  
-     *    --col-blue     : '#0000ff',  
-     *    --bd-width     : '1px',  
+     * #genProps = {  
+     *    --navb-colRed      : '#ff0000',  
+     *    --navb-colBlue     : '#0000ff',  
+     *    --navb-bdWidth     : '1px',  
      *    
-     *    --col-favorite : 'var(--col-red)',  
-     *    --the-border   : [[ 'solid', 'var(--bd-width)', 'var(--col-blue)' ]],  
+     *    --navb-colFavorite : 'var(--navb-colRed)',  
+     *    --navb-theBorder   : [[ 'solid', 'var(--navb-bdWidth)', 'var(--navb-colBlue)' ]],  
      * };  
      */
     let   genProps      : Dictionary</*original: */TValue | /*transformed: */CssCustomValue> = {};
@@ -831,9 +831,43 @@ class CssConfigBuilder<TProps extends CssConfigProps, TValue = ValueOf<TProps>> 
      *    --navb-theBorder   : [[ 'solid', 'var(--navb-bdWidth)', 'var(--navb-colBlue)' ]],  
      * };  
      */
-    #genProps : CssCustomProps = {}
+    readonly #genProps       = new Map<CssCustomName,         CssCustomValue>();
+    
+    /**
+     * The *generated css* of `@keyframes` as an editable_config_storage.
+     */
+    readonly #genKeyframes   = new Map<CssCustomKeyframesRef, CssKeyframes  >();
+    
+    /**
+     * The *generated css* attached on dom (by default).
+     */
+    readonly #liveStyleSheet = styleSheet([]);
     //#endregion generated data
     //#endregion private properties
+    
+    
+    
+    //#region utility methods
+    /**
+     * Gets the *declaration name* of the specified `propName`, eg: `--my-favColor`.
+     * @param propName The `props`'s prop name to retrieve.
+     * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
+     */
+    #decl(propName: string): CssCustomName {
+        propName = propName.replace(/^@keyframes\s+/, 'keyframes-'); // replace `@keyframes fooSomething` => `keyframes-fooSomething`
+
+        return this.#options.prefix ? `--${this.#options.prefix}-${propName}` : `--${propName}`; // add double dash with prefix `--prefix-` or double dash without prefix `--`
+    }
+    
+    /**
+     * Gets the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
+     * @param propName The `props`'s prop name to retrieve.
+     * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName`.
+     */
+    #ref(propName: string): CssCustomSimpleRef {
+        return `var(${this.#decl(propName)})`;
+    }
+    //#endregion utility methods
     
     
     
