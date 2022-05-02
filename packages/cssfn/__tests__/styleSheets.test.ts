@@ -90,17 +90,17 @@ jest.isolateModules(() => {
     
     test('[server] test registered styleSheets = 2', () => {
         const sheet1 = styleSheet(() => [
-            mainScope([]),
-            scopeOf('menuBar', []),
-            globalScope([]),
+            mainScope({}),
+            scopeOf('menuBar', {}),
+            globalScope({}),
         ], { id: 'sheet1' });
         // @ts-ignore
         const sheet2 = styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet2', enabled: false });
         // @ts-ignore
         const sheet3 = styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet3' });
         
         // @ts-ignore
@@ -125,10 +125,10 @@ jest.isolateModules(() => {
     
     test('[server] test registered styleSheets = 4', () => {
         styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet4' });
         styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet5' });
         
         
@@ -149,16 +149,16 @@ jest.isolateModules(() => {
     
     test('[server] test registered styleSheets = 6', () => {
         const sheet6 = styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet6' });
         const sheet7 = styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet7' });
         const sheet8 = styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet8', enabled: false });
         const sheet9 = styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet9' });
         
         
@@ -254,17 +254,17 @@ jest.isolateModules(() => {
     
     test('[browser] test registered styleSheets = 2', () => {
         const sheet1 = styleSheet(() => [
-            mainScope([]),
-            scopeOf('menuBar',[]),
-            globalScope([]),
+            mainScope({}),
+            scopeOf('menuBar', {}),
+            globalScope({}),
         ], { id: 'sheet1' });
         // @ts-ignore
         const sheet2 = styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet2', enabled: false });
         // @ts-ignore
         const sheet3 = styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet3' });
         
         // @ts-ignore
@@ -294,10 +294,10 @@ jest.isolateModules(() => {
     
     test('[browser] test registered styleSheets = 4', () => {
         styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet4' });
         styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet5' });
         
         
@@ -324,16 +324,16 @@ jest.isolateModules(() => {
     
     test('[browser] test registered styleSheets = 6', () => {
         const sheet6 = styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet6' });
         const sheet7 = styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet7' });
         const sheet8 = styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet8', enabled: false });
         const sheet9 = styleSheet(() => [
-            mainScope([]),
+            mainScope({}),
         ], { id: 'sheet9' });
         
         

@@ -1,5 +1,5 @@
 import type {
-    CssStyleCollection,
+    CssStyle,
     CssKeyframes,
 } from '@cssfn/css-types'
 import {
@@ -49,7 +49,7 @@ const isDeepEqual     = (received: any, expected: any): boolean => {
 
 
 interface ExactEqualMatchers<R = unknown> {
-    toExactEqual(expected: CssStyleCollection|CssKeyframes): R
+    toExactEqual(expected: CssStyle|CssKeyframes): R
 }
 declare global {
     namespace jest {

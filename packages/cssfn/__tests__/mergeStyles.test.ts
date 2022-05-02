@@ -1162,15 +1162,11 @@ test(`mergeParent( &{parent-all-deep-deep} )`, () => {
                     [rule10]: ['&', {
                         color: 'red',
                     }],
-                    [rule11]: ['&', [
-                        {
-                            background: 'blue',
-                        },
-                        {
-                            overflow: 'visible',
-                            zIndex: 99,
-                        },
-                    ]],
+                    [rule11]: ['&', {
+                        background: 'blue',
+                        overflow: 'visible',
+                        zIndex: 99,
+                    }],
                 }],
             }],
         }],
@@ -2100,15 +2096,11 @@ test(`mergeNested( &{parent-all-deep-deep} )`, () => {
                     [rule10]: ['&:first-child', {
                         color: 'red',
                     }],
-                    [rule11]: ['&:last-child', [
-                        {
-                            background: 'blue',
-                        },
-                        {
-                            overflow: 'visible',
-                            zIndex: 99,
-                        },
-                    ]],
+                    [rule11]: ['&:last-child', {
+                        background: 'blue',
+                        overflow: 'visible',
+                        zIndex: 99,
+                    }],
                 }],
             }],
         }],
@@ -2342,27 +2334,13 @@ test(`mergeNested( &{parent-some nested-rule preserve-order} )`, () => {
 
 //#region test mergeStyles()
 //#region test with empty style(s)
-const allBasicFalsies = [undefined, null, false, true];
-allBasicFalsies.forEach((basicFalsy) => {
-    test(`mergeStyles(falsy)`, () => {
-        expect(mergeStyles(
-            basicFalsy
-        ))
-        .toBe(
-            null
-        );
-    });
-});
-
-allBasicFalsies.forEach((basicFalsy) => {
-    test(`mergeStyles([falsy])`, () => {
-        expect(mergeStyles([
-            basicFalsy
-        ]))
-        .toBe(
-            null
-        );
-    });
+test(`mergeStyles({empty})`, () => {
+    expect(mergeStyles([
+        /* empty */
+    ]))
+    .toBe(
+        null
+    );
 });
 
 test(`mergeStyles({empty})`, () => {
@@ -2387,23 +2365,6 @@ test(`mergeStyles([{empty}...{empty}])`, () => {
     expect(mergeStyles([
         {},
         {},
-        {},
-    ]))
-    .toBe(
-        null
-    );
-});
-
-test(`mergeStyles([{empty}|falsy...{empty}|falsy])`, () => {
-    expect(mergeStyles([
-        {},
-        undefined,
-        {},
-        null,
-        {},
-        true,
-        {},
-        false,
         {},
     ]))
     .toBe(
@@ -3184,15 +3145,11 @@ test(`mergeStyles([ &{parent-all-deep-deep}... ])`, () => {
                     [rule10]: ['&', {
                         color: 'pink',
                     }],
-                    [rule11]: ['&', [
-                        {
-                            background: 'blue',
-                        },
-                        {
-                            overflow: 'visible',
-                            zIndex: 99,
-                        },
-                    ]],
+                    [rule11]: ['&', {
+                        background: 'blue',
+                        overflow: 'visible',
+                        zIndex: 99,
+                    }],
                 }],
             }],
         }],
