@@ -1,13 +1,19 @@
 // cssfn:
 import type {
     // types:
+    OptionalOrBoolean,
+    SingleOrDeepArray,
     ProductOrFactory,
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
+    CssStyle,
+    CssStyleCollection,
+    
     CssClassName,
     
     CssScopeName,
+    CssScopeOptions,
     CssScopeList,
     CssScopeMap,
 }                           from '@cssfn/css-types'
@@ -250,4 +256,34 @@ export type { StyleSheetRegistry } // only export the type but not the actual cl
 export const styleSheets = new StyleSheetRegistry();
 export const styleSheet = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>> | Observable<CssScopeList<TCssScopeName>>, options?: StyleSheetOptions): StyleSheet<TCssScopeName> => {
     return styleSheets.add(scopes, options);
+}
+
+const isObservable = (styles: CssStyleCollection | Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>>): styles is Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>> => (
+    !!styles
+    &&
+    (typeof(styles) === 'object')
+    &&
+    (styles.constructor !== {}.constructor)
+)
+export const ss = (styles: CssStyleCollection | Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>>, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
+    if (isObservable(styles)) {
+        const subject = new Subject<CssScopeList<'main'>>();
+        const { classes } = styleSheet(
+            subject,
+            options
+        );
+        styles.subscribe((newStyles) => {
+            subject.next(
+                [['main', newStyles, options]]
+            );
+        });
+        return classes.main;
+    }
+    else {
+        const { classes } = styleSheet(
+            [['main', styles, options]],
+            options
+        );
+        return classes.main;
+    } // if
 }
