@@ -198,11 +198,6 @@ export type CssFinalSelector      = CssSelector & {}
 
 
 export type CssClassName = string & {} // not a really string: [A-Z_a-z-]+
-// TODO: remove
-// export type CssClassEntry
-//     <TCssClassName extends CssClassName> = readonly [TCssClassName, CssStyleCollection]
-// export type CssClassList
-//     <TCssClassName extends CssClassName> = CssClassEntry<TCssClassName>[]
 
 
 
