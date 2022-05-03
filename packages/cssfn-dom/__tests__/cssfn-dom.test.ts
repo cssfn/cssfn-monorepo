@@ -60,7 +60,9 @@ const simulateBrowserSide = (dom: _JSDOM) => {
 
 jest.isolateModules(() => {
     let styleSheets : typeof _styleSheets = undefined as any;
+    let styleSheet  : typeof _styleSheet  = undefined as any;
     let globalScope : typeof _globalScope = undefined as any;
+    let atGlobal    : typeof _atGlobal    = undefined as any;
     let rule        : typeof _rule = undefined as any;
     // let children    : typeof _children = undefined as any;
     let mainScope   : typeof _mainScope = undefined as any;
@@ -76,7 +78,9 @@ jest.isolateModules(() => {
         
         
         styleSheets = cssfnModule.styleSheets
+        styleSheet  = cssfnModule.styleSheet
         globalScope = cssfnModule.globalScope
+        atGlobal    = cssfnModule.atGlobal
         mainScope   = cssfnModule.mainScope
         rule        = cssfnModule.rule
         // children    = cssfnModule.children
@@ -154,30 +158,6 @@ jest.isolateModules(() => {
             
             resolve();
         }, 0)});
-    });
-});
-jest.isolateModules(() => {
-    let styleSheet  : typeof _styleSheet  = undefined as any;
-    let atGlobal    : typeof _atGlobal    = undefined as any;
-    let rule        : typeof _rule = undefined as any;
-    // let children    : typeof _children = undefined as any;
-    let Subject     : typeof _Subject = undefined as any;
-    beforeAll(async () => {
-        simulateServerSide();
-        
-        const cssfnModule    = await import('@cssfn/cssfn')
-        //@ts-ignore
-        const cssfnDomModule = await import('../dist/cssfn-dom.js')
-        const rxjsModule     = await import('rxjs')
-        
-        
-        
-        styleSheet  = cssfnModule.styleSheet
-        atGlobal    = cssfnModule.atGlobal
-        rule        = cssfnModule.rule
-        // children    = cssfnModule.children
-        
-        Subject     = rxjsModule.Subject
     });
     
     
@@ -257,7 +237,9 @@ jest.isolateModules(() => {
     let JSDOM       : typeof _JSDOM = undefined as any;
     let dom         : _JSDOM = undefined as any;
     let styleSheets : typeof _styleSheets = undefined as any;
+    let styleSheet  : typeof _styleSheet  = undefined as any;
     let globalScope : typeof _globalScope = undefined as any;
+    let atGlobal    : typeof _atGlobal    = undefined as any;
     let rule        : typeof _rule = undefined as any;
     // let children    : typeof _children = undefined as any;
     let mainScope   : typeof _mainScope = undefined as any;
@@ -273,8 +255,13 @@ jest.isolateModules(() => {
     <head></head>
     <body>
         <button id="btn1">Click Me!</button>
+        <div role="button" id="btn2">Click Me!</div>
+        
         <input id="check1" type="checkbox" />
+        <div role="checkbox" id="check2"></div>
+
         <input id="text1" type="text" />
+        <div role="textbox" id="text2"></div>
     </body>
 </html>
 `
@@ -289,7 +276,9 @@ jest.isolateModules(() => {
         
         
         styleSheets = cssfnModule.styleSheets
+        styleSheet  = cssfnModule.styleSheet
         globalScope = cssfnModule.globalScope
+        atGlobal    = cssfnModule.atGlobal
         mainScope   = cssfnModule.mainScope
         rule        = cssfnModule.rule
         // children    = cssfnModule.children
@@ -550,6 +539,250 @@ jest.isolateModules(() => {
                         // console.log(stylesElm?.outerHTML);
                         const mainScopeClass = styleSheet5.main;
                         expect(mainScopeClass).toBe('zc3y1');
+                        expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
+                        // console.log('scopeName', mainScopeClass);
+                        
+                        
+                        
+                        resolve();
+                    }, 10);
+                }, 10);
+            }, 10);
+        }, 0)});
+    });
+    
+    
+    
+    test('test stylesheet-1b', async () => {
+        styleSheet(() => ({
+            ...atGlobal({
+                ...rule('[role="button"]', {
+                    appearance: 'none',
+                    display: 'flex',
+                    flexDirection: 'column',
+                }),
+            }),
+        }));
+        
+        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
+            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
+            expect(stylesElm).not.toBe(null); // has some attached stylesheet
+            // console.log(stylesElm?.outerHTML);
+            
+            
+            
+            expect(stylesElm?.outerHTML.includes('[role="button"] {')).toBe(true);
+            const btn1Style = dom.window.getComputedStyle(
+                dom.window.document.querySelector('#btn2')!
+            );
+            expect(btn1Style.appearance).toBe('none');
+            expect(btn1Style.display).toBe('flex');
+            expect(btn1Style.flexDirection).toBe('column');
+            
+            
+            
+            resolve();
+        }, 0)});
+    });
+    
+    
+    
+    test('test stylesheet-2b [+] stylesheet-3b [-] stylesheet-2b', async () => {
+        const stylesheet2 = new Subject<CssStyle|null>();
+        styleSheet(stylesheet2);
+        stylesheet2.next({
+            ...atGlobal({
+                ...rule('[role="checkbox"]', {
+                    display: 'inline-flex',
+                    flexDirection: 'row-reverse',
+                    background: 'red',
+                }),
+            }),
+        });
+        
+        
+        styleSheet(() => ({
+            ...atGlobal({
+                ...rule('[role="textbox"]', {
+                    display: 'inline-grid',
+                    background: 'lightblue',
+                    color: 'darkblue',
+                }),
+            }),
+        }));
+        
+        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
+            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
+            expect(stylesElm).not.toBe(null); // has some attached stylesheet
+            // console.log(stylesElm?.outerHTML);
+            
+            
+            
+            expect(stylesElm?.outerHTML.includes('[role="button"] {')).toBe(true);
+            const btn1Style = dom.window.getComputedStyle(
+                dom.window.document.querySelector('#btn2')!
+            );
+            expect(btn1Style.appearance).toBe('none');
+            expect(btn1Style.display).toBe('flex');
+            expect(btn1Style.flexDirection).toBe('column');
+            
+            
+            
+            expect(stylesElm?.outerHTML.includes('[role="checkbox"] {')).toBe(true);
+            const check1Style = dom.window.getComputedStyle(
+                dom.window.document.querySelector('#check2')!
+            );
+            expect(check1Style.display).toBe('inline-flex');
+            expect(check1Style.flexDirection).toBe('row-reverse');
+            expect(check1Style.background).toBe('red');
+            
+            
+            
+            expect(stylesElm?.outerHTML.includes('[role="textbox"] {')).toBe(true);
+            const text1Style = dom.window.getComputedStyle(
+                dom.window.document.querySelector('#text2')!
+            );
+            expect(text1Style.display).toBe('inline-grid');
+            expect(text1Style.background).toBe('lightblue');
+            expect(text1Style.color).toBe('darkblue');
+            
+            
+            
+            resolve();
+        }, 0)});
+        
+        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
+            stylesheet2.next(null);
+            
+            
+            
+            dom.window.setTimeout(() => {
+                const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
+                expect(stylesElm).not.toBe(null); // has some attached stylesheet
+                // console.log(stylesElm?.outerHTML);
+                
+                
+                
+                expect(stylesElm?.outerHTML.includes('[role="button"] {')).toBe(true);
+                const btn1Style = dom.window.getComputedStyle(
+                    dom.window.document.querySelector('#btn2')!
+                );
+                expect(btn1Style.appearance).toBe('none');
+                expect(btn1Style.display).toBe('flex');
+                expect(btn1Style.flexDirection).toBe('column');
+                
+                
+                
+                expect(stylesElm?.outerHTML.includes('[role="checkbox"] {')).toBe(false);
+                // jsdom doesn't update the css correctly:
+                // const check1Style = dom.window.getComputedStyle(
+                //     dom.window.document.querySelector('#check2')!
+                // );
+                // expect(check1Style.display).toBe('inline-flex');
+                // expect(check1Style.flexDirection).toBe('row-reverse');
+                // expect(check1Style.background).toBe('red');
+                
+                
+                
+                expect(stylesElm?.outerHTML.includes('[role="textbox"] {')).toBe(true);
+                const text1Style = dom.window.getComputedStyle(
+                    dom.window.document.querySelector('#text2')!
+                );
+                expect(text1Style.display).toBe('inline-grid');
+                expect(text1Style.background).toBe('lightblue');
+                expect(text1Style.color).toBe('darkblue');
+                
+                
+                
+                resolve();
+            }, 10);
+        }, 10)});
+        
+    });
+    
+    
+    
+    test('test stylesheet-4b', async () => {
+        const styleSheet4 = styleSheet(() => ({
+            display: 'grid',
+            gridAutoFlow: 'column',
+            gap: '1.25rem',
+            '--sheetId': '"ss4b"',
+        }), { id: 'stylesheet#4b', specificityWeight: 3 });
+        
+        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
+            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
+            expect(stylesElm).not.toBe(null); // has some attached stylesheet
+            // console.log(stylesElm?.outerHTML);
+            
+            
+            
+            expect(stylesElm?.outerHTML.includes('--sheetId: "ss4b"')).toBe(true);
+            const mainScopeClass = styleSheet4;
+            expect(mainScopeClass).toBe('ggyis');
+            expect(stylesElm?.outerHTML.includes(`.${mainScopeClass}.${mainScopeClass}.${mainScopeClass} {`)).toBe(true);
+            // console.log('scopeName', mainScopeClass);
+            
+            
+            
+            resolve();
+        }, 0)});
+    });
+    
+    
+    
+    test('test stylesheet-5b', async () => {
+        const styleSheet5DynContent = new Subject<CssStyle|null>();
+        const styleSheet5 = styleSheet(styleSheet5DynContent, { id: 'stylesheet#5b' });
+        
+        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
+            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
+            expect(stylesElm).not.toBe(null); // has some attached stylesheet
+            // console.log(stylesElm?.outerHTML);
+            
+            
+            expect(stylesElm?.outerHTML.includes('--sheetId: "ss5b"')).toBe(false);
+            expect(stylesElm?.outerHTML.includes('--yourFavColor:')).toBe(false);
+            
+            
+            styleSheet5DynContent.next({
+                '--sheetId': '"ss5b"',
+                '--yourFavColor' : 'yellow',
+            })
+            dom.window.setTimeout(() => {
+                expect(stylesElm?.outerHTML.includes('--sheetId: "ss5b"')).toBe(true);
+                expect(stylesElm?.outerHTML.includes('--yourFavColor: yellow')).toBe(true);
+                const mainScopeClass = styleSheet5;
+                expect(mainScopeClass).toBe('zfc4l');
+                expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
+                // console.log('scopeName', mainScopeClass);
+                
+                
+                
+                styleSheet5DynContent.next({
+                    '--sheetId': '"ss5bb"',
+                    '--yourFavColor' : 'purple',
+                })
+                dom.window.setTimeout(() => {
+                    expect(stylesElm?.outerHTML.includes('--sheetId: "ss5bb"')).toBe(true);
+                    expect(stylesElm?.outerHTML.includes('--yourFavColor: purple')).toBe(true);
+                    const mainScopeClass = styleSheet5;
+                    expect(mainScopeClass).toBe('zfc4l');
+                    expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
+                    // console.log('scopeName', mainScopeClass);
+                    
+                    
+                    
+                    styleSheet5DynContent.next({
+                        '--sheetId': '"ss5bc"',
+                        '--yourFavColor' : 'cornflowerblue',
+                    })
+                    dom.window.setTimeout(() => {
+                        expect(stylesElm?.outerHTML.includes('--sheetId: "ss5bc"')).toBe(true);
+                        expect(stylesElm?.outerHTML.includes('--yourFavColor: cornflowerblue')).toBe(true);
+                        // console.log(stylesElm?.outerHTML);
+                        const mainScopeClass = styleSheet5;
+                        expect(mainScopeClass).toBe('zfc4l');
                         expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
                         // console.log('scopeName', mainScopeClass);
                         
