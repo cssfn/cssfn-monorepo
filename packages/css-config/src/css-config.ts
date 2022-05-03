@@ -114,7 +114,7 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
     
     //#region public methods
     update() {
-        this.#updatedCallback?.(); // notify a css-config updated
+        this.#updatedCallback(); // notify a css-config updated
     }
     //#endregion public methods
 }
@@ -266,15 +266,25 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
      */
     const transformDuplicates = <TSrcValue, TRefValue>(srcProps: Dictionary<TSrcValue>, refProps: Dictionary<TRefValue>, propRename?: ((srcPropName: string) => string)): (Dictionary<TSrcValue|CssCustomSimpleRef|CssCustomKeyframesRef|any[]> | null) => {
         /**
-         * Determines if the specified `propValue` can be transformed to another equivalent prop link `var(...)`.
+         * Determines if the specified `srcPropValue` can be transformed to another equivalent prop link `var(...)`.
          * @param srcPropValue The value to test.
          * @returns `true` indicates it's transformable, otherwise `false`.
          */
         const isTransformableProp = <TTSrcValue,>(srcPropValue: TTSrcValue): boolean => {
-            if ((srcPropValue === undefined) || (srcPropValue === null)) return false; // skip empty prop
-
-            if ((typeof(srcPropValue) === 'string') && (/^(none|unset|inherit|initial|revert)$/).test(srcPropValue)) return false; // ignore global keywords
-
+            if ((srcPropValue === undefined) || (srcPropValue === null)) return false; // skip nullish prop
+            
+            if ((typeof(srcPropValue) === 'string')) {
+                switch(srcPropValue) {
+                    // ignore global keywords
+                    case 'none':
+                    case 'unset':
+                    case 'inherit':
+                    case 'initial':
+                    case 'revert':
+                        return false;
+                } // switch
+            } // if
+            
             return true; // passed, transformable
         };
         
@@ -777,6 +787,65 @@ export { createCssConfig, createCssConfig as default }
 
 
 
+class TransformDuplicates<TSrcPropName extends string, TSrcPropValue,   TRefPropName extends string, TRefPropValue> {
+    //#region private properties
+    #srcProps : Map<TSrcPropName, TSrcPropValue>
+    #refProps : Map<TRefPropName, TRefPropValue>
+    //#endregion private properties
+    
+    
+    
+    //#region utility methods
+    /**
+     * Determines if the specified `srcPropValue` can be transformed to another equivalent prop link `var(...)`.
+     * @param srcPropValue The value to test.
+     * @returns `true` indicates it's transformable, otherwise `false`.
+     */
+    #isTransformableProp(srcPropValue: TSrcPropValue): boolean {
+        if ((srcPropValue === undefined) || (srcPropValue === null)) return false; // skip nullish prop
+        
+        if ((typeof(srcPropValue) === 'string')) {
+            switch(srcPropValue) {
+                // ignore global keywords
+                case 'none':
+                case 'unset':
+                case 'inherit':
+                case 'initial':
+                case 'revert':
+                    return false;
+            } // switch
+        } // if
+        
+        return true; // passed, transformable
+    }
+    /**
+     * Determines if the specified `srcPropName` and `refPropName` are pointed to the same object.
+     * @param srcPropName The prop name of `srcProps`.
+     * @param refPropName The prop name of `refProps`.
+     * @returns `true` indicates the same object, otherwise `false`.
+     */
+    #isSelfProp(srcPropName: TSrcPropName, refPropName: TRefPropName): boolean {
+        if (!Object.is(this.#srcProps, this.#refProps)) return false; // if `#srcProps` & `#refProps` are not the same object in memory => always return `false`
+        
+        return ((srcPropName as string) === (refPropName as string));
+    }
+    //#endregion utility methods
+    
+    
+    
+    /**
+     * Transforms the specified `srcProps` with the equivalent `Map<TSrcPropName, TSrcPropValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssComplexMultiValueOf<CssSimpleValue>>` object,  
+     * in which some values might be partially/fully *transformed*.  
+     * The duplicate values will be replaced with a `var(...)` linked to the existing props in `refProps`.  
+     * @param srcProps The `Map<TSrcPropName, TSrcPropValue>` object to transform.
+     * @param refProps The `Map<TRefPropName, TRefPropValue>` object as the prop references.
+     */
+    constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>) {
+        this.#srcProps = srcProps;
+        this.#refProps = refProps;
+    }
+}
+
 class CssConfigBuilder<TProps extends CssConfigProps, TValue = ValueOf<TProps>> {
     //#region private properties
     readonly #propsFactory : ProductOrFactory<TProps>
@@ -888,6 +957,11 @@ class CssConfigBuilder<TProps extends CssConfigProps, TValue = ValueOf<TProps>> 
     
     
     
+    //#region constructions
+    //#endregion constructions
+    
+    
+    
     //#region constructors
     constructor(initialProps: ProductOrFactory<TProps>, options?: CssConfigOptions) {
         this.#propsFactory = initialProps;
@@ -901,7 +975,6 @@ class CssConfigBuilder<TProps extends CssConfigProps, TValue = ValueOf<TProps>> 
     
     
     //#region public properties
-    // TODO:
-    // get options() { return this.#options }
+    get options() { return this.#options }
     //#endregion public properties
 }
