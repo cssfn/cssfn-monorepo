@@ -55,7 +55,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     readonly #options         : Required<StyleSheetOptions>
     readonly #updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>|null
     
-             #scopes          : ProductOrFactory<CssScopeList<TCssScopeName>>
+             #scopes          : ProductOrFactory<CssScopeList<TCssScopeName>|null>
     readonly #classes         : CssScopeMap<TCssScopeName>
              #loaded          : boolean
     //#endregion private properties
@@ -63,7 +63,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     
     
     //#region constructors
-    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>> | Observable<CssScopeList<TCssScopeName>>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
+    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
         const styleSheetOptions : Required<StyleSheetOptions> = {
             ...(options ?? {}),
             enabled : options?.enabled ?? defaultStyleSheetOptions.enabled,
@@ -72,7 +72,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
         this.#options = styleSheetOptions;
         this.#updatedCallback = updatedCallback;
         
-        this.#scopes = [];    // initial
+        this.#scopes = null;  // initial
         this.#loaded = false; // initial
         this.#updateScopes(scopes);
         
@@ -99,9 +99,9 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     
     
     //#region private methods
-    #updateScopes(scopes: ProductOrFactory<CssScopeList<TCssScopeName>> | Observable<CssScopeList<TCssScopeName>>) {
+    #updateScopes(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null>) {
         if (scopes && (typeof(scopes) === 'object') && !Array.isArray(scopes)) {
-            this.#scopes     = [];    // initially empty scope, until the Observable gives the first update
+            this.#scopes     = null;  // initially empty scope, until the Observable gives the first update
             this.#loaded     = false; // partially initialized => not ready
             
             let asyncUpdate = false;
@@ -109,7 +109,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
                 this.#scopes = newScopes;
                 this.#loaded = true;  // fully initialized => ready
                 if (asyncUpdate) {
-                    this.update();    // notify a StyleSheet updated
+                    this.#update();   // notify a StyleSheet updated
                 } // if
             });
             asyncUpdate = true;       // any updates after this mark is async update
@@ -119,12 +119,8 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
             this.#loaded     = true;  // fully initialized => ready
         } // if
     }
-    //#region private methods
     
-    
-    
-    //#region public methods
-    update(newScopes?: ProductOrFactory<CssScopeList<TCssScopeName>> | Observable<CssScopeList<TCssScopeName>>) {
+    #update(newScopes?: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null>) {
         if (newScopes !== undefined) {
             this.#updateScopes(newScopes); // assign #scopes & #loaded
         } // if
@@ -137,17 +133,17 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
         
         this.#updatedCallback?.(this); // notify a StyleSheet updated
     }
-    //#endregion public methods
+    //#endregion private methods
     
     
     
     //#region public options
-    get enabled() { return this.#options.enabled && this.#loaded }
+    get enabled() { return this.#options.enabled && this.#loaded && !!this.#scopes && ((typeof(this.#scopes) === 'function') || !!this.#scopes.length) }
     set enabled(value: boolean) {
         if (this.#options.enabled === value) return; // no change => no need to update
         
         this.#options.enabled = value; // update
-        this.update(); // notify a StyleSheet updated
+        this.#update(); // notify a StyleSheet updated
     }
     
     get id() { return this.#options.id }
@@ -155,7 +151,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
         if (this.#options.id === value) return; // no change => no need to update
         
         this.#options.id = value; // update
-        this.update(); // notify a StyleSheet updated
+        this.#update(); // notify a StyleSheet updated
     }
     //#endregion public options
     
@@ -193,7 +189,7 @@ class StyleSheetRegistry {
     
     
     //#region public methods
-    add<TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>> | Observable<CssScopeList<TCssScopeName>>, options?: StyleSheetOptions) {
+    add<TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null>, options?: StyleSheetOptions) {
         if (!isClientSide) { // on server side => just pass a StyleSheet object
             return new StyleSheet<TCssScopeName>(
                 scopes,
@@ -254,7 +250,7 @@ export type { StyleSheetRegistry } // only export the type but not the actual cl
 
 
 export const styleSheets = new StyleSheetRegistry();
-export const styleSheet = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>> | Observable<CssScopeList<TCssScopeName>>, options?: StyleSheetOptions): StyleSheet<TCssScopeName> => {
+export const styleSheet = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null>, options?: StyleSheetOptions): StyleSheet<TCssScopeName> => {
     return styleSheets.add(scopes, options);
 }
 
@@ -266,23 +262,34 @@ const isObservable = (styles: CssStyleCollection | Observable<SingleOrDeepArray<
     (styles.constructor !== {}.constructor)
 )
 export const styleClass = (styles: CssStyleCollection | Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>>, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
-    if (isObservable(styles)) {
-        const subject = new Subject<CssScopeList<'main'>>();
+    if (!styles || (styles === true)) {
+        const { classes } = styleSheet<'main'>(
+            null,   // empty scope
+            options // styleSheet options
+        );
+        return classes.main;
+    }
+    else if (isObservable(styles)) {
+        const subject = new Subject<CssScopeList<'main'>|null>();
         const { classes } = styleSheet(
             subject,
-            options
+            options  // styleSheet options
         );
         styles.subscribe((newStyles) => {
             subject.next(
-                [['main', newStyles, options]]
+                (!newStyles || (newStyles === true))
+                ?
+                null                           // empty scope
+                :
+                [['main', newStyles, options]] // scopeOf('main', styles, options)
             );
         });
         return classes.main;
     }
     else {
         const { classes } = styleSheet(
-            [['main', styles, options]],
-            options
+            [['main', styles, options]], // scopeOf('main', styles, options)
+            options                      // styleSheet options
         );
         return classes.main;
     } // if

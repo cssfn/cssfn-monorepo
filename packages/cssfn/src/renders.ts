@@ -466,6 +466,7 @@ export const render = <TCssScopeName extends CssScopeName = CssScopeName>(styleS
     
     const scopesFactory = styleSheet.scopes;
     const scopeList = (typeof(scopesFactory) === 'function') ? scopesFactory() : scopesFactory;
+    if (!scopeList || !scopeList.length) return null;
     
     const scopeMap     = styleSheet.classes;
     
