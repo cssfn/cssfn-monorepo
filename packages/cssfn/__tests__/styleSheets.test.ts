@@ -98,7 +98,7 @@ jest.isolateModules(() => {
         .toBe(0);
     });
     
-    test('[server] test registered styleSheets = 2', () => {
+    test('[server] test registered styleSheets = 0', () => {
         const sheet1 = styleSheets(() => [
             mainScope([]),
             scopeOf('menuBar', []),
@@ -133,7 +133,7 @@ jest.isolateModules(() => {
         .toBe(0);
     });
     
-    test('[server] test registered styleSheets = 4', () => {
+    test('[server] test registered styleSheets = 0', () => {
         styleSheets(() => [
             mainScope([]),
         ], { id: 'sheet4' });
@@ -157,7 +157,7 @@ jest.isolateModules(() => {
         .toBe(0);
     });
     
-    test('[server] test registered styleSheets = 6', () => {
+    test('[server] test registered styleSheets = 0', () => {
         const sheet6 = new Subject<CssScopeList<'main'>|null>();
         styleSheets(sheet6, { id: 'sheet6' });
         sheet6.next([
