@@ -158,7 +158,7 @@ class RenderRule {
         
         
         const unshortPropName         : string       = shortProps[propName] ?? propName;
-        const camelCasedPropName      : string       = hyphenate(unshortPropName); // faster than camelCase
+        const camelCasedPropName      : string       = hyphenate(unshortPropName);
         const browserSpecificPropName : string|false = supportedProperty(camelCasedPropName);
         return (
             browserSpecificPropName

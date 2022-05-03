@@ -3,11 +3,11 @@ import type {
     StyleSheet,
 }                           from '@cssfn/cssfn'
 import {
-    styleSheets,
-}                           from '@cssfn/cssfn/dist/styleSheets'
+    styleSheetRegistry,
+}                           from '@cssfn/cssfn/dist/styleSheets.js'
 import {
     render,
-}                           from '@cssfn/cssfn/dist/renders'
+}                           from '@cssfn/cssfn/dist/renders.js'
 
 // other libs:
 import {
@@ -115,4 +115,4 @@ const handleUpdate = (styleSheet: StyleSheet): void => {
         }
     } //
 }
-if (isClientSide) styleSheets.subscribe(handleUpdate);
+if (isClientSide) styleSheetRegistry.subscribe(handleUpdate);

@@ -137,27 +137,29 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     
     
     
-    //#region public options
-    get enabled() { return this.#options.enabled && this.#loaded && !!this.#scopes && ((typeof(this.#scopes) === 'function') || !!this.#scopes.length) }
-    set enabled(value: boolean) {
-        if (this.#options.enabled === value) return; // no change => no need to update
-        
-        this.#options.enabled = value; // update
-        this.#update(); // notify a StyleSheet updated
-    }
-    
-    get id() { return this.#options.id }
-    set id(value: string) {
-        if (this.#options.id === value) return; // no change => no need to update
-        
-        this.#options.id = value; // update
-        this.#update(); // notify a StyleSheet updated
-    }
-    //#endregion public options
-    
-    
-    
     //#region public properties
+    get enabled() {
+        return (
+            this.#options.enabled
+            &&
+            this.#loaded
+            &&
+            (
+                !!this.#scopes
+                &&
+                (
+                    (typeof(this.#scopes) === 'function')
+                    ||
+                    !!this.#scopes.length
+                )
+            )
+        );
+    }
+    
+    get id() {
+        return this.#options.id;
+    }
+    
     get scopes() {
         return this.#scopes;
     }
@@ -249,9 +251,10 @@ export type { StyleSheetRegistry } // only export the type but not the actual cl
 
 
 
-export const styleSheets = new StyleSheetRegistry();
-export const styleSheet = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null>, options?: StyleSheetOptions): StyleSheet<TCssScopeName> => {
-    return styleSheets.add(scopes, options);
+export const styleSheetRegistry = new StyleSheetRegistry();
+export const styleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null>, options?: StyleSheetOptions): CssScopeMap<TCssScopeName> => {
+    const sheet = styleSheetRegistry.add(scopes, options);
+    return sheet.classes;
 }
 
 const isObservable = (styles: CssStyleCollection | Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>>): styles is Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>> => (
@@ -261,9 +264,9 @@ const isObservable = (styles: CssStyleCollection | Observable<SingleOrDeepArray<
     &&
     (styles.constructor !== {}.constructor)
 )
-export const styleClass = (styles: CssStyleCollection | Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>>, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
+export const styleSheet = (styles: CssStyleCollection | Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>>, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
     if (!styles || (styles === true)) {
-        const { classes } = styleSheet<'main'>(
+        const classes = styleSheets<'main'>(
             null,   // empty scope
             options // styleSheet options
         );
@@ -271,7 +274,7 @@ export const styleClass = (styles: CssStyleCollection | Observable<SingleOrDeepA
     }
     else if (isObservable(styles)) {
         const subject = new Subject<CssScopeList<'main'>|null>();
-        const { classes } = styleSheet(
+        const classes = styleSheets(
             subject,
             options  // styleSheet options
         );
@@ -287,7 +290,7 @@ export const styleClass = (styles: CssStyleCollection | Observable<SingleOrDeepA
         return classes.main;
     }
     else {
-        const { classes } = styleSheet(
+        const classes = styleSheets(
             [['main', styles, options]], // scopeOf('main', styles, options)
             options                      // styleSheet options
         );

@@ -1,9 +1,13 @@
 import type {
+    JSDOM as _JSDOM,
+} from 'jsdom'
+import type {
     render      as _render,
 } from '../dist/renders.js'
 import {
     // style sheets:
-    styleSheet  as _styleSheet,
+    StyleSheet,
+    styleSheets as _styleSheets,
     
     
     
@@ -26,58 +30,102 @@ import {
     
     
     // scopes:
-    scopeOf     as _scopeOf,
     mainScope   as _mainScope,
     globalScope as _globalScope,
 } from '../dist/cssfn.js'
+import type {
+    styleSheetRegistry as _styleSheetRegistry,
+} from '../dist/styleSheets.js'
 import {
     jest,
 } from '@jest/globals'
 
 
 
+const simulateBrowserSide = (dom: _JSDOM) => {
+    jest.resetModules();
+    
+    const oriWindow   = (typeof(window) === 'undefined'  ) ? undefined : window;
+    const oriDocument = (typeof(document) === 'undefined') ? undefined : document;
+    if (oriWindow === undefined) {
+        const mockWindow : Window = dom.window as any;
+        (globalThis as any).window = mockWindow;
+    } // if
+    if (oriDocument === undefined) {
+        const mockDocument : Document = dom.window.document;
+        (globalThis as any).document = mockDocument;
+    } // if
+};
+
+
+
 jest.isolateModules(() => {
-    let fallbacks   : typeof _fallbacks   = undefined as any;
-    let fontFace    : typeof _fontFace    = undefined as any;
-    let keyframes   : typeof _keyframes   = undefined as any;
-    let rule        : typeof _rule        = undefined as any;
-    let atRule      : typeof _atRule      = undefined as any;
-    let rules       : typeof _rules       = undefined as any;
-    let atGlobal    : typeof _atGlobal    = undefined as any;
-    let children    : typeof _children    = undefined as any;
-    let vars        : typeof _vars        = undefined as any;
-    let style       : typeof _style       = undefined as any;
-    let styleSheet  : typeof _styleSheet  = undefined as any;
-    // let scopeOf     : typeof _scopeOf     = undefined as any;
-    let mainScope   : typeof _mainScope   = undefined as any;
-    let globalScope : typeof _globalScope = undefined as any;
-    let render      : typeof _render      = undefined as any;
+    let JSDOM              : typeof _JSDOM       = undefined as any;
+    let dom                : _JSDOM              = undefined as any;
+    let fallbacks          : typeof _fallbacks   = undefined as any;
+    let fontFace           : typeof _fontFace    = undefined as any;
+    let keyframes          : typeof _keyframes   = undefined as any;
+    let rule               : typeof _rule        = undefined as any;
+    let atRule             : typeof _atRule      = undefined as any;
+    let rules              : typeof _rules       = undefined as any;
+    let atGlobal           : typeof _atGlobal    = undefined as any;
+    let children           : typeof _children    = undefined as any;
+    let vars               : typeof _vars        = undefined as any;
+    let style              : typeof _style       = undefined as any;
+    let styleSheets        : typeof _styleSheets = undefined as any;
+    let mainScope          : typeof _mainScope   = undefined as any;
+    let globalScope        : typeof _globalScope = undefined as any;
+    let styleSheetRegistry : typeof _styleSheetRegistry = undefined as any;
+    let render             : typeof _render      = undefined as any;
+    let lastStyleSheet     : StyleSheet|null     = null;
     beforeAll(async () => {
+        const jsdomModule    = await import('jsdom')
+        
+        JSDOM = jsdomModule.JSDOM
+        dom = new JSDOM(
+`
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+    </body>
+</html>
+`
+        );
+        simulateBrowserSide(dom);
+        
         const cssfnModule      = await import('../dist/cssfn.js')
+        const styleSheetModule = await import('../dist/styleSheets.js')
         const renderModule     = await import('../dist/renders.js')
         
-        fallbacks   = cssfnModule.fallbacks
-        fontFace    = cssfnModule.fontFace
-        keyframes   = cssfnModule.keyframes
-        rule        = cssfnModule.rule
-        atRule      = cssfnModule.atRule
-        rules       = cssfnModule.rules
-        atGlobal    = cssfnModule.atGlobal
-        children    = cssfnModule.children
-        vars        = cssfnModule.vars
-        style       = cssfnModule.style
-        styleSheet  = cssfnModule.styleSheet
-        // scopeOf     = cssfnModule.scopeOf
-        mainScope   = cssfnModule.mainScope
-        globalScope = cssfnModule.globalScope
-        render      = renderModule.render
+        fallbacks          = cssfnModule.fallbacks
+        fontFace           = cssfnModule.fontFace
+        keyframes          = cssfnModule.keyframes
+        rule               = cssfnModule.rule
+        atRule             = cssfnModule.atRule
+        rules              = cssfnModule.rules
+        atGlobal           = cssfnModule.atGlobal
+        children           = cssfnModule.children
+        vars               = cssfnModule.vars
+        style              = cssfnModule.style
+        styleSheets        = cssfnModule.styleSheets
+        mainScope          = cssfnModule.mainScope
+        globalScope        = cssfnModule.globalScope
+        styleSheetRegistry = styleSheetModule.styleSheetRegistry
+        render             = renderModule.render
+        
+        
+        
+        styleSheetRegistry.subscribe((newSheet) => {
+            lastStyleSheet = newSheet;
+        });
     });
     
     
     
     //#region test properties
     test(`render() # test standard propName`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     background: 'pink',
@@ -86,7 +134,7 @@ jest.isolateModules(() => {
                 })
             )
         ], { id: '#sheet#1' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .z7qv1 {
@@ -98,7 +146,7 @@ border-start-end-radius: 0.5px;
         );
     });
     test(`render() # test vendor propName`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     WebkitAnimationDelay: '500ms',
@@ -108,7 +156,7 @@ border-start-end-radius: 0.5px;
                 })
             )
         ], { id: '#sheet#2' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .yny9o {
@@ -121,7 +169,7 @@ border-start-end-radius: 0.5px;
         );
     });
     test(`render() # test custom propName`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     '--custProp1': '"yeah"',
@@ -131,7 +179,7 @@ border-start-end-radius: 0.5px;
                 })
             )
         ], { id: '#sheet#3' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .y45ob {
@@ -144,7 +192,7 @@ border-start-end-radius: 0.5px;
         );
     });
     test(`render() # test propValue`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     color: 'pink',
@@ -162,7 +210,7 @@ border-start-end-radius: 0.5px;
                 })
             )
         ], { id: '#sheet#4' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .xkd2y {
@@ -185,7 +233,7 @@ background-position: 0 0, 1cm 2cm, center !important;
     
     //#region test @fallbacks
     test(`render() # test @fallbacks`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     background: 'linear-gradient(to right, red 0%, green 100%)',
@@ -195,7 +243,7 @@ background-position: 0 0, 1cm 2cm, center !important;
                 })
             )
         ], { id: '#sheet#5' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .x0khl {
@@ -206,7 +254,7 @@ background: linear-gradient(to right, red 0%, green 100%);
         );
     });
     test(`render() # test @fallbacks`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     display: 'grid',
@@ -225,7 +273,7 @@ background: linear-gradient(to right, red 0%, green 100%);
                 })
             )
         ], { id: '#sheet#6' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .wgrw8 {
@@ -244,7 +292,7 @@ display: grid;
     
     //#region test @font-face
     test(`render() # test @font-face`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...fontFace({
@@ -256,7 +304,7 @@ display: grid;
                 })
             )
         ], { id: '#sheet#7' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 @font-face {
@@ -269,7 +317,7 @@ font-style: oblique 40deg;
         );
     });
     test(`render() # test @font-face`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...fontFace({
@@ -283,7 +331,7 @@ font-style: oblique 40deg;
                 })
             )
         ], { id: '#sheet#8' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 @font-face {
@@ -301,7 +349,7 @@ font-style: oblique 40deg;
     
     //#region test @keyframes
     test(`render() # test @keyframes`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...keyframes('awesome', {
@@ -319,7 +367,7 @@ font-style: oblique 40deg;
                 })
             )
         ], { id: '#sheet#7' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 @keyframes awesome {
@@ -340,7 +388,7 @@ opacity: 0.9;
         );
     });
     test(`render() # test @keyframes`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...keyframes('awesome', {
@@ -364,7 +412,7 @@ opacity: 0.9;
                 })
             )
         ], { id: '#sheet#8' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 @keyframes awesome {
@@ -392,7 +440,7 @@ border: solid 4px blue;
     
     //#region test .rule
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     background: 'pink',
@@ -415,7 +463,7 @@ border: solid 4px blue;
                 })
             )
         ], { id: '#sheet#9' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .ute45 {
@@ -445,7 +493,7 @@ overflow: auto;
         );
     });
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...rule('.rule', {
@@ -467,7 +515,7 @@ overflow: auto;
                 })
             )
         ], { id: '#sheet#10' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .vg4v3.rule.rule.rule {
@@ -493,7 +541,7 @@ overflow: auto;
         );
     });
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     background: 'pink',
@@ -518,7 +566,7 @@ overflow: auto;
                 })
             )
         ], { id: '#sheet#11' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .vzxgg {
@@ -549,7 +597,7 @@ overflow: auto;
     });
     
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     background: 'pink',
@@ -573,7 +621,7 @@ overflow: auto;
                 { specificityWeight: 3 }
             )
         ], { id: '#sheet#12' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .wjq1t.wjq1t.wjq1t {
@@ -603,7 +651,7 @@ overflow: auto;
         );
     });
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...rule('.rule', {
@@ -626,7 +674,7 @@ overflow: auto;
                 { specificityWeight: 2 }
             ),
         ], { id: '#sheet#13' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .x3in6.x3in6.rule.rule.rule {
@@ -652,7 +700,7 @@ overflow: auto;
         );
     });
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     background: 'pink',
@@ -678,7 +726,7 @@ overflow: auto;
                 { specificityWeight: 2 }
             )
         ], { id: '#sheet#14' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .xnb8j.xnb8j {
@@ -709,7 +757,7 @@ overflow: auto;
     });
     
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     background: 'pink',
@@ -733,7 +781,7 @@ overflow: auto;
                 { specificityWeight: 0 }
             )
         ], { id: '#sheet#15' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 :where(.y73tw) {
@@ -763,7 +811,7 @@ overflow: auto;
         );
     });
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...rule('.rule', {
@@ -786,7 +834,7 @@ overflow: auto;
                 { specificityWeight: 0 }
             ),
         ], { id: '#sheet#16' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 :where(.yqwf9).rule.rule.rule {
@@ -812,7 +860,7 @@ overflow: auto;
         );
     });
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     background: 'pink',
@@ -838,7 +886,7 @@ overflow: auto;
                 { specificityWeight: 0 }
             )
         ], { id: '#sheet#17' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 :where(.zap0m) {
@@ -871,7 +919,7 @@ overflow: auto;
     
     //#region test .rule1 x .rule2
     test(`render() # test .rule1 x .rule2`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     background: 'pink',
@@ -896,7 +944,7 @@ overflow: auto;
                 })
             )
         ], { id: '#sheet#18' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .zuhlz {
@@ -926,7 +974,7 @@ overflow: auto;
         );
     });
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...rule('.rule', {
@@ -951,7 +999,7 @@ overflow: auto;
                 { specificityWeight: 0 }
             ),
         ], { id: '#sheet#19' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 :where(.wea7c).rule.rule.rule {
@@ -977,7 +1025,7 @@ overflow: auto;
         );
     });
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     background: 'pink',
@@ -1005,7 +1053,7 @@ overflow: auto;
                 { specificityWeight: 0 }
             )
         ], { id: '#sheet#20' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 :where(.chr9a) {
@@ -1036,7 +1084,7 @@ overflow: auto;
     });
     
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...rule([':hover', '::backdrop'], {
@@ -1051,7 +1099,7 @@ overflow: auto;
                 })
             )
         ], { id: '#sheet#bleh' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .rmnfx:hover, .rmnfx::backdrop {
@@ -1072,7 +1120,7 @@ overflow: auto;
     
     //#region test @global
     test(`render() # test @global`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...atGlobal({
@@ -1110,7 +1158,7 @@ overflow: auto;
                 })
             )
         ], { id: '#sheet#22' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .btn {
@@ -1146,7 +1194,7 @@ justify-content: center;
         );
     });
     test(`render() # test globalScope`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             globalScope({
                 ...rule('.navbar', {
                     display: 'grid',
@@ -1193,7 +1241,7 @@ justify-content: center;
                 }),
             }),
         ], { id: '#sheet#23' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .navbar {
@@ -1248,7 +1296,7 @@ flex: 0 0 auto !important;
     //#region test @conditionalRule
     //#region @global
     test(`render() # test @global`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...atGlobal({
@@ -1289,7 +1337,7 @@ flex: 0 0 auto !important;
                 })
             )
         ], { id: '#sheet#24' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .btn {
@@ -1328,7 +1376,7 @@ justify-content: center;
         );
     });
     test(`render() # test globalScope`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             globalScope({
                 ...rule('.btn', {
                     background: 'pink',
@@ -1365,7 +1413,7 @@ justify-content: center;
                 }),
             }),
         ], { id: '#sheet#25' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .btn {
@@ -1404,7 +1452,7 @@ justify-content: center;
         );
     });
     test(`render() # test @global`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...atGlobal({
@@ -1445,7 +1493,7 @@ justify-content: center;
                 })
             )
         ], { id: '#sheet#26' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 @media (min-width: 1024px) {
@@ -1484,7 +1532,7 @@ justify-content: center;
         );
     });
     test(`render() # test globalScope`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             globalScope({
                 ...atRule('@media (min-width: 1024px)', {
                     ...rule('.btn', {
@@ -1521,7 +1569,7 @@ justify-content: center;
                 }),
             }),
         ], { id: '#sheet#27' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 @media (min-width: 1024px) {
@@ -1565,7 +1613,7 @@ justify-content: center;
     
     //#region .rule
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...rule('.btn', {
@@ -1607,7 +1655,7 @@ justify-content: center;
                 })
             )
         ], { id: '#sheet#28' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .gw406.btn {
@@ -1651,7 +1699,7 @@ justify-content: center;
         );
     });
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...rule('.menu', {
@@ -1695,7 +1743,7 @@ justify-content: center;
                 })
             )
         ], { id: '#sheet#29' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .hfwlj.menu.btn {
@@ -1739,7 +1787,7 @@ justify-content: center;
         );
     });
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...rule('.menu', {
@@ -1759,7 +1807,7 @@ justify-content: center;
                 })
             )
         ], { id: '#sheet#30' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .tjdnh.menu.sub-menu {
@@ -1779,7 +1827,7 @@ display: block;
         );
     });
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...rule('.menu', {
@@ -1795,7 +1843,7 @@ display: block;
                 })
             )
         ], { id: '#sheet#31' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 @media (min-width: 1024px) {
@@ -1810,7 +1858,7 @@ display: block;
     });
     
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...rule('.btn', {
@@ -1846,7 +1894,7 @@ display: block;
                 })
             )
         ], { id: '#sheet#32' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .umyu7.btn {
@@ -1886,7 +1934,7 @@ justify-content: center;
         );
     });
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...rule('.btn', {
@@ -1910,7 +1958,7 @@ justify-content: center;
                 })
             )
         ], { id: '#sheet#33' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .v6rfk.btn {
@@ -1938,7 +1986,7 @@ display: block;
         );
     });
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...rule('.btn', {
@@ -1962,7 +2010,7 @@ display: block;
                 })
             )
         ], { id: '#sheet#34' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .vqk0x.btn {
@@ -1990,7 +2038,7 @@ display: block;
         );
     });
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...rule('.btn', {
@@ -2014,7 +2062,7 @@ display: block;
                 })
             )
         ], { id: '#sheet#35' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .wacma.btn {
@@ -2042,7 +2090,7 @@ display: block;
         );
     });
     test(`render() # test .rule`, () => {
-        const sheet1 = styleSheet(() => [
+        styleSheets(() => [
             mainScope(
                 style({
                     ...rule('.btn', {
@@ -2062,7 +2110,7 @@ display: block;
                 })
             )
         ], { id: '#sheet#36' });
-        expect(render(sheet1))
+        expect(render(lastStyleSheet!))
         .toEqual(
 `
 .wu57n.btn {

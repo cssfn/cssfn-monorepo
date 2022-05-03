@@ -2,9 +2,12 @@ import type {
     JSDOM as _JSDOM,
 } from 'jsdom'
 import type {
+    CssScopeList,
+} from '@cssfn/css-types'
+import type {
     // style sheets:
     StyleSheet,
-    styleSheet  as _styleSheet,
+    styleSheets  as _styleSheets,
     
     
     
@@ -14,8 +17,11 @@ import type {
     globalScope as _globalScope,
 } from '../dist/cssfn.js'
 import type {
-    styleSheets as _styleSheets,
+    styleSheetRegistry as _styleSheetRegistry,
 } from '../dist/styleSheets.js'
+import type {
+    Subject as _Subject,
+} from 'rxjs'
 import {
     jest,
 } from '@jest/globals'
@@ -53,29 +59,33 @@ const simulateBrowserSide = (dom: _JSDOM) => {
 
 
 jest.isolateModules(() => {
-    let styleSheet  : typeof _styleSheet  = undefined as any;
-    let scopeOf     : typeof _scopeOf     = undefined as any;
-    let mainScope   : typeof _mainScope   = undefined as any;
-    let globalScope : typeof _globalScope = undefined as any;
-    let styleSheets : typeof _styleSheets = undefined as any;
+    let styleSheets        : typeof _styleSheets        = undefined as any;
+    let scopeOf            : typeof _scopeOf            = undefined as any;
+    let mainScope          : typeof _mainScope          = undefined as any;
+    let globalScope        : typeof _globalScope        = undefined as any;
+    let styleSheetRegistry : typeof _styleSheetRegistry = undefined as any;
+    let Subject            : typeof _Subject            = undefined as any;
     beforeAll(async () => {
         simulateServerSide();
         
-        const cssfnModule      = await import('../dist/cssfn')
-        const styleSheetModule = await import('../dist/styleSheets')
+        const cssfnModule      = await import('../dist/cssfn.js')
+        const styleSheetModule = await import('../dist/styleSheets.js')
+        const rxjsModule       = await import('rxjs')
         
-        styleSheet  = cssfnModule.styleSheet
-        scopeOf     = cssfnModule.scopeOf
-        mainScope   = cssfnModule.mainScope
-        globalScope = cssfnModule.globalScope
-        styleSheets = styleSheetModule.styleSheets
+        styleSheets        = cssfnModule.styleSheets
+        scopeOf            = cssfnModule.scopeOf
+        mainScope          = cssfnModule.mainScope
+        globalScope        = cssfnModule.globalScope
+        styleSheetRegistry = styleSheetModule.styleSheetRegistry
+        
+        Subject            = rxjsModule.Subject
     });
     
     
     
     test('[server] test registered styleSheets = 0', () => {
         const activeSheets : StyleSheet[] = [];
-        styleSheets.subscribe((styleSheet) => {
+        styleSheetRegistry.subscribe((styleSheet) => {
             if (styleSheet.enabled) {
                 activeSheets.push(styleSheet);
             } else {
@@ -89,17 +99,17 @@ jest.isolateModules(() => {
     });
     
     test('[server] test registered styleSheets = 2', () => {
-        const sheet1 = styleSheet(() => [
+        const sheet1 = styleSheets(() => [
             mainScope([]),
             scopeOf('menuBar', []),
             globalScope([]),
         ], { id: 'sheet1' });
         // @ts-ignore
-        const sheet2 = styleSheet(() => [
+        const sheet2 = styleSheets(() => [
             mainScope([]),
         ], { id: 'sheet2', enabled: false });
         // @ts-ignore
-        const sheet3 = styleSheet(() => [
+        const sheet3 = styleSheets(() => [
             mainScope([]),
         ], { id: 'sheet3' });
         
@@ -110,7 +120,7 @@ jest.isolateModules(() => {
         
         
         const activeSheets : StyleSheet[] = [];
-        styleSheets.subscribe((styleSheet) => {
+        styleSheetRegistry.subscribe((styleSheet) => {
             if (styleSheet.enabled) {
                 activeSheets.push(styleSheet);
             } else {
@@ -124,17 +134,17 @@ jest.isolateModules(() => {
     });
     
     test('[server] test registered styleSheets = 4', () => {
-        styleSheet(() => [
+        styleSheets(() => [
             mainScope([]),
         ], { id: 'sheet4' });
-        styleSheet(() => [
+        styleSheets(() => [
             mainScope([]),
         ], { id: 'sheet5' });
         
         
         
         const activeSheets : StyleSheet[] = [];
-        styleSheets.subscribe((styleSheet) => {
+        styleSheetRegistry.subscribe((styleSheet) => {
             if (styleSheet.enabled) {
                 activeSheets.push(styleSheet);
             } else {
@@ -148,23 +158,34 @@ jest.isolateModules(() => {
     });
     
     test('[server] test registered styleSheets = 6', () => {
-        const sheet6 = styleSheet(() => [
+        const sheet6 = new Subject<CssScopeList<'main'>|null>();
+        styleSheets(sheet6, { id: 'sheet6' });
+        sheet6.next([
             mainScope([]),
-        ], { id: 'sheet6' });
-        const sheet7 = styleSheet(() => [
+        ]);
+        
+        const sheet7 = new Subject<CssScopeList<'main'>|null>();
+        styleSheets(sheet7, { id: 'sheet7' });
+        sheet7.next([
             mainScope([]),
-        ], { id: 'sheet7' });
-        const sheet8 = styleSheet(() => [
+        ]);
+        
+        const sheet8 = new Subject<CssScopeList<'main'>|null>();
+        styleSheets(sheet8, { id: 'sheet8' });
+        // sheet8.next([
+        //     mainScope([]),
+        // ]);
+        
+        const sheet9 = new Subject<CssScopeList<'main'>|null>();
+        styleSheets(sheet9, { id: 'sheet9' });
+        sheet9.next([
             mainScope([]),
-        ], { id: 'sheet8', enabled: false });
-        const sheet9 = styleSheet(() => [
-            mainScope([]),
-        ], { id: 'sheet9' });
+        ]);
         
         
         
         const activeSheets : StyleSheet[] = [];
-        styleSheets.subscribe((styleSheet) => {
+        styleSheetRegistry.subscribe((styleSheet) => {
             if (styleSheet.enabled) {
                 activeSheets.push(styleSheet);
             } else {
@@ -176,23 +197,27 @@ jest.isolateModules(() => {
         expect(activeSheets.length)
         .toBe(0);
         
-        sheet8.enabled = true;
+        sheet8.next([
+            mainScope([]),
+        ]);
         
         expect(activeSheets.length)
         .toBe(0);
         
-        sheet6.enabled = false;
-        sheet9.enabled = false;
+        sheet6.next(null);
+        sheet9.next(null);
         
         expect(activeSheets.length)
         .toBe(0);
         
-        sheet7.enabled = false;
+        sheet7.next(null);
         
         expect(activeSheets.length)
         .toBe(0);
         
-        sheet6.enabled = true;
+        sheet6.next([
+            mainScope([]),
+        ]);
         
         expect(activeSheets.length)
         .toBe(0);
@@ -202,13 +227,14 @@ jest.isolateModules(() => {
 
 
 jest.isolateModules(() => {
-    let JSDOM       : typeof _JSDOM = undefined as any;
-    let dom         : _JSDOM = undefined as any;
-    let styleSheet  : typeof _styleSheet  = undefined as any;
-    let scopeOf     : typeof _scopeOf     = undefined as any;
-    let mainScope   : typeof _mainScope   = undefined as any;
-    let globalScope : typeof _globalScope = undefined as any;
-    let styleSheets : typeof _styleSheets = undefined as any;
+    let JSDOM              : typeof _JSDOM = undefined as any;
+    let dom                : _JSDOM = undefined as any;
+    let styleSheets        : typeof _styleSheets        = undefined as any;
+    let scopeOf            : typeof _scopeOf            = undefined as any;
+    let mainScope          : typeof _mainScope          = undefined as any;
+    let globalScope        : typeof _globalScope        = undefined as any;
+    let styleSheetRegistry : typeof _styleSheetRegistry = undefined as any;
+    let Subject            : typeof _Subject            = undefined as any;
     beforeAll(async () => {
         const jsdomModule    = await import('jsdom')
         
@@ -225,21 +251,24 @@ jest.isolateModules(() => {
         );
         simulateBrowserSide(dom);
         
-        const cssfnModule      = await import('../dist/cssfn')
-        const styleSheetModule = await import('../dist/styleSheets')
+        const cssfnModule      = await import('../dist/cssfn.js')
+        const styleSheetModule = await import('../dist/styleSheets.js')
+        const rxjsModule       = await import('rxjs')
         
-        styleSheet  = cssfnModule.styleSheet
-        scopeOf     = cssfnModule.scopeOf
-        mainScope   = cssfnModule.mainScope
-        globalScope = cssfnModule.globalScope
-        styleSheets = styleSheetModule.styleSheets
+        styleSheets        = cssfnModule.styleSheets
+        scopeOf            = cssfnModule.scopeOf
+        mainScope          = cssfnModule.mainScope
+        globalScope        = cssfnModule.globalScope
+        styleSheetRegistry = styleSheetModule.styleSheetRegistry
+        
+        Subject            = rxjsModule.Subject
     });
     
     
     
     test('[browser] test registered styleSheets = 0', () => {
         const activeSheets : StyleSheet[] = [];
-        styleSheets.subscribe((styleSheet) => {
+        styleSheetRegistry.subscribe((styleSheet) => {
             if (styleSheet.enabled) {
                 activeSheets.push(styleSheet);
             } else {
@@ -253,17 +282,17 @@ jest.isolateModules(() => {
     });
     
     test('[browser] test registered styleSheets = 2', () => {
-        const sheet1 = styleSheet(() => [
+        const sheet1 = styleSheets(() => [
             mainScope([]),
-            scopeOf('menuBar',[]),
+            scopeOf('menuBar', []),
             globalScope([]),
         ], { id: 'sheet1' });
         // @ts-ignore
-        const sheet2 = styleSheet(() => [
+        const sheet2 = styleSheets(() => [
             mainScope([]),
         ], { id: 'sheet2', enabled: false });
         // @ts-ignore
-        const sheet3 = styleSheet(() => [
+        const sheet3 = styleSheets(() => [
             mainScope([]),
         ], { id: 'sheet3' });
         
@@ -274,7 +303,7 @@ jest.isolateModules(() => {
         
         
         const activeSheets : StyleSheet[] = [];
-        styleSheets.subscribe((styleSheet) => {
+        styleSheetRegistry.subscribe((styleSheet) => {
             if (styleSheet.enabled) {
                 activeSheets.push(styleSheet);
             } else {
@@ -293,17 +322,17 @@ jest.isolateModules(() => {
     });
     
     test('[browser] test registered styleSheets = 4', () => {
-        styleSheet(() => [
+        styleSheets(() => [
             mainScope([]),
         ], { id: 'sheet4' });
-        styleSheet(() => [
+        styleSheets(() => [
             mainScope([]),
         ], { id: 'sheet5' });
         
         
         
         const activeSheets : StyleSheet[] = [];
-        styleSheets.subscribe((styleSheet) => {
+        styleSheetRegistry.subscribe((styleSheet) => {
             if (styleSheet.enabled) {
                 activeSheets.push(styleSheet);
             } else {
@@ -323,23 +352,34 @@ jest.isolateModules(() => {
     });
     
     test('[browser] test registered styleSheets = 6', () => {
-        const sheet6 = styleSheet(() => [
+        const sheet6 = new Subject<CssScopeList<'main'>|null>();
+        styleSheets(sheet6, { id: 'sheet6' });
+        sheet6.next([
             mainScope([]),
-        ], { id: 'sheet6' });
-        const sheet7 = styleSheet(() => [
+        ]);
+        
+        const sheet7 = new Subject<CssScopeList<'main'>|null>();
+        styleSheets(sheet7, { id: 'sheet7' });
+        sheet7.next([
             mainScope([]),
-        ], { id: 'sheet7' });
-        const sheet8 = styleSheet(() => [
+        ]);
+        
+        const sheet8 = new Subject<CssScopeList<'main'>|null>();
+        styleSheets(sheet8, { id: 'sheet8' });
+        // sheet8.next([
+        //     mainScope([]),
+        // ]);
+        
+        const sheet9 = new Subject<CssScopeList<'main'>|null>();
+        styleSheets(sheet9, { id: 'sheet9' });
+        sheet9.next([
             mainScope([]),
-        ], { id: 'sheet8', enabled: false });
-        const sheet9 = styleSheet(() => [
-            mainScope([]),
-        ], { id: 'sheet9' });
+        ]);
         
         
         
         const activeSheets : StyleSheet[] = [];
-        styleSheets.subscribe((styleSheet) => {
+        styleSheetRegistry.subscribe((styleSheet) => {
             if (styleSheet.enabled) {
                 activeSheets.push(styleSheet);
             } else {
@@ -358,7 +398,9 @@ jest.isolateModules(() => {
             'sheet6', 'sheet7', 'sheet9',
         ]);
         
-        sheet8.enabled = true;
+        sheet8.next([
+            mainScope([]),
+        ]);
         
         expect(activeSheets.length)
         .toBe(8); // 'sheet2' is disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet7', 'sheet9', 'sheet8']
@@ -371,8 +413,8 @@ jest.isolateModules(() => {
             'sheet8',
         ]);
         
-        sheet6.enabled = false;
-        sheet9.enabled = false;
+        sheet6.next(null);
+        sheet9.next(null);
         
         expect(activeSheets.length)
         .toBe(6); // ['sheet2', 'sheet6', 'sheet9'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet7', 'sheet8']
@@ -385,7 +427,7 @@ jest.isolateModules(() => {
             'sheet8',
         ]);
         
-        sheet7.enabled = false;
+        sheet7.next(null);
         
         expect(activeSheets.length)
         .toBe(5); // ['sheet2', 'sheet6', 'sheet7', 'sheet9'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet8']
@@ -397,7 +439,9 @@ jest.isolateModules(() => {
             'sheet8',
         ]);
         
-        sheet6.enabled = true;
+        sheet6.next([
+            mainScope([]),
+        ]);
         
         expect(activeSheets.length)
         .toBe(6); // ['sheet2', 'sheet7', 'sheet9'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet8', 'sheet6']

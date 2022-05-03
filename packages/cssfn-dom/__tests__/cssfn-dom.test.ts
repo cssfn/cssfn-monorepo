@@ -7,7 +7,7 @@ import type {
 }                           from '@cssfn/css-types'
 import type {
     // style sheets:
-    styleSheet as _styleSheet,
+    styleSheets as _styleSheets,
     
     
     // scopes:
@@ -56,31 +56,35 @@ const simulateBrowserSide = (dom: _JSDOM) => {
 
 
 jest.isolateModules(() => {
-    let styleSheet  : typeof _styleSheet = undefined as any;
+    let styleSheets : typeof _styleSheets = undefined as any;
     let globalScope : typeof _globalScope = undefined as any;
     let rule        : typeof _rule = undefined as any;
     // let children    : typeof _children = undefined as any;
     let mainScope   : typeof _mainScope = undefined as any;
+    let Subject     : typeof _Subject = undefined as any;
     beforeAll(async () => {
         simulateServerSide();
         
         const cssfnModule    = await import('@cssfn/cssfn')
         //@ts-ignore
         const cssfnDomModule = await import('../dist/cssfn-dom.js')
+        const rxjsModule     = await import('rxjs')
         
         
         
-        styleSheet  = cssfnModule.styleSheet
+        styleSheets = cssfnModule.styleSheets
         globalScope = cssfnModule.globalScope
         mainScope   = cssfnModule.mainScope
         rule        = cssfnModule.rule
         // children    = cssfnModule.children
+        
+        Subject     = rxjsModule.Subject
     });
     
     
     
     test('test no any attached stylesheet', async () => {
-        styleSheet(() => [
+        styleSheets(() => [
             globalScope({
                 ...rule('button', {
                     appearance: 'none',
@@ -94,7 +98,9 @@ jest.isolateModules(() => {
     
     
     test('test no any attached stylesheet', async () => {
-        const stylesheet2 = styleSheet(() => [
+        const stylesheet2 = new Subject<CssScopeList<''>|null>();
+        styleSheets(stylesheet2);
+        stylesheet2.next([
             globalScope({
                 ...rule('input[type="checkbox"]', {
                     display: 'inline-flex',
@@ -103,7 +109,8 @@ jest.isolateModules(() => {
                 }),
             }),
         ]);
-        styleSheet(() => [
+        
+        styleSheets(() => [
             globalScope({
                 ...rule('input[type="text"]', {
                     display: 'grid',
@@ -114,7 +121,7 @@ jest.isolateModules(() => {
         ]);
         
         await new Promise<void>((resolve) => { setTimeout(() => {
-            stylesheet2.enabled = false;
+            stylesheet2.next(null);
             
             
             
@@ -126,7 +133,7 @@ jest.isolateModules(() => {
     
     
     test('test no any attached stylesheet', async () => {
-        const styleSheet4 = styleSheet(() => [
+        const styleSheet4 = styleSheets(() => [
             mainScope({
                 display: 'grid',
                 gridAutoFlow: 'column',
@@ -136,7 +143,7 @@ jest.isolateModules(() => {
         ], { id: 'stylesheet#4' });
         
         await new Promise<void>((resolve) => { setTimeout(() => {
-            const mainScopeClass = styleSheet4.classes.main;
+            const mainScopeClass = styleSheet4.main;
             expect(mainScopeClass).toBe('ysbco');
             // console.log('scopeName', mainScopeClass);
             
@@ -152,7 +159,7 @@ jest.isolateModules(() => {
 jest.isolateModules(() => {
     let JSDOM       : typeof _JSDOM = undefined as any;
     let dom         : _JSDOM = undefined as any;
-    let styleSheet  : typeof _styleSheet = undefined as any;
+    let styleSheets : typeof _styleSheets = undefined as any;
     let globalScope : typeof _globalScope = undefined as any;
     let rule        : typeof _rule = undefined as any;
     // let children    : typeof _children = undefined as any;
@@ -184,11 +191,12 @@ jest.isolateModules(() => {
         
         
         
-        styleSheet  = cssfnModule.styleSheet
+        styleSheets = cssfnModule.styleSheets
         globalScope = cssfnModule.globalScope
         mainScope   = cssfnModule.mainScope
         rule        = cssfnModule.rule
         // children    = cssfnModule.children
+        
         Subject     = rxjsModule.Subject
     });
     
@@ -208,7 +216,7 @@ jest.isolateModules(() => {
     
     
     test('test stylesheet-1', async () => {
-        styleSheet(() => [
+        styleSheets(() => [
             globalScope({
                 ...rule('button', {
                     appearance: 'none',
@@ -242,7 +250,9 @@ jest.isolateModules(() => {
     
     
     test('test stylesheet-2 [+] stylesheet-3 [-] stylesheet-2', async () => {
-        const stylesheet2 = styleSheet(() => [
+        const stylesheet2 = new Subject<CssScopeList<''>|null>();
+        styleSheets(stylesheet2);
+        stylesheet2.next([
             globalScope({
                 ...rule('input[type="checkbox"]', {
                     display: 'inline-flex',
@@ -251,7 +261,9 @@ jest.isolateModules(() => {
                 }),
             }),
         ]);
-        styleSheet(() => [
+        
+        
+        styleSheets(() => [
             globalScope({
                 ...rule('input[type="text"]', {
                     display: 'grid',
@@ -302,7 +314,7 @@ jest.isolateModules(() => {
         }, 0)});
         
         await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
-            stylesheet2.enabled = false;
+            stylesheet2.next(null);
             
             
             
@@ -353,7 +365,7 @@ jest.isolateModules(() => {
     
     
     test('test stylesheet-4', async () => {
-        const styleSheet4 = styleSheet(() => [
+        const styleSheet4 = styleSheets(() => [
             mainScope({
                 display: 'grid',
                 gridAutoFlow: 'column',
@@ -370,7 +382,7 @@ jest.isolateModules(() => {
             
             
             expect(stylesElm?.outerHTML.includes('--sheetId: "ss4"')).toBe(true);
-            const mainScopeClass = styleSheet4.classes.main;
+            const mainScopeClass = styleSheet4.main;
             expect(mainScopeClass).toBe('ysbco');
             expect(stylesElm?.outerHTML.includes(`.${mainScopeClass}.${mainScopeClass}.${mainScopeClass} {`)).toBe(true);
             // console.log('scopeName', mainScopeClass);
@@ -384,8 +396,8 @@ jest.isolateModules(() => {
     
     
     test('test stylesheet-5', async () => {
-        const styleSheet5DynContent = new Subject<CssScopeList<'main'>>();
-        const styleSheet5 = styleSheet(styleSheet5DynContent, { id: 'stylesheet#5' });
+        const styleSheet5DynContent = new Subject<CssScopeList<'main'>|null>();
+        const styleSheet5 = styleSheets(styleSheet5DynContent, { id: 'stylesheet#5' });
         
         await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
             const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
@@ -406,7 +418,7 @@ jest.isolateModules(() => {
             dom.window.setTimeout(() => {
                 expect(stylesElm?.outerHTML.includes('--sheetId: "ss5"')).toBe(true);
                 expect(stylesElm?.outerHTML.includes('--myFavColor: yellow')).toBe(true);
-                const mainScopeClass = styleSheet5.classes.main;
+                const mainScopeClass = styleSheet5.main;
                 expect(mainScopeClass).toBe('zc3y1');
                 expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
                 // console.log('scopeName', mainScopeClass);
@@ -422,7 +434,7 @@ jest.isolateModules(() => {
                 dom.window.setTimeout(() => {
                     expect(stylesElm?.outerHTML.includes('--sheetId: "ss5b"')).toBe(true);
                     expect(stylesElm?.outerHTML.includes('--myFavColor: purple')).toBe(true);
-                    const mainScopeClass = styleSheet5.classes.main;
+                    const mainScopeClass = styleSheet5.main;
                     expect(mainScopeClass).toBe('zc3y1');
                     expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
                     // console.log('scopeName', mainScopeClass);
@@ -439,7 +451,7 @@ jest.isolateModules(() => {
                         expect(stylesElm?.outerHTML.includes('--sheetId: "ss5c"')).toBe(true);
                         expect(stylesElm?.outerHTML.includes('--myFavColor: cornflowerblue')).toBe(true);
                         // console.log(stylesElm?.outerHTML);
-                        const mainScopeClass = styleSheet5.classes.main;
+                        const mainScopeClass = styleSheet5.main;
                         expect(mainScopeClass).toBe('zc3y1');
                         expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
                         // console.log('scopeName', mainScopeClass);

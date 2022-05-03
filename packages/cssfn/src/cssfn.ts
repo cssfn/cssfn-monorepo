@@ -50,6 +50,7 @@ import {
 }                           from './utilities.js'
 export {
     StyleSheet,
+    styleSheets,
     styleSheet,
 }                           from './styleSheets.js'
 export {
