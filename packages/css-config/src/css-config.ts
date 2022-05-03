@@ -787,7 +787,7 @@ export { createCssConfig, createCssConfig as default }
 
 
 
-class TransformDuplicates<TSrcPropName extends string, TSrcPropValue,   TRefPropName extends string, TRefPropValue> {
+class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue,   TRefPropName extends string, TRefPropValue> {
     //#region private properties
     #srcProps : Map<TSrcPropName, TSrcPropValue>
     #refProps : Map<TRefPropName, TRefPropValue>
@@ -806,7 +806,7 @@ class TransformDuplicates<TSrcPropName extends string, TSrcPropValue,   TRefProp
         
         if ((typeof(srcPropValue) === 'string')) {
             switch(srcPropValue) {
-                // ignore global keywords
+                // ignore global keywords:
                 case 'none':
                 case 'unset':
                 case 'inherit':
