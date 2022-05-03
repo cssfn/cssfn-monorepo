@@ -217,31 +217,34 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
     const genStyleSheet = styleSheet([]);
     
     /**
-     * Gets the *declaration name* of the specified `propName`, eg: `--my-favColor`.
-     * @param propName The `props`'s prop name to retrieve.
+     * Creates the *declaration name* of the specified `propName`, eg: `--my-favColor`.
+     * @param propName The prop name to create.
      * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
      */
-    const decl = (propName: string): CssCustomName => {
-        propName = propName.replace(/^@keyframes\s+/, 'keyframes-'); // replace `@keyframes fooSomething` => `keyframes-fooSomething`
-
-        return liveOptions.prefix ? `--${liveOptions.prefix}-${propName}` : `--${propName}`; // add double dash with prefix `--prefix-` or double dash without prefix `--`
+    const createDecl = (propName: string): CssCustomName => {
+        // replace `@keyframes fooSomething` => `keyframes-fooSomething`
+        // propName = propName.replace(/^@keyframes\s+/, 'keyframes-');                                   // slow!
+        if (propName.startsWith('@keyframes ')) propName = `keyframes-${propName.slice(11).trimStart()}`; // faster!
+        
+        // add double dash with prefix `--prefix-` or double dash without prefix `--`
+        return liveOptions.prefix ? `--${liveOptions.prefix}-${propName}` : `--${propName}`;
     }
     
     /**
-     * Gets the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
-     * @param propName The `props`'s prop name to retrieve.
+     * Creates the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
+     * @param propName The prop name to create.
      * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName`.
      */
-    const ref = (propName: string): CssCustomSimpleRef => {
-        return `var(${decl(propName)})`;
+    const createRef = (propName: string): CssCustomSimpleRef => {
+        return `var(${createDecl(propName)})`;
     }
     
     /**
-     * Gets the *value* (reference) of the specified `keyframesName`.
-     * @param keyframesName The `props`'s `@keyframes` name to retrieve.
+     * Creates the *value* (reference) of the specified `keyframesName`.
+     * @param keyframesName The `@keyframes` name to create.
      * @returns A `CssCustomKeyframesRef` represents the expression for retrieving the value of the specified `keyframesName`.
      */
-    const keyframesRef = (keyframesName: string): CssCustomKeyframesRef => {
+    const createKeyframesRef = (keyframesName: string): CssCustomKeyframesRef => {
         return liveOptions.prefix ? `${liveOptions.prefix}-${keyframesName}` : keyframesName; // add prefix `prefix-` or just a `keyframesName`
     }
     
@@ -361,7 +364,7 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
                 
                 
                 // comparing the `srcPropValue` & `refPropValue` deeply:
-                if (deepEqual(srcPropValue, refPropValue)) return ref(refPropName); // return the link to the ref
+                if (deepEqual(srcPropValue, refPropValue)) return createRef(refPropName); // return the link to the ref
             } // for // search for duplicates
             
             return null; // not found
@@ -410,7 +413,7 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
                     
                     
                     // create a link to current `@keyframes` name:
-                    const keyframesReference = keyframesRef(keyframesName); // `@keyframes`' name is always created even if the content is the same as the another `@keyframes`
+                    const keyframesReference = createKeyframesRef(keyframesName); // `@keyframes`' name is always created even if the content is the same as the another `@keyframes`
                     
                     // store the new `@keyframes`:
                     genKeyframes[keyframesReference] = srcKeyframesValue;
@@ -506,7 +509,7 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
         
         // transform the `props`:
         genKeyframes = {}; // clear cached `@keyframes`
-        genProps     = transformDuplicates(/*srcProps: */props, /*refProps: */props, /*propRename: */(srcPropName) => decl(srcPropName)) ?? props;
+        genProps     = transformDuplicates(/*srcProps: */props, /*refProps: */props, /*propRename: */(srcPropName) => createDecl(srcPropName)) ?? props;
         
         
         
@@ -545,7 +548,8 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
                 
                 
                 
-                keyframesValue[key] = transformDuplicates(/*srcProps: */frame as (typeof frame & DictionaryOf<typeof frame>), /*refProps: */props) ?? frame;
+                // TODO: fix this
+                keyframesValue[key] = (transformDuplicates(/*srcProps: */frame as (typeof frame & DictionaryOf<typeof frame>), /*refProps: */props) ?? frame) as any;
             } // for
         } // for
         //#endregion transform the keyframes
@@ -653,7 +657,7 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
         
         
         
-        const propDecl = decl(propName);
+        const propDecl = createDecl(propName);
         
         // check if the `genProps` has `propDecl`:
         if (!(propDecl in genProps)) return undefined; // not found
@@ -849,23 +853,36 @@ class CssConfigBuilder<TProps extends CssConfigProps, TValue = ValueOf<TProps>> 
     
     //#region utility methods
     /**
-     * Gets the *declaration name* of the specified `propName`, eg: `--my-favColor`.
-     * @param propName The `props`'s prop name to retrieve.
+     * Creates the *declaration name* of the specified `propName`, eg: `--my-favColor`.
+     * @param propName The prop name to create.
      * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
      */
-    #decl(propName: string): CssCustomName {
-        propName = propName.replace(/^@keyframes\s+/, 'keyframes-'); // replace `@keyframes fooSomething` => `keyframes-fooSomething`
-
-        return this.#options.prefix ? `--${this.#options.prefix}-${propName}` : `--${propName}`; // add double dash with prefix `--prefix-` or double dash without prefix `--`
+    #createDecl(propName: string): CssCustomName {
+        // replace `@keyframes fooSomething` => `keyframes-fooSomething`
+        // propName = propName.replace(/^@keyframes\s+/, 'keyframes-');                                   // slow!
+        if (propName.startsWith('@keyframes ')) propName = `keyframes-${propName.slice(11).trimStart()}`; // faster!
+        
+        // add double dash with prefix `--prefix-` or double dash without prefix `--`
+        return this.#options.prefix ? `--${this.#options.prefix}-${propName}` : `--${propName}`;
     }
     
     /**
-     * Gets the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
-     * @param propName The `props`'s prop name to retrieve.
+     * Creates the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
+     * @param propName The prop name to create.
      * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName`.
      */
-    #ref(propName: string): CssCustomSimpleRef {
-        return `var(${this.#decl(propName)})`;
+    #createRef(propName: string): CssCustomSimpleRef {
+        return `var(${this.#createDecl(propName)})`;
+    }
+    
+    /**
+     * Creates the *value* (reference) of the specified `keyframesName`.
+     * @param keyframesName The `@keyframes` name to create.
+     * @returns A `CssCustomKeyframesRef` represents the expression for retrieving the reference of the specified `keyframesName`.
+     */
+    #createKeyframesRef(keyframesName: string): CssCustomKeyframesRef {
+        // add prefix `prefix-` or just a `keyframesName`
+        return this.#options.prefix ? `${this.#options.prefix}-${keyframesName}` : keyframesName;
     }
     //#endregion utility methods
     
