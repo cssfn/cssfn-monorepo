@@ -1332,6 +1332,296 @@ overflow: auto;
 `
         );
     });
+    
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            background: 'pink',
+            ...rule('.rule', {
+                paddingInline: '1rem',
+                borderStartEndRadius: '0.5px',
+            }),
+            ...rule(':hover', {
+                color: 'red',
+                opacity: 0.3,
+            }),
+            ...rule([':active', ':checked'], {
+                display: 'grid',
+                border: [['solid', '2px', 'red']],
+            }),
+            ...rule(['.menu', ':valid', '::before'], {
+                visibility: 'visible',
+                overflow: 'auto',
+            }),
+        }), { id: '#sheet#12', specificityWeight: 3 });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.wjq1t.wjq1t.wjq1t {
+background: pink;
+}
+
+.wjq1t.wjq1t.wjq1t.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+.wjq1t.wjq1t.wjq1t:hover {
+color: red;
+opacity: 0.3;
+}
+
+.wjq1t.wjq1t.wjq1t:is(:active, :checked) {
+display: grid;
+border: solid 2px red;
+}
+
+.wjq1t.wjq1t.wjq1t:is(.menu, :valid), .wjq1t.wjq1t.wjq1t::before {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            ...rule('.rule', {
+                paddingInline: '1rem',
+                borderStartEndRadius: '0.5px',
+            }, { minSpecificityWeight: 3 }),
+            ...rule(':hover', {
+                color: 'red',
+                opacity: 0.3,
+            }, { maxSpecificityWeight: 0 }),
+            ...rule([':active', ':checked'], {
+                display: 'grid',
+                border: [['solid', '2px', 'red']],
+            }, { specificityWeight: 2 }),
+            ...rule(['.menu', ':valid', '::before'], {
+                visibility: 'visible',
+                overflow: 'auto',
+            }, { specificityWeight: 2 }),
+        }), { id: '#sheet#13', specificityWeight: 2 });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.x3in6.x3in6.rule.rule.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+.x3in6.x3in6:where(:hover) {
+color: red;
+opacity: 0.3;
+}
+
+.x3in6.x3in6:is(:active, :checked):nth-child(n) {
+display: grid;
+border: solid 2px red;
+}
+
+.x3in6.x3in6:is(.menu, :valid):nth-child(n), .x3in6.x3in6::before:nth-child(n):nth-child(n) {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            background: 'pink',
+            ...rules([
+                rule('.rule', {
+                    paddingInline: '1rem',
+                    borderStartEndRadius: '0.5px',
+                }),
+                rule(':hover', {
+                    color: 'red',
+                    opacity: 0.3,
+                }),
+                rule([':active', ':checked'], {
+                    display: 'grid',
+                    border: [['solid', '2px', 'red']],
+                }),
+                rule(['.menu', ':valid', '::before'], {
+                    visibility: 'visible',
+                    overflow: 'auto',
+                }),
+            ], { specificityWeight: 3 }),
+        }), { id: '#sheet#14', specificityWeight: 2 });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.xnb8j.xnb8j {
+background: pink;
+}
+
+.xnb8j.xnb8j.rule.rule.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+.xnb8j.xnb8j:hover:hover:hover {
+color: red;
+opacity: 0.3;
+}
+
+.xnb8j.xnb8j:is(:active, :checked):nth-child(n):nth-child(n) {
+display: grid;
+border: solid 2px red;
+}
+
+.xnb8j.xnb8j:is(.menu, :valid):nth-child(n):nth-child(n), .xnb8j.xnb8j::before:nth-child(n):nth-child(n):nth-child(n) {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            background: 'pink',
+            ...rule('.rule', {
+                paddingInline: '1rem',
+                borderStartEndRadius: '0.5px',
+            }),
+            ...rule(':hover', {
+                color: 'red',
+                opacity: 0.3,
+            }),
+            ...rule([':active', ':checked'], {
+                display: 'grid',
+                border: [['solid', '2px', 'red']],
+            }),
+            ...rule(['.menu', ':valid', '::before'], {
+                visibility: 'visible',
+                overflow: 'auto',
+            }),
+        }), { id: '#sheet#15', specificityWeight: 0 });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+:where(.y73tw) {
+background: pink;
+}
+
+:where(.y73tw).rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+:where(.y73tw):hover {
+color: red;
+opacity: 0.3;
+}
+
+:where(.y73tw):is(:active, :checked) {
+display: grid;
+border: solid 2px red;
+}
+
+:where(.y73tw):is(.menu, :valid), :where(.y73tw)::before {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            ...rule('.rule', {
+                paddingInline: '1rem',
+                borderStartEndRadius: '0.5px',
+            }, { minSpecificityWeight: 3 }),
+            ...rule(':hover', {
+                color: 'red',
+                opacity: 0.3,
+            }, { maxSpecificityWeight: 0 }),
+            ...rule([':active', ':checked'], {
+                display: 'grid',
+                border: [['solid', '2px', 'red']],
+            }, { specificityWeight: 2 }),
+            ...rule(['.menu', ':valid', '::before'], {
+                visibility: 'visible',
+                overflow: 'auto',
+            }, { specificityWeight: 2 }),
+        }), { id: '#sheet#16', specificityWeight: 0 });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+:where(.yqwf9).rule.rule.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+:where(.yqwf9):where(:hover) {
+color: red;
+opacity: 0.3;
+}
+
+:where(.yqwf9):is(:active, :checked):nth-child(n) {
+display: grid;
+border: solid 2px red;
+}
+
+:where(.yqwf9):is(.menu, :valid):nth-child(n), :where(.yqwf9)::before:nth-child(n):nth-child(n) {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            background: 'pink',
+            ...rules([
+                rule('.rule', {
+                    paddingInline: '1rem',
+                    borderStartEndRadius: '0.5px',
+                }),
+                rule(':hover', {
+                    color: 'red',
+                    opacity: 0.3,
+                }),
+                rule([':active', ':checked'], {
+                    display: 'grid',
+                    border: [['solid', '2px', 'red']],
+                }),
+                rule(['.menu', ':valid', '::before'], {
+                    visibility: 'visible',
+                    overflow: 'auto',
+                }),
+            ], { specificityWeight: 3 }),
+        }), { id: '#sheet#17', specificityWeight: 0 });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+:where(.zap0m) {
+background: pink;
+}
+
+:where(.zap0m).rule.rule.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+:where(.zap0m):hover:hover:hover {
+color: red;
+opacity: 0.3;
+}
+
+:where(.zap0m):is(:active, :checked):nth-child(n):nth-child(n) {
+display: grid;
+border: solid 2px red;
+}
+
+:where(.zap0m):is(.menu, :valid):nth-child(n):nth-child(n), :where(.zap0m)::before:nth-child(n):nth-child(n):nth-child(n) {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
     //#endregion test .rule
     
     //#region test .rule1 x .rule2
@@ -1531,6 +1821,187 @@ overflow: auto;
 `
         );
     });
+    
+    
+    
+    test(`render() # test .rule1 x .rule2`, () => {
+        styleSheet(() => ({
+            background: 'pink',
+            ...rule('.rule', {
+                paddingInline: '1rem',
+                borderStartEndRadius: '0.5px',
+                
+                ...rule(':hover', {
+                    color: 'red',
+                    opacity: 0.3,
+                }),
+            }),
+            ...rule([':active', ':checked'], {
+                display: 'grid',
+                border: [['solid', '2px', 'red']],
+                
+                ...rule(['.menu', ':valid', '::before'], {
+                    visibility: 'visible',
+                    overflow: 'auto',
+                }),
+            }),
+        }), { id: '#sheet#18' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.zuhlz {
+background: pink;
+}
+
+.zuhlz.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+.zuhlz.rule:hover {
+color: red;
+opacity: 0.3;
+}
+
+.zuhlz:is(:active, :checked) {
+display: grid;
+border: solid 2px red;
+}
+
+.zuhlz:is(:active, :checked):is(.menu, :valid), .zuhlz:is(:active, :checked)::before {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            ...rule('.rule', {
+                paddingInline: '1rem',
+                borderStartEndRadius: '0.5px',
+                
+                ...rule(':hover', {
+                    color: 'red',
+                    opacity: 0.3,
+                }, { maxSpecificityWeight: 0 }),
+            }, { minSpecificityWeight: 3 }),
+            ...rule([':active', ':checked'], {
+                display: 'grid',
+                border: [['solid', '2px', 'red']],
+                
+                ...rule(['.menu', ':valid', '::before'], {
+                    visibility: 'visible',
+                    overflow: 'auto',
+                }, { specificityWeight: 2 }),
+            }, { specificityWeight: 2 }),
+        }), { id: '#sheet#19', specificityWeight: 0 });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+:where(.wea7c).rule.rule.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+:where(.wea7c).rule.rule.rule:where(:hover) {
+color: red;
+opacity: 0.3;
+}
+
+:where(.wea7c):is(:active, :checked):nth-child(n) {
+display: grid;
+border: solid 2px red;
+}
+
+:where(.wea7c):is(:active, :checked):nth-child(n):is(.menu, :valid):nth-child(n), :where(.wea7c):is(:active, :checked):nth-child(n)::before:nth-child(n):nth-child(n) {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            background: 'pink',
+            ...rules([
+                rule('.rule', {
+                    paddingInline: '1rem',
+                    borderStartEndRadius: '0.5px',
+                    
+                    ...rule(':hover', {
+                        color: 'red',
+                        opacity: 0.3,
+                    }),
+                }),
+                rule([':active', ':checked'], {
+                    display: 'grid',
+                    border: [['solid', '2px', 'red']],
+                    
+                    ...rule(['.menu', ':valid', '::before'], {
+                        visibility: 'visible',
+                        overflow: 'auto',
+                    }),
+                }),
+            ], { specificityWeight: 3 }),
+        }), { id: '#sheet#20', specificityWeight: 0 });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+:where(.chr9a) {
+background: pink;
+}
+
+:where(.chr9a).rule.rule.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+:where(.chr9a).rule.rule.rule:hover {
+color: red;
+opacity: 0.3;
+}
+
+:where(.chr9a):is(:active, :checked):nth-child(n):nth-child(n) {
+display: grid;
+border: solid 2px red;
+}
+
+:where(.chr9a):is(:active, :checked):nth-child(n):nth-child(n):is(.menu, :valid), :where(.chr9a):is(:active, :checked):nth-child(n):nth-child(n)::before {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            ...rule([':hover', '::backdrop'], {
+                color: 'red',
+                opacity: 0.3,
+                
+                ...rule(['.menu', ':valid', '::before', '::after'], {
+                    visibility: 'visible',
+                    overflow: 'auto',
+                }),
+            }),
+        }), { id: '#sheet#bleh' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.rmnfx:hover, .rmnfx::backdrop {
+color: red;
+opacity: 0.3;
+}
+
+.rmnfx:hover:is(.menu, :valid), .rmnfx:hover::before, .rmnfx:hover::after, .rmnfx::backdrop:is(.menu, :valid), .rmnfx::backdrop::before, .rmnfx::backdrop::after {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
     //#endregion test .rule1 x .rule2
     
     
@@ -1695,6 +2166,79 @@ display: inline-flex;
 flex-direction: row;
 justify-content: stretch;
 flex: 0 0 auto !important;
+}
+
+:root {
+--gutter: 10px;
+--gapSm: 0.5rem;
+--gapLg: 2rem;
+--btn-minHeight: 1.5rem;
+}
+`
+        );
+    });
+    
+    
+    
+    test(`render() # test @global`, () => {
+        styleSheet(() => ({
+            ...atGlobal({
+                ...rule('.btn', {
+                    background: 'pink',
+                    color: 'red',
+                }),
+                ...rule('body', {
+                    margin: 0,
+                    padding: 0,
+                    background: 'white',
+                    ...children(['div', '.container'], {
+                        border: [['solid', '2px', 'black']],
+                        display: 'block',
+                    }),
+                }),
+                ...rule(['.checkbox', 'input[type="checkbox"]'], {
+                    appearance: 'none',
+                    display: 'flex',
+                    
+                    ...style({
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                    })
+                }, { specificityWeight: 2 }),
+                ...rule(':root', {
+                    ...vars({
+                        '--gutter': '10px',
+                        '--gapSm': '0.5rem',
+                        '--gapLg': '2rem',
+                        '--btn-minHeight': '1.5rem',
+                    })
+                }),
+            }),
+        }), { id: '#sheet#22' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.btn {
+background: pink;
+color: red;
+}
+
+body {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+body>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+:is(.checkbox, input[type="checkbox"]):nth-child(n) {
+appearance: none;
+display: flex;
+flex-direction: row;
+justify-content: center;
 }
 
 :root {
@@ -1986,6 +2530,161 @@ justify-content: center;
                 }),
             }),
         ], { id: '#sheet#27' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+@media (min-width: 1024px) {
+.btn {
+background: pink;
+color: red;
+}
+
+body {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+body>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+:is(.checkbox, input[type="checkbox"]):nth-child(n) {
+appearance: none;
+display: flex;
+flex-direction: row;
+justify-content: center;
+}
+
+:root {
+--gutter: 10px;
+--gapSm: 0.5rem;
+--gapLg: 2rem;
+--btn-minHeight: 1.5rem;
+}
+
+}
+`
+        );
+    });
+    
+    
+    
+    test(`render() # test @global`, () => {
+        styleSheet(() => ({
+            ...atGlobal({
+                ...rule('.btn', {
+                    background: 'pink',
+                    color: 'red',
+                }),
+                ...atRule('@media (min-width: 1024px)', {
+                    ...rule('body', {
+                        margin: 0,
+                        padding: 0,
+                        background: 'white',
+                        
+                        ...children(['div', '.container'], {
+                            border: [['solid', '2px', 'black']],
+                            display: 'block',
+                        }),
+                    }),
+                    ...rule(['.checkbox', 'input[type="checkbox"]'], {
+                        appearance: 'none',
+                        display: 'flex',
+                        
+                        ...style({
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                        })
+                    }, { specificityWeight: 2 }),
+                }),
+                ...rule(':root', {
+                    ...vars({
+                        '--gutter': '10px',
+                        '--gapSm': '0.5rem',
+                        '--gapLg': '2rem',
+                        '--btn-minHeight': '1.5rem',
+                    })
+                }),
+            }),
+        }), { id: '#sheet#24' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+body {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+body>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+:is(.checkbox, input[type="checkbox"]):nth-child(n) {
+appearance: none;
+display: flex;
+flex-direction: row;
+justify-content: center;
+}
+
+}
+
+:root {
+--gutter: 10px;
+--gapSm: 0.5rem;
+--gapLg: 2rem;
+--btn-minHeight: 1.5rem;
+}
+`
+        );
+    });
+    test(`render() # test @global`, () => {
+        styleSheet(() => ({
+            ...atGlobal({
+                ...atRule('@media (min-width: 1024px)', {
+                    ...rule('.btn', {
+                        background: 'pink',
+                        color: 'red',
+                    }),
+                    ...rule('body', {
+                        margin: 0,
+                        padding: 0,
+                        background: 'white',
+                        
+                        ...children(['div', '.container'], {
+                            border: [['solid', '2px', 'black']],
+                            display: 'block',
+                        }),
+                    }),
+                    ...rule(['.checkbox', 'input[type="checkbox"]'], {
+                        appearance: 'none',
+                        display: 'flex',
+                        
+                        ...style({
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                        })
+                    }, { specificityWeight: 2 }),
+                    ...rule(':root', {
+                        ...vars({
+                            '--gutter': '10px',
+                            '--gapSm': '0.5rem',
+                            '--gapLg': '2rem',
+                            '--btn-minHeight': '1.5rem',
+                        })
+                    }),
+                }),
+            }),
+        }), { id: '#sheet#26' });
         expect(render(lastStyleSheet!))
         .toEqual(
 `
@@ -2527,6 +3226,492 @@ display: block;
                 })
             )
         ], { id: '#sheet#36' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.wu57n.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+@supports (display: grid) {
+.wu57n.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+}
+
+}
+`
+        );
+    });
+    
+    
+    
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            ...rule('.btn', {
+                background: 'pink',
+                color: 'red',
+            }),
+            ...atRule('@media (min-width: 1024px)', {
+                opacity: 0.5,
+                cursor: 'pointer',
+                
+                ...rule('.sub-menu', {
+                    margin: 0,
+                    padding: 0,
+                    background: 'white',
+                    
+                    ...children(['div', '.container'], {
+                        border: [['solid', '2px', 'black']],
+                        display: 'block',
+                    }),
+                }),
+                ...rule(['.checkbox', 'input[type="checkbox"]'], {
+                    appearance: 'none',
+                    display: 'flex',
+                    
+                    ...style({
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                    })
+                }, { specificityWeight: 2 }),
+            }),
+            ...rule('.footer', {
+                ...vars({
+                    '--gutter': '10px',
+                    '--gapSm': '0.5rem',
+                    '--gapLg': '2rem',
+                    '--btn-minHeight': '1.5rem',
+                })
+            }),
+        }), { id: '#sheet#28' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.gw406.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+.gw406 {
+opacity: 0.5;
+cursor: pointer;
+}
+
+.gw406.sub-menu {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+.gw406.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+.gw406:is(.checkbox, input[type="checkbox"]):nth-child(n) {
+appearance: none;
+display: flex;
+flex-direction: row;
+justify-content: center;
+}
+
+}
+
+.gw406.footer {
+--gutter: 10px;
+--gapSm: 0.5rem;
+--gapLg: 2rem;
+--btn-minHeight: 1.5rem;
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            ...rule('.menu', {
+                ...rule('.btn', {
+                    background: 'pink',
+                    color: 'red',
+                }),
+                ...atRule('@media (min-width: 1024px)', {
+                    opacity: 0.5,
+                    cursor: 'pointer',
+                    
+                    ...rule('.sub-menu', {
+                        margin: 0,
+                        padding: 0,
+                        background: 'white',
+                        
+                        ...children(['div', '.container'], {
+                            border: [['solid', '2px', 'black']],
+                            display: 'block',
+                        }),
+                    }),
+                    ...rule(['.checkbox', 'input[type="checkbox"]'], {
+                        appearance: 'none',
+                        display: 'flex',
+                        
+                        ...style({
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                        })
+                    }, { specificityWeight: 2 }),
+                }),
+                ...rule('.footer', {
+                    ...vars({
+                        '--gutter': '10px',
+                        '--gapSm': '0.5rem',
+                        '--gapLg': '2rem',
+                        '--btn-minHeight': '1.5rem',
+                    })
+                }),
+            }),
+        }), { id: '#sheet#29' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.hfwlj.menu.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+.hfwlj.menu {
+opacity: 0.5;
+cursor: pointer;
+}
+
+.hfwlj.menu.sub-menu {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+.hfwlj.menu.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+.hfwlj.menu:is(.checkbox, input[type="checkbox"]):nth-child(n) {
+appearance: none;
+display: flex;
+flex-direction: row;
+justify-content: center;
+}
+
+}
+
+.hfwlj.menu.footer {
+--gutter: 10px;
+--gapSm: 0.5rem;
+--gapLg: 2rem;
+--btn-minHeight: 1.5rem;
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            ...rule('.menu', {
+                ...rule('.sub-menu', {
+                    margin: 0,
+                    padding: 0,
+                    background: 'white',
+                    
+                    ...children(['div', '.container'], {
+                        ...atRule('@media (min-width: 1024px)', {
+                            border: [['solid', '2px', 'black']],
+                            display: 'block',
+                        }),
+                    }),
+                }),
+            }),
+        }), { id: '#sheet#30' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.tjdnh.menu.sub-menu {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+@media (min-width: 1024px) {
+.tjdnh.menu.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            ...rule('.menu', {
+                ...rule('.sub-menu', {
+                    ...children(['div', '.container'], {
+                        ...atRule('@media (min-width: 1024px)', {
+                            border: [['solid', '2px', 'black']],
+                            display: 'block',
+                        }),
+                    }),
+                }),
+            }),
+        }), { id: '#sheet#31' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+@media (min-width: 1024px) {
+.u368u.menu.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+}
+`
+        );
+    });
+    
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            ...rule('.btn', {
+                background: 'pink',
+                color: 'red',
+            }),
+            ...atRule('@media (min-width: 1024px)', {
+                opacity: 0.5,
+                cursor: 'pointer',
+                
+                ...atRule('@supports (display: grid)', {
+                    ...rule('.sub-menu', {
+                        margin: 0,
+                        padding: 0,
+                        background: 'white',
+                        
+                        ...children(['div', '.container'], {
+                            border: [['solid', '2px', 'black']],
+                            display: 'block',
+                        }),
+                    }),
+                    ...rule(['.checkbox', 'input[type="checkbox"]'], {
+                        appearance: 'none',
+                        display: 'flex',
+                        
+                        ...style({
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                        })
+                    }, { specificityWeight: 2 }),
+                }),
+            }),
+        }), { id: '#sheet#32' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.umyu7.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+.umyu7 {
+opacity: 0.5;
+cursor: pointer;
+}
+
+@supports (display: grid) {
+.umyu7.sub-menu {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+.umyu7.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+.umyu7:is(.checkbox, input[type="checkbox"]):nth-child(n) {
+appearance: none;
+display: flex;
+flex-direction: row;
+justify-content: center;
+}
+
+}
+
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            ...rule('.btn', {
+                background: 'pink',
+                color: 'red',
+            }),
+            ...atRule('@media (min-width: 1024px)', {
+                ...atRule('@supports (display: grid)', {
+                    ...rule('.sub-menu', {
+                        margin: 0,
+                        padding: 0,
+                        background: 'white',
+                        
+                        ...children(['div', '.container'], {
+                            border: [['solid', '2px', 'black']],
+                            display: 'block',
+                        }),
+                    }),
+                }),
+            }),
+        }), { id: '#sheet#33' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.v6rfk.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+@supports (display: grid) {
+.v6rfk.sub-menu {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+.v6rfk.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+}
+
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            ...rule('.btn', {
+                background: 'pink',
+                color: 'red',
+            }),
+            ...atRule('@media (min-width: 1024px)', {
+                ...rule('.sub-menu', {
+                    ...atRule('@supports (display: grid)', {
+                        margin: 0,
+                        padding: 0,
+                        background: 'white',
+                        
+                        ...children(['div', '.container'], {
+                            border: [['solid', '2px', 'black']],
+                            display: 'block',
+                        }),
+                    }),
+                }),
+            }),
+        }), { id: '#sheet#34' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.vqk0x.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+@supports (display: grid) {
+.vqk0x.sub-menu {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+.vqk0x.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+}
+
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            ...rule('.btn', {
+                background: 'pink',
+                color: 'red',
+            }),
+            ...atRule('@media (min-width: 1024px)', {
+                ...rule('.sub-menu', {
+                    margin: 0,
+                    padding: 0,
+                    background: 'white',
+                    
+                    ...children(['div', '.container'], {
+                        ...atRule('@supports (display: grid)', {
+                            border: [['solid', '2px', 'black']],
+                            display: 'block',
+                        }),
+                    }),
+                }),
+            }),
+        }), { id: '#sheet#35' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.wacma.btn {
+background: pink;
+color: red;
+}
+
+@media (min-width: 1024px) {
+.wacma.sub-menu {
+margin: 0;
+padding: 0;
+background: white;
+}
+
+@supports (display: grid) {
+.wacma.sub-menu>:is(div, .container) {
+border: solid 2px black;
+display: block;
+}
+
+}
+
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            ...rule('.btn', {
+                background: 'pink',
+                color: 'red',
+            }),
+            ...atRule('@media (min-width: 1024px)', {
+                ...rule('.sub-menu', {
+                    ...children(['div', '.container'], {
+                        ...atRule('@supports (display: grid)', {
+                            border: [['solid', '2px', 'black']],
+                            display: 'block',
+                        }),
+                    }),
+                }),
+            }),
+        }), { id: '#sheet#36' });
         expect(render(lastStyleSheet!))
         .toEqual(
 `
