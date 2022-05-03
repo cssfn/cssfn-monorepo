@@ -8,6 +8,7 @@ import {
     // style sheets:
     StyleSheet,
     styleSheets as _styleSheets,
+    styleSheet  as _styleSheet,
     
     
     
@@ -73,6 +74,7 @@ jest.isolateModules(() => {
     let vars               : typeof _vars        = undefined as any;
     let style              : typeof _style       = undefined as any;
     let styleSheets        : typeof _styleSheets = undefined as any;
+    let styleSheet         : typeof _styleSheet  = undefined as any;
     let mainScope          : typeof _mainScope   = undefined as any;
     let globalScope        : typeof _globalScope = undefined as any;
     let styleSheetRegistry : typeof _styleSheetRegistry = undefined as any;
@@ -109,6 +111,7 @@ jest.isolateModules(() => {
         vars               = cssfnModule.vars
         style              = cssfnModule.style
         styleSheets        = cssfnModule.styleSheets
+        styleSheet         = cssfnModule.styleSheet
         mainScope          = cssfnModule.mainScope
         globalScope        = cssfnModule.globalScope
         styleSheetRegistry = styleSheetModule.styleSheetRegistry
@@ -227,6 +230,96 @@ background-position: 0 0, 1cm 2cm, center !important;
 `
         );
     });
+    
+    
+    
+    test(`render() # test standard propName`, () => {
+        styleSheet(() => ({
+            background: 'pink',
+            paddingInline: '1rem',
+            borderStartEndRadius: '0.5px',
+        }), { id: '#sheet#1' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.z7qv1 {
+background: pink;
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+`
+        );
+    });
+    test(`render() # test vendor propName`, () => {
+        styleSheet(() => ({
+            WebkitAnimationDelay: '500ms',
+            MozAnimationDelay: '500ms',
+            OAnimationDelay: '500ms',
+            msFlexDirection: 'column',
+        }), { id: '#sheet#2' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.yny9o {
+-webkit-animation-delay: 500ms;
+-moz-animation-delay: 500ms;
+-o-animation-delay: 500ms;
+-ms-flex-direction: column;
+}
+`
+        );
+    });
+    test(`render() # test custom propName`, () => {
+        styleSheet(() => ({
+            '--custProp1': '"yeah"',
+            'var(--custProp2)': '"cool"',
+            '--my-custProp1': '"okay"',
+            'var(--my-custProp2)': '"good"',
+        }), { id: '#sheet#3' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.y45ob {
+--custProp1: "yeah";
+--custProp2: "cool";
+--my-custProp1: "okay";
+--my-custProp2: "good";
+}
+`
+        );
+    });
+    test(`render() # test propValue`, () => {
+        styleSheet(() => ({
+            color: 'pink',
+            opacity: 0.5,
+            content: '"hello world"',
+            
+            fontFamily: ['Arial', 'sans-serif'],
+            background: ['url(image1.png)', 'url(image2.png)', '!important'],
+            
+            border: [['solid', '2px', 'red']],
+            padding: [['10px', 0, '5px', '3%'], '!important'],
+            
+            boxShadow: [['10px', '5px', '5px', 'black'], ['inset', '5em', '1em', 'gold']],
+            backgroundPosition: [[0, 0], ['1cm', '2cm'], ['center'], '!important'],
+        }), { id: '#sheet#4' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.xkd2y {
+color: pink;
+opacity: 0.5;
+content: "hello world";
+font-family: Arial, sans-serif;
+background: url(image1.png), url(image2.png) !important;
+border: solid 2px red;
+padding: 10px 0 5px 3% !important;
+box-shadow: 10px 5px 5px black, inset 5em 1em gold;
+background-position: 0 0, 1cm 2cm, center !important;
+}
+`
+        );
+    });
     //#endregion test properties
     
     
@@ -286,6 +379,55 @@ display: grid;
 `
         );
     });
+    
+    
+    
+    test(`render() # test @fallbacks`, () => {
+        styleSheet(() => ({
+            background: 'linear-gradient(to right, red 0%, green 100%)',
+            ...fallbacks({
+                background: 'red',
+            }),
+        }), { id: '#sheet#5' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.x0khl {
+background: red;
+background: linear-gradient(to right, red 0%, green 100%);
+}
+`
+        );
+    });
+    test(`render() # test @fallbacks`, () => {
+        styleSheet(() => ({
+            display: 'grid',
+            ...fallbacks({
+                display: 'flex',
+            }),
+            ...fallbacks({
+                display: 'block',
+            }),
+            ...fallbacks({
+                display: 'inline',
+            }),
+            ...fallbacks({
+                display: 'none',
+            }),
+        }), { id: '#sheet#6' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.wgrw8 {
+display: none;
+display: inline;
+display: block;
+display: flex;
+display: grid;
+}
+`
+        );
+    });
     //#endregion test @fallbacks
     
     
@@ -331,6 +473,53 @@ font-style: oblique 40deg;
                 })
             )
         ], { id: '#sheet#8' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+@font-face {
+font-family: Open Sans;
+src: url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf");
+font-weight: bold;
+font-style: oblique 40deg;
+}
+`
+        );
+    });
+    
+    
+    
+    test(`render() # test @font-face`, () => {
+        styleSheet(() => ({
+            ...fontFace({
+                fontFamily: 'Open Sans',
+                src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")',
+                fontWeight: 'bold',
+                fontStyle: [['oblique', '40deg']],
+            }),
+        }), { id: '#sheet#7' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+@font-face {
+font-family: Open Sans;
+src: url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf");
+font-weight: bold;
+font-style: oblique 40deg;
+}
+`
+        );
+    });
+    test(`render() # test @font-face`, () => {
+        styleSheet(() => ({
+            ...fontFace({
+                fontFamily: 'Open Sans',
+                src: 'url("https://mdn.mozillademos.org/files/2468/VeraSeBd.ttf")',
+                ...style({
+                    fontWeight: 'bold',
+                    fontStyle: [['oblique', '40deg']],
+                }),
+            }),
+        }), { id: '#sheet#8' });
         expect(render(lastStyleSheet!))
         .toEqual(
 `
@@ -412,6 +601,87 @@ opacity: 0.9;
                 })
             )
         ], { id: '#sheet#8' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+@keyframes awesome {
+from {
+background: pink;
+color: red;
+opacity: 0.3;
+border: solid 2px red;
+}
+
+to {
+background: lightblue;
+color: blue;
+opacity: 0.9;
+border: solid 4px blue;
+}
+
+}
+`
+        );
+    });
+    
+    
+    
+    test(`render() # test @keyframes`, () => {
+        styleSheet(() => ({
+            ...keyframes('awesome', {
+                from: {
+                    background: 'pink',
+                    color: 'red',
+                    opacity: 0.3,
+                },
+                to: {
+                    background: 'lightblue',
+                    color: 'blue',
+                    opacity: 0.9,
+                },
+            }),
+        }), { id: '#sheet#7' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+@keyframes awesome {
+from {
+background: pink;
+color: red;
+opacity: 0.3;
+}
+
+to {
+background: lightblue;
+color: blue;
+opacity: 0.9;
+}
+
+}
+`
+        );
+    });
+    test(`render() # test @keyframes`, () => {
+        styleSheet(() => ({
+            ...keyframes('awesome', {
+                from: {
+                    background: 'pink',
+                    color: 'red',
+                    ...style({
+                        opacity: 0.3,
+                        border: [['solid', '2px', 'red']],
+                    }),
+                },
+                to: {
+                    background: 'lightblue',
+                    color: 'blue',
+                    ...style({
+                        opacity: 0.9,
+                        border: [['solid', '4px', 'blue']],
+                    }),
+                },
+            }),
+        }), { id: '#sheet#8' });
         expect(render(lastStyleSheet!))
         .toEqual(
 `
@@ -909,6 +1179,153 @@ border: solid 2px red;
 }
 
 :where(.zap0m):is(.menu, :valid):nth-child(n):nth-child(n), :where(.zap0m)::before:nth-child(n):nth-child(n):nth-child(n) {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    
+    
+    
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            background: 'pink',
+            ...rule('.rule', {
+                paddingInline: '1rem',
+                borderStartEndRadius: '0.5px',
+            }),
+            ...rule(':hover', {
+                color: 'red',
+                opacity: 0.3,
+            }),
+            ...rule([':active', ':checked'], {
+                display: 'grid',
+                border: [['solid', '2px', 'red']],
+            }),
+            ...rule(['.menu', ':valid', '::before'], {
+                visibility: 'visible',
+                overflow: 'auto',
+            }),
+        }), { id: '#sheet#9' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.ute45 {
+background: pink;
+}
+
+.ute45.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+.ute45:hover {
+color: red;
+opacity: 0.3;
+}
+
+.ute45:is(:active, :checked) {
+display: grid;
+border: solid 2px red;
+}
+
+.ute45:is(.menu, :valid), .ute45::before {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            ...rule('.rule', {
+                paddingInline: '1rem',
+                borderStartEndRadius: '0.5px',
+            }, { minSpecificityWeight: 3 }),
+            ...rule(':hover', {
+                color: 'red',
+                opacity: 0.3,
+            }, { maxSpecificityWeight: 0 }),
+            ...rule([':active', ':checked'], {
+                display: 'grid',
+                border: [['solid', '2px', 'red']],
+            }, { specificityWeight: 2 }),
+            ...rule(['.menu', ':valid', '::before'], {
+                visibility: 'visible',
+                overflow: 'auto',
+            }, { specificityWeight: 2 }),
+        }), { id: '#sheet#10' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.vg4v3.rule.rule.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+.vg4v3:where(:hover) {
+color: red;
+opacity: 0.3;
+}
+
+.vg4v3:is(:active, :checked):nth-child(n) {
+display: grid;
+border: solid 2px red;
+}
+
+.vg4v3:is(.menu, :valid):nth-child(n), .vg4v3::before:nth-child(n):nth-child(n) {
+visibility: visible;
+overflow: auto;
+}
+`
+        );
+    });
+    test(`render() # test .rule`, () => {
+        styleSheet(() => ({
+            background: 'pink',
+            ...rules([
+                rule('.rule', {
+                    paddingInline: '1rem',
+                    borderStartEndRadius: '0.5px',
+                }),
+                rule(':hover', {
+                    color: 'red',
+                    opacity: 0.3,
+                }),
+                rule([':active', ':checked'], {
+                    display: 'grid',
+                    border: [['solid', '2px', 'red']],
+                }),
+                rule(['.menu', ':valid', '::before'], {
+                    visibility: 'visible',
+                    overflow: 'auto',
+                }),
+            ], { specificityWeight: 3 }),
+        }), { id: '#sheet#11' });
+        expect(render(lastStyleSheet!))
+        .toEqual(
+`
+.vzxgg {
+background: pink;
+}
+
+.vzxgg.rule.rule.rule {
+padding-inline: 1rem;
+border-start-end-radius: 0.5px;
+}
+
+.vzxgg:hover:hover:hover {
+color: red;
+opacity: 0.3;
+}
+
+.vzxgg:is(:active, :checked):nth-child(n):nth-child(n) {
+display: grid;
+border: solid 2px red;
+}
+
+.vzxgg:is(.menu, :valid):nth-child(n):nth-child(n), .vzxgg::before:nth-child(n):nth-child(n):nth-child(n) {
 visibility: visible;
 overflow: auto;
 }
