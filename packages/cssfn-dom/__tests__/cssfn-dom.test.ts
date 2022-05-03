@@ -3,15 +3,18 @@ import type {
 } from 'jsdom'
 import type {
     // cssfn properties:
+    CssStyle,
     CssScopeList,
 }                           from '@cssfn/css-types'
 import type {
     // style sheets:
     styleSheets as _styleSheets,
+    styleSheet  as _styleSheet,
     
     
     // scopes:
     globalScope as _globalScope,
+    atGlobal    as _atGlobal,
     mainScope   as _mainScope,
     rule as _rule,
     // children as _children,
@@ -144,6 +147,100 @@ jest.isolateModules(() => {
         
         await new Promise<void>((resolve) => { setTimeout(() => {
             const mainScopeClass = styleSheet4.main;
+            expect(mainScopeClass).toBe('ysbco');
+            // console.log('scopeName', mainScopeClass);
+            
+            
+            
+            resolve();
+        }, 0)});
+    });
+});
+jest.isolateModules(() => {
+    let styleSheet  : typeof _styleSheet  = undefined as any;
+    let atGlobal    : typeof _atGlobal    = undefined as any;
+    let rule        : typeof _rule = undefined as any;
+    // let children    : typeof _children = undefined as any;
+    let Subject     : typeof _Subject = undefined as any;
+    beforeAll(async () => {
+        simulateServerSide();
+        
+        const cssfnModule    = await import('@cssfn/cssfn')
+        //@ts-ignore
+        const cssfnDomModule = await import('../dist/cssfn-dom.js')
+        const rxjsModule     = await import('rxjs')
+        
+        
+        
+        styleSheet  = cssfnModule.styleSheet
+        atGlobal    = cssfnModule.atGlobal
+        rule        = cssfnModule.rule
+        // children    = cssfnModule.children
+        
+        Subject     = rxjsModule.Subject
+    });
+    
+    
+    
+    test('test no any attached stylesheet', async () => {
+        styleSheet(() => ({
+            ...atGlobal({
+                ...rule('button', {
+                    appearance: 'none',
+                    display: 'flex',
+                    flexDirection: 'row',
+                }),
+            }),
+        }));
+    });
+    
+    
+    
+    test('test no any attached stylesheet', async () => {
+        const stylesheet2 = new Subject<CssStyle|null>();
+        styleSheet(stylesheet2);
+        stylesheet2.next({
+            ...atGlobal({
+                ...rule('input[type="checkbox"]', {
+                    display: 'inline-flex',
+                    flexDirection: 'row',
+                    background: 'pink',
+                }),
+            }),
+        });
+        
+        styleSheet(() => ({
+            ...atGlobal({
+                ...rule('input[type="text"]', {
+                    display: 'grid',
+                    background: 'gray',
+                    color: 'darkgray',
+                }),
+            }),
+        }));
+        
+        await new Promise<void>((resolve) => { setTimeout(() => {
+            stylesheet2.next(null);
+            
+            
+            
+            resolve();
+        }, 10)});
+        
+    });
+    
+    
+    
+    test('test no any attached stylesheet', async () => {
+        const styleSheet4 = styleSheet(() => ({
+            display: 'grid',
+            gridAutoFlow: 'column',
+            gap: '1.25rem',
+            '--sheetId': '"ss4"',
+        }), { id: 'stylesheet#4', specificityWeight: 3 });
+        
+        await new Promise<void>((resolve) => { setTimeout(() => {
+            const mainScopeClass = styleSheet4;
             expect(mainScopeClass).toBe('ysbco');
             // console.log('scopeName', mainScopeClass);
             
