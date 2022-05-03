@@ -2,12 +2,14 @@ import type {
     JSDOM as _JSDOM,
 } from 'jsdom'
 import type {
+    CssStyle,
     CssScopeList,
 } from '@cssfn/css-types'
 import type {
     // style sheets:
     StyleSheet,
     styleSheets  as _styleSheets,
+    styleSheet   as _styleSheet,
     
     
     
@@ -60,6 +62,7 @@ const simulateBrowserSide = (dom: _JSDOM) => {
 
 jest.isolateModules(() => {
     let styleSheets        : typeof _styleSheets        = undefined as any;
+    let styleSheet         : typeof _styleSheet         = undefined as any;
     let scopeOf            : typeof _scopeOf            = undefined as any;
     let mainScope          : typeof _mainScope          = undefined as any;
     let globalScope        : typeof _globalScope        = undefined as any;
@@ -73,6 +76,7 @@ jest.isolateModules(() => {
         const rxjsModule       = await import('rxjs')
         
         styleSheets        = cssfnModule.styleSheets
+        styleSheet         = cssfnModule.styleSheet
         scopeOf            = cssfnModule.scopeOf
         mainScope          = cssfnModule.mainScope
         globalScope        = cssfnModule.globalScope
@@ -100,23 +104,25 @@ jest.isolateModules(() => {
     
     test('[server] test registered styleSheets = 0', () => {
         const sheet1 = styleSheets(() => [
-            mainScope([]),
-            scopeOf('menuBar', []),
+            mainScope({ color: 'red', }),
+            scopeOf('menuBar', { background: 'blue', }),
             globalScope([]),
         ], { id: 'sheet1' });
-        // @ts-ignore
-        const sheet2 = styleSheets(() => [
+        styleSheets(() => [
             mainScope([]),
         ], { id: 'sheet2', enabled: false });
-        // @ts-ignore
-        const sheet3 = styleSheets(() => [
+        styleSheets(() => [
             mainScope([]),
         ], { id: 'sheet3' });
         
         // @ts-ignore
-        const mainClass    = sheet1.classes.main;
+        const mainClass    = sheet1.main;
         // @ts-ignore
-        const menuBarClass = sheet1.classes.menuBar;
+        const menuBarClass = sheet1.menuBar;
+        expect(typeof(mainClass)).toBe('string');
+        expect(typeof(menuBarClass)).toBe('string');
+        expect(mainClass.length).toBeGreaterThanOrEqual(1);
+        expect(menuBarClass.length).toBeGreaterThanOrEqual(1);
         
         
         const activeSheets : StyleSheet[] = [];
@@ -222,6 +228,120 @@ jest.isolateModules(() => {
         expect(activeSheets.length)
         .toBe(0);
     });
+    
+    
+    
+    test('[server] test registered styleSheets = 0', () => {
+        const activeSheets : StyleSheet[] = [];
+        styleSheetRegistry.subscribe((styleSheet) => {
+            if (styleSheet.enabled) {
+                activeSheets.push(styleSheet);
+            } else {
+                const index = activeSheets.indexOf(styleSheet);
+                if (index >= 0) activeSheets.splice(index, 1);
+            } // if
+        });
+        
+        expect(activeSheets.length)
+        .toBe(0);
+    });
+    
+    test('[server] test registered styleSheets = 0', () => {
+        const mainClass = styleSheet({ color: 'red', }, { id: 'sheet1' });
+        styleSheet({ background: 'blue', }, { id: 'sheet2', enabled: false });
+        styleSheet({ opacity: 0.5, }, { id: 'sheet3' });
+        
+        expect(typeof(mainClass)).toBe('string');
+        expect(mainClass.length).toBeGreaterThanOrEqual(1);
+        
+        
+        const activeSheets : StyleSheet[] = [];
+        styleSheetRegistry.subscribe((styleSheet) => {
+            if (styleSheet.enabled) {
+                activeSheets.push(styleSheet);
+            } else {
+                const index = activeSheets.indexOf(styleSheet);
+                if (index >= 0) activeSheets.splice(index, 1);
+            } // if
+        });
+        
+        expect(activeSheets.length)
+        .toBe(0);
+    });
+    
+    test('[server] test registered styleSheets = 0', () => {
+        styleSheet({ color: 'red', }, { id: 'sheet4' });
+        styleSheet({ background: 'blue', }, { id: 'sheet5' });
+        
+        
+        
+        const activeSheets : StyleSheet[] = [];
+        styleSheetRegistry.subscribe((styleSheet) => {
+            if (styleSheet.enabled) {
+                activeSheets.push(styleSheet);
+            } else {
+                const index = activeSheets.indexOf(styleSheet);
+                if (index >= 0) activeSheets.splice(index, 1);
+            } // if
+        });
+        
+        expect(activeSheets.length)
+        .toBe(0);
+    });
+    
+    test('[server] test registered styleSheets = 0', () => {
+        const sheet6 = new Subject<CssStyle|null>();
+        styleSheet(sheet6, { id: 'sheet6' });
+        sheet6.next({ color: 'red', });
+        
+        const sheet7 = new Subject<CssStyle|null>();
+        styleSheet(sheet7, { id: 'sheet7' });
+        sheet7.next({ color: 'red', });
+        
+        const sheet8 = new Subject<CssStyle|null>();
+        styleSheet(sheet8, { id: 'sheet8' });
+        // sheet8.next({ color: 'red', });
+        
+        const sheet9 = new Subject<CssStyle|null>();
+        styleSheet(sheet9, { id: 'sheet9' });
+        sheet9.next({ color: 'red', });
+        
+        
+        
+        const activeSheets : StyleSheet[] = [];
+        styleSheetRegistry.subscribe((styleSheet) => {
+            if (styleSheet.enabled) {
+                activeSheets.push(styleSheet);
+            } else {
+                const index = activeSheets.indexOf(styleSheet);
+                if (index >= 0) activeSheets.splice(index, 1);
+            } // if
+        });
+        
+        expect(activeSheets.length)
+        .toBe(0);
+        
+        sheet8.next({ color: 'red', });
+        
+        expect(activeSheets.length)
+        .toBe(0);
+        
+        sheet6.next(null);
+        sheet9.next(null);
+        
+        expect(activeSheets.length)
+        .toBe(0);
+        
+        sheet7.next(null);
+        
+        expect(activeSheets.length)
+        .toBe(0);
+        
+        sheet6.next({ color: 'red', });
+        
+        expect(activeSheets.length)
+        .toBe(0);
+    });
 });
 
 
@@ -230,6 +350,7 @@ jest.isolateModules(() => {
     let JSDOM              : typeof _JSDOM = undefined as any;
     let dom                : _JSDOM = undefined as any;
     let styleSheets        : typeof _styleSheets        = undefined as any;
+    let styleSheet         : typeof _styleSheet         = undefined as any;
     let scopeOf            : typeof _scopeOf            = undefined as any;
     let mainScope          : typeof _mainScope          = undefined as any;
     let globalScope        : typeof _globalScope        = undefined as any;
@@ -256,6 +377,7 @@ jest.isolateModules(() => {
         const rxjsModule       = await import('rxjs')
         
         styleSheets        = cssfnModule.styleSheets
+        styleSheet         = cssfnModule.styleSheet
         scopeOf            = cssfnModule.scopeOf
         mainScope          = cssfnModule.mainScope
         globalScope        = cssfnModule.globalScope
@@ -283,23 +405,25 @@ jest.isolateModules(() => {
     
     test('[browser] test registered styleSheets = 2', () => {
         const sheet1 = styleSheets(() => [
-            mainScope([]),
-            scopeOf('menuBar', []),
+            mainScope({ color: 'red', }),
+            scopeOf('menuBar', { background: 'blue', }),
             globalScope([]),
         ], { id: 'sheet1' });
-        // @ts-ignore
-        const sheet2 = styleSheets(() => [
+        styleSheets(() => [
             mainScope([]),
         ], { id: 'sheet2', enabled: false });
-        // @ts-ignore
-        const sheet3 = styleSheets(() => [
+        styleSheets(() => [
             mainScope([]),
         ], { id: 'sheet3' });
         
         // @ts-ignore
-        const mainClass    = sheet1.classes.main;
+        const mainClass    = sheet1.main;
         // @ts-ignore
-        const menuBarClass = sheet1.classes.menuBar;
+        const menuBarClass = sheet1.menuBar;
+        expect(typeof(mainClass)).toBe('string');
+        expect(typeof(menuBarClass)).toBe('string');
+        expect(mainClass.length).toBeGreaterThanOrEqual(1);
+        expect(menuBarClass.length).toBeGreaterThanOrEqual(1);
         
         
         const activeSheets : StyleSheet[] = [];
@@ -452,6 +576,204 @@ jest.isolateModules(() => {
             'sheet4', 'sheet5',
             'sheet8',
             'sheet6',
+        ]);
+    });
+    
+    
+    
+    test('[browser] test registered styleSheets = 6', () => {
+        const activeSheets : StyleSheet[] = [];
+        styleSheetRegistry.subscribe((styleSheet) => {
+            if (styleSheet.enabled) {
+                activeSheets.push(styleSheet);
+            } else {
+                const index = activeSheets.indexOf(styleSheet);
+                if (index >= 0) activeSheets.splice(index, 1);
+            } // if
+        });
+        
+        expect(activeSheets.length)
+        .toBe(6);
+    });
+    
+    test('[browser] test registered styleSheets = 8', () => {
+        const mainClass = styleSheet({ color: 'red', }, { id: 'sheet10' });
+        styleSheet({ background: 'blue', }, { id: 'sheet11', enabled: false });
+        styleSheet({ opacity: 0.5, }, { id: 'sheet12' });
+        
+        expect(typeof(mainClass)).toBe('string');
+        expect(mainClass.length).toBeGreaterThanOrEqual(1);
+        
+        
+        const activeSheets : StyleSheet[] = [];
+        styleSheetRegistry.subscribe((styleSheet) => {
+            if (styleSheet.enabled) {
+                activeSheets.push(styleSheet);
+            } else {
+                const index = activeSheets.indexOf(styleSheet);
+                if (index >= 0) activeSheets.splice(index, 1);
+            } // if
+        });
+        
+        expect(activeSheets.length)
+        .toBe(8); // ['sheet2', 'sheet7', 'sheet9', 'sheet11'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6',
+            'sheet8',
+            
+            'sheet10', 'sheet12', // ['sheet2', 'sheet7', 'sheet9', 'sheet11'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12']
+        ]);
+    });
+    
+    test('[browser] test registered styleSheets = 10', () => {
+        styleSheet({ color: 'red', }, { id: 'sheet13' });
+        styleSheet({ background: 'blue', }, { id: 'sheet14' });
+        
+        
+        
+        const activeSheets : StyleSheet[] = [];
+        styleSheetRegistry.subscribe((styleSheet) => {
+            if (styleSheet.enabled) {
+                activeSheets.push(styleSheet);
+            } else {
+                const index = activeSheets.indexOf(styleSheet);
+                if (index >= 0) activeSheets.splice(index, 1);
+            } // if
+        });
+        
+        expect(activeSheets.length)
+        .toBe(10); // ['sheet2', 'sheet7', 'sheet9', 'sheet11'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet7', 'sheet9', 'sheet11'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6',
+            'sheet8',
+            
+            'sheet10', 'sheet12',
+            'sheet13', 'sheet14',
+        ]);
+    });
+    
+    test('[browser] test registered styleSheets = 12', () => {
+        const sheet6 = new Subject<CssStyle|null>();
+        styleSheet(sheet6, { id: 'sheet15' });
+        sheet6.next({ color: 'red', });
+        
+        const sheet7 = new Subject<CssStyle|null>();
+        styleSheet(sheet7, { id: 'sheet16' });
+        sheet7.next({ color: 'red', });
+        
+        const sheet8 = new Subject<CssStyle|null>();
+        styleSheet(sheet8, { id: 'sheet17' });
+        // sheet8.next({ color: 'red', });
+        
+        const sheet9 = new Subject<CssStyle|null>();
+        styleSheet(sheet9, { id: 'sheet18' });
+        sheet9.next({ color: 'red', });
+        
+        
+        
+        const activeSheets : StyleSheet[] = [];
+        styleSheetRegistry.subscribe((styleSheet) => {
+            if (styleSheet.enabled) {
+                activeSheets.push(styleSheet);
+            } else {
+                const index = activeSheets.indexOf(styleSheet);
+                if (index >= 0) activeSheets.splice(index, 1);
+            } // if
+        });
+        
+        expect(activeSheets.length)
+        .toBe(13); // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet17'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet15', 'sheet16', 'sheet18']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet17'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet15', 'sheet16', 'sheet18']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6',
+            'sheet8',
+            
+            'sheet10', 'sheet12',
+            'sheet13', 'sheet14',
+            'sheet15', 'sheet16', 'sheet18',
+        ]);
+        
+        sheet8.next({ color: 'red', });
+        
+        expect(activeSheets.length)
+        .toBe(14); // ['sheet2', 'sheet7', 'sheet9', 'sheet11' ] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet15', 'sheet16', 'sheet18', 'sheet17']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet7', 'sheet9', 'sheet11' ] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet15', 'sheet16', 'sheet18', 'sheet17']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6',
+            'sheet8',
+            
+            'sheet10', 'sheet12',
+            'sheet13', 'sheet14',
+            'sheet15', 'sheet16', 'sheet18',
+            'sheet17',
+        ]);
+        
+        sheet6.next(null);
+        sheet9.next(null);
+        
+        expect(activeSheets.length)
+        .toBe(12); // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet15', 'sheet18'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet16', 'sheet17']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet15', 'sheet18'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet16', 'sheet17']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6',
+            'sheet8',
+
+            'sheet10', 'sheet12',
+            'sheet13', 'sheet14',
+            'sheet16',
+            'sheet17',
+        ]);
+        
+        sheet7.next(null);
+        
+        expect(activeSheets.length)
+        .toBe(11); // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet15', 'sheet16', 'sheet18'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet17']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet15', 'sheet16', 'sheet18'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6',, 'sheet8' 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet17']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6',
+            'sheet8',
+
+            'sheet10', 'sheet12',
+            'sheet13', 'sheet14',
+            'sheet17',
+        ]);
+        
+        sheet6.next({ color: 'red', });
+        
+        expect(activeSheets.length)
+        .toBe(12); // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet16', 'sheet18'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet17', 'sheet15']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet16', 'sheet18'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet17', 'sheet15']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6',
+            'sheet8',
+
+            'sheet10', 'sheet12',
+            'sheet13', 'sheet14',
+            'sheet17',
+            'sheet15',
         ]);
     });
 });
