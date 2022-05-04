@@ -264,7 +264,7 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
      * -or-  
      * A literal object which is equivalent to `srcProps`.
      */
-    const transformDuplicates = <TSrcValue, TRefValue>(srcProps: Dictionary<TSrcValue>, refProps: Dictionary<TRefValue>, propRename?: ((srcPropName: string) => string)): (Dictionary<TSrcValue|CssCustomSimpleRef|CssCustomKeyframesRef|any[]> | null) => {
+    const transformDuplicates = <TSrcValue, TRefValue>(srcProps: Dictionary<TSrcValue>, refProps: Dictionary<TRefValue>, propRename?: ((srcPropName: string) => string)): (Dictionary<TSrcValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue> | null) => {
         /**
          * Determines if the specified `srcPropValue` can be transformed to another equivalent prop link `var(...)`.
          * @param srcPropValue The value to test.
@@ -308,19 +308,31 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
          * -or-  
          * `null` if not a special `@keyframes name`.
          */
-        const isKeyframesName = (srcPropName: string): string|null => srcPropName.match(/(?<=@keyframes\s+)[\w-]+/)?.[0] ?? null;
+        const isKeyframesName = (srcPropName: string): CssCustomKeyframesRef|null => {
+            if (!srcPropName.startsWith('@keyframes ')) return null;
+            return srcPropName.slice(11).trimStart();
+        }
         
+        /**
+         * Determines if the specified `refPropValue` was exist in `genKeyframes`.
+         * @param refPropValue The prop value of `refProps`.
+         * @returns `true` if it was exist in `genKeyframes`, otherwise `false`.
+         */
         const isExistingKeyframes = <TTRefValue,>(refPropValue: TTRefValue): boolean => {
-            if (typeof(refPropValue) !== 'object') return false; // should be an object
-            if (Array.isArray(refPropValue))       return false; //   but not an array
+            if (!refPropValue)                     return false; // must not null|undefined
+            if (typeof(refPropValue) !== 'object') return false; // must an object
+            if (Array.isArray(refPropValue))       return false; // not  an array
             
             
             
-            return Object.values(genKeyframes).some((keyframes) => Object.is(keyframes, refPropValue));
+            return (
+                Object.values(genKeyframes)
+                .some((keyframesRef) => Object.is(keyframesRef, refPropValue))
+            );
         };
         
         /**
-         * Determines if the specified `srcPropValue` and `refPropValue` are deeply the same by reference or value.
+         * Determines if the specified `srcPropValue` and `refPropValue` are deeply the same by value or by reference.
          * @param srcPropValue The first value to test.
          * @param refPropValue The second value to test.
          * @returns `true` if both are equal, otherwise `false`.
@@ -381,19 +393,19 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
         }
         
         /**
-         * Determines if the specified `srcKeyframesValue` has the equivalent value in `genKeyframes`.
-         * @param srcKeyframesValue The value of `@keyframes`.
+         * Determines if the specified `srcKeyframes` has the equivalent value in `genKeyframes`.
+         * @param srcKeyframes The value of `@keyframes`.
          * @returns A `CssKeyframes` represents the object reference to the equivalent value in `genKeyframes`.  
          * -or- `null` if no equivalent found.
          */
-        const findEqualKeyframes = (srcKeyframesValue: CssKeyframes): (CssKeyframes|null) => {
-            for (const refKeyframesValue of Object.values(genKeyframes)) { // search for duplicates
-                // if ((refKeyframesValue === undefined) || (refKeyframesValue === null)) continue; // skip empty ref
+        const findEqualKeyframes = (srcKeyframes: CssKeyframes): (CssKeyframes|null) => {
+            for (const refKeyframes of Object.values(genKeyframes)) { // search for duplicates
+                // if ((refKeyframes === undefined) || (refKeyframes === null)) continue; // skip empty ref
                 
                 
                 
-                // comparing the `srcKeyframesValue` & `refKeyframesValue` deeply:
-                if (deepEqual(srcKeyframesValue, refKeyframesValue)) return refKeyframesValue; // return the object reference to the ref
+                // comparing the `srcKeyframes` & `refKeyframes` deeply:
+                if (deepEqual(srcKeyframes, refKeyframes)) return refKeyframes; // return the object reference to the ref
             } // for // search for duplicates
             
             return null; // not found
@@ -404,7 +416,7 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
         /**
          * Stores the modified entries of `srcProps`.
          */
-        const modifSrcProps: Dictionary<TSrcValue|CssCustomSimpleRef|CssCustomKeyframesRef|any[]> = {}; // initially empty (no modification)
+        const modifSrcProps: Dictionary<TSrcValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue> = {}; // initially empty (no modification)
         
         
         
@@ -417,8 +429,8 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
             {
                 const keyframesName = isKeyframesName(srcPropName);
                 if (keyframesName) {
-                    let srcKeyframesValue = srcPropValue as unknown as CssKeyframes; // assumes the current `srcPropValue` is a valid `@keyframes`' value.
-                    srcKeyframesValue = findEqualKeyframes(srcKeyframesValue) ?? srcKeyframesValue;
+                    let srcKeyframes = srcPropValue as unknown as CssKeyframes; // assumes the current `srcPropValue` is a valid `@keyframes`' value.
+                    srcKeyframes = findEqualKeyframes(srcKeyframes) ?? srcKeyframes;
                     
                     
                     
@@ -426,7 +438,7 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
                     const keyframesReference = createKeyframesRef(keyframesName); // `@keyframes`' name is always created even if the content is the same as the another `@keyframes`
                     
                     // store the new `@keyframes`:
-                    genKeyframes[keyframesReference] = srcKeyframesValue;
+                    genKeyframes[keyframesReference] = srcKeyframes;
                     
                     
                     
@@ -787,15 +799,59 @@ export { createCssConfig, createCssConfig as default }
 
 
 
+// utilities:
+
 class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue,   TRefPropName extends string, TRefPropValue> {
     //#region private properties
-    #srcProps : Map<TSrcPropName, TSrcPropValue>
-    #refProps : Map<TRefPropName, TRefPropValue>
+    readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
+    readonly #refProps     : Map<TRefPropName, TRefPropValue>
+    readonly #genKeyframes : Map<CssCustomKeyframesRef, CssKeyframes>
+    readonly #options      : LiveCssConfigOptions
     //#endregion private properties
     
+    //#region public properties
+    readonly #result        : Map<TSrcPropName, TSrcPropValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue>|null
+    get result() {
+        return this.#result;
+    }
+    //#endregion public properties
     
     
-    //#region utility methods
+    
+    //#region private utility methods
+    /**
+     * Creates the *declaration name* of the specified `propName`, eg: `--my-favColor`.
+     * @param propName The prop name to create.
+     * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
+     */
+    #createDecl(propName: string): CssCustomName {
+        // replace `@keyframes fooSomething` => `keyframes-fooSomething`
+        // propName = propName.replace(/^@keyframes\s+/, 'keyframes-');                                   // slow!
+        if (propName.startsWith('@keyframes ')) propName = `keyframes-${propName.slice(11).trimStart()}`; // faster!
+        
+        // add double dash with prefix `--prefix-` or double dash without prefix `--`
+        return this.#options.prefix ? `--${this.#options.prefix}-${propName}` : `--${propName}`;
+    }
+    
+    /**
+     * Creates the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
+     * @param propName The prop name to create.
+     * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName`.
+     */
+    #createRef(propName: string): CssCustomSimpleRef {
+        return `var(${this.#createDecl(propName)})`;
+    }
+    
+    /**
+     * Creates the *value* (reference) of the specified `keyframesName`.
+     * @param keyframesName The `@keyframes` name to create.
+     * @returns A `CssCustomKeyframesRef` represents the expression for retrieving the reference of the specified `keyframesName`.
+     */
+    #createKeyframesRef(keyframesName: string): CssCustomKeyframesRef {
+        // add prefix `prefix-` or just a `keyframesName`
+        return this.#options.prefix ? `${this.#options.prefix}-${keyframesName}` : keyframesName;
+    }
+    
     /**
      * Determines if the specified `srcPropValue` can be transformed to another equivalent prop link `var(...)`.
      * @param srcPropValue The value to test.
@@ -818,10 +874,11 @@ class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue,   T
         
         return true; // passed, transformable
     }
+    
     /**
      * Determines if the specified `srcPropName` and `refPropName` are pointed to the same object.
-     * @param srcPropName The prop name of `srcProps`.
-     * @param refPropName The prop name of `refProps`.
+     * @param srcPropName The prop name of `#srcProps`.
+     * @param refPropName The prop name of `#refProps`.
      * @returns `true` indicates the same object, otherwise `false`.
      */
     #isSelfProp(srcPropName: TSrcPropName, refPropName: TRefPropName): boolean {
@@ -829,20 +886,197 @@ class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue,   T
         
         return ((srcPropName as string) === (refPropName as string));
     }
-    //#endregion utility methods
+    
+    /**
+     * Determines if the specified `srcPropName` is a special `@keyframes name`.
+     * @param srcPropName The prop name of `#srcProps`.
+     * @returns  
+     * A `CssCustomKeyframesRef` represents the name of `@keyframes`.  
+     * -or-  
+     * `null` if it's not a special `@keyframes name`.
+     */
+    #isKeyframesName(srcPropName: TSrcPropName): CssCustomKeyframesRef|null {
+        if (!srcPropName.startsWith('@keyframes ')) return null;
+        return srcPropName.slice(11).trimStart();
+    }
+    
+    /**
+     * Determines if the specified `refPropValue` was exist in `#genKeyframes`.
+     * @param refPropValue The prop value of `#refProps`.
+     * @returns `true` if it was exist in `#genKeyframes`, otherwise `false`.
+     */
+    #isExistingKeyframesRef(refPropValue: TRefPropValue|CssKeyframes): boolean {
+        if (!refPropValue)                     return false; // must not null|undefined
+        if (typeof(refPropValue) !== 'object') return false; // must an object
+        if (Array.isArray(refPropValue))       return false; // not  an array
+        
+        
+        
+        return (
+            Array.from(this.#genKeyframes.values())
+            .some((keyframesRef) => Object.is(keyframesRef, refPropValue))
+        );
+    }
+    
+    /**
+     * Determines if the specified `srcPropValue` and `refPropValue` are deeply the same by value or by reference.
+     * @param srcPropValue The first value to test.
+     * @param refPropValue The second value to test.
+     * @returns `true` if both are equal, otherwise `false`.
+     */
+    #isDeepEqual(srcPropValue: TSrcPropValue|CssKeyframes, refPropValue: TRefPropValue|CssKeyframes): boolean {
+        // shallow equal comparison:
+        if (Object.is(srcPropValue, refPropValue)) return true;
+        
+        
+        
+        // prevents a @keyframes object be compared deeply:
+        if (this.#isExistingKeyframesRef(refPropValue)) return false;
+        
+        
+        
+        //#region deep equal comparison
+        // both must be an object:
+        if (typeof(srcPropValue) !== 'object') return false;
+        if (typeof(refPropValue) !== 'object') return false;
+        
+        
+        
+        // both must be an array -or- both must not be an array:
+        if (Array.isArray(srcPropValue) !== Array.isArray(refPropValue)) return false;
+        
+        
+        
+        // both props count must be the same:
+        if (Object.keys(srcPropValue).length !== Object.keys(refPropValue).length) return false;
+        
+        
+        
+        // both prop values must be the same:
+        for (const deepPropName in (srcPropValue as TSrcPropValue & CssKeyframes)) {
+            if (!this.#isDeepEqual((srcPropValue as any)[deepPropName], (refPropValue as any)[deepPropName])) return false; // the same prop name with different prop value => false
+        } // for
+        
+        
+        
+        // no any diff detected:
+        return true;
+        //#endregion deep equal comparison
+    }
+    
+    /**
+     * Determines if the specified entry [`srcPropName`, `srcPropValue`] has the equivalent entry in `#refProps`.
+     * @param srcPropName  The prop name of `#srcProps`.
+     * @param srcPropValue The prop value of `#srcProps`.
+     * @returns A `CssCustomSimpleRef` represents the link to the equivalent entry in `#refProps`.  
+     * -or- `null` if no equivalent found.
+     */
+    #findEqualProp(srcPropName: TSrcPropName, srcPropValue: TSrcPropValue): CssCustomSimpleRef|null {
+        for (const [refPropName, refPropValue] of this.#refProps) { // search for duplicates
+            // skip empty ref:
+            if ((refPropValue === undefined) || (refPropValue === null)) continue;
+            
+            // stop search if reaches current entry (search for prev entries only):
+            if (this.#isSelfProp(srcPropName, refPropName)) break;
+            
+            // skip non transformable prop:
+            if (!this.#isTransformableProp(srcPropValue)) continue;
+            
+            
+            
+            // comparing the `srcPropValue` & `refPropValue` deeply:
+            if (this.#isDeepEqual(srcPropValue, refPropValue)) return this.#createRef(refPropName); // return the link to the ref
+        } // search for duplicates
+        
+        // not found:
+        return null;
+    }
+    
+    /**
+     * Determines if the specified `srcKeyframes` has the equivalent `@keyframes` in `#genKeyframes`.
+     * @param srcKeyframes The reference of `@keyframes`.
+     * @returns A `CssKeyframes` represents the object reference to the equivalent `@keyframes` in `#genKeyframes`.  
+     * -or- `null` if no equivalent found.
+     */
+    #findEqualKeyframes(srcKeyframes: CssKeyframes): CssKeyframes|null {
+        for (const refKeyframes of this.#genKeyframes.values()) { // search for duplicates
+            // comparing the `srcKeyframes` & `refKeyframes` deeply:
+            if (this.#isDeepEqual(srcKeyframes, refKeyframes)) return refKeyframes; // return the object reference to the ref
+        } // search for duplicates
+        
+        // not found:
+        return null;
+    }
+    //#endregion private utility methods
+    
+    //#region protected utility methods
+    protected _onCreatePropName(srcPropName: TSrcPropName): TSrcPropName {
+        return srcPropName;
+    }
+    //#endregion protected utility methods
     
     
     
     /**
      * Transforms the specified `srcProps` with the equivalent `Map<TSrcPropName, TSrcPropValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssComplexMultiValueOf<CssSimpleValue>>` object,  
      * in which some values might be partially/fully *transformed*.  
-     * The duplicate values will be replaced with a `var(...)` linked to the existing props in `refProps`.  
-     * @param srcProps The `Map<TSrcPropName, TSrcPropValue>` object to transform.
-     * @param refProps The `Map<TRefPropName, TRefPropValue>` object as the prop references.
+     * The duplicate values will be replaced with a `var(...)` linked to the existing props in `refProps` or in `genKeyframes`.  
+     * @param srcProps     The `Map<TSrcPropName, TSrcPropValue>` object to transform.
+     * @param refProps     The `Map<TRefPropName, TRefPropValue>` object as the prop duplicate references.
+     * @param genKeyframes The `Map<CssCustomKeyframesRef, CssKeyframes>` object as the keyframes duplicate references and as a storage for the generated one.
      */
-    constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>) {
-        this.#srcProps = srcProps;
-        this.#refProps = refProps;
+    constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>, genKeyframes: Map<CssCustomKeyframesRef, CssKeyframes>, options: LiveCssConfigOptions) {
+        this.#srcProps     = srcProps;
+        this.#refProps     = refProps;
+        this.#genKeyframes = genKeyframes;
+        this.#options      = options;
+        
+        
+        
+        const result = new Map<TSrcPropName, TSrcPropValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue>();
+        for (const [srcPropName, srcPropValue] of this.#srcProps) { // walk each entry in `#srcProps`
+            // skip empty src:
+            if ((srcPropValue === undefined) || (srcPropValue === null)) continue;
+            
+            
+            
+            //#region handle `@keyframes foo`
+            const keyframesName = this.#isKeyframesName(srcPropName);
+            if (keyframesName) {
+                let srcKeyframes = srcPropValue as unknown as CssKeyframes; // assumes the current `srcPropValue` is a valid `@keyframes`' value.
+                
+                
+                
+                const equalKeyframes = this.#findEqualKeyframes(srcKeyframes);
+                if (equalKeyframes) srcKeyframes = equalKeyframes; // replace with the equivalent (if any)
+                
+                
+                
+                // create a link to current `@keyframes` name:
+                const keyframesReference = this.#createKeyframesRef(keyframesName);
+                
+                
+                
+                // if @keyframes was not exist => store the new one:
+                if (!equalKeyframes) {
+                    this.#genKeyframes.set(keyframesReference, srcKeyframes);
+                } // if
+                
+                
+                
+                // store the modified `#srcProps`' entry:
+                result.set(
+                    this._onCreatePropName(srcPropName),
+                    keyframesReference
+                );
+                
+                // mission done => continue walk to the next entry:
+                continue;
+            } // if
+            //#endregion handle `@keyframes foo`
+        }  // walk each entry in `#srcProps`
+        
+        this.#result = result;
     }
 }
 
@@ -917,43 +1151,6 @@ class CssConfigBuilder<TProps extends CssConfigProps, TValue = ValueOf<TProps>> 
     readonly #liveStyleSheet = styleSheet([]);
     //#endregion generated data
     //#endregion private properties
-    
-    
-    
-    //#region utility methods
-    /**
-     * Creates the *declaration name* of the specified `propName`, eg: `--my-favColor`.
-     * @param propName The prop name to create.
-     * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
-     */
-    #createDecl(propName: string): CssCustomName {
-        // replace `@keyframes fooSomething` => `keyframes-fooSomething`
-        // propName = propName.replace(/^@keyframes\s+/, 'keyframes-');                                   // slow!
-        if (propName.startsWith('@keyframes ')) propName = `keyframes-${propName.slice(11).trimStart()}`; // faster!
-        
-        // add double dash with prefix `--prefix-` or double dash without prefix `--`
-        return this.#options.prefix ? `--${this.#options.prefix}-${propName}` : `--${propName}`;
-    }
-    
-    /**
-     * Creates the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
-     * @param propName The prop name to create.
-     * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName`.
-     */
-    #createRef(propName: string): CssCustomSimpleRef {
-        return `var(${this.#createDecl(propName)})`;
-    }
-    
-    /**
-     * Creates the *value* (reference) of the specified `keyframesName`.
-     * @param keyframesName The `@keyframes` name to create.
-     * @returns A `CssCustomKeyframesRef` represents the expression for retrieving the reference of the specified `keyframesName`.
-     */
-    #createKeyframesRef(keyframesName: string): CssCustomKeyframesRef {
-        // add prefix `prefix-` or just a `keyframesName`
-        return this.#options.prefix ? `${this.#options.prefix}-${keyframesName}` : keyframesName;
-    }
-    //#endregion utility methods
     
     
     
