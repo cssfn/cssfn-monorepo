@@ -30,6 +30,7 @@
   "dependencies": {
     "@cssfn/css-types": "^2.0.0",
     "@cssfn/cssfn": "^2.0.0",
-    "@cssfn/types": "^2.0.0"
+    "@cssfn/types": "^2.0.0",
+    "rxjs": "^7.5.5"
   }
 }

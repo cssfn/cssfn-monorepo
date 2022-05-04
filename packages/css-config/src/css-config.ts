@@ -19,6 +19,9 @@ import type {
     
     
     // cssfn properties:
+    CssProps,
+    CssStyle,
+    
     CssKeyframes,
     
     CssSelector,
@@ -34,6 +37,11 @@ import {
     
     
     
+    // rule shortcuts:
+    atGlobal,
+    
+    
+    
     // scopes:
     globalScope,
     
@@ -42,6 +50,12 @@ import {
     // style sheets:
     styleSheet,
 }                           from '@cssfn/cssfn'
+import {
+    mergeStyles,
+}                           from '@cssfn/cssfn/dist/mergeStyles.js'
+import {
+    Subject,
+}                           from 'rxjs'
 
 
 
@@ -803,7 +817,7 @@ export { createCssConfig, createCssConfig as default }
 
 // utilities:
 
-class TransformDuplicatesBuilder<TSrcPropName, TSrcPropValue extends CssCustomValue,   TRefPropName, TRefPropValue extends CssCustomValue> {
+class TransformDuplicatesBuilder<TSrcPropName, TSrcPropValue extends CssCustomValue|undefined,   TRefPropName, TRefPropValue extends CssCustomValue|undefined> {
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
@@ -1174,9 +1188,15 @@ class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> e
         return modified;
     }
     //#endregion overrides
+    
+    
+    
+    constructor(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, genKeyframes: Map<CssCustomKeyframesRef, CssKeyframes>, options: LiveCssConfigOptions) {
+        super(srcProps, srcProps, genKeyframes, options);
+    }
 }
 
-class CssConfigBuilder<TConfigProps extends CssConfigProps, TValue = ValueOf<TConfigProps>> {
+class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     //#region private properties
     readonly #propsFactory : ProductOrFactory<TConfigProps>
     readonly #options      : LiveCssConfigOptions
@@ -1184,13 +1204,13 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps, TValue = ValueOf<TCo
     
     
     //#region data sources
-    #_propsCache : DictionaryOf<TConfigProps>|null = null
+    #_propsCache : Map<keyof TConfigProps, ValueOf<TConfigProps>>|null = null
     /**
      * A *virtual css*.  
      * The source of truth.  
      * If mutated, the `#genProps` and `#genKeyframes` need to `update()`.
      */
-    get #props() : DictionaryOf<TConfigProps> {
+    get #props() : Map<keyof TConfigProps, ValueOf<TConfigProps>> {
         if (!this.#_propsCache) {
             const props : TConfigProps = (
                 (typeof(this.#propsFactory) === 'function')
@@ -1199,7 +1219,10 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps, TValue = ValueOf<TCo
                 :
                 this.#propsFactory
             );
-            this.#_propsCache = props as unknown as DictionaryOf<TConfigProps>;
+            this.#_propsCache = new Map<keyof TConfigProps, ValueOf<TConfigProps>>(
+                Object.entries(props)
+                .map(([propName, propValue]) => [propName as keyof TConfigProps, propValue as ValueOf<TConfigProps>] as const)
+            );
         } // if
         
         return this.#_propsCache;
@@ -1234,23 +1257,67 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps, TValue = ValueOf<TCo
      *    --navb-theBorder   : [[ 'solid', 'var(--navb-bdWidth)', 'var(--navb-colBlue)' ]],  
      * };  
      */
-    readonly #genProps       = new Map<CssCustomName,         CssCustomValue>();
-    
-    /**
-     * The *generated css* of `@keyframes` as an editable_config_storage.
-     */
-    readonly #genKeyframes   = new Map<CssCustomKeyframesRef, CssKeyframes  >();
+    #genProps = new Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomValue>();
     
     /**
      * The *generated css* attached on dom (by default).
      */
-    readonly #liveStyleSheet = styleSheet([]);
+    readonly #liveStyleSheet : Subject<CssStyle|null>;
     //#endregion generated data
     //#endregion private properties
     
     
     
     //#region constructions
+    rebuild() {
+        const props = this.#props;
+        
+        
+        
+        //#region transform the `props` 
+        const genKeyframes = new Map<CssCustomKeyframesRef, CssKeyframes>();
+        this.#genProps = (
+            (new TransformCssConfigDuplicatesBuilder<TConfigProps>(props, genKeyframes, this.#options)).result
+            ??
+            props
+        );
+        //#endregion transform the `props` 
+        
+        
+        
+        //#region transform the keyframes
+        for (const keyframes of genKeyframes.values()) { // walk each value in `#genKeyframes`
+            for (const [key, frame] of Object.entries(keyframes)) {
+                const frameStyle = mergeStyles(frame);
+                if (!frameStyle) {
+                    delete keyframes[key]; // delete empty frames
+                    continue; // skip empty frames
+                } // if
+                
+                
+                
+                let frameProps : Map<keyof CssProps, ValueOf<CssProps>|CssCustomValue> = new Map(
+                    Object.entries(frameStyle)
+                    .map(([propName, propValue]) => [propName as keyof CssProps, propValue as ValueOf<CssProps>] as const)
+                );
+                const equalFrameProps = (new TransformDuplicatesBuilder(frameProps, props, genKeyframes, this.#options)).result;
+                if (equalFrameProps) {
+                    keyframes[key] = Object.fromEntries(equalFrameProps) as CssStyle;
+                } // if
+            } // for
+        } // walk each value in `#genKeyframes`
+        //#endregion transform the keyframes
+        
+        
+        
+        // update styleSheet:
+        this.#liveStyleSheet.next({
+            ...atGlobal({
+                ...rule(this.#options.selector, Object.fromEntries(this.#genProps) as CssStyle),
+                ...Array.from(genKeyframes).map(([name, value]) => keyframes(name, value)),
+            }),
+        });
+    }
     //#endregion constructions
     
     
@@ -1262,6 +1329,9 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps, TValue = ValueOf<TCo
             // TODO:
             // this.update();
         }, options);
+        this.#liveStyleSheet = new Subject<CssStyle|null>();
+        // TODO: remove any:
+        styleSheet(this.#liveStyleSheet as any);
     }
     //#endregion constructors
     
