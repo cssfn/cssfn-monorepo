@@ -46,7 +46,9 @@ import {
 
 
 // general types:
-export interface CssConfigProps { }
+export type CssConfigProps = {
+    [name: string] : CssCustomValue
+}
 export type Refs<TProps extends CssConfigProps> = { [key in keyof TProps]: CssCustomSimpleRef }
 export type Vals<TProps extends CssConfigProps> = { [key in keyof TProps]: TProps[key]        }
 
@@ -801,7 +803,7 @@ export { createCssConfig, createCssConfig as default }
 
 // utilities:
 
-class TransformDuplicatesBuilder<TSrcPropName extends string|number, TSrcPropValue extends CssCustomValue,   TRefPropName extends string, TRefPropValue extends CssCustomValue> {
+class TransformDuplicatesBuilder<TSrcPropName, TSrcPropValue extends CssCustomValue,   TRefPropName, TRefPropValue extends CssCustomValue> {
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
@@ -820,26 +822,12 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number, TSrcPropVal
     
     //#region private utility methods
     /**
-     * Creates the *declaration name* of the specified `propName`, eg: `--my-favColor`.
-     * @param propName The prop name to create.
-     * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
-     */
-    #createDecl(propName: string): CssCustomName {
-        // replace `@keyframes fooSomething` => `keyframes-fooSomething`
-        // propName = propName.replace(/^@keyframes\s+/, 'keyframes-');                                   // slow!
-        if (propName.startsWith('@keyframes ')) propName = `keyframes-${propName.slice(11).trimStart()}`; // faster!
-        
-        // add double dash with prefix `--prefix-` or double dash without prefix `--`
-        return this.#options.prefix ? `--${this.#options.prefix}-${propName}` : `--${propName}`;
-    }
-    
-    /**
      * Creates the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
      * @param propName The prop name to create.
      * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName`.
      */
     #createRef(propName: string): CssCustomSimpleRef {
-        return `var(${this.#createDecl(propName)})`;
+        return `var(${this._createDecl(propName)})`;
     }
     
     /**
@@ -884,7 +872,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number, TSrcPropVal
     #isSelfProp(srcPropName: TSrcPropName, refPropName: TRefPropName): boolean {
         if (!Object.is(this.#srcProps, this.#refProps)) return false; // if `#srcProps` & `#refProps` are not the same object in memory => always return `false`
         
-        return ((srcPropName as string|number) === (refPropName as string));
+        return ((srcPropName as string|number|symbol) === (refPropName as string|number|symbol));
     }
     
     /**
@@ -1011,6 +999,20 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number, TSrcPropVal
     //#endregion private utility methods
     
     //#region protected utility methods
+    /**
+     * Creates the *declaration name* of the specified `propName`, eg: `--my-favColor`.
+     * @param propName The prop name to create.
+     * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
+     */
+    _createDecl(propName: string): CssCustomName {
+        // replace `@keyframes fooSomething` => `keyframes-fooSomething`
+        // propName = propName.replace(/^@keyframes\s+/, 'keyframes-');                                   // slow!
+        if (propName.startsWith('@keyframes ')) propName = `keyframes-${propName.slice(11).trimStart()}`; // faster!
+        
+        // add double dash with prefix `--prefix-` or double dash without prefix `--`
+        return this.#options.prefix ? `--${this.#options.prefix}-${propName}` : `--${propName}`;
+    }
+    
     protected _onCreatePropName(srcPropName: TSrcPropName) {
         return srcPropName;
     }
@@ -1162,31 +1164,42 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number, TSrcPropVal
         this.#result = null; // `null` means no modification was performed
     }
 }
+class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> extends TransformDuplicatesBuilder<keyof TConfigProps, ValueOf<TConfigProps>, keyof TConfigProps, ValueOf<TConfigProps>> {
+    //#region overrides
+    protected _onCreatePropName(srcPropName: keyof TConfigProps) {
+        if (typeof(srcPropName) !== 'string') return srcPropName;
+        return this._createDecl(srcPropName);
+    }
+    protected _onCombineModified(modified: Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue>) {
+        return modified;
+    }
+    //#endregion overrides
+}
 
-class CssConfigBuilder<TProps extends CssConfigProps, TValue = ValueOf<TProps>> {
+class CssConfigBuilder<TConfigProps extends CssConfigProps, TValue = ValueOf<TConfigProps>> {
     //#region private properties
-    readonly #propsFactory : ProductOrFactory<TProps>
+    readonly #propsFactory : ProductOrFactory<TConfigProps>
     readonly #options      : LiveCssConfigOptions
     
     
     
     //#region data sources
-    #_propsCache : DictionaryOf<TProps>|null = null
+    #_propsCache : DictionaryOf<TConfigProps>|null = null
     /**
      * A *virtual css*.  
      * The source of truth.  
      * If mutated, the `#genProps` and `#genKeyframes` need to `update()`.
      */
-    get #props() : DictionaryOf<TProps> {
+    get #props() : DictionaryOf<TConfigProps> {
         if (!this.#_propsCache) {
-            const props : TProps = (
+            const props : TConfigProps = (
                 (typeof(this.#propsFactory) === 'function')
                 ?
-                (this.#propsFactory as Factory<TProps>)()
+                (this.#propsFactory as Factory<TConfigProps>)()
                 :
                 this.#propsFactory
             );
-            this.#_propsCache = props as unknown as DictionaryOf<TProps>;
+            this.#_propsCache = props as unknown as DictionaryOf<TConfigProps>;
         } // if
         
         return this.#_propsCache;
@@ -1243,7 +1256,7 @@ class CssConfigBuilder<TProps extends CssConfigProps, TValue = ValueOf<TProps>> 
     
     
     //#region constructors
-    constructor(initialProps: ProductOrFactory<TProps>, options?: CssConfigOptions) {
+    constructor(initialProps: ProductOrFactory<TConfigProps>, options?: CssConfigOptions) {
         this.#propsFactory = initialProps;
         this.#options = new LiveCssConfigOptions(() => {
             // TODO:
