@@ -27,6 +27,7 @@ export type CssSimpleLiteralValue           = (string & {})
 export type CssSimpleValue                  =
     | CssSimpleNumericValue
     | CssSimpleLiteralValue
+    | CssCustomKeyframesRef
 //#endregion simple values
 
 //#region generic complex values
