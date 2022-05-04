@@ -801,7 +801,7 @@ export { createCssConfig, createCssConfig as default }
 
 // utilities:
 
-class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue extends CssCustomValue,   TRefPropName extends string, TRefPropValue extends CssCustomValue> {
+class TransformDuplicatesBuilder<TSrcPropName extends string|number, TSrcPropValue extends CssCustomValue,   TRefPropName extends string, TRefPropValue extends CssCustomValue> {
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
@@ -884,7 +884,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue exte
     #isSelfProp(srcPropName: TSrcPropName, refPropName: TRefPropName): boolean {
         if (!Object.is(this.#srcProps, this.#refProps)) return false; // if `#srcProps` & `#refProps` are not the same object in memory => always return `false`
         
-        return ((srcPropName as string) === (refPropName as string));
+        return ((srcPropName as string|number) === (refPropName as string));
     }
     
     /**
@@ -896,6 +896,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue exte
      * `null` if it's not a special `@keyframes name`.
      */
     #isKeyframesName(srcPropName: TSrcPropName): CssCustomKeyframesRef|null {
+        if (typeof(srcPropName) !== 'string') return null;
         if (!srcPropName.startsWith('@keyframes ')) return null;
         return srcPropName.slice(11).trimStart();
     }
@@ -1010,8 +1011,17 @@ class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue exte
     //#endregion private utility methods
     
     //#region protected utility methods
-    protected _onCreatePropName(srcPropName: TSrcPropName): TSrcPropName {
+    protected _onCreatePropName(srcPropName: TSrcPropName) {
         return srcPropName;
+    }
+    protected _onCombineModified(modified: Map<TSrcPropName, TSrcPropValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue>) {
+        const combined = new Map<TSrcPropName, TSrcPropValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue>(this.#srcProps);
+        
+        for (const [propName, propValue] of modified) {
+            combined.set(propName, propValue);
+        } // for
+        
+        return combined;
     }
     //#endregion protected utility methods
     
@@ -1033,7 +1043,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue exte
         
         
         
-        const result = new Map<TSrcPropName, TSrcPropValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue>();
+        const modified = new Map<TSrcPropName, TSrcPropValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue>();
         for (const [srcPropName, srcPropValue] of this.#srcProps) { // walk each entry in `#srcProps`
             // skip empty src:
             if ((srcPropValue === undefined) || (srcPropValue === null)) continue;
@@ -1064,8 +1074,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue exte
                 
                 
                 
-                // store the modified `#srcProps`' entry:
-                result.set(
+                // store the modified `srcPropValue`:
+                modified.set(
                     this._onCreatePropName(srcPropName),
                     keyframesReference
                 );
@@ -1080,8 +1090,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue exte
             //#region handle single_value
             const equalPropRef = this.#findEqualProp(srcPropName, srcPropValue);
             if (equalPropRef) {
-                // store the modified `#srcProps`' entry:
-                result.set(
+                // store the modified `srcPropValue`:
+                modified.set(
                     this._onCreatePropName(srcPropName),
                     equalPropRef
                 );
@@ -1090,9 +1100,66 @@ class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue exte
                 continue;
             } // if
             //#endregion handle single_value
+            
+            
+            
+            //#region handle multi_value
+            if (Array.isArray(srcPropValue)) {
+                type CssCustomValueArr = Extract<CssCustomValue, Array<any>>
+                const srcNestedValues: CssCustomValueArr = srcPropValue;
+                
+                
+                
+                // convert the array to Map:
+                const srcNestedProps = new Map(
+                    srcNestedValues.map((item, index) => [index, item])
+                );
+                
+                
+                
+                const equalNestedValues = (new TransformDuplicatesBuilder(srcNestedProps, refProps, genKeyframes, options)).result;
+                if (equalNestedValues) {
+                    // convert the Map back to an array:
+                    const srcNestedValues = equalNestedValues.values() as unknown as CssCustomValueArr;
+                    
+                    
+                    
+                    // store the modified `srcPropValue`:
+                    modified.set(
+                        this._onCreatePropName(srcPropName),
+                        srcNestedValues
+                    );
+                    
+                    // mission done => continue walk to the next entry:
+                    continue;
+                } // if
+            } // if
+            //#endregion handle multi_value
+            
+            
+            
+            //#region handle no value change
+            const srcPropName2 = this._onCreatePropName(srcPropName);
+            if (srcPropName2 !== srcPropName) {
+                // The `srcPropValue` was not modified but the `srcPropName` needs to be renamed:
+                modified.set(
+                    srcPropName2,
+                    srcPropValue
+                );
+            } // if
+            //#endregion handle no value change
         }  // walk each entry in `#srcProps`
         
-        this.#result = result;
+        
+        
+        // if the `modified` is not empty (has any modifications) => return the (original + modified):
+        if (modified.size) {
+            this.#result = this._onCombineModified(modified);
+        } // if
+        
+        
+        
+        this.#result = null; // `null` means no modification was performed
     }
 }
 
