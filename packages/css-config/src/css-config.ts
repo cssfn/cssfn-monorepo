@@ -1085,6 +1085,9 @@ class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue exte
                     this._onCreatePropName(srcPropName),
                     equalPropRef
                 );
+                
+                // mission done => continue walk to the next entry:
+                continue;
             } // if
             //#endregion handle single_value
         }  // walk each entry in `#srcProps`
