@@ -801,7 +801,7 @@ export { createCssConfig, createCssConfig as default }
 
 // utilities:
 
-class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue,   TRefPropName extends string, TRefPropValue> {
+class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue extends CssCustomValue,   TRefPropName extends string, TRefPropValue extends CssCustomValue> {
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
@@ -1074,6 +1074,19 @@ class TransformDuplicatesBuilder<TSrcPropName extends string, TSrcPropValue,   T
                 continue;
             } // if
             //#endregion handle `@keyframes foo`
+            
+            
+            
+            //#region handle single_value
+            const equalPropRef = this.#findEqualProp(srcPropName, srcPropValue);
+            if (equalPropRef) {
+                // store the modified `#srcProps`' entry:
+                result.set(
+                    this._onCreatePropName(srcPropName),
+                    equalPropRef
+                );
+            } // if
+            //#endregion handle single_value
         }  // walk each entry in `#srcProps`
         
         this.#result = result;
