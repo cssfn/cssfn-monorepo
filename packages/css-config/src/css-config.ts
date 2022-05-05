@@ -1226,7 +1226,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     /**
      * A *virtual css*.  
      * The source of truth.  
-     * If mutated, the `#genProps` and `#genKeyframes` need to `update()`.
+     * If mutated, the `#genProps` and `genKeyframes` need to `update()`.
      */
     get #props() : Map<keyof TConfigProps, ValueOf<TConfigProps>> {
         if (!this.#_propsCache) {
@@ -1304,7 +1304,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         //#region transform the keyframes
-        for (const keyframes of genKeyframes.values()) { // walk each value in `#genKeyframes`
+        for (const keyframes of genKeyframes.values()) { // walk each value in `genKeyframes`
             for (const [key, frame] of Object.entries(keyframes)) {
                 const frameStyle = mergeStyles(frame);
                 if (!frameStyle) {
@@ -1323,7 +1323,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
                     keyframes[key] = Object.fromEntries(equalFrameProps) as CssStyle;
                 } // if
             } // for
-        } // walk each value in `#genKeyframes`
+        } // walk each value in `genKeyframes`
         //#endregion transform the keyframes
         
         
@@ -1434,6 +1434,48 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         if (!propDecl) return undefined; // not found
         
         return `var(${propDecl})`;
+    }
+    
+    /**
+     * Gets the *equivalent value* of the specified `propName`, might be the *transformed* value, eg: `[['var(--pad-y)', 'var(--pad-x)']]` -or- the *direct* value, eg: `[['5px', '10px']]`.
+     * @param propName The prop name to retrieve.
+     * @returns A `ValueOf<TConfigProps>` or `CssCustomValue` represents the value of the specified `propName` -or- `undefined` if it doesn't exist.
+     */
+    getVal(propName: string): ValueOf<TConfigProps>|CssCustomValue|undefined {
+        const propDecl = this.#getDecl(propName);
+        if (!propDecl) return undefined; // not found
+        
+        return this.#genProps.get(propDecl);
+    }
+    
+    /**
+     * Sets the *direct* value of the specified `propName`.
+     * @param propName The prop name to update.
+     * @param newValue The new value.
+     * @returns Always return `true`.
+     */
+    setDirect(propName: string, newValue: ValueOf<TConfigProps>) {
+        // the original props:
+        const props = this.#props;
+        
+        
+        
+        if ((newValue === undefined) || (newValue === null)) {
+            props.delete(propName);
+            
+            this.#update(); // setting changed => the `#genProps` and `genKeyframes` need to `update()`
+        }
+        else {
+            if (props.get(propName) !== newValue) {
+                props.set(propName, newValue);
+                
+                this.#update(); // setting changed => the `#genProps` and `genKeyframes` need to `update()`
+            } // if
+        } // if
+        
+        
+        
+        return true; // notify update/delete was successful
     }
     //#endregion proxy getters & setters
     
