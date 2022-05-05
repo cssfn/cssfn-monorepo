@@ -1534,5 +1534,8 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     //#region public properties
     get options() { return this.#options }
+    
+    get refs() { return this.#refs }
+    get vals() { return this.#vals }
     //#endregion public properties
 }
