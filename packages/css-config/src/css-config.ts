@@ -1454,7 +1454,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param newValue The new value.
      * @returns Always return `true`.
      */
-    #setDirect(propName: string, newValue: ValueOf<TConfigProps>) {
+    #setDirect(propName: string, newValue: ValueOf<TConfigProps>|undefined|null) {
         // the original props:
         const props = this.#props;
         
@@ -1477,6 +1477,17 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         return true; // notify update/delete was successful
     }
+    
+    /**
+     * Gets the *all possible* `propName`s in the css-config.
+     * @returns An `Array<string>` contains *all possible* `propName`s in the css-config.
+     */
+    #getPropList(): ArrayLike<string|symbol> {
+        return (
+            Array.from(this.#props.keys())
+            .filter((propName): propName is string => (typeof(propName) === 'string'))
+        );
+    }
     //#endregion proxy getters & setters
     
     
@@ -1498,6 +1509,24 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         // regenerate the `#genProps` for the first time:
         this.#update();
+        
+        
+        
+        // proxies - representing data in various formats:
+        this.#refs = new Proxy<Dictionary</*getter: */                  CssCustomSimpleRef | /*setter: */ValueOf<TConfigProps>>>(unusedObj, {
+            get            : (_unusedObj, propName: string)                                  => this.#getRef(propName),
+            set            : (_unusedObj, propName: string, newValue: ValueOf<TConfigProps>) => this.#setDirect(propName, newValue),
+            deleteProperty : (_unusedObj, propName: string)                                  => this.#setDirect(propName, undefined),
+            
+            ownKeys        : (_unusedObj)                                                    => this.#getPropList(),
+        }) as Refs<TConfigProps>;
+        this.#vals = new Proxy<Dictionary</*getter: */ValueOf<TConfigProps>|CssCustomValue | /*setter: */ValueOf<TConfigProps>>>(unusedObj, {
+            get            : (_unusedObj, propName: string)                                  => this.#getVal(propName),
+            set            : (_unusedObj, propName: string, newValue: ValueOf<TConfigProps>) => this.#setDirect(propName, newValue),
+            deleteProperty : (_unusedObj, propName: string)                                  => this.#setDirect(propName, undefined),
+            
+            ownKeys        : (_unusedObj)                                                    => this.#getPropList(),
+        }) as Vals<TConfigProps>;
     }
     //#endregion constructors
     
