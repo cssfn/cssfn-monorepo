@@ -282,7 +282,7 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
      * -or-  
      * A literal object which is equivalent to `srcProps`.
      */
-    const transformDuplicates = <TSrcValue, TRefValue>(srcProps: Dictionary<TSrcValue>, refProps: Dictionary<TRefValue>, propRename?: ((srcPropName: string) => string)): (Dictionary<TSrcValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue> | null) => {
+    const transformDuplicates = <TSrcValue, TRefValue>(srcProps: Dictionary<TSrcValue>, refProps: Dictionary<TRefValue>, propRename?: ((srcPropName: string) => string)): (Dictionary<TSrcValue|CssCustomValue> | null) => {
         /**
          * Determines if the specified `srcPropValue` can be transformed to another equivalent prop link `var(...)`.
          * @param srcPropValue The value to test.
@@ -434,7 +434,7 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
         /**
          * Stores the modified entries of `srcProps`.
          */
-        const modifSrcProps: Dictionary<TSrcValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue> = {}; // initially empty (no modification)
+        const modifSrcProps: Dictionary<TSrcValue|CssCustomValue> = {}; // initially empty (no modification)
         
         
         
@@ -842,7 +842,7 @@ class TransformDuplicatesBuilder<TSrcPropName, TSrcPropValue extends CssCustomVa
     //#endregion private properties
     
     //#region public properties
-    readonly #result        : Map<TSrcPropName, TSrcPropValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue>|null
+    readonly #result        : Map<TSrcPropName, TSrcPropValue|CssCustomValue>|null
     get result() {
         return this.#result;
     }
@@ -1041,8 +1041,8 @@ class TransformDuplicatesBuilder<TSrcPropName, TSrcPropValue extends CssCustomVa
     protected _onCreatePropName(srcPropName: TSrcPropName) {
         return srcPropName;
     }
-    protected _onCombineModified(modified: Map<TSrcPropName, TSrcPropValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue>) {
-        const combined = new Map<TSrcPropName, TSrcPropValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue>(this.#srcProps);
+    protected _onCombineModified(modified: Map<TSrcPropName, TSrcPropValue|CssCustomValue>) {
+        const combined = new Map<TSrcPropName, TSrcPropValue|CssCustomValue>(this.#srcProps);
         
         for (const [propName, propValue] of modified) {
             combined.set(propName, propValue);
@@ -1070,7 +1070,7 @@ class TransformDuplicatesBuilder<TSrcPropName, TSrcPropValue extends CssCustomVa
         
         
         
-        const modified = new Map<TSrcPropName, TSrcPropValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue>();
+        const modified = new Map<TSrcPropName, TSrcPropValue|CssCustomValue>();
         for (const [srcPropName, srcPropValue] of this.#srcProps) { // walk each entry in `#srcProps`
             // skip empty src:
             if ((srcPropValue === undefined) || (srcPropValue === null)) continue;
@@ -1195,12 +1195,12 @@ class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> e
         if (typeof(srcPropName) !== 'string') return srcPropName;
         return this._createDecl(srcPropName);
     }
-    protected _onCombineModified(modified: Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue>) {
+    protected _onCombineModified(modified: Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomValue>) {
         return modified;
     }
     
     get result() {
-        return super.result as Map<CssCustomName, ValueOf<TConfigProps>|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue>|null
+        return super.result as Map<CssCustomName, ValueOf<TConfigProps>|CssCustomValue>|null
     }
     //#endregion overrides
     
