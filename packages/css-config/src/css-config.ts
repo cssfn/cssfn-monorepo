@@ -230,7 +230,9 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
     /**
      * The *generated css* attached on dom.
      */
-    const genStyleSheet = styleSheet([]);
+    const liveStyleSheet = new Subject<CssStyle|null>();
+    // TODO: remove any:
+    styleSheet(liveStyleSheet as any);
     
     /**
      * Creates the *declaration name* of the specified `propName`, eg: `--my-favColor`.
@@ -605,12 +607,12 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
         // (re)build the styleSheet:
         
         // update styleSheet:
-        genStyleSheet.update([
-            globalScope({
+        liveStyleSheet.next({
+            ...atGlobal({
                 ...rule(liveOptions.selector, genProps as Dictionary<CssCustomValue>),
                 ...Object.entries(genKeyframes).map(([name, items]) => keyframes(name, items)),
             }),
-        ]);
+        });
     }
     
     /**
@@ -631,16 +633,16 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
             rebuild();
             _valid = true; // mark the `genProps` & `genKeyframes` as valid
             
-            // now the data was guaranteed regenerated.
+            // now the data is guaranteed regenerated.
         }
         else {
             // promise to regenerate the data in the future as soon as possible:
             
-            _valid = false; // mark the `genProps` & `genKeyframes` as invalid
-            Promise.resolve().then(() => {
+            _valid = false;         // mark the `genProps` as invalid
+            requestAnimationFrame(() => {
                 if (_valid) return; // has been previously generated => abort
                 rebuild();
-                _valid = true; // mark the `genProps` & `genKeyframes` as valid
+                _valid = true;      // mark the `genProps` as valid
             });
         } // if
     }
@@ -1269,7 +1271,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     
     //#region constructions
-    rebuild() {
+    #rebuild() {
         const props = this.#props;
         
         
@@ -1318,6 +1320,52 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             }),
         });
     }
+    
+    /**
+     * Holds the validity status of the `#genProps`.  
+     * `false` is invalid or never built.  
+     * `true`  is valid.
+     */
+    #valid = false;
+    /**
+     * Regenerates the `#genProps`.
+     * @param immediately `true` to update immediately (guaranteed has fully updated after `update()` returned) -or- `false` to update shortly after current execution finished.
+     */
+    #update(immediately = false) {
+        if (immediately) {
+            // regenerate the data right now:
+            
+            this.#rebuild();
+            this.#valid = true; // mark the `#genProps` as valid
+            
+            // now the data is guaranteed regenerated.
+        }
+        else {
+            // promise to regenerate the data in the future as soon as possible, before browser repaint:
+            
+            this.#valid = false;         // mark the `#genProps` as invalid
+            requestAnimationFrame(() => {
+                if (this.#valid) return; // has been previously generated => abort
+                this.#rebuild();
+                this.#valid = true;      // mark the `#genProps` as valid
+            });
+        } // if
+    }
+    
+    /**
+     * Ensures the `#genProps` was fully generated.
+     */
+    #ensureGenerated() {
+        if (this.#valid) {
+            // console.log('update not required');
+            return; // if was valid => return immediately
+        } // if
+        
+        
+        
+        this.#update(/*immediately*/true); // regenerate the `#genProps` and wait until completed
+        // console.log(`update done - prefix: ${this.#options.prefix}`);
+    }
     //#endregion constructions
     
     
@@ -1326,12 +1374,19 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     constructor(initialProps: ProductOrFactory<TConfigProps>, options?: CssConfigOptions) {
         this.#propsFactory = initialProps;
         this.#options = new LiveCssConfigOptions(() => {
-            // TODO:
-            // this.update();
+            this.#update();
         }, options);
+        
+        
+        
         this.#liveStyleSheet = new Subject<CssStyle|null>();
         // TODO: remove any:
         styleSheet(this.#liveStyleSheet as any);
+        
+        
+        
+        // regenerate the `#genProps` for the first time:
+        this.#update();
     }
     //#endregion constructors
     
