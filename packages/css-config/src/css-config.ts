@@ -1441,7 +1441,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param propName The prop name to retrieve.
      * @returns A `ValueOf<TConfigProps>` or `CssCustomValue` represents the value of the specified `propName` -or- `undefined` if it doesn't exist.
      */
-    getVal(propName: string): ValueOf<TConfigProps>|CssCustomValue|undefined {
+    #getVal(propName: string): ValueOf<TConfigProps>|CssCustomValue|undefined {
         const propDecl = this.#getDecl(propName);
         if (!propDecl) return undefined; // not found
         
@@ -1454,7 +1454,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param newValue The new value.
      * @returns Always return `true`.
      */
-    setDirect(propName: string, newValue: ValueOf<TConfigProps>) {
+    #setDirect(propName: string, newValue: ValueOf<TConfigProps>) {
         // the original props:
         const props = this.#props;
         
