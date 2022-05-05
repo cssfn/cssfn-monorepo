@@ -63,8 +63,8 @@ import {
 export type CssConfigProps = {
     [name: string] : CssCustomValue
 }
-export type Refs<TProps extends CssConfigProps> = { [key in keyof TProps]: CssCustomSimpleRef }
-export type Vals<TProps extends CssConfigProps> = { [key in keyof TProps]: TProps[key]        }
+export type Refs<TConfigProps extends CssConfigProps> = { [key in keyof TConfigProps]: CssCustomSimpleRef }
+export type Vals<TConfigProps extends CssConfigProps> = { [key in keyof TConfigProps]: TConfigProps[key]  }
 
 export interface CssConfigOptions {
     /**
@@ -135,7 +135,7 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
     //#endregion public methods
 }
 
-export type CssConfig<TProps extends CssConfigProps> = readonly [Refs<TProps>, Vals<TProps>, LiveCssConfigOptions]
+export type CssConfig<TConfigProps extends CssConfigProps> = readonly [Refs<TConfigProps>, Vals<TConfigProps>, LiveCssConfigOptions]
 
 
 
@@ -819,6 +819,20 @@ export { createCssConfig, createCssConfig as default }
 
 // utilities:
 
+/**
+ * Creates the *declaration name* of the specified `propName`, eg: `--my-favColor`.
+ * @param propName The prop name to create.
+ * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
+ */
+const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomName => {
+    // replace `@keyframes fooSomething` => `keyframes-fooSomething`
+    // propName = propName.replace(/^@keyframes\s+/, 'keyframes-');                                   // slow!
+    if (propName.startsWith('@keyframes ')) propName = `keyframes-${propName.slice(11).trimStart()}`; // faster!
+    
+    // add double dash with prefix `--prefix-` or double dash without prefix `--`
+    return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
+}
+
 class TransformDuplicatesBuilder<TSrcPropName, TSrcPropValue extends CssCustomValue|undefined,   TRefPropName, TRefPropValue extends CssCustomValue|undefined> {
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
@@ -1021,12 +1035,7 @@ class TransformDuplicatesBuilder<TSrcPropName, TSrcPropValue extends CssCustomVa
      * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
      */
     _createDecl(propName: string): CssCustomName {
-        // replace `@keyframes fooSomething` => `keyframes-fooSomething`
-        // propName = propName.replace(/^@keyframes\s+/, 'keyframes-');                                   // slow!
-        if (propName.startsWith('@keyframes ')) propName = `keyframes-${propName.slice(11).trimStart()}`; // faster!
-        
-        // add double dash with prefix `--prefix-` or double dash without prefix `--`
-        return this.#options.prefix ? `--${this.#options.prefix}-${propName}` : `--${propName}`;
+        return createDecl(propName, this.#options);
     }
     
     protected _onCreatePropName(srcPropName: TSrcPropName) {
@@ -1189,6 +1198,10 @@ class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> e
     protected _onCombineModified(modified: Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue>) {
         return modified;
     }
+    
+    get result() {
+        return super.result as Map<CssCustomName, ValueOf<TConfigProps>|CssCustomSimpleRef|CssCustomKeyframesRef|CssCustomValue>|null
+    }
     //#endregion overrides
     
     
@@ -1202,6 +1215,9 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     //#region private properties
     readonly #propsFactory : ProductOrFactory<TConfigProps>
     readonly #options      : LiveCssConfigOptions
+    
+    readonly #refs         : Refs<TConfigProps>
+    readonly #vals         : Vals<TConfigProps>
     
     
     
@@ -1259,7 +1275,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      *    --navb-theBorder   : [[ 'solid', 'var(--navb-bdWidth)', 'var(--navb-colBlue)' ]],  
      * };  
      */
-    #genProps = new Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomValue>();
+    #genProps = new Map<CssCustomName, ValueOf<TConfigProps>|CssCustomValue>();
     
     /**
      * The *generated css* attached on dom (by default).
@@ -1270,7 +1286,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     
     
-    //#region constructions
+    //#region data builds
     #rebuild() {
         const props = this.#props;
         
@@ -1281,7 +1297,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         this.#genProps = (
             (new TransformCssConfigDuplicatesBuilder<TConfigProps>(props, genKeyframes, this.#options)).result
             ??
-            props
+            (props as Map<CssCustomName, ValueOf<TConfigProps>|CssCustomValue>)
         );
         //#endregion transform the `props` 
         
@@ -1315,7 +1331,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         // update styleSheet:
         this.#liveStyleSheet.next({
             ...atGlobal({
-                ...rule(this.#options.selector, Object.fromEntries(this.#genProps) as CssStyle),
+                ...rule(this.#options.selector, Object.fromEntries(this.#genProps)),
                 ...Array.from(genKeyframes).map(([name, value]) => keyframes(name, value)),
             }),
         });
@@ -1329,7 +1345,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     #valid = false;
     /**
      * Regenerates the `#genProps`.
-     * @param immediately `true` to update immediately (guaranteed has fully updated after `update()` returned) -or- `false` to update shortly after current execution finished.
+     * @param immediately `true` to update immediately (guaranteed has fully updated after `#update()` returned) -or- `false` to update shortly after current execution finished.
      */
     #update(immediately = false) {
         if (immediately) {
@@ -1366,7 +1382,60 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         this.#update(/*immediately*/true); // regenerate the `#genProps` and wait until completed
         // console.log(`update done - prefix: ${this.#options.prefix}`);
     }
-    //#endregion constructions
+    //#endregion data builds
+    
+    
+    
+    //#region private utility methods
+    /**
+     * Creates the *declaration name* of the specified `propName`, eg: `--my-favColor`.
+     * @param propName The prop name to create.
+     * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
+     */
+    #createDecl(propName: string): CssCustomName {
+        return createDecl(propName, this.#options);
+    }
+    //#endregion private utility methods
+    
+    
+    
+    //#region proxy getters & setters
+    /**
+     * Gets the *declaration name* of the specified `propName`, eg: `--my-favColor`.
+     * @param propName The prop name to retrieve.
+     * @returns A `CssCustomName` represents the declaration name of the specified `propName` -or- `undefined` if it doesn't exist.
+     */
+    #getDecl(propName: string): CssCustomName|undefined {
+        // ignores react runtime type check:
+        if (propName === '$$typeof') return undefined;
+        
+        
+        
+        // ensures the `#genProps` was fully generated:
+        this.#ensureGenerated();
+        
+        
+        
+        const propDecl = this.#createDecl(propName);
+        
+        // check if the `#genProps` has `propDecl`:
+        if (!this.#genProps.has(propDecl)) return undefined; // not found
+        
+        return propDecl;
+    }
+    
+    /**
+     * Gets the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
+     * @param propName The prop name to retrieve.
+     * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName` -or- `undefined` if it doesn't exist.
+     */
+    #getRef(propName: string): CssCustomSimpleRef|undefined {
+        const propDecl = this.#getDecl(propName);
+        if (!propDecl) return undefined; // not found
+        
+        return `var(${propDecl})`;
+    }
+    //#endregion proxy getters & setters
     
     
     
