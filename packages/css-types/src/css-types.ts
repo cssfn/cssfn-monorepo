@@ -172,9 +172,9 @@ export type CssKnownProps =
 //#region cssfn properties
 export type CssProps                   = CssCustomProps & CssKnownProps
 
-export type CssRuleRawData             = readonly [CssRawSelector  , CssStyleCollection]
-export type CssRuleFinalData           = readonly [CssFinalSelector, CssStyleCollection]
-export type CssRuleData                = CssRuleRawData | CssRuleFinalData
+export type CssRuleRawData             = readonly [CssRawSelector                 , CssStyleCollection]
+export type CssRuleFinalData           = readonly [               CssFinalSelector, CssStyleCollection]
+export type CssRuleData                = readonly [CssRawSelector|CssFinalSelector, CssStyleCollection] | CssRuleRawData | CssRuleFinalData
 export type CssRule = { // do not use Record<symbol, CssRuleData> => doesn't support circular ref
     [name: symbol] : CssRuleData
 }
