@@ -63,8 +63,8 @@ import {
 export type CssConfigProps = {
     [name: string] : CssCustomValue
 }
-export type Refs<TConfigProps extends CssConfigProps> = { [key in keyof TConfigProps]: CssCustomSimpleRef }
-export type Vals<TConfigProps extends CssConfigProps> = { [key in keyof TConfigProps]: TConfigProps[key]  }
+export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef }
+export type Vals<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: TConfigProps[Key]  }
 
 export interface CssConfigOptions {
     /**
