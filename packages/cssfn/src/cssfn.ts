@@ -16,7 +16,6 @@ import type {
     
     CssProps,
     
-    CssKeyframesRule,
     CssRuleData,
     CssRule,
     CssRuleCollection,
@@ -26,6 +25,7 @@ import type {
     CssFontFaceStyleCollection,
     
     CssKeyframes,
+    CssKeyframesRule,
     
     CssSelector,
     CssSelectorCollection,
@@ -171,14 +171,15 @@ export const states   = (states  : CssRuleCollection, options?: CssSelectorOptio
 
 // keyframes:
 export const keyframes         = (name: string, items: CssKeyframes): CssKeyframesRule => atRule(`@keyframes ${name}`, (Object.fromEntries(
-    Object.entries(items).map(([key, frame]): readonly [symbol, CssRuleData] => [
+    Object.entries(items)
+    .map(([key, frame]): readonly [symbol, CssRuleData] => [
         Symbol(),
         [
             ` ${key}`, // add a single space as PropRule token
             frame
         ]
     ])
-) as CssRule)) as CssKeyframesRule;
+) as CssRuleCollection)) as CssKeyframesRule;
 
 
 
