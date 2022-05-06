@@ -163,7 +163,7 @@ const unusedObj = {};
  * Supports delete property, eg:  
  * `myButtonConfig.vals.myFavColor = undefined
  */
-const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrFactory<TProps>, options?: CssConfigOptions): CssConfig<TProps> => {
+const createCssConfig2 = <TProps extends CssConfigProps>(initialProps: ProductOrFactory<TProps>, options?: CssConfigOptions): CssConfig<TProps> => {
     // options:
     const liveOptions = new LiveCssConfigOptions(() => {
         update();
@@ -813,7 +813,7 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
         liveOptions,
     ];
 }
-export { createCssConfig, createCssConfig as default }
+
 
 
 
@@ -1539,3 +1539,21 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     get vals() { return this.#vals }
     //#endregion public properties
 }
+
+
+
+/**
+ * A configurable css variables (css custom properties).  
+ * The config's values can be *accessed directly* in CSS and in JS.
+ */
+const createCssConfig = <TConfigProps extends CssConfigProps>(initialProps: ProductOrFactory<TConfigProps>, options?: CssConfigOptions): CssConfig<TConfigProps> => {
+    const cssConfig = new CssConfigBuilder<TConfigProps>(initialProps, options);
+    return [
+        cssConfig.refs,
+        cssConfig.vals,
+        
+        cssConfig.options,
+    ];
+ }
+ export { createCssConfig, createCssConfig as default }
+ 
