@@ -18,9 +18,11 @@ import type {
     
     // cssfn properties:
     CssProps,
+    
     CssStyle,
     
     CssKeyframes,
+    CssKeyframesRule,
     
     CssSelector,
 }                           from '@cssfn/css-types'
@@ -53,9 +55,11 @@ import {
 
 
 // general types:
-export type CssConfigProps = Nullable<{
-    [name: string] : CssCustomValue
-}>
+export type CssConfigProps =
+    & Nullable<{
+        [name: string] : CssCustomValue
+    }>
+    & CssKeyframesRule
 export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef                  }
 export type Vals<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: TConfigProps[Key]  | CssCustomValue }
 
@@ -149,7 +153,9 @@ const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomN
     return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
 }
 
-class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|undefined|null> {
+type CssKeyframesData = CssKeyframesRule[symbol]
+
+class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|CssKeyframesData|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssKeyframesData|undefined|null> {
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
@@ -521,12 +527,12 @@ class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> e
         if (typeof(srcPropName) !== 'string') return srcPropName;
         return this._createDecl(srcPropName) as (keyof TConfigProps);
     }
-    protected _onCombineModified(modified: Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomValue>): Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomValue> {
+    protected _onCombineModified(modified: Map<keyof TConfigProps, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue>): Map<keyof TConfigProps, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue> {
         return modified;
     }
     
     get result() {
-        return super.result as Map<CssCustomName, ValueOf<TConfigProps>|CssCustomValue> | null
+        return super.result as Map<CssCustomName, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue> | null
     }
     //#endregion overrides
     
@@ -600,7 +606,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      *    --navb-theBorder   : [[ 'solid', 'var(--navb-bdWidth)', 'var(--navb-colBlue)' ]],  
      * };  
      */
-    #genProps = new Map<CssCustomName, ValueOf<TConfigProps>|CssCustomValue>();
+    #genProps = new Map<CssCustomName, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue>();
     
     /**
      * The *generated css* attached on dom (by default).
@@ -622,7 +628,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         this.#genProps = (
             (new TransformCssConfigDuplicatesBuilder<TConfigProps>(props, genKeyframes, this.#options)).result
             ??
-            (props as Map<CssCustomName, ValueOf<TConfigProps>|CssCustomValue>)
+            (props as Map<CssCustomName, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue>)
         );
         //#endregion transform the `props` 
         
@@ -765,7 +771,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param propName The prop name to retrieve.
      * @returns A `ValueOf<TConfigProps>` or `CssCustomValue` represents the value of the specified `propName` -or- `undefined` if it doesn't exist.
      */
-    #getVal(propName: string): ValueOf<TConfigProps>|CssCustomValue|undefined {
+    #getVal(propName: string): ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|undefined {
         const propDecl = this.#getDecl(propName);
         if (!propDecl) return undefined; // not found
         
@@ -836,14 +842,14 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         // proxies - representing data in various formats:
-        this.#refs = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */                  CssCustomSimpleRef | /*setter: */ValueOf<TConfigProps> }>(unusedObj as any, {
+        this.#refs = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */                                CssCustomSimpleRef | /*setter: */ValueOf<TConfigProps> }>(unusedObj as any, {
             get            : (_unusedObj, propName: string)                                  => this.#getRef(propName),
             set            : (_unusedObj, propName: string, newValue: ValueOf<TConfigProps>) => this.#setDirect(propName, newValue),
             deleteProperty : (_unusedObj, propName: string)                                  => this.#setDirect(propName, undefined),
             
             ownKeys        : (_unusedObj)                                                    => this.#getPropList(),
         }) as Refs<TConfigProps>;
-        this.#vals = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */ValueOf<TConfigProps>|CssCustomValue | /*setter: */ValueOf<TConfigProps> }>(unusedObj as any, {
+        this.#vals = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue | /*setter: */ValueOf<TConfigProps> }>(unusedObj as any, {
             get            : (_unusedObj, propName: string)                                  => this.#getVal(propName),
             set            : (_unusedObj, propName: string, newValue: ValueOf<TConfigProps>) => this.#setDirect(propName, newValue),
             deleteProperty : (_unusedObj, propName: string)                                  => this.#setDirect(propName, undefined),
