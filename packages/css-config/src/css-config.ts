@@ -7,7 +7,6 @@ import type {
     
     Dictionary,
     ValueOf,
-    DictionaryOf,
 }                           from '@cssfn/types'
 import type {
     // css custom properties:
@@ -552,7 +551,7 @@ export const createCssConfig2 = <TProps extends CssConfigProps>(initialProps: Pr
         //#region transform the keyframes
         /*
             Dictionary<CssKeyframes>:
-            keyframesName     : keyframesValue
+            keyframesName     : keyframes
             ------------------:---------------------------
             string            : CssKeyframes
             string            : Dictionary<Style>
@@ -560,11 +559,7 @@ export const createCssConfig2 = <TProps extends CssConfigProps>(initialProps: Pr
             '@keyframes foo'  : { '0%': {'opacity': 0.5} },
             '@keyframes dude' : { 'to': {'opacity': 1.0} },
         */
-        for (const keyframesValue of Object.values(genKeyframes)) {
-            if ((keyframesValue === undefined) || (keyframesValue === null)) continue; // skip empty keyframes
-            
-            
-            
+        for (const keyframes of Object.values(genKeyframes)) {
             /*
                 CssKeyframes
                 Dictionary<Style>
@@ -579,13 +574,19 @@ export const createCssConfig2 = <TProps extends CssConfigProps>(initialProps: Pr
                             'some'    : CssCustomValue,
                          }
             */
-            for (const [key, frame] of Object.entries(keyframesValue)) {
-                if ((frame === undefined) || (frame === null)) continue; // skip empty frames
+            for (const [key, frame] of Object.entries(keyframes)) {
+                const frameStyle = mergeStyles(frame);
+                if (!frameStyle) {
+                    delete keyframes[key]; // delete empty frames
+                    continue; // skip empty frames
+                } // if
                 
                 
                 
-                // TODO: fix this
-                keyframesValue[key] = (transformDuplicates(/*srcProps: */frame as (typeof frame & DictionaryOf<typeof frame>), /*refProps: */props) ?? frame) as any;
+                const equalFrameProps = transformDuplicates(/*srcProps: */frameStyle, /*refProps: */props);
+                if (equalFrameProps) {
+                    keyframes[key] = equalFrameProps;
+                } // if
             } // for
         } // for
         //#endregion transform the keyframes
