@@ -87,9 +87,9 @@ export type CssKnownValueOf
 
 
 
-export type CssKnownPropsOf<TName extends CssKnownName, multiValue extends boolean = false> = {
+export type CssKnownPropsOf<TName extends CssKnownName, multiValue extends boolean = false> = Nullable<{
     [name in TName] ?: multiValue extends false ? CssComplexSingleValueOf<CssKnownValueOf<name>> : CssComplexValueOf<CssKnownValueOf<name>>
-}
+}>
 
 //#region css special properties
 export type CssLonghandFontFaceProps =
@@ -122,7 +122,7 @@ export type CssLonghandFontFaceProps =
         | 'fontSizeAdjust'
     , true>
     
-    & {
+    & Nullable<{
         // additional required props:
         // forced to optional ( ?: ) because it may spreaded in partial style(s)
         src             ?: CssComplexValueOf<CssSimpleLiteralValue|`url(${string})`>
@@ -135,7 +135,7 @@ export type CssLonghandFontFaceProps =
         ascentOverride  ?: CssComplexSingleValueOf<CssSimpleLiteralValue|'normal'>
         descentOverride ?: CssComplexSingleValueOf<CssSimpleLiteralValue|'normal'>
         lineGapOverride ?: CssComplexSingleValueOf<CssSimpleLiteralValue|'normal'>
-    }
+    }>
 export type CssShorthandFontFaceProps = CssKnownPropsOf<'fontVariant', true>
 export type CssFontFaceProps =
     & CssLonghandFontFaceProps
@@ -144,10 +144,10 @@ export type CssFontFaceProps =
 
 export type CssKnownStandardLonghandProps  =
     & Omit<CssKnownPropsOf<keyof StandardLonghandProperties , true>, keyof CssLonghandFontFaceProps>
-    & Partial<CssLonghandFontFaceProps>  // some_props like boxShadow, filter are comma/space separated values
+    & CssLonghandFontFaceProps  // some_props like boxShadow, filter are comma/space separated values
 export type CssKnownStandardShorthandProps =
     & Omit<CssKnownPropsOf<keyof StandardShorthandProperties, true>, keyof CssShorthandFontFaceProps>
-    & Partial<CssShorthandFontFaceProps> // all_props are comma/space separated values
+    & CssShorthandFontFaceProps // all_props are comma/space separated values
 export type CssKnownStandardProps          = CssKnownStandardLonghandProps & CssKnownStandardShorthandProps
 
 export type CssKnownVendorLonghandProps    = CssKnownPropsOf<keyof VendorLonghandProperties , true> // some_props are comma/space separated values
