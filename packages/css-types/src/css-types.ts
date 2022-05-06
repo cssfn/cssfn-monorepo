@@ -87,9 +87,9 @@ export type CssKnownValueOf
 
 
 
-export type CssKnownPropsOf<TName extends CssKnownName, multiValue extends boolean = false> = Nullable<{
-    [name in TName] ?: multiValue extends false ? CssComplexSingleValueOf<CssKnownValueOf<name>> : CssComplexValueOf<CssKnownValueOf<name>>
-}>
+export type CssKnownPropsOf<TName extends CssKnownName, multiValue extends boolean = false> = Nullable<Pick<{
+    [name in keyof CssKnownBaseProps] ?: multiValue extends false ? CssComplexSingleValueOf<CssKnownValueOf<name>> : CssComplexValueOf<CssKnownValueOf<name>>
+}, TName>>
 
 //#region css special properties
 export type CssLonghandFontFaceProps =
