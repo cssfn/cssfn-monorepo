@@ -833,7 +833,7 @@ const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomN
     return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
 }
 
-class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|undefined,   TRefPropName extends string, TRefPropValue extends CssCustomValue|undefined> {
+class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|undefined,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|undefined> {
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
@@ -900,10 +900,9 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @returns `true` indicates the same object, otherwise `false`.
      */
     #isSelfProp(srcPropName: TSrcPropName, refPropName: TRefPropName): boolean {
-        if (typeof(srcPropName) !== 'string')           return false; // `srcPropName` must be a string
         if (!Object.is(this.#srcProps, this.#refProps)) return false; // if `#srcProps` & `#refProps` are not the same object in memory => always return `false`
         
-        return (srcPropName === (refPropName as string));
+        return ((srcPropName as string|number|symbol) === (refPropName as string|number|symbol));
     }
     
     /**
@@ -992,6 +991,9 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      */
     #findEqualProp(srcPropName: TSrcPropName, srcPropValue: TSrcPropValue): CssCustomSimpleRef|null {
         for (const [refPropName, refPropValue] of this.#refProps) { // search for duplicates
+            // skip non-string ref prop:
+            if (typeof(refPropName) !== 'string') continue;
+            
             // skip empty ref:
             if ((refPropValue === undefined) || (refPropValue === null)) continue;
             
