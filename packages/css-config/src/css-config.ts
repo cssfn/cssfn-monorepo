@@ -1239,13 +1239,12 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             const props : TConfigProps = (
                 (typeof(this.#propsFactory) === 'function')
                 ?
-                (this.#propsFactory as Factory<TConfigProps>)()
+                this.#propsFactory()
                 :
                 this.#propsFactory
             );
             this.#_propsCache = new Map<keyof TConfigProps, ValueOf<TConfigProps>>(
-                Object.entries(props)
-                .map(([propName, propValue]) => [propName as keyof TConfigProps, propValue as ValueOf<TConfigProps>] as const)
+                Object.entries(props) as [keyof TConfigProps, ValueOf<TConfigProps>][]
             );
         } // if
         
@@ -1320,9 +1319,8 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
                 
                 
                 
-                let frameProps : Map<keyof CssProps, ValueOf<CssProps>|CssCustomValue> = new Map(
-                    Object.entries(frameStyle)
-                    .map(([propName, propValue]) => [propName as keyof CssProps, propValue as ValueOf<CssProps>] as const)
+                let frameProps : Map<keyof CssProps, ValueOf<CssProps>> = new Map(
+                    Object.entries(frameStyle) as [keyof CssProps, ValueOf<CssProps>][]
                 );
                 const equalFrameProps = (new TransformDuplicatesBuilder(frameProps, props, genKeyframes, this.#options)).result;
                 if (equalFrameProps) {
