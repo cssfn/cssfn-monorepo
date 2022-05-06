@@ -838,7 +838,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     //#endregion private properties
     
     //#region public properties
-    readonly #result        : Map<TSrcPropName, TSrcPropValue|CssCustomValue>|null
+    readonly #result        : Map<TSrcPropName, TSrcPropValue|CssCustomValue> | null
     get result() {
         return this.#result;
     }
@@ -1206,7 +1206,7 @@ class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> e
     }
     
     get result() {
-        return super.result as Map<CssCustomName, ValueOf<TConfigProps>|CssCustomValue>|null
+        return super.result as Map<CssCustomName, ValueOf<TConfigProps>|CssCustomValue> | null
     }
     //#endregion overrides
     
