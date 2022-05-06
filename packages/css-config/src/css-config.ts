@@ -58,8 +58,8 @@ import {
 export type CssConfigProps = Nullable<{
     [name: string] : CssCustomValue
 }>
-export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef }
-export type Vals<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: TConfigProps[Key]  }
+export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef                  }
+export type Vals<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: TConfigProps[Key]  | CssCustomValue }
 
 export interface CssConfigOptions {
     /**
@@ -1516,14 +1516,14 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         // proxies - representing data in various formats:
-        this.#refs = new Proxy<Dictionary</*getter: */                  CssCustomSimpleRef | /*setter: */ValueOf<TConfigProps>>>(unusedObj, {
+        this.#refs = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */                  CssCustomSimpleRef | /*setter: */ValueOf<TConfigProps> }>(unusedObj as any, {
             get            : (_unusedObj, propName: string)                                  => this.#getRef(propName),
             set            : (_unusedObj, propName: string, newValue: ValueOf<TConfigProps>) => this.#setDirect(propName, newValue),
             deleteProperty : (_unusedObj, propName: string)                                  => this.#setDirect(propName, undefined),
             
             ownKeys        : (_unusedObj)                                                    => this.#getPropList(),
         }) as Refs<TConfigProps>;
-        this.#vals = new Proxy<Dictionary</*getter: */ValueOf<TConfigProps>|CssCustomValue | /*setter: */ValueOf<TConfigProps>>>(unusedObj, {
+        this.#vals = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */ValueOf<TConfigProps>|CssCustomValue | /*setter: */ValueOf<TConfigProps> }>(unusedObj as any, {
             get            : (_unusedObj, propName: string)                                  => this.#getVal(propName),
             set            : (_unusedObj, propName: string, newValue: ValueOf<TConfigProps>) => this.#setDirect(propName, newValue),
             deleteProperty : (_unusedObj, propName: string)                                  => this.#setDirect(propName, undefined),
