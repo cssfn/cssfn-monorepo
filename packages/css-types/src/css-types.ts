@@ -176,9 +176,6 @@ export type CssRuleData                = readonly [CssRawSelector|CssFinalSelect
 export type CssRule = { // do not use Record<symbol, CssRuleData> => doesn't support circular ref
     [name: symbol] : CssRuleData
 }
-export type CssKeyframesRule = CssRule & {
-    [name: symbol] : readonly [`@keyframes ${string}`, CssStyleCollection]
-}
 export type CssRuleCollection          = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssRule>>
 
 export type CssStyle                   = CssProps & CssRule
@@ -186,6 +183,9 @@ export type CssStyleCollection         = ProductOrFactoryOrDeepArray<OptionalOrB
 export type CssFontFaceStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssFontFaceProps>>
 
 export type CssKeyframes               = Dictionary<CssStyleCollection>
+export type CssKeyframesRule = CssRule & {
+    [name: symbol] : readonly [`@keyframes ${string}`, CssRuleCollection]
+}
 
 
 
