@@ -1324,7 +1324,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
                 );
                 const equalFrameProps = (new TransformDuplicatesBuilder(frameProps, props, genKeyframes, this.#options)).result;
                 if (equalFrameProps) {
-                    keyframes[key] = Object.fromEntries(equalFrameProps) as CssStyle;
+                    keyframes[key] = Object.fromEntries(equalFrameProps);
                 } // if
             } // for
         } // walk each value in `genKeyframes`
