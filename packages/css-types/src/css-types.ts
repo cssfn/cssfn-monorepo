@@ -156,7 +156,9 @@ export type CssKnownVendorProps            = CssKnownVendorLonghandProps & CssKn
 
 export type CssKnownObsoleteProps          = CssKnownPropsOf<keyof ObsoleteProperties, true>
 
-export type CssKnownSvgProps               = Omit<CssKnownPropsOf<keyof SvgProperties, true>, keyof CssFontFaceProps> & CssFontFaceProps
+export type CssKnownSvgProps               =
+    & Omit<CssKnownPropsOf<keyof SvgProperties, true>, keyof CssFontFaceProps>
+    & CssFontFaceProps
 
 export type CssKnownProps =
     & CssKnownStandardProps
