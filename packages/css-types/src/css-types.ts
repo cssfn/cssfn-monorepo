@@ -4,6 +4,8 @@ import type {
     SingleOrDeepArray,
     ProductOrFactoryOrDeepArray,
     
+    Nullable,
+    
     Dictionary,
 }                           from '@cssfn/types'
 
@@ -65,10 +67,10 @@ export type CssCustomRef          =
 
 export type CssCustomValue        = CssComplexValueOf<CssSimpleValue>
 
-export type CssCustomProps = {
+export type CssCustomProps = Nullable<{
     [name: CssCustomName     ] : CssCustomValue
     [name: CssCustomSimpleRef] : CssCustomValue
-}
+}>
 //#endregion css custom properties
 
 
