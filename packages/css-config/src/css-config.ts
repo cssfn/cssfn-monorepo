@@ -2,6 +2,7 @@
 import type {
     Factory,
     ProductOrFactory,
+    
     Dictionary,
     ValueOf,
     DictionaryOf,
@@ -833,7 +834,7 @@ const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomN
     return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
 }
 
-class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|undefined,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|undefined> {
+class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|undefined|null> {
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
@@ -954,6 +955,12 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         //#region deep equal comparison
+        // both must not nullable:
+        if ((srcPropValue === undefined) || (srcPropValue === null)) return false;
+        if ((refPropValue === undefined) || (refPropValue === null)) return false;
+        
+        
+        
         // both must be an object:
         if (typeof(srcPropValue) !== 'object') return false;
         if (typeof(refPropValue) !== 'object') return false;
