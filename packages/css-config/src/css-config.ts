@@ -1153,7 +1153,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 const equalNestedValues = (new TransformDuplicatesBuilder(srcNestedProps, refProps, genKeyframes, options)).result;
                 if (equalNestedValues) {
                     // convert the Map back to an array:
-                    const srcNestedValues = equalNestedValues.values() as unknown as CssCustomValueArr;
+                    const srcNestedValues = Array.from(equalNestedValues.values()) as CssCustomValueArr;
                     
                     
                     
