@@ -16,6 +16,7 @@ import type {
     
     CssProps,
     
+    CssRuleFinalData,
     CssRuleData,
     CssRule,
     CssRuleCollection,
@@ -77,7 +78,7 @@ export const rule = (selectors: CssSelectorCollection, styles: CssStyleCollectio
  * Defines an @rule.
  * @returns A `CssRule` represents an @rule.
  */
-export const atRule = (atRule: `@${string}`, styles: CssStyleCollection): CssRule => ({
+export const atRule = (atRule: `@${string}`, styles: CssStyleCollection): CssRule & { [name: symbol] : CssRuleFinalData } => ({
     [Symbol()] : [
         atRule,
         styles
