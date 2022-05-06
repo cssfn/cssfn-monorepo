@@ -10,6 +10,8 @@ export type ProductOrFactory<T>            = T|Factory<T>
 export type ProductOrFactoryDeepArray<T>   = (ProductOrFactory<T> | ProductOrFactoryDeepArray<T>)[] // ===         T[]|F[]  |  T[][]|F[][]  |  T[][][]|F[][][]  |  ...
 export type ProductOrFactoryOrDeepArray<T> =  ProductOrFactory<T> | ProductOrFactoryDeepArray<T>    // === T|F  |  T[]|F[]  |  T[][]|F[][]  |  T[][][]|F[][][]  |  ...
 
+export type Nullable<T>                    = { [Key in keyof T] ?: null | T[Key] }
+
 export type Dictionary<TValue>             = { [key: string]: TValue } // do not use Record<string, TValue> => doesn't support circular ref
 export type ValueOf<TDictionary>           = TDictionary[keyof TDictionary]
 export type DictionaryOf<TDictionary>      = Dictionary<ValueOf<TDictionary>>
