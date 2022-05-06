@@ -3,6 +3,8 @@ import type {
     Factory,
     ProductOrFactory,
     
+    Nullable,
+    
     Dictionary,
     ValueOf,
     DictionaryOf,
@@ -14,8 +16,6 @@ import type {
     CssCustomKeyframesRef,
     CssCustomSimpleRef,
     CssCustomValue,
-    
-    CssCustomProps,
     
     
     
@@ -43,11 +43,6 @@ import {
     
     
     
-    // scopes:
-    globalScope,
-    
-    
-    
     // style sheets:
     styleSheet,
 }                           from '@cssfn/cssfn'
@@ -61,9 +56,9 @@ import {
 
 
 // general types:
-export type CssConfigProps = {
+export type CssConfigProps = Nullable<{
     [name: string] : CssCustomValue
-}
+}>
 export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef }
 export type Vals<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: TConfigProps[Key]  }
 
@@ -164,7 +159,7 @@ const unusedObj = {};
  * Supports delete property, eg:  
  * `myButtonConfig.vals.myFavColor = undefined
  */
-const createCssConfig2 = <TProps extends CssConfigProps>(initialProps: ProductOrFactory<TProps>, options?: CssConfigOptions): CssConfig<TProps> => {
+export const createCssConfig2 = <TProps extends CssConfigProps>(initialProps: ProductOrFactory<TProps>, options?: CssConfigOptions): CssConfig<TProps> => {
     // options:
     const liveOptions = new LiveCssConfigOptions(() => {
         update();
@@ -1565,5 +1560,5 @@ const createCssConfig = <TConfigProps extends CssConfigProps>(initialProps: Prod
         
         cssConfig.options,
     ];
- }
- export { createCssConfig, createCssConfig as default }
+}
+export { createCssConfig, createCssConfig as default }
