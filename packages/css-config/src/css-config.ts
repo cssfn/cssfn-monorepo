@@ -833,7 +833,7 @@ const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomN
     return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
 }
 
-class TransformDuplicatesBuilder<TSrcPropName, TSrcPropValue extends CssCustomValue|undefined,   TRefPropName, TRefPropValue extends CssCustomValue|undefined> {
+class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|undefined,   TRefPropName extends string, TRefPropValue extends CssCustomValue|undefined> {
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
@@ -900,9 +900,10 @@ class TransformDuplicatesBuilder<TSrcPropName, TSrcPropValue extends CssCustomVa
      * @returns `true` indicates the same object, otherwise `false`.
      */
     #isSelfProp(srcPropName: TSrcPropName, refPropName: TRefPropName): boolean {
+        if (typeof(srcPropName) !== 'string')           return false; // `srcPropName` must be a string
         if (!Object.is(this.#srcProps, this.#refProps)) return false; // if `#srcProps` & `#refProps` are not the same object in memory => always return `false`
         
-        return ((srcPropName as string|number|symbol) === (refPropName as string|number|symbol));
+        return (srcPropName === (refPropName as string));
     }
     
     /**
@@ -913,8 +914,7 @@ class TransformDuplicatesBuilder<TSrcPropName, TSrcPropValue extends CssCustomVa
      * -or-  
      * `null` if it's not a special `@keyframes name`.
      */
-    #isKeyframesName(srcPropName: TSrcPropName): CssCustomKeyframesRef|null {
-        if (typeof(srcPropName) !== 'string') return null;
+    #isKeyframesName(srcPropName: TSrcPropName & string): CssCustomKeyframesRef|null {
         if (!srcPropName.startsWith('@keyframes ')) return null;
         return srcPropName.slice(11).trimStart();
     }
@@ -1037,11 +1037,13 @@ class TransformDuplicatesBuilder<TSrcPropName, TSrcPropValue extends CssCustomVa
     _createDecl(propName: string): CssCustomName {
         return createDecl(propName, this.#options);
     }
+    //#endregion protected utility methods
     
-    protected _onCreatePropName(srcPropName: TSrcPropName) {
+    //#region virtual methods
+    protected _onCreatePropName(srcPropName: TSrcPropName): TSrcPropName {
         return srcPropName;
     }
-    protected _onCombineModified(modified: Map<TSrcPropName, TSrcPropValue|CssCustomValue>) {
+    protected _onCombineModified(modified: Map<TSrcPropName, TSrcPropValue|CssCustomValue>): Map<TSrcPropName, TSrcPropValue|CssCustomValue> {
         const combined = new Map<TSrcPropName, TSrcPropValue|CssCustomValue>(this.#srcProps);
         
         for (const [propName, propValue] of modified) {
@@ -1050,7 +1052,7 @@ class TransformDuplicatesBuilder<TSrcPropName, TSrcPropValue extends CssCustomVa
         
         return combined;
     }
-    //#endregion protected utility methods
+    //#endregion virtual methods
     
     
     
@@ -1078,7 +1080,7 @@ class TransformDuplicatesBuilder<TSrcPropName, TSrcPropValue extends CssCustomVa
             
             
             //#region handle `@keyframes foo`
-            const keyframesName = this.#isKeyframesName(srcPropName);
+            const keyframesName = (typeof(srcPropName) === 'string') && this.#isKeyframesName(srcPropName);
             if (keyframesName) {
                 let srcKeyframes = srcPropValue as unknown as CssKeyframes; // assumes the current `srcPropValue` is a valid `@keyframes`' value.
                 
@@ -1191,11 +1193,11 @@ class TransformDuplicatesBuilder<TSrcPropName, TSrcPropValue extends CssCustomVa
 }
 class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> extends TransformDuplicatesBuilder<keyof TConfigProps, ValueOf<TConfigProps>, keyof TConfigProps, ValueOf<TConfigProps>> {
     //#region overrides
-    protected _onCreatePropName(srcPropName: keyof TConfigProps) {
+    protected _onCreatePropName(srcPropName: keyof TConfigProps): (keyof TConfigProps) {
         if (typeof(srcPropName) !== 'string') return srcPropName;
-        return this._createDecl(srcPropName);
+        return this._createDecl(srcPropName) as (keyof TConfigProps);
     }
-    protected _onCombineModified(modified: Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomValue>) {
+    protected _onCombineModified(modified: Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomValue>): Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomValue> {
         return modified;
     }
     
@@ -1556,4 +1558,3 @@ const createCssConfig = <TConfigProps extends CssConfigProps>(initialProps: Prod
     ];
  }
  export { createCssConfig, createCssConfig as default }
- 
