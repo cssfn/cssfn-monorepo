@@ -226,8 +226,7 @@ export const createCssConfig2 = <TProps extends CssConfigProps>(initialProps: Pr
      * The *generated css* attached on dom.
      */
     const liveStyleSheet = new Subject<CssStyle|null>();
-    // TODO: remove any:
-    styleSheet(liveStyleSheet as any);
+    styleSheet(liveStyleSheet);
     
     /**
      * Creates the *declaration name* of the specified `propName`, eg: `--my-favColor`.
@@ -1509,8 +1508,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         this.#liveStyleSheet = new Subject<CssStyle|null>();
-        // TODO: remove any:
-        styleSheet(this.#liveStyleSheet as any);
+        styleSheet(this.#liveStyleSheet);
         
         
         
