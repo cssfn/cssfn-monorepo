@@ -19,6 +19,8 @@ import type {
     // cssfn properties:
     CssProps,
     
+    CssRuleCollection,
+    
     CssStyle,
     
     CssKeyframes,
@@ -232,16 +234,24 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     }
     
     /**
-     * Determines if the specified `srcPropName` is a special `@keyframes name`.
-     * @param srcPropName The prop name of `#srcProps`.
+     * Determines if the specified `srcPropName` and `srcPropValue` is a special `@keyframes rule`.
+     * @param srcPropName  The prop name of `#srcProps`.
+     * @param srcPropValue The prop value of `#srcProps`.
      * @returns  
-     * A `CssCustomKeyframesRef` represents the name of `@keyframes`.  
+     * A tuple of `[string, CssRuleCollection]` represents the name & rules of `@keyframes`.  
      * -or-  
      * `null` if it's not a special `@keyframes name`.
      */
-    #isKeyframesName(srcPropName: TSrcPropName & string): CssCustomKeyframesRef|null {
-        if (!srcPropName.startsWith('@keyframes ')) return null;
-        return srcPropName.slice(11).trimStart();
+    #isKeyframesRule(srcPropName: TSrcPropName, srcPropValue: TSrcPropValue): readonly [string, CssRuleCollection]|null {
+        if (typeof(srcPropName) !== 'symbol') return null;
+        if (!Array.isArray(srcPropValue)) return null;
+        const [selector, styles] = srcPropValue;
+        if (typeof(selector) !== 'string') return null;
+        if (!selector.startsWith('@keyframes ')) return null;
+        return [
+            selector.slice(11).trimStart(),
+            styles as unknown as CssRuleCollection,
+        ];
     }
     
     /**
@@ -477,47 +487,41 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 //#endregion handle no value change
             } // non symbol
             else { // is symbol
-            } // is symbol
-            
-            
-            
-            //#region handle `@keyframes foo`
-            const keyframesName = (typeof(srcPropName) === 'string') && this.#isKeyframesName(srcPropName);
-            if (keyframesName) {
-                let srcKeyframes = srcPropValue as unknown as CssKeyframes; // assumes the current `srcPropValue` is a valid `@keyframes`' value.
-                
-                
-                
-                const equalKeyframes = this.#findEqualKeyframes(srcKeyframes);
-                if (equalKeyframes) srcKeyframes = equalKeyframes; // replace with the equivalent (if any)
-                
-                
-                
-                // create a link to current `@keyframes` name:
-                const keyframesReference = this.#createKeyframesRef(keyframesName);
-                
-                
-                
-                // if @keyframes was not exist => store the new one:
-                if (!equalKeyframes) {
-                    this.#genKeyframes.set(keyframesReference, srcKeyframes);
+                //#region handle `@keyframes foo`
+                const keyframesData = this.#isKeyframesRule(srcPropName, srcPropValue);
+                if (keyframesData) {
+                    const [keyframesName, rules] = keyframesData;
+                    
+                    
+                    
+                    const equalKeyframes = this.#findEqualKeyframes(srcKeyframes);
+                    if (equalKeyframes) srcKeyframes = equalKeyframes; // replace with the equivalent (if any)
+                    
+                    
+                    
+                    // create a link to current `@keyframes` name:
+                    const keyframesReference = this.#createKeyframesRef(keyframesName);
+                    
+                    
+                    
+                    // if @keyframes was not exist => store the new one:
+                    if (!equalKeyframes) {
+                        this.#genKeyframes.set(keyframesReference, srcKeyframes);
+                    } // if
+                    
+                    
+                    
+                    // store the modified `srcPropValue`:
+                    modified.set(
+                        this._onCreatePropName(srcPropName),
+                        keyframesReference
+                    );
+                    
+                    // mission done => continue walk to the next entry:
+                    continue;
                 } // if
-                
-                
-                
-                // store the modified `srcPropValue`:
-                modified.set(
-                    this._onCreatePropName(srcPropName),
-                    keyframesReference
-                );
-                
-                // mission done => continue walk to the next entry:
-                continue;
-            } // if
-            //#endregion handle `@keyframes foo`
-            
-            
-            
+                //#endregion handle `@keyframes foo`
+            } // is symbol
         }  // walk each entry in `#srcProps`
         
         
@@ -609,6 +613,16 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      *    
      *    colFavorite : '#ff0000',  
      *    theBorder   : [[ 'solid', '1px', '#0000ff' ]],  
+     *    
+     *    [symbol]    : ['@keyframes fly-away', {
+     *       [symbol] : [' from', {
+     *          color : '#ff0000',
+     *       }]
+     *       [symbol] : [' to', {
+     *          color : '#ffffff',
+     *       }]
+     *    }],
+     *    animation   : [[ '100ms', 'ease', 'fly-away' ]],
      * };  
      *   
      * // transformed:  
@@ -619,6 +633,16 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      *    
      *    --navb-colFavorite : 'var(--navb-colRed)',  
      *    --navb-theBorder   : [[ 'solid', 'var(--navb-bdWidth)', 'var(--navb-colBlue)' ]],  
+     *    
+     *    [symbol]    : ['@keyframes navb-fly-away', {
+     *       [symbol] : [' from', {
+     *          color : 'var(--navb-colRed)',
+     *       }]
+     *       [symbol] : [' to', {
+     *          color : '#ffffff',
+     *       }]
+     *    }],
+     *    animation   : [[ '100ms', 'ease', 'navb-fly-away' ]],
      * };  
      */
     #genProps = new Map<CssCustomName, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue>();
