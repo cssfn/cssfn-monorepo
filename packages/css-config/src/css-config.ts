@@ -321,7 +321,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @returns A `CssCustomSimpleRef` represents the link to the equivalent entry in `#refProps`.  
      * -or- `null` if no equivalent found.
      */
-    #findEqualProp(srcPropName: TSrcPropName, srcPropValue: TSrcPropValue): CssCustomSimpleRef|null {
+    #findEqualProp(srcPropName: Exclude<TSrcPropName, symbol>, srcPropValue: TSrcPropValue): CssCustomSimpleRef|null {
         for (const [refPropName, refPropValue] of this.#refProps) { // search for duplicates
             // skip non-string ref prop:
             if (typeof(refPropName) !== 'string') continue;
