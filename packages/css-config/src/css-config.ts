@@ -164,7 +164,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     //#endregion private properties
     
     //#region public properties
-    readonly #result        : Map<TSrcPropName, TSrcPropValue|CssCustomValue> | null
+    readonly #result        : Map<Exclude<TSrcPropName, symbol>, TSrcPropValue|CssCustomValue> | null
     get result() {
         return this.#result;
     }
@@ -190,6 +190,10 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     #createKeyframesRef(keyframesName: string): CssCustomKeyframesRef {
         // add prefix `prefix-` or just a `keyframesName`
         return this.#options.prefix ? `${this.#options.prefix}-${keyframesName}` : keyframesName;
+    }
+    
+    #isNotSymbolProp(srcPropName: TSrcPropName): srcPropName is Exclude<TSrcPropName, symbol> {
+        return (typeof(srcPropName) !== 'symbol');
     }
     
     /**
@@ -370,11 +374,11 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     //#endregion protected utility methods
     
     //#region virtual methods
-    protected _onCreatePropName(srcPropName: TSrcPropName): TSrcPropName {
+    protected _onCreatePropName(srcPropName: Exclude<TSrcPropName, symbol>): Exclude<TSrcPropName, symbol> {
         return srcPropName;
     }
-    protected _onCombineModified(modified: Map<TSrcPropName, TSrcPropValue|CssCustomValue>): Map<TSrcPropName, TSrcPropValue|CssCustomValue> {
-        const combined = new Map<TSrcPropName, TSrcPropValue|CssCustomValue>(this.#srcProps);
+    protected _onCombineModified(modified: Map<Exclude<TSrcPropName, symbol>, TSrcPropValue|CssCustomValue>): Map<Exclude<TSrcPropName, symbol>, TSrcPropValue|CssCustomValue> {
+        const combined = new Map<Exclude<TSrcPropName, symbol>, TSrcPropValue|CssCustomValue>(this.#srcProps);
         
         for (const [propName, propValue] of modified) {
             combined.set(propName, propValue);
@@ -402,10 +406,78 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         
-        const modified = new Map<TSrcPropName, TSrcPropValue|CssCustomValue>();
+        const modified = new Map<Exclude<TSrcPropName, symbol>, TSrcPropValue|CssCustomValue>();
         for (const [srcPropName, srcPropValue] of this.#srcProps) { // walk each entry in `#srcProps`
             // skip empty src:
             if ((srcPropValue === undefined) || (srcPropValue === null)) continue;
+            
+            
+            
+            if (this.#isNotSymbolProp(srcPropName)) { // non symbol
+                //#region handle single_value
+                const equalPropRef = this.#findEqualProp(srcPropName, srcPropValue);
+                if (equalPropRef) {
+                    // store the modified `srcPropValue`:
+                    modified.set(
+                        this._onCreatePropName(srcPropName),
+                        equalPropRef
+                    );
+                    
+                    // mission done => continue walk to the next entry:
+                    continue;
+                } // if
+                //#endregion handle single_value
+                
+                
+                
+                //#region handle multi_value
+                if (Array.isArray(srcPropValue)) {
+                    type CssCustomValueArr = Extract<CssCustomValue, Array<any>>
+                    const srcNestedValues: CssCustomValueArr = srcPropValue;
+                    
+                    
+                    
+                    // convert the array to Map:
+                    const srcNestedProps = new Map(
+                        srcNestedValues.map((item, index) => [index, item])
+                    );
+                    
+                    
+                    
+                    const equalNestedValues = (new TransformDuplicatesBuilder(srcNestedProps, refProps, genKeyframes, options)).result;
+                    if (equalNestedValues) {
+                        // convert the Map back to an array:
+                        const srcNestedValues = Array.from(equalNestedValues.values()) as CssCustomValueArr;
+                        
+                        
+                        
+                        // store the modified `srcPropValue`:
+                        modified.set(
+                            this._onCreatePropName(srcPropName),
+                            srcNestedValues
+                        );
+                        
+                        // mission done => continue walk to the next entry:
+                        continue;
+                    } // if
+                } // if
+                //#endregion handle multi_value
+                
+                
+                
+                //#region handle no value change
+                const srcPropName2 = this._onCreatePropName(srcPropName);
+                if (srcPropName2 !== srcPropName) {
+                    // The `srcPropValue` was not modified but the `srcPropName` needs to be renamed:
+                    modified.set(
+                        srcPropName2,
+                        srcPropValue
+                    );
+                } // if
+                //#endregion handle no value change
+            } // non symbol
+            else { // is symbol
+            } // is symbol
             
             
             
@@ -446,67 +518,6 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             
             
             
-            //#region handle single_value
-            const equalPropRef = this.#findEqualProp(srcPropName, srcPropValue);
-            if (equalPropRef) {
-                // store the modified `srcPropValue`:
-                modified.set(
-                    this._onCreatePropName(srcPropName),
-                    equalPropRef
-                );
-                
-                // mission done => continue walk to the next entry:
-                continue;
-            } // if
-            //#endregion handle single_value
-            
-            
-            
-            //#region handle multi_value
-            if (Array.isArray(srcPropValue)) {
-                type CssCustomValueArr = Extract<CssCustomValue, Array<any>>
-                const srcNestedValues: CssCustomValueArr = srcPropValue;
-                
-                
-                
-                // convert the array to Map:
-                const srcNestedProps = new Map(
-                    srcNestedValues.map((item, index) => [index, item])
-                );
-                
-                
-                
-                const equalNestedValues = (new TransformDuplicatesBuilder(srcNestedProps, refProps, genKeyframes, options)).result;
-                if (equalNestedValues) {
-                    // convert the Map back to an array:
-                    const srcNestedValues = Array.from(equalNestedValues.values()) as CssCustomValueArr;
-                    
-                    
-                    
-                    // store the modified `srcPropValue`:
-                    modified.set(
-                        this._onCreatePropName(srcPropName),
-                        srcNestedValues
-                    );
-                    
-                    // mission done => continue walk to the next entry:
-                    continue;
-                } // if
-            } // if
-            //#endregion handle multi_value
-            
-            
-            
-            //#region handle no value change
-            const srcPropName2 = this._onCreatePropName(srcPropName);
-            if (srcPropName2 !== srcPropName) {
-                // The `srcPropValue` was not modified but the `srcPropName` needs to be renamed:
-                modified.set(
-                    srcPropName2,
-                    srcPropValue
-                );
-            } // if
-            //#endregion handle no value change
         }  // walk each entry in `#srcProps`
         
         
@@ -523,16 +534,20 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
 }
 class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> extends TransformDuplicatesBuilder<keyof TConfigProps, ValueOf<TConfigProps>, keyof TConfigProps, ValueOf<TConfigProps>> {
     //#region overrides
-    protected _onCreatePropName(srcPropName: keyof TConfigProps): (keyof TConfigProps) {
+    protected _onCreatePropName(srcPropName: keyof Omit<TConfigProps, symbol>): (keyof Omit<TConfigProps, symbol>) {
         if (typeof(srcPropName) !== 'string') return srcPropName;
-        return this._createDecl(srcPropName) as (keyof TConfigProps);
+        return this._createDecl(srcPropName) as (keyof Omit<TConfigProps, symbol>);
     }
-    protected _onCombineModified(modified: Map<keyof TConfigProps, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue>): Map<keyof TConfigProps, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue> {
+    protected _onCombineModified(modified: Map<keyof Omit<TConfigProps, symbol>, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue>): Map<keyof Omit<TConfigProps, symbol>, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue> {
         return modified;
     }
     
     get result() {
-        return super.result as Map<CssCustomName, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue> | null
+        const xxx :            Map<Exclude<keyof TConfigProps, symbol>, ValueOf<TConfigProps>|CssCustomValue> | null = super.result;
+        const yyy :            Map<Exclude<keyof TConfigProps, symbol>, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue> | null = super.result as any;
+        return yyy;
+        
+        // return super.result as Map<CssCustomName, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue> | null
     }
     //#endregion overrides
     
