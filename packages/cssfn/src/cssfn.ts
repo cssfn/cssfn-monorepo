@@ -16,7 +16,7 @@ import type {
     
     CssProps,
     
-    CssRuleFinalData,
+    CssKeyframesRule,
     CssRuleData,
     CssRule,
     CssRuleCollection,
@@ -78,7 +78,7 @@ export const rule = (selectors: CssSelectorCollection, styles: CssStyleCollectio
  * Defines an @rule.
  * @returns A `CssRule` represents an @rule.
  */
-export const atRule = (atRule: `@${string}`, styles: CssStyleCollection): CssRule & { [name: symbol] : CssRuleFinalData } => ({
+export const atRule = (atRule: `@${string}`, styles: CssStyleCollection): CssRule => ({
     [Symbol()] : [
         atRule,
         styles
@@ -170,7 +170,7 @@ export const states   = (states  : CssRuleCollection, options?: CssSelectorOptio
 
 
 // keyframes:
-export const keyframes         = (name: string, items: CssKeyframes) => atRule(`@keyframes ${name}`, (Object.fromEntries(
+export const keyframes         = (name: string, items: CssKeyframes): CssKeyframesRule => atRule(`@keyframes ${name}`, (Object.fromEntries(
     Object.entries(items).map(([key, frame]): readonly [symbol, CssRuleData] => [
         Symbol(),
         [
@@ -178,7 +178,7 @@ export const keyframes         = (name: string, items: CssKeyframes) => atRule(`
             frame
         ]
     ])
-) as CssRule));
+) as CssRule)) as CssKeyframesRule;
 
 
 
