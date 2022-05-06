@@ -28,7 +28,7 @@ const isClientSide : boolean = isBrowser || isJsDom;
 
 
 // types:
-export type ReadonlyCssCustomRefs<TCssCustomProps extends {}> = Readonly<{ [key in keyof TCssCustomProps]: CssCustomSimpleRef  }>
+export type ReadonlyCssCustomRefs<TCssCustomProps extends {}> = Readonly<{ [Key in keyof TCssCustomProps]: CssCustomSimpleRef  }>
 export type CssVar<TCssCustomProps extends {}>                = readonly [ReadonlyCssCustomRefs<TCssCustomProps>, LiveCssVarOptions]
 
 
