@@ -17,6 +17,8 @@ import type {
     
     
     // cssfn properties:
+    CssProps,
+    
     CssRuleData,
     
     CssStyle,
@@ -54,6 +56,7 @@ export type CssConfigProps =
         [name: string] : CssCustomValue
     }>
     & CssKeyframesRule
+    & CssProps // for better js doc
 export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef                  }
 export type Vals<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: TConfigProps[Key]  | CssCustomValue }
 
