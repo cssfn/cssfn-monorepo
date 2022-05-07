@@ -230,27 +230,6 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     }
     
     /**
-     * Determines if the specified `srcPropName` and `srcPropValue` is a special `@keyframes rule`.
-     * @param srcPropName  The prop name of `#srcProps`.
-     * @param srcPropValue The prop value of `#srcProps`.
-     * @returns  
-     * A tuple of `[string, CssRuleCollection]` represents the name & rules of `@keyframes`.  
-     * -or-  
-     * `null` if it's not a special `@keyframes name`.
-     */
-    #isKeyframesRule(srcPropName: TSrcPropName, srcPropValue: TSrcPropValue): readonly [string, CssRuleCollection]|null {
-        if (typeof(srcPropName) !== 'symbol') return null;
-        if (!Array.isArray(srcPropValue)) return null;
-        const [selector, styles] = srcPropValue;
-        if (typeof(selector) !== 'string') return null;
-        if (!selector.startsWith('@keyframes ')) return null;
-        return [
-            selector.slice(11).trimStart(),
-            styles as unknown as CssRuleCollection,
-        ];
-    }
-    
-    /**
      * Determines if the specified `refPropValue` was exist in `#genKeyframes`.
      * @param refPropValue The prop value of `#refProps`.
      * @returns `true` if it was exist in `#genKeyframes`, otherwise `false`.
@@ -413,6 +392,37 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         const modified = new Map<TSrcPropName, TSrcPropValue|CssCustomValue>();
+        
+        
+        
+        for (const [srcPropName, srcPropValue] of this.#srcProps) { // collect all @keyframes name
+            if (typeof(srcPropName) !== 'symbol')    continue;
+            if (!srcPropValue)                       continue;
+            if (!Array.isArray(srcPropValue))        continue;
+            const [selector, ...styles] = srcPropValue;
+            if (typeof(selector) !== 'string')       continue;
+            if (!selector.startsWith('@keyframes ')) continue;
+            
+            
+            
+            const oldkeyframesName    = selector.slice(11).trimStart();
+            const newKeyframesName = this.#createKeyframesRef(oldkeyframesName);
+            this.#genKeyframes.set(
+                oldkeyframesName,
+                newKeyframesName
+            );
+            
+            
+            
+            // store the modified `newKeyframesName`:
+            modified.set(
+                this._onCreatePropName(srcPropName),
+                [`@keyframes ${newKeyframesName}`, ...styles]
+            );
+        }  // collect all @keyframes name
+        
+        
+        
         for (const [srcPropName, srcPropValue] of this.#srcProps) { // walk each entry in `#srcProps`
             // skip empty src:
             if ((srcPropValue === undefined) || (srcPropValue === null)) continue;
@@ -435,7 +445,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             
             
             
-            //#region handle multi_value
+            //#region handle multi_value (recursive)
             if (Array.isArray(srcPropValue)) {
                 type CssCustomValueArr = Extract<CssCustomValue, Array<any>>
                 const srcNestedValues: CssCustomValueArr = srcPropValue;
@@ -466,7 +476,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                     continue;
                 } // if
             } // if
-            //#endregion handle multi_value
+            //#endregion handle multi_value (recursive)
             
             
             
@@ -534,7 +544,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
 class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> extends TransformDuplicatesBuilder<keyof TConfigProps, ValueOf<TConfigProps>, keyof TConfigProps, ValueOf<TConfigProps>> {
     //#region overrides
     protected _onCreatePropName(srcPropName: keyof TConfigProps): keyof TConfigProps {
-        if (typeof(srcPropName) !== 'string') return srcPropName;
+        if (typeof(srcPropName) !== 'string') return srcPropName; // no change for symbol props
         return this._createDecl(srcPropName) as keyof TConfigProps;
     }
     protected _onCombineModified(modified: Map<keyof TConfigProps, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|ValueOf<Pick<TConfigProps, symbol>>>): Map<keyof TConfigProps, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|ValueOf<Pick<TConfigProps, symbol>>> {
