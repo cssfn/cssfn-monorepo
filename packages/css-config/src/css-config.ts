@@ -19,7 +19,6 @@ import type {
     // cssfn properties:
     CssProps,
     
-    CssRule,
     CssRuleCollection,
     
     CssStyle,
@@ -62,8 +61,7 @@ export type CssConfigProps =
     & Nullable<{
         [name: string] : CssCustomValue
     }>
-    // & CssKeyframesRule
-    & CssRule
+    & CssKeyframesRule
 export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef                  }
 export type Vals<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: TConfigProps[Key]  | CssCustomValue }
 
@@ -157,9 +155,9 @@ const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomN
     return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
 }
 
-// type CssKeyframesData = CssKeyframesRule[symbol]
+type CssKeyframesData = CssKeyframesRule[symbol]
 
-class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|undefined|null> {
+class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|CssKeyframesData|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssKeyframesData|undefined|null> {
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
