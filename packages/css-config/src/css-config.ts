@@ -19,6 +19,7 @@ import type {
     // cssfn properties:
     CssProps,
     
+    CssRule,
     CssRuleCollection,
     
     CssStyle,
@@ -61,7 +62,8 @@ export type CssConfigProps =
     & Nullable<{
         [name: string] : CssCustomValue
     }>
-    & CssKeyframesRule
+    // & CssKeyframesRule
+    & CssRule
 export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef                  }
 export type Vals<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: TConfigProps[Key]  | CssCustomValue }
 
@@ -155,9 +157,9 @@ const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomN
     return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
 }
 
-type CssKeyframesData = CssKeyframesRule[symbol]
+// type CssKeyframesData = CssKeyframesRule[symbol]
 
-class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|CssKeyframesData|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssKeyframesData|undefined|null> {
+class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|undefined|null> {
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
@@ -166,7 +168,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     //#endregion private properties
     
     //#region public properties
-    readonly #result        : Map<Exclude<TSrcPropName, symbol>, TSrcPropValue|CssCustomValue> | null
+    readonly #result        : Map<TSrcPropName, TSrcPropValue|CssCustomValue> | null
     get result() {
         return this.#result;
     }
@@ -192,10 +194,6 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     #createKeyframesRef(keyframesName: string): CssCustomKeyframesRef {
         // add prefix `prefix-` or just a `keyframesName`
         return this.#options.prefix ? `${this.#options.prefix}-${keyframesName}` : keyframesName;
-    }
-    
-    #isNotSymbolProp(srcPropName: TSrcPropName): srcPropName is Exclude<TSrcPropName, symbol> {
-        return (typeof(srcPropName) !== 'symbol');
     }
     
     /**
@@ -331,7 +329,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @returns A `CssCustomSimpleRef` represents the link to the equivalent entry in `#refProps`.  
      * -or- `null` if no equivalent found.
      */
-    #findEqualProp(srcPropName: Exclude<TSrcPropName, symbol>, srcPropValue: TSrcPropValue): CssCustomSimpleRef|null {
+    #findEqualProp(srcPropName: TSrcPropName, srcPropValue: TSrcPropValue): CssCustomSimpleRef|null {
         for (const [refPropName, refPropValue] of this.#refProps) { // search for duplicates
             // skip non-string ref prop:
             if (typeof(refPropName) !== 'string') continue;
@@ -384,11 +382,11 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     //#endregion protected utility methods
     
     //#region virtual methods
-    protected _onCreatePropName(srcPropName: Exclude<TSrcPropName, symbol>): Exclude<TSrcPropName, symbol> {
+    protected _onCreatePropName(srcPropName: TSrcPropName): TSrcPropName {
         return srcPropName;
     }
-    protected _onCombineModified(modified: Map<Exclude<TSrcPropName, symbol>, TSrcPropValue|CssCustomValue>): Map<Exclude<TSrcPropName, symbol>, TSrcPropValue|CssCustomValue> {
-        const combined = new Map<Exclude<TSrcPropName, symbol>, TSrcPropValue|CssCustomValue>(this.#srcProps);
+    protected _onCombineModified(modified: Map<TSrcPropName, TSrcPropValue|CssCustomValue>): Map<TSrcPropName, TSrcPropValue|CssCustomValue> {
+        const combined = new Map<TSrcPropName, TSrcPropValue|CssCustomValue>(this.#srcProps);
         
         for (const [propName, propValue] of modified) {
             combined.set(propName, propValue);
@@ -416,112 +414,111 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         
-        const modified = new Map<Exclude<TSrcPropName, symbol>, TSrcPropValue|CssCustomValue>();
+        const modified = new Map<TSrcPropName, TSrcPropValue|CssCustomValue>();
         for (const [srcPropName, srcPropValue] of this.#srcProps) { // walk each entry in `#srcProps`
             // skip empty src:
             if ((srcPropValue === undefined) || (srcPropValue === null)) continue;
             
             
             
-            if (this.#isNotSymbolProp(srcPropName)) { // non symbol
-                //#region handle single_value
-                const equalPropRef = this.#findEqualProp(srcPropName, srcPropValue);
-                if (equalPropRef) {
-                    // store the modified `srcPropValue`:
-                    modified.set(
-                        this._onCreatePropName(srcPropName),
-                        equalPropRef
-                    );
-                    
-                    // mission done => continue walk to the next entry:
-                    continue;
-                } // if
-                //#endregion handle single_value
+            //#region handle single_value
+            const equalPropRef = this.#findEqualProp(srcPropName, srcPropValue);
+            if (equalPropRef) {
+                // store the modified `srcPropValue`:
+                modified.set(
+                    this._onCreatePropName(srcPropName),
+                    equalPropRef
+                );
+                
+                // mission done => continue walk to the next entry:
+                continue;
+            } // if
+            //#endregion handle single_value
+            
+            
+            
+            //#region handle multi_value
+            if (Array.isArray(srcPropValue)) {
+                type CssCustomValueArr = Extract<CssCustomValue, Array<any>>
+                const srcNestedValues: CssCustomValueArr = srcPropValue;
                 
                 
                 
-                //#region handle multi_value
-                if (Array.isArray(srcPropValue)) {
-                    type CssCustomValueArr = Extract<CssCustomValue, Array<any>>
-                    const srcNestedValues: CssCustomValueArr = srcPropValue;
-                    
-                    
-                    
-                    // convert the array to Map:
-                    const srcNestedProps = new Map(
-                        srcNestedValues.map((item, index) => [index, item])
-                    );
-                    
-                    
-                    
-                    const equalNestedValues = (new TransformDuplicatesBuilder(srcNestedProps, refProps, genKeyframes, options)).result;
-                    if (equalNestedValues) {
-                        // convert the Map back to an array:
-                        const srcNestedValues = Array.from(equalNestedValues.values()) as CssCustomValueArr;
-                        
-                        
-                        
-                        // store the modified `srcPropValue`:
-                        modified.set(
-                            this._onCreatePropName(srcPropName),
-                            srcNestedValues
-                        );
-                        
-                        // mission done => continue walk to the next entry:
-                        continue;
-                    } // if
-                } // if
-                //#endregion handle multi_value
+                // convert the array to Map:
+                const srcNestedProps = new Map(
+                    srcNestedValues.map((item, index) => [index, item])
+                );
                 
                 
                 
-                //#region handle no value change
-                const srcPropName2 = this._onCreatePropName(srcPropName);
-                if (srcPropName2 !== srcPropName) {
-                    // The `srcPropValue` was not modified but the `srcPropName` needs to be renamed:
-                    modified.set(
-                        srcPropName2,
-                        srcPropValue
-                    );
-                } // if
-                //#endregion handle no value change
-            } // non symbol
-            else { // is symbol
-                //#region handle `@keyframes foo`
-                const keyframesData = this.#isKeyframesRule(srcPropName, srcPropValue);
-                if (keyframesData) {
-                    const [keyframesName, rules] = keyframesData;
-                    
-                    
-                    
-                    const equalKeyframes = this.#findEqualKeyframes(srcKeyframes);
-                    if (equalKeyframes) srcKeyframes = equalKeyframes; // replace with the equivalent (if any)
-                    
-                    
-                    
-                    // create a link to current `@keyframes` name:
-                    const keyframesReference = this.#createKeyframesRef(keyframesName);
-                    
-                    
-                    
-                    // if @keyframes was not exist => store the new one:
-                    if (!equalKeyframes) {
-                        this.#genKeyframes.set(keyframesReference, srcKeyframes);
-                    } // if
+                const equalNestedValues = (new TransformDuplicatesBuilder(srcNestedProps, refProps, genKeyframes, options)).result;
+                if (equalNestedValues) {
+                    // convert the Map back to an array:
+                    const srcNestedValues = Array.from(equalNestedValues.values()) as CssCustomValueArr;
                     
                     
                     
                     // store the modified `srcPropValue`:
                     modified.set(
                         this._onCreatePropName(srcPropName),
-                        keyframesReference
+                        srcNestedValues
                     );
                     
                     // mission done => continue walk to the next entry:
                     continue;
                 } // if
-                //#endregion handle `@keyframes foo`
-            } // is symbol
+            } // if
+            //#endregion handle multi_value
+            
+            
+            
+            //#region handle no value change
+            const srcPropName2 = this._onCreatePropName(srcPropName);
+            if (srcPropName2 !== srcPropName) {
+                // The `srcPropValue` was not modified but the `srcPropName` needs to be renamed:
+                modified.set(
+                    srcPropName2,
+                    srcPropValue
+                );
+            } // if
+            //#endregion handle no value change
+            
+            
+            
+            //#region handle `@keyframes foo`
+            /*const keyframesData = this.#isKeyframesRule(srcPropName, srcPropValue);
+            if (keyframesData) {
+                const [keyframesName, rules] = keyframesData;
+                
+                
+                
+                const equalKeyframes = this.#findEqualKeyframes(srcKeyframes);
+                if (equalKeyframes) srcKeyframes = equalKeyframes; // replace with the equivalent (if any)
+                
+                
+                
+                // create a link to current `@keyframes` name:
+                const keyframesReference = this.#createKeyframesRef(keyframesName);
+                
+                
+                
+                // if @keyframes was not exist => store the new one:
+                if (!equalKeyframes) {
+                    this.#genKeyframes.set(keyframesReference, srcKeyframes);
+                } // if
+                
+                
+                
+                // store the modified `srcPropValue`:
+                modified.set(
+                    this._onCreatePropName(srcPropName),
+                    keyframesReference
+                );
+                
+                // mission done => continue walk to the next entry:
+                continue;
+            } // if*/
+            //#endregion handle `@keyframes foo`
         }  // walk each entry in `#srcProps`
         
         
@@ -538,20 +535,16 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
 }
 class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> extends TransformDuplicatesBuilder<keyof TConfigProps, ValueOf<TConfigProps>, keyof TConfigProps, ValueOf<TConfigProps>> {
     //#region overrides
-    protected _onCreatePropName(srcPropName: keyof Omit<TConfigProps, symbol>): (keyof Omit<TConfigProps, symbol>) {
+    protected _onCreatePropName(srcPropName: keyof TConfigProps): keyof TConfigProps {
         if (typeof(srcPropName) !== 'string') return srcPropName;
-        return this._createDecl(srcPropName) as (keyof Omit<TConfigProps, symbol>);
+        return this._createDecl(srcPropName) as keyof TConfigProps;
     }
-    protected _onCombineModified(modified: Map<keyof Omit<TConfigProps, symbol>, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue>): Map<keyof Omit<TConfigProps, symbol>, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue> {
+    protected _onCombineModified(modified: Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomValue>): Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomValue> {
         return modified;
     }
     
     get result() {
-        const xxx :            Map<Exclude<keyof TConfigProps, symbol>, ValueOf<TConfigProps>|CssCustomValue> | null = super.result;
-        const yyy :            Map<Exclude<keyof TConfigProps, symbol>, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue> | null = super.result as any;
-        return yyy;
-        
-        // return super.result as Map<CssCustomName, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue> | null
+        return super.result as Map<CssCustomName, ValueOf<TConfigProps>|CssCustomValue> | null
     }
     //#endregion overrides
     
@@ -645,7 +638,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      *    animation   : [[ '100ms', 'ease', 'navb-fly-away' ]],
      * };  
      */
-    #genProps = new Map<CssCustomName, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue>();
+    #genProps = new Map<CssCustomName, ValueOf<TConfigProps>|CssCustomValue>();
     
     /**
      * The *generated css* attached on dom (by default).
@@ -667,7 +660,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         this.#genProps = (
             (new TransformCssConfigDuplicatesBuilder<TConfigProps>(props, genKeyframes, this.#options)).result
             ??
-            (props as Map<CssCustomName, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue>)
+            (props as Map<CssCustomName, ValueOf<TConfigProps>|CssCustomValue>)
         );
         //#endregion transform the `props` 
         
@@ -698,9 +691,11 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         // update styleSheet:
+        const ruleTest = new Map<CssCustomName, ValueOf<Omit<CssConfigProps, symbol>>|CssCustomValue|Extract<CssConfigProps, symbol>>();
         this.#liveStyleSheet.next({
             ...atGlobal({
-                ...rule(this.#options.selector, Object.fromEntries(this.#genProps)),
+                ...rule(this.#options.selector, Object.fromEntries(ruleTest)),
+                // ...rule(this.#options.selector, Object.fromEntries(this.#genProps)),
                 ...Array.from(genKeyframes).map(([name, value]) => keyframes(name, value)),
             }),
         });
@@ -810,7 +805,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param propName The prop name to retrieve.
      * @returns A `ValueOf<TConfigProps>` or `CssCustomValue` represents the value of the specified `propName` -or- `undefined` if it doesn't exist.
      */
-    #getVal(propName: string): ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|undefined {
+    #getVal(propName: string): ValueOf<TConfigProps>|CssCustomValue|undefined {
         const propDecl = this.#getDecl(propName);
         if (!propDecl) return undefined; // not found
         
@@ -881,14 +876,14 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         // proxies - representing data in various formats:
-        this.#refs = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */                                CssCustomSimpleRef | /*setter: */ValueOf<TConfigProps> }>(unusedObj as any, {
+        this.#refs = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */                  CssCustomSimpleRef | /*setter: */ValueOf<TConfigProps> }>(unusedObj as any, {
             get            : (_unusedObj, propName: string)                                  => this.#getRef(propName),
             set            : (_unusedObj, propName: string, newValue: ValueOf<TConfigProps>) => this.#setDirect(propName, newValue),
             deleteProperty : (_unusedObj, propName: string)                                  => this.#setDirect(propName, undefined),
             
             ownKeys        : (_unusedObj)                                                    => this.#getPropList(),
         }) as Refs<TConfigProps>;
-        this.#vals = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue | /*setter: */ValueOf<TConfigProps> }>(unusedObj as any, {
+        this.#vals = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */ValueOf<TConfigProps>|CssCustomValue | /*setter: */ValueOf<TConfigProps> }>(unusedObj as any, {
             get            : (_unusedObj, propName: string)                                  => this.#getVal(propName),
             set            : (_unusedObj, propName: string, newValue: ValueOf<TConfigProps>) => this.#setDirect(propName, newValue),
             deleteProperty : (_unusedObj, propName: string)                                  => this.#setDirect(propName, undefined),
