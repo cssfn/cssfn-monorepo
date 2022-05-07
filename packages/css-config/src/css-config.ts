@@ -18,7 +18,6 @@ import type {
     
     // cssfn properties:
     CssRuleData,
-    CssRule,
     
     CssStyle,
     
@@ -315,12 +314,15 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         return srcPropName;
     }
     protected _onCombineModified(modified: Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>): Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData> {
+        // clone the entrire #srcProps:
         const combined = new Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>(this.#srcProps);
         
+        // then update the changes:
         for (const [propName, propValue] of modified) {
             combined.set(propName, propValue);
         } // for
         
+        // here the original + modified:
         return combined;
     }
     //#endregion virtual methods
@@ -343,7 +345,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         
-        const modified = new Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>();
+        const modified = new Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>(); // create a blank storage for collecting the changes
         
         
         
@@ -379,31 +381,31 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             
             
             
-            //#region handle nested rule
+            //#region handle nested style (recursive)
             if (typeof(srcPropName) === 'symbol') {
                 if (typeof(srcPropName) !== 'symbol')    continue;
                 const [selector, styles] = srcPropValue as CssRuleData;
-                const mergedRules = mergeStyles(styles) as (CssRule|null);
-                if (mergedRules) {
-                    // convert the rules to Map:
-                    const srcNestedRules = new Map<symbol, CssRuleData>();
-                    for (const symbolProp of Object.getOwnPropertySymbols(mergedRules)) {
-                        srcNestedRules.set(symbolProp, mergedRules[symbolProp]);
+                const mergedStyles = mergeStyles(styles);
+                if (mergedStyles) {
+                    // convert the style to Map:
+                    const srcNestedStyle = new Map<symbol, CssRuleData>();
+                    for (const symbolProp of Object.getOwnPropertySymbols(mergedStyles)) {
+                        srcNestedStyle.set(symbolProp, mergedStyles[symbolProp]);
                     } // for
                     
                     
                     
-                    const equalNestedRules = (new TransformDuplicatesBuilder(srcNestedRules, refProps, genKeyframes, options)).result;
-                    if (equalNestedRules) {
-                        // convert the Map back to rules:
-                        const srcNestedRules = Object.fromEntries(equalNestedRules) as CssRule;
+                    const equalNestedStyle = (new TransformDuplicatesBuilder(srcNestedStyle, refProps, genKeyframes, options)).result;
+                    if (equalNestedStyle) {
+                        // convert the Map back to style:
+                        const srcNestedStyle = Object.fromEntries(equalNestedStyle) as CssStyle;
                         
                         
                         
-                        // store the modified `srcNestedRules`:
+                        // store the modified `srcNestedStyle`:
                         modified.set(
                             this._onCreatePropName(srcPropName),
-                            [selector, srcNestedRules]
+                            [selector, srcNestedStyle]
                         );
                     } // if
                 } // if
@@ -413,7 +415,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 // mission done => continue walk to the next entry:
                 continue;
             } // if
-            //#endregion handle nested rule
+            //#endregion handle nested style (recursive)
             
             
             
@@ -634,7 +636,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      *    animation   : [[ '100ms', 'ease', 'navb-fly-away' ]],
      * };  
      */
-    #genProps = new Map<CssCustomName, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|ValueOf<Pick<TConfigProps, symbol>>>();
+    #genProps = new Map<CssCustomName, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|ValueOf<Pick<TConfigProps, symbol>>>(); // create a blank generated props collection
     
     /**
      * The *generated css* attached on dom (by default).
@@ -652,7 +654,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         //#region transform the `props`
-        const genKeyframes = new Map<string, CssCustomKeyframesRef>();
+        const genKeyframes = new Map<string, CssCustomKeyframesRef>(); // create a blank @keyframes collection
         this.#genProps = (
             (new TransformCssConfigDuplicatesBuilder<TConfigProps>(props, genKeyframes, this.#options)).result
             ??
