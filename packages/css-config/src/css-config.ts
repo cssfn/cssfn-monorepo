@@ -392,9 +392,6 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                         ...Object.entries(mergedStyles) as [keyof CssStyle, ValueOf<CssStyle>][],
                         ...Object.getOwnPropertySymbols(mergedStyles).map((symbolProp) => [ symbolProp, mergedStyles[symbolProp] ]) as [keyof CssStyle, ValueOf<CssStyle>][],
                     ]);
-                    for (const symbolProp of Object.getOwnPropertySymbols(mergedStyles)) {
-                        srcNestedStyle.set(symbolProp, mergedStyles[symbolProp]);
-                    } // for
                     
                     
                     
