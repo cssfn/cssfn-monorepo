@@ -157,9 +157,10 @@ const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomN
     return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
 }
 
-type CssKeyframesData = CssKeyframesRule[symbol]
+// TODO: remove
+// type CssKeyframesData = CssKeyframesRule[symbol]
 
-class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|CssKeyframesData|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssKeyframesData|undefined|null> {
+class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|CssRuleData|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|undefined|null> {
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
@@ -168,7 +169,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     //#endregion private properties
     
     //#region public properties
-    readonly #result        : Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssKeyframesData> | null
+    readonly #result        : Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData> | null
     get result() {
         return this.#result;
     }
@@ -364,8 +365,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     protected _onCreatePropName(srcPropName: TSrcPropName): TSrcPropName {
         return srcPropName;
     }
-    protected _onCombineModified(modified: Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssKeyframesData>): Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssKeyframesData> {
-        const combined = new Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssKeyframesData>(this.#srcProps);
+    protected _onCombineModified(modified: Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>): Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData> {
+        const combined = new Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>(this.#srcProps);
         
         for (const [propName, propValue] of modified) {
             combined.set(propName, propValue);
@@ -393,13 +394,13 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         
-        const modified = new Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssKeyframesData>();
+        const modified = new Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>();
         
         
         
         for (const [srcPropName, srcPropValue] of this.#srcProps) { // collect all @keyframes name
             if (typeof(srcPropName) !== 'symbol')    continue;
-            const [selector, styles] = srcPropValue as CssKeyframesData;
+            const [selector, styles] = srcPropValue as CssRuleData;
             if (typeof(selector) !== 'string')       continue;
             if (!selector.startsWith('@keyframes ')) continue;
             
@@ -417,7 +418,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             // store the modified `newKeyframesName`:
             modified.set(
                 this._onCreatePropName(srcPropName),
-                [`@keyframes ${newKeyframesName}`, styles] as CssKeyframesData
+                [`@keyframes ${newKeyframesName}`, styles] as CssRuleData
             );
         }  // collect all @keyframes name
         
@@ -432,7 +433,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             //#region handle nested rule
             if (typeof(srcPropName) === 'symbol') {
                 if (typeof(srcPropName) !== 'symbol')    continue;
-                const [, styles] = srcPropValue as CssKeyframesData;
+                const [, styles] = srcPropValue as CssRuleData;
                 const mergedRules = mergeStyles(styles) as (CssKeyframesRule|null);
                 if (mergedRules) {
                     // convert the rules to Map:
