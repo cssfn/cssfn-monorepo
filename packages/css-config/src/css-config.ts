@@ -691,7 +691,6 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         // update styleSheet:
         this.#liveStyleSheet.next({
             ...atGlobal({
-                // ...rule(this.#options.selector, Object.fromEntries(ruleTest) as CssStyle),
                 ...rule(this.#options.selector, Object.fromEntries(this.#genProps) as CssStyle),
                 ...Array.from(genKeyframes).map(([name, value]) => keyframes(name, value)),
             }),
