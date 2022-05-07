@@ -388,7 +388,10 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 const mergedStyles = mergeStyles(styles);
                 if (mergedStyles) {
                     // convert the style to Map:
-                    const srcNestedStyle = new Map<symbol, CssRuleData>();
+                    const srcNestedStyle = new Map<keyof CssStyle, ValueOf<CssStyle>>([
+                        ...Object.entries(mergedStyles) as [keyof CssStyle, ValueOf<CssStyle>][],
+                        ...Object.getOwnPropertySymbols(mergedStyles).map((symbolProp) => [ symbolProp, mergedStyles[symbolProp] ]) as [keyof CssStyle, ValueOf<CssStyle>][],
+                    ]);
                     for (const symbolProp of Object.getOwnPropertySymbols(mergedStyles)) {
                         srcNestedStyle.set(symbolProp, mergedStyles[symbolProp]);
                     } // for
@@ -579,9 +582,12 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
                 :
                 this.#propsFactory
             );
-            this.#_propsCache = new Map<keyof TConfigProps, ValueOf<TConfigProps>>(
-                Object.entries(props) as [keyof TConfigProps, ValueOf<TConfigProps>][]
-            );
+            
+            // convert props to Map:
+            this.#_propsCache = new Map<keyof TConfigProps, ValueOf<TConfigProps>>([
+                ...Object.entries(props) as [keyof TConfigProps, ValueOf<TConfigProps>][],
+                ...Object.getOwnPropertySymbols(props).map((symbolProp) => [ symbolProp, props[symbolProp] ]) as [keyof TConfigProps, ValueOf<TConfigProps>][],
+            ]);
         } // if
         
         return this.#_propsCache;
