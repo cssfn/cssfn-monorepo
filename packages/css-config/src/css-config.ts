@@ -19,6 +19,8 @@ import type {
     // cssfn properties:
     CssProps,
     
+    CssRuleData,
+    CssRule,
     CssRuleCollection,
     
     CssStyle,
@@ -431,6 +433,18 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             if (typeof(srcPropName) === 'symbol') {
                 if (typeof(srcPropName) !== 'symbol')    continue;
                 const [, styles] = srcPropValue as CssKeyframesData;
+                const mergedRules = mergeStyles(styles) as (CssKeyframesRule|null);
+                if (mergedRules) {
+                    // convert the rules to Map:
+                    const srcNestedRules = new Map<symbol, CssRuleData>();
+                    for (const symbolProp of Object.getOwnPropertySymbols(mergedRules)) {
+                        srcNestedRules.set(symbolProp, mergedRules[symbolProp]);
+                    } // for
+                    
+                    
+                    
+                    const equalNestedRules = (new TransformDuplicatesBuilder(srcNestedRules, refProps, genKeyframes, options)).result;
+                } // if
                 
                 
                 
