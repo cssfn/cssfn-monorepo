@@ -271,9 +271,11 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param srcPropName  The prop name of `#srcProps`.
      * @param srcPropValue The prop value of `#srcProps`.
      * @returns A `CssCustomSimpleRef` represents the link to the equivalent entry in `#refProps`.  
+     * -or-
+     * A `CssCustomKeyframesRef` represents the link to the equivalent entry in `#genKeyframes`.  
      * -or- `null` if no equivalent found.
      */
-    #findEqualProp(srcPropName: TSrcPropName, srcPropValue: TSrcPropValue): CssCustomSimpleRef|null {
+    #findEqualProp(srcPropName: TSrcPropName, srcPropValue: TSrcPropValue): CssCustomSimpleRef|CssCustomKeyframesRef|null {
         for (const [refPropName, refPropValue] of this.#refProps) { // search for duplicates
             // skip non-string ref prop:
             if (typeof(refPropName) !== 'string') continue; // symbol & number props are ignored
@@ -292,6 +294,14 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             // comparing the `srcPropValue` & `refPropValue` deeply:
             if (this.#isDeepEqual(srcPropValue, refPropValue)) return this.#createRef(refPropName); // return the link to the ref
         } // search for duplicates
+        
+        if (typeof(srcPropValue) === 'string') {
+            return (
+                this.#genKeyframes.get(srcPropValue) // found
+                ??
+                null                                 // not found
+            );
+        } // if
         
         // not found:
         return null;
@@ -479,43 +489,6 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 );
             } // if
             //#endregion handle no value change
-            
-            
-            
-            //#region handle `@keyframes foo`
-            /*const keyframesData = this.#isKeyframesRule(srcPropName, srcPropValue);
-            if (keyframesData) {
-                const [keyframesName, rules] = keyframesData;
-                
-                
-                
-                const equalKeyframes = this.#findEqualKeyframes(srcKeyframes);
-                if (equalKeyframes) srcKeyframes = equalKeyframes; // replace with the equivalent (if any)
-                
-                
-                
-                // create a link to current `@keyframes` name:
-                const keyframesReference = this.#createKeyframesRef(keyframesName);
-                
-                
-                
-                // if @keyframes was not exist => store the new one:
-                if (!equalKeyframes) {
-                    this.#genKeyframes.set(keyframesReference, srcKeyframes);
-                } // if
-                
-                
-                
-                // store the modified `srcPropValue`:
-                modified.set(
-                    this._onCreatePropName(srcPropName),
-                    keyframesReference
-                );
-                
-                // mission done => continue walk to the next entry:
-                continue;
-            } // if*/
-            //#endregion handle `@keyframes foo`
         }  // walk each entry in `#srcProps`
         
         
