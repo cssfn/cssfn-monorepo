@@ -17,15 +17,11 @@ import type {
     
     
     // cssfn properties:
-    CssProps,
-    
     CssRuleData,
     CssRule,
-    CssRuleCollection,
     
     CssStyle,
     
-    CssKeyframes,
     CssKeyframesRule,
     
     CssSelector,
@@ -33,11 +29,6 @@ import type {
 import {
     // rules:
     rule,
-    
-    
-    
-    // keyframes:
-    keyframes,
     
     
     
@@ -157,9 +148,6 @@ const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomN
     return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
 }
 
-// TODO: remove
-// type CssKeyframesData = CssKeyframesRule[symbol]
-
 class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|CssRuleData|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|undefined|null> {
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
@@ -233,37 +221,14 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     }
     
     /**
-     * Determines if the specified `refPropValue` was exist in `#genKeyframes`.
-     * @param refPropValue The prop value of `#refProps`.
-     * @returns `true` if it was exist in `#genKeyframes`, otherwise `false`.
-     */
-    #isExistingKeyframesRef(refPropValue: TRefPropValue|CssKeyframes): boolean {
-        if (!refPropValue)                     return false; // must not null|undefined
-        if (typeof(refPropValue) !== 'object') return false; // must an object
-        if (Array.isArray(refPropValue))       return false; // not  an array
-        
-        
-        
-        return (
-            Array.from(this.#genKeyframes.values())
-            .some((keyframesRef) => Object.is(keyframesRef, refPropValue))
-        );
-    }
-    
-    /**
      * Determines if the specified `srcPropValue` and `refPropValue` are deeply the same by value or by reference.
      * @param srcPropValue The first value to test.
      * @param refPropValue The second value to test.
      * @returns `true` if both are equal, otherwise `false`.
      */
-    #isDeepEqual(srcPropValue: TSrcPropValue|CssKeyframes, refPropValue: TRefPropValue|CssKeyframes): boolean {
+    #isDeepEqual(srcPropValue: TSrcPropValue, refPropValue: TRefPropValue): boolean {
         // shallow equal comparison:
         if (Object.is(srcPropValue, refPropValue)) return true;
-        
-        
-        
-        // prevents a @keyframes object be compared deeply:
-        if (this.#isExistingKeyframesRef(refPropValue)) return false;
         
         
         
@@ -291,7 +256,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         // both prop values must be the same:
-        for (const deepPropName in (srcPropValue as TSrcPropValue & CssKeyframes)) {
+        for (const deepPropName in srcPropValue) {
             if (!this.#isDeepEqual((srcPropValue as any)[deepPropName], (refPropValue as any)[deepPropName])) return false; // the same prop name with different prop value => false
         } // for
         
@@ -327,22 +292,6 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             
             // comparing the `srcPropValue` & `refPropValue` deeply:
             if (this.#isDeepEqual(srcPropValue, refPropValue)) return this.#createRef(refPropName); // return the link to the ref
-        } // search for duplicates
-        
-        // not found:
-        return null;
-    }
-    
-    /**
-     * Determines if the specified `srcKeyframes` has the equivalent `@keyframes` in `#genKeyframes`.
-     * @param srcKeyframes The reference of `@keyframes`.
-     * @returns A `CssKeyframes` represents the object reference to the equivalent `@keyframes` in `#genKeyframes`.  
-     * -or- `null` if no equivalent found.
-     */
-    #findEqualKeyframes(srcKeyframes: CssKeyframes): CssKeyframes|null {
-        for (const refKeyframes of this.#genKeyframes.values()) { // search for duplicates
-            // comparing the `srcKeyframes` & `refKeyframes` deeply:
-            if (this.#isDeepEqual(srcKeyframes, refKeyframes)) return refKeyframes; // return the object reference to the ref
         } // search for duplicates
         
         // not found:
@@ -418,7 +367,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             // store the modified `newKeyframesName`:
             modified.set(
                 this._onCreatePropName(srcPropName),
-                [`@keyframes ${newKeyframesName}`, styles] as CssRuleData
+                [`@keyframes ${newKeyframesName}`, styles]
             );
         }  // collect all @keyframes name
         
@@ -433,8 +382,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             //#region handle nested rule
             if (typeof(srcPropName) === 'symbol') {
                 if (typeof(srcPropName) !== 'symbol')    continue;
-                const [, styles] = srcPropValue as CssRuleData;
-                const mergedRules = mergeStyles(styles) as (CssKeyframesRule|null);
+                const [selector, styles] = srcPropValue as CssRuleData;
+                const mergedRules = mergeStyles(styles) as (CssRule|null);
                 if (mergedRules) {
                     // convert the rules to Map:
                     const srcNestedRules = new Map<symbol, CssRuleData>();
@@ -445,6 +394,18 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                     
                     
                     const equalNestedRules = (new TransformDuplicatesBuilder(srcNestedRules, refProps, genKeyframes, options)).result;
+                    if (equalNestedRules) {
+                        // convert the Map back to rules:
+                        const srcNestedRules = Object.fromEntries(equalNestedRules) as CssRule;
+                        
+                        
+                        
+                        // store the modified `srcNestedRules`:
+                        modified.set(
+                            this._onCreatePropName(srcPropName),
+                            [selector, srcNestedRules]
+                        );
+                    } // if
                 } // if
                 
                 
