@@ -276,7 +276,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     #findEqualProp(srcPropName: TSrcPropName, srcPropValue: TSrcPropValue): CssCustomSimpleRef|null {
         for (const [refPropName, refPropValue] of this.#refProps) { // search for duplicates
             // skip non-string ref prop:
-            if (typeof(refPropName) !== 'string') continue;
+            if (typeof(refPropName) !== 'string') continue; // symbol & number props are ignored
             
             // skip empty ref:
             if ((refPropValue === undefined) || (refPropValue === null)) continue;
@@ -383,7 +383,6 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             
             //#region handle nested style (recursive)
             if (typeof(srcPropName) === 'symbol') {
-                if (typeof(srcPropName) !== 'symbol')    continue;
                 const [selector, styles] = srcPropValue as CssRuleData;
                 const mergedStyles = mergeStyles(styles);
                 if (mergedStyles) {
@@ -823,7 +822,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     #getPropList(): ArrayLike<string|symbol> {
         return (
             Array.from(this.#props.keys())
-            .filter((propName): propName is string => (typeof(propName) === 'string'))
+            .filter((propName): propName is string => (typeof(propName) === 'string')) // only show string props
         );
     }
     //#endregion proxy getters & setters
