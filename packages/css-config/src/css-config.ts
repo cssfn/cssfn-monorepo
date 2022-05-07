@@ -161,7 +161,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
-    readonly #genKeyframes : Map<CssCustomKeyframesRef, CssKeyframes>
+    readonly #genKeyframes : Map<string, CssCustomKeyframesRef>
     readonly #options      : LiveCssConfigOptions
     //#endregion private properties
     
@@ -404,7 +404,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param refProps     The `Map<TRefPropName, TRefPropValue>` object as the prop duplicate references.
      * @param genKeyframes The `Map<CssCustomKeyframesRef, CssKeyframes>` object as the keyframes duplicate references and as a storage for the generated one.
      */
-    constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>, genKeyframes: Map<CssCustomKeyframesRef, CssKeyframes>, options: LiveCssConfigOptions) {
+    constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>, genKeyframes: Map<string, CssCustomKeyframesRef>, options: LiveCssConfigOptions) {
         this.#srcProps     = srcProps;
         this.#refProps     = refProps;
         this.#genKeyframes = genKeyframes;
@@ -548,7 +548,7 @@ class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> e
     
     
     
-    constructor(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, genKeyframes: Map<CssCustomKeyframesRef, CssKeyframes>, options: LiveCssConfigOptions) {
+    constructor(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, genKeyframes: Map<string, CssCustomKeyframesRef>, options: LiveCssConfigOptions) {
         super(srcProps, srcProps, genKeyframes, options);
     }
 }
@@ -653,38 +653,14 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         
-        //#region transform the `props` 
-        const genKeyframes = new Map<CssCustomKeyframesRef, CssKeyframes>();
+        //#region transform the `props`
+        const genKeyframes = new Map<string, CssCustomKeyframesRef>();
         this.#genProps = (
             (new TransformCssConfigDuplicatesBuilder<TConfigProps>(props, genKeyframes, this.#options)).result
             ??
             (props as Map<CssCustomName, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|ValueOf<Pick<TConfigProps, symbol>>>)
         );
-        //#endregion transform the `props` 
-        
-        
-        
-        //#region transform the keyframes
-        for (const keyframes of genKeyframes.values()) { // walk each value in `genKeyframes`
-            for (const [key, frame] of Object.entries(keyframes)) {
-                const frameStyle = mergeStyles(frame);
-                if (!frameStyle) {
-                    delete keyframes[key]; // delete empty frames
-                    continue; // skip empty frames
-                } // if
-                
-                
-                
-                let frameProps : Map<keyof CssProps, ValueOf<CssProps>> = new Map(
-                    Object.entries(frameStyle) as [keyof CssProps, ValueOf<CssProps>][]
-                );
-                const equalFrameProps = (new TransformDuplicatesBuilder(frameProps, props, genKeyframes, this.#options)).result;
-                if (equalFrameProps) {
-                    keyframes[key] = Object.fromEntries(equalFrameProps);
-                } // if
-            } // for
-        } // walk each value in `genKeyframes`
-        //#endregion transform the keyframes
+        //#endregion transform the `props`
         
         
         
@@ -692,7 +668,6 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         this.#liveStyleSheet.next({
             ...atGlobal({
                 ...rule(this.#options.selector, Object.fromEntries(this.#genProps) as CssStyle),
-                ...Array.from(genKeyframes).map(([name, value]) => keyframes(name, value)),
             }),
         });
     }
