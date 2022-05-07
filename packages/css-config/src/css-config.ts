@@ -166,7 +166,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     //#endregion private properties
     
     //#region public properties
-    readonly #result        : Map<TSrcPropName, TSrcPropValue|CssCustomValue> | null
+    readonly #result        : Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssKeyframesData> | null
     get result() {
         return this.#result;
     }
@@ -362,8 +362,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     protected _onCreatePropName(srcPropName: TSrcPropName): TSrcPropName {
         return srcPropName;
     }
-    protected _onCombineModified(modified: Map<TSrcPropName, TSrcPropValue|CssCustomValue>): Map<TSrcPropName, TSrcPropValue|CssCustomValue> {
-        const combined = new Map<TSrcPropName, TSrcPropValue|CssCustomValue>(this.#srcProps);
+    protected _onCombineModified(modified: Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssKeyframesData>): Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssKeyframesData> {
+        const combined = new Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssKeyframesData>(this.#srcProps);
         
         for (const [propName, propValue] of modified) {
             combined.set(propName, propValue);
@@ -391,15 +391,13 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         
-        const modified = new Map<TSrcPropName, TSrcPropValue|CssCustomValue>();
+        const modified = new Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssKeyframesData>();
         
         
         
         for (const [srcPropName, srcPropValue] of this.#srcProps) { // collect all @keyframes name
             if (typeof(srcPropName) !== 'symbol')    continue;
-            if (!srcPropValue)                       continue;
-            if (!Array.isArray(srcPropValue))        continue;
-            const [selector, ...styles] = srcPropValue;
+            const [selector, styles] = srcPropValue as CssKeyframesData;
             if (typeof(selector) !== 'string')       continue;
             if (!selector.startsWith('@keyframes ')) continue;
             
@@ -417,7 +415,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             // store the modified `newKeyframesName`:
             modified.set(
                 this._onCreatePropName(srcPropName),
-                [`@keyframes ${newKeyframesName}`, ...styles]
+                [`@keyframes ${newKeyframesName}`, styles] as CssKeyframesData
             );
         }  // collect all @keyframes name
         
@@ -426,6 +424,20 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         for (const [srcPropName, srcPropValue] of this.#srcProps) { // walk each entry in `#srcProps`
             // skip empty src:
             if ((srcPropValue === undefined) || (srcPropValue === null)) continue;
+            
+            
+            
+            //#region handle nested rule
+            if (typeof(srcPropName) === 'symbol') {
+                if (typeof(srcPropName) !== 'symbol')    continue;
+                const [, styles] = srcPropValue as CssKeyframesData;
+                
+                
+                
+                // mission done => continue walk to the next entry:
+                continue;
+            } // if
+            //#endregion handle nested rule
             
             
             
