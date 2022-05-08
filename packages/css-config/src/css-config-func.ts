@@ -19,20 +19,19 @@ import type {
     
     
     // cssfn properties:
+    CssProps,
+    
+    CssRuleData,
+    
     CssStyle,
     
-    CssKeyframes,
+    CssKeyframesRule,
     
     CssSelector,
 }                           from '@cssfn/css-types'
 import {
     // rules:
     rule,
-    
-    
-    
-    // keyframes:
-    keyframes,
     
     
     
@@ -54,9 +53,12 @@ import {
 
 
 // general types:
-export type CssConfigProps = Nullable<{
-    [name: string] : CssCustomValue
-}>
+export type CssConfigProps =
+    & Nullable<{
+        [name: string] : CssCustomValue
+    }>
+    & CssKeyframesRule
+    & CssProps // for better js doc
 export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef                  }
 export type Vals<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: TConfigProps[Key]  | CssCustomValue }
 
@@ -219,7 +221,7 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
     /**
      * The *generated css* of `@keyframes` resides on memory only.
      */
-    let   genKeyframes  : Dictionary<CssKeyframes> = {};
+    let   genKeyframes  = new Map<string, string>();
     
     /**
      * The *generated css* attached on dom.
@@ -251,12 +253,12 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
     }
     
     /**
-     * Creates the *value* (reference) of the specified `keyframesName`.
-     * @param keyframesName The `@keyframes` name to create.
-     * @returns A `CssCustomKeyframesRef` represents the expression for retrieving the value of the specified `keyframesName`.
+     * Creates the name of `@keyframes` rule.
+     * @param basicKeyframesName The basic name of `@keyframes` rule to create.
+     * @returns A `string` represents the name of `@keyframes` rule.
      */
-    const createKeyframesRef = (keyframesName: string): CssCustomKeyframesRef => {
-        return liveOptions.prefix ? `${liveOptions.prefix}-${keyframesName}` : keyframesName; // add prefix `prefix-` or just a `keyframesName`
+    const createKeyframesName = (basicKeyframesName: string): string => {
+        return liveOptions.prefix ? `${liveOptions.prefix}-${basicKeyframesName}` : basicKeyframesName; // add prefix `prefix-` or just a `keyframesName`
     }
     
     
@@ -275,7 +277,7 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
      * -or-  
      * A literal object which is equivalent to `srcProps`.
      */
-    const transformDuplicates = <TSrcValue, TRefValue>(srcProps: Dictionary<TSrcValue>, refProps: Dictionary<TRefValue>, propRename?: ((srcPropName: string) => string)): (Dictionary<TSrcValue|CssCustomValue> | null) => {
+    const transformDuplicates = <TSrcValue, TRefValue>(srcProps: Dictionary<TSrcValue>, refProps: Dictionary<TRefValue>, propRename?: ((srcPropName: string) => string)): (Dictionary<TSrcValue|CssCustomValue|CssRuleData> | null) => {
         /**
          * Determines if the specified `srcPropValue` can be transformed to another equivalent prop link `var(...)`.
          * @param srcPropValue The value to test.
@@ -310,19 +312,6 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
             
             return (srcPropName === refPropName);
         };
-        
-        /**
-         * Determines if the specified `srcPropName` is a special `@keyframes name`.
-         * @param srcPropName The prop name of `srcProps`.
-         * @returns  
-         * A `string` represents the name of `@keyframes`.  
-         * -or-  
-         * `null` if not a special `@keyframes name`.
-         */
-        const isKeyframesName = (srcPropName: string): CssCustomKeyframesRef|null => {
-            if (!srcPropName.startsWith('@keyframes ')) return null;
-            return srcPropName.slice(11).trimStart();
-        }
         
         /**
          * Determines if the specified `refPropValue` was exist in `genKeyframes`.
@@ -400,24 +389,16 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
                 if (deepEqual(srcPropValue, refPropValue)) return createRef(refPropName); // return the link to the ref
             } // for // search for duplicates
             
-            return null; // not found
-        }
-        
-        /**
-         * Determines if the specified `srcKeyframes` has the equivalent value in `genKeyframes`.
-         * @param srcKeyframes The value of `@keyframes`.
-         * @returns A `CssKeyframes` represents the object reference to the equivalent value in `genKeyframes`.  
-         * -or- `null` if no equivalent found.
-         */
-        const findEqualKeyframes = (srcKeyframes: CssKeyframes): (CssKeyframes|null) => {
-            for (const refKeyframes of Object.values(genKeyframes)) { // search for duplicates
-                // if ((refKeyframes === undefined) || (refKeyframes === null)) continue; // skip empty ref
-                
-                
-                
-                // comparing the `srcKeyframes` & `refKeyframes` deeply:
-                if (deepEqual(srcKeyframes, refKeyframes)) return refKeyframes; // return the object reference to the ref
-            } // for // search for duplicates
+            if (srcPropValue && (typeof(srcPropValue) === 'object') && !Array.isArray(srcPropValue) && (Object.getPrototypeOf(srcPropValue) !== Object.prototype)) {
+                const keyframesRef = srcPropValue as unknown as CssCustomKeyframesRef;
+                const oldkeyframesName = keyframesRef.value;
+                if (oldkeyframesName) { // if not auto_name
+                    const newKeyframesName = genKeyframes.get(oldkeyframesName);
+                    if (newKeyframesName) {
+                        keyframesRef.value = newKeyframesName;
+                    } // if
+                } // if
+            } // if
             
             return null; // not found
         }
@@ -427,40 +408,40 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
         /**
          * Stores the modified entries of `srcProps`.
          */
-        const modifSrcProps: Dictionary<TSrcValue|CssCustomValue> = {}; // initially empty (no modification)
+        const modifSrcProps: Dictionary<TSrcValue|CssCustomValue|CssRuleData> = {}; // initially empty (no modification)
+        
+        
+        
+        for (const srcPropName of Object.getOwnPropertySymbols(srcProps)) { // collect all @keyframes name
+            const srcPropValue = (srcProps as any)[srcPropName];
+            const [selector, styles] = srcPropValue as CssRuleData;
+            if (typeof(selector) !== 'string')       continue;
+            if (!selector.startsWith('@keyframes ')) continue;
+            
+            
+            
+            const oldkeyframesName = selector.slice(11).trimStart();
+            const newKeyframesName = createKeyframesName(oldkeyframesName);
+            if (newKeyframesName === oldkeyframesName) continue; // nothing to change => skip
+            
+            
+            
+            // track the @keyframes changes:
+            genKeyframes.set(
+                oldkeyframesName,
+                newKeyframesName
+            );
+            
+            
+            
+            // store the modified `newKeyframesName`:
+            (modifSrcProps as any)[srcPropName] = [`@keyframes ${newKeyframesName}`, styles];
+        }  // collect all @keyframes name
         
         
         
         for (const [srcPropName, srcPropValue] of Object.entries(srcProps)) { // walk each entry in `srcProps`
             if ((srcPropValue === undefined) || (srcPropValue === null)) continue; // skip empty src
-            
-            
-            
-            //#region handle `@keyframes foo`
-            {
-                const keyframesName = isKeyframesName(srcPropName);
-                if (keyframesName) {
-                    let srcKeyframes = srcPropValue as unknown as CssKeyframes; // assumes the current `srcPropValue` is a valid `@keyframes`' value.
-                    srcKeyframes = findEqualKeyframes(srcKeyframes) ?? srcKeyframes;
-                    
-                    
-                    
-                    // create a link to current `@keyframes` name:
-                    const keyframesReference = createKeyframesRef(keyframesName); // `@keyframes`' name is always created even if the content is the same as the another `@keyframes`
-                    
-                    // store the new `@keyframes`:
-                    genKeyframes[keyframesReference] = srcKeyframes;
-                    
-                    
-                    
-                    // store the modified `srcProps`' entry:
-                    modifSrcProps[propRename?.(srcPropName) ?? srcPropName] = keyframesReference;
-                    
-                    // mission done => continue walk to the next entry:
-                    continue;
-                } // if
-            }
-            //#endregion handle `@keyframes foo`
             
             
             
@@ -515,6 +496,34 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
         
         
         
+        for (const srcPropName of Object.getOwnPropertySymbols(srcProps)) { // handle nested style (recursive)
+            const srcPropValue = (srcProps as any)[srcPropName];
+            const [selector, styles] = srcPropValue as unknown as CssRuleData;
+            const mergedStyles = mergeStyles(styles);
+            if (mergedStyles) {
+                // // convert the style to Map:
+                // const srcNestedStyle = new Map<keyof CssStyle, ValueOf<CssStyle>>([
+                //     ...Object.entries(mergedStyles) as [keyof CssStyle, ValueOf<CssStyle>][],
+                //     ...Object.getOwnPropertySymbols(mergedStyles).map((symbolProp) => [ symbolProp, mergedStyles[symbolProp] ]) as [keyof CssStyle, ValueOf<CssStyle>][],
+                // ]);
+                
+                
+                
+                const equalNestedStyle = transformDuplicates(mergedStyles, refProps);
+                if (equalNestedStyle) {
+                    // convert the Map back to style:
+                    const srcNestedStyle = equalNestedStyle as CssStyle;
+                    
+                    
+                    
+                    // store the modified `srcNestedStyle`:
+                    (modifSrcProps as any)[srcPropName] = [selector, srcNestedStyle];
+                } // if
+            } // if
+        } // handle nested style (recursive)
+        
+        
+        
         // if the `modifSrcProps` is not empty (has any modifications) => return the (original + modified):
         if (Object.keys(modifSrcProps).length) {
             // `propRename` does exists    => all entries are always modified => return the modified:
@@ -541,61 +550,12 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
         
         
         // transform the `props`:
-        genKeyframes = {}; // clear cached `@keyframes`
-        genProps     = transformDuplicates(/*srcProps: */props, /*refProps: */props, /*propRename: */(srcPropName) => createDecl(srcPropName)) ?? props;
-        
-        
-        
-        //#region transform the keyframes
-        /*
-            Dictionary<CssKeyframes>:
-            keyframesName     : keyframes
-            ------------------:---------------------------
-            string            : CssKeyframes
-            string            : Dictionary<Style>
-            ------------------:---------------------------
-            '@keyframes foo'  : { '0%': {'opacity': 0.5} },
-            '@keyframes dude' : { 'to': {'opacity': 1.0} },
-        */
-        for (const keyframes of Object.values(genKeyframes)) {
-            /*
-                CssKeyframes
-                Dictionary<Style>
-                -------:---------------
-                key    : frame
-                -------:---------------
-                string : Style
-                -------:---------------
-                '12%'  : {
-                            'opacity' : 0.5,
-                            'color'   : 'red',
-                            'some'    : CssCustomValue,
-                         }
-            */
-            for (const [key, frame] of Object.entries(keyframes)) {
-                const frameStyle = mergeStyles(frame);
-                if (!frameStyle) {
-                    delete keyframes[key]; // delete empty frames
-                    continue; // skip empty frames
-                } // if
-                
-                
-                
-                const equalFrameProps = transformDuplicates(/*srcProps: */frameStyle, /*refProps: */props);
-                if (equalFrameProps) {
-                    keyframes[key] = equalFrameProps;
-                } // if
-            } // for
-        } // for
-        //#endregion transform the keyframes
-        
-        
-        
-        // // calculate the generated data changes:
-        // const remGenKeyframes = Object.entries(oldGenKeyframes).filter(([name, value]) => !(name in    genKeyframes) /*not exist in new*/ /* || !Object.is(value,    genKeyframes[name])*/ /*old !== new*/);
-        // const addGenKeyframes = Object.entries(   genKeyframes).filter(([name, value]) => !(name in oldGenKeyframes) /*not exist in old*/    || !Object.is(value, oldGenKeyframes[name])   /*new !== old*/);
-        // const remGenProps     = Object.entries(oldGenProps)    .filter(([name, value]) => !(name in    genProps)     /*not exist in new*/ /* || !Object.is(value,    genProps[name])*/     /*old !== new*/);
-        // const addGenProps     = Object.entries(   genProps)    .filter(([name, value]) => !(name in oldGenProps)     /*not exist in old*/    || !Object.is(value, oldGenProps[name])       /*new !== old*/);
+        genKeyframes.clear();
+        genProps     = (
+            transformDuplicates(/*srcProps: */props, /*refProps: */props, /*propRename: */(srcPropName) => createDecl(srcPropName))
+            ??
+            props
+        ) as Dictionary</*original: */TValue | /*transformed: */CssCustomValue>;
         
         
         
@@ -605,7 +565,6 @@ const createCssConfig = <TProps extends CssConfigProps>(initialProps: ProductOrF
         liveStyleSheet.next({
             ...atGlobal({
                 ...rule(liveOptions.selector, genProps as Dictionary<CssCustomValue>),
-                ...Object.entries(genKeyframes).map(([name, items]) => keyframes(name, items)),
             }),
         });
     }
