@@ -397,6 +397,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         for (const [srcPropName, srcPropValue] of this.#srcProps) { // walk each entry in `#srcProps`
             // skip empty src:
             if ((srcPropValue === undefined) || (srcPropValue === null)) continue;
+            // skip !important modifier:
+            if ((typeof(srcPropName) === 'number') && (srcPropName >= 1) && (srcPropName === (this.#srcProps.size - 1)) && (srcPropValue === '!important')) continue;
             
             
             
