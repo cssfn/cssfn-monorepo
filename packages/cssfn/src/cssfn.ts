@@ -24,6 +24,7 @@ import type {
     CssStyleCollection,
     CssFontFaceStyleCollection,
     
+    CssCustomKeyframesRef,
     CssKeyframes,
     CssKeyframesRule,
     
@@ -54,12 +55,23 @@ export {
     styleSheets,
     styleSheet,
 }                           from './styleSheets.js'
+
+// other libs:
 export {
     camelCase,
 }                           from 'camel-case'
 export {
     pascalCase,
 }                           from 'pascal-case'
+import {
+    // tests:
+    isBrowser,
+    isJsDom,
+}                           from 'is-in-browser'
+
+
+
+const isClientSide : boolean = isBrowser || isJsDom;
 
 
 
@@ -170,17 +182,86 @@ export const states   = (states  : CssRuleCollection, options?: CssSelectorOptio
 
 
 // keyframes:
-export const keyframes         = (name: string, items: CssKeyframes): CssKeyframesRule => atRule(`@keyframes ${name}`, (Object.fromEntries(
-    Object.entries(items)
-    .map(([key, frame]): readonly [symbol, CssRuleData] => [
-        Symbol(),
-        [
-            ` ${key}`, // add a single space as PropRule token
-            frame
-        ]
-    ])
-) as CssRuleCollection)) as CssKeyframesRule;
-
+const globalAutoKeyframesIdRegistry = new Map<CssCustomKeyframesRefImpl, string>(); // should not be added on server side
+export class CssCustomKeyframesRefImpl implements CssCustomKeyframesRef {
+    //#region private properties
+    #value: string|null;
+    //#endregion private properties
+    
+    
+    
+    //#region constructors
+    constructor(value: string|null = null) {
+        this.#value = value || null; // non_empty_string or null
+    }
+    //#endregion constructors
+    
+    
+    
+    //#region public properties
+    get value(): string|null {
+        return this.#value;
+    }
+    set value(value: string|null) {
+        this.#value = value || null; // non_empty_string or null
+    }
+    //#endregion public properties
+    
+    
+    
+    //#region public methods
+    toString(): string {
+        const staticValue = this.#value;
+        if (staticValue) return staticValue;
+        
+        
+        
+        // prevents the `globalAutoKeyframesIdRegistry` to grow on server side:
+        if (!isClientSide) return 'k0';
+        
+        
+        
+        let autoValue = globalAutoKeyframesIdRegistry.get(this);
+        if (autoValue) return autoValue;
+        
+        
+        
+        autoValue = `k${globalAutoKeyframesIdRegistry.size + 1}`;
+        globalAutoKeyframesIdRegistry.set(this, autoValue);
+        return autoValue;
+    }
+    //#endregion public methods
+}
+export function keyframes(name        : string             , items  : CssKeyframes): CssKeyframesRule;
+export function keyframes(                                   items  : CssKeyframes):                    readonly [CssKeyframesRule, CssCustomKeyframesRef];
+export function keyframes(nameOrItems : string|CssKeyframes, items ?: CssKeyframes): CssKeyframesRule | readonly [CssKeyframesRule, CssCustomKeyframesRef] {
+    // first overloading:
+    if (typeof(nameOrItems) === 'string') {
+        if (items === undefined) throw TypeError();
+        
+        return atRule(`@keyframes ${nameOrItems}`, (Object.fromEntries(
+            Object.entries(items)
+            .map(([key, frame]): readonly [symbol, CssRuleData] => [
+                Symbol(),
+                [
+                    ` ${key}`, // add a single space as PropRule token
+                    frame
+                ]
+            ])
+        ) as CssRuleCollection)) as CssKeyframesRule;
+    } // if
+    
+    
+    
+    // second overloading:
+    if (items !== undefined) throw TypeError();
+    const keyframesRef = new CssCustomKeyframesRefImpl();
+    const keyframesRule = keyframes(keyframesRef.toString(), nameOrItems);
+    return [
+        keyframesRule,
+        keyframesRef,
+    ];
+}
 
 
 // rule shortcuts:
