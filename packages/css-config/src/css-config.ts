@@ -154,7 +154,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
-    readonly #genKeyframes : Map<string, CssCustomKeyframesRef>
+    readonly #genKeyframes : Map<string, string>
     readonly #options      : LiveCssConfigOptions
     //#endregion private properties
     
@@ -178,13 +178,13 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     }
     
     /**
-     * Creates the *value* (reference) of the specified `keyframesName`.
-     * @param keyframesName The `@keyframes` name to create.
-     * @returns A `CssCustomKeyframesRef` represents the expression for retrieving the reference of the specified `keyframesName`.
+     * Creates the name of `@keyframes` rule.
+     * @param basicKeyframesName The basic name of `@keyframes` rule to create.
+     * @returns A `string` represents the name of `@keyframes` rule.
      */
-    #createKeyframesRef(keyframesName: string): CssCustomKeyframesRef {
+    #createKeyframesName(basicKeyframesName: string): string {
         // add prefix `prefix-` or just a `keyframesName`
-        return this.#options.prefix ? `${this.#options.prefix}-${keyframesName}` : keyframesName;
+        return this.#options.prefix ? `${this.#options.prefix}-${basicKeyframesName}` : basicKeyframesName;
     }
     
     /**
@@ -274,11 +274,9 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param srcPropName  The prop name of `#srcProps`.
      * @param srcPropValue The prop value of `#srcProps`.
      * @returns A `CssCustomSimpleRef` represents the link to the equivalent entry in `#refProps`.  
-     * -or-
-     * A `CssCustomKeyframesRef` represents the link to the equivalent entry in `#genKeyframes`.  
      * -or- `null` if no equivalent found.
      */
-    #findEqualProp(srcPropName: TSrcPropName, srcPropValue: TSrcPropValue): CssCustomSimpleRef|CssCustomKeyframesRef|null {
+    #findEqualProp(srcPropName: TSrcPropName, srcPropValue: TSrcPropValue): CssCustomSimpleRef|null {
         for (const [refPropName, refPropValue] of this.#refProps) { // search for duplicates
             // skip non-string ref prop:
             if (typeof(refPropName) !== 'string') continue; // symbol & number props are ignored
@@ -298,12 +296,15 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             if (this.#isDeepEqual(srcPropValue, refPropValue)) return this.#createRef(refPropName); // return the link to the ref
         } // search for duplicates
         
-        if (typeof(srcPropValue) === 'string') {
-            return (
-                this.#genKeyframes.get(srcPropValue) // found
-                ??
-                null                                 // not found
-            );
+        if (srcPropValue && (typeof(srcPropValue) === 'object') && !Array.isArray(srcPropValue) && (Object.getPrototypeOf(srcPropValue) !== Object.prototype)) {
+            const keyframesRef = srcPropValue as CssCustomKeyframesRef;
+            const oldkeyframesName = keyframesRef.value;
+            if (oldkeyframesName) { // if not auto_name
+                const newKeyframesName = this.#genKeyframes.get(oldkeyframesName);
+                if (newKeyframesName) {
+                    keyframesRef.value = newKeyframesName;
+                } // if
+            } // if
         } // if
         
         // not found:
@@ -343,14 +344,14 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     
     
     /**
-     * Transforms the specified `srcProps` with the equivalent `Map<TSrcPropName, TSrcPropValue|CssCustomSimpleRef|CssCustomKeyframesRef|CssComplexMultiValueOf<CssSimpleValue>>` object,  
+     * Transforms the specified `srcProps` with the equivalent `Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>` object,  
      * in which some values might be partially/fully *transformed*.  
      * The duplicate values will be replaced with a `var(...)` linked to the existing props in `refProps` or in `genKeyframes`.  
      * @param srcProps     The `Map<TSrcPropName, TSrcPropValue>` object to transform.
      * @param refProps     The `Map<TRefPropName, TRefPropValue>` object as the prop duplicate references.
      * @param genKeyframes The `Map<CssCustomKeyframesRef, CssKeyframes>` object as the keyframes duplicate references and as a storage for the generated one.
      */
-    constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>, genKeyframes: Map<string, CssCustomKeyframesRef>, options: LiveCssConfigOptions) {
+    constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>, genKeyframes: Map<string, string>, options: LiveCssConfigOptions) {
         this.#srcProps     = srcProps;
         this.#refProps     = refProps;
         this.#genKeyframes = genKeyframes;
@@ -370,8 +371,13 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             
             
             
-            const oldkeyframesName    = selector.slice(11).trimStart();
-            const newKeyframesName = this.#createKeyframesRef(oldkeyframesName);
+            const oldkeyframesName = selector.slice(11).trimStart();
+            const newKeyframesName = this.#createKeyframesName(oldkeyframesName);
+            if (newKeyframesName === oldkeyframesName) continue; // nothing to change => skip
+            
+            
+            
+            // track the @keyframes changes:
             this.#genKeyframes.set(
                 oldkeyframesName,
                 newKeyframesName
@@ -523,7 +529,7 @@ class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> e
     
     
     
-    constructor(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, genKeyframes: Map<string, CssCustomKeyframesRef>, options: LiveCssConfigOptions) {
+    constructor(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, genKeyframes: Map<string, string>, options: LiveCssConfigOptions) {
         super(srcProps, srcProps, genKeyframes, options);
     }
 }
@@ -632,7 +638,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         //#region transform the `props`
-        const genKeyframes = new Map<string, CssCustomKeyframesRef>(); // create a blank @keyframes collection
+        const genKeyframes = new Map<string, string>(); // create a blank @keyframes collection
         this.#genProps = (
             (new TransformCssConfigDuplicatesBuilder<TConfigProps>(props, genKeyframes, this.#options)).result
             ??
