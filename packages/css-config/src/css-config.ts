@@ -178,7 +178,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @returns A `string` represents the name of `@keyframes` rule.
      */
     #createKeyframesName(basicKeyframesName: string): string {
-        // add prefix `prefix-` or just a `keyframesName`
+        // add prefix `prefix-` or just a `basicKeyframesName`
         return this.#options.prefix ? `${this.#options.prefix}-${basicKeyframesName}` : basicKeyframesName;
     }
     
@@ -198,6 +198,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 case 'inherit':
                 case 'initial':
                 case 'revert':
+                case 'revert-layer':
                     return false;
             } // switch
         } // if
@@ -212,7 +213,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @returns `true` indicates the same object, otherwise `false`.
      */
     #isSelfProp(srcPropName: TSrcPropName, refPropName: TRefPropName): boolean {
-        if (!Object.is(this.#srcProps, this.#refProps)) return false; // if `#srcProps` & `#refProps` are not the same object in memory => always return `false`
+        if (!Object.is(this.#srcProps, this.#refProps)) return false; // if `#srcProps` and `#refProps` are not the same object in memory => always return `false`
         
         return ((srcPropName as string|number|symbol) === (refPropName as string|number|symbol));
     }
@@ -291,6 +292,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             if (this.#isDeepEqual(srcPropValue, refPropValue)) return this.#createRef(refPropName); // return the link to the ref
         } // search for duplicates
         
+        
+        
         if (srcPropValue && (typeof(srcPropValue) === 'object') && !Array.isArray(srcPropValue) && (Object.getPrototypeOf(srcPropValue) !== Object.prototype)) {
             const keyframesRef = srcPropValue as CssCustomKeyframesRef;
             const oldkeyframesName = keyframesRef.value;
@@ -301,6 +304,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 } // if
             } // if
         } // if
+        
+        
         
         // not found:
         return null;
