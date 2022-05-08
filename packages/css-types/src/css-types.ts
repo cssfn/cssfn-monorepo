@@ -182,7 +182,7 @@ export type CssStyleCollection         = ProductOrFactoryOrDeepArray<OptionalOrB
 export type CssFontFaceStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssFontFaceProps>>
 
 export interface CssCustomKeyframesRef {
-    value      : string
+    value      : string|null
     toString() : string
 }
 export type CssKeyframes               = Dictionary<CssStyleCollection>
