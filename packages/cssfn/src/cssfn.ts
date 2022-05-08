@@ -183,7 +183,7 @@ export const states   = (states  : CssRuleCollection, options?: CssSelectorOptio
 
 // keyframes:
 const globalAutoKeyframesIdRegistry = new Map<CssCustomKeyframesRefImpl, string>(); // should not be added on server side
-export class CssCustomKeyframesRefImpl implements CssCustomKeyframesRef {
+class CssCustomKeyframesRefImpl implements CssCustomKeyframesRef {
     //#region private properties
     #value: string|null;
     //#endregion private properties
