@@ -9,8 +9,6 @@ import type {
 import type {
     // css custom properties:
     CssCustomName,
-    
-    CssCustomKeyframesRef,
     CssCustomSimpleRef,
     CssCustomValue,
     
@@ -23,6 +21,7 @@ import type {
     
     CssStyle,
     
+    CssCustomKeyframesRef,
     CssKeyframesRule,
     
     CssSelector,
