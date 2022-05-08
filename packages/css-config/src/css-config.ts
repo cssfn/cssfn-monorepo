@@ -292,6 +292,18 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             if (this.#isDeepEqual(srcPropValue, refPropValue)) return this.#createRef(refPropName); // return the link to the ref
         } // search for duplicates
         
+        // not found:
+        return null;
+    }
+    
+    /**
+     * Re-link the existing `@keyframes` reference (if found) to the modified `@keyframes`.
+     * @param srcPropValue The prop value of `#srcProps`.
+     * @returns `true` if found and updated, otherwise `false`.
+     */
+    #updateKeyframesRef(srcPropValue: TSrcPropValue): boolean {
+        if (!this.#genKeyframes.size) return false; // nothing to update
+        
         
         
         if (srcPropValue && (typeof(srcPropValue) === 'object') && !Array.isArray(srcPropValue) && (Object.getPrototypeOf(srcPropValue) !== Object.prototype)) {
@@ -301,14 +313,12 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 const newKeyframesName = this.#genKeyframes.get(oldkeyframesName);
                 if (newKeyframesName) {
                     keyframesRef.value = newKeyframesName;
+                    return true; // updated
                 } // if
             } // if
         } // if
         
-        
-        
-        // not found:
-        return null;
+        return false; // nothing was updated
     }
     //#endregion private utility methods
     
@@ -436,6 +446,12 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 continue;
             } // if
             //#endregion handle nested style (recursive)
+            
+            
+            
+            //#region re-link the existing `@keyframes` reference
+            if (this.#updateKeyframesRef(srcPropValue)) continue; // if found & updated => mission done => continue walk to the next entry
+            //#endregion re-link the existing `@keyframes` reference
             
             
             
