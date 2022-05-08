@@ -57,7 +57,6 @@ export type CssComplexValueOf<TValue>       =
 export type CssCustomName         = `--${string}`
 
 // values:
-export type CssCustomKeyframesRef = (string & {})           // special value, not included to `CssCustomRef`
 export type CssCustomSimpleRef    = `var(${CssCustomName})` // single value
 export type CssCustomRef          =
     | CssCustomSimpleRef                                    // single value
@@ -182,6 +181,10 @@ export type CssStyle                   = CssProps & CssRule
 export type CssStyleCollection         = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssStyle>>
 export type CssFontFaceStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssFontFaceProps>>
 
+export interface CssCustomKeyframesRef {
+    value      : string
+    toString() : string
+}
 export type CssKeyframes               = Dictionary<CssStyleCollection>
 export type CssKeyframesRule = CssRule & {
     [name: symbol] : readonly [`@keyframes ${string}`, CssRuleCollection]
