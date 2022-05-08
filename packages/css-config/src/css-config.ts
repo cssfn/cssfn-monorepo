@@ -328,7 +328,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         return srcPropName;
     }
     protected _onCombineModified(modified: Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>): Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData> {
-        // clone the entrire #srcProps:
+        // clone the entire #srcProps:
         const combined = new Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>(this.#srcProps);
         
         // then update the changes:
