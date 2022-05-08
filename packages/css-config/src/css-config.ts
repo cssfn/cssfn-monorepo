@@ -141,10 +141,6 @@ const unusedObj = {};
  * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
  */
 const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomName => {
-    // replace `@keyframes fooSomething` => `keyframes-fooSomething`
-    // propName = propName.replace(/^@keyframes\s+/, 'keyframes-');                                   // slow!
-    if (propName.startsWith('@keyframes ')) propName = `keyframes-${propName.slice(11).trimStart()}`; // faster!
-    
     // add double dash with prefix `--prefix-` or double dash without prefix `--`
     return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
 }
