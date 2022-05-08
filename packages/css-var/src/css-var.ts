@@ -90,7 +90,7 @@ export const createCssVar = <TCssCustomProps extends {}>(options: CssVarOptions 
     
     // data generates:
     
-    const idMap : Dictionary<number> = {};
+    const idMap = new Map<string, number>();
     
     /**
      * Gets the *declaration name* of the specified `propName`, eg: `--my-favColor`.
@@ -114,9 +114,10 @@ export const createCssVar = <TCssCustomProps extends {}>(options: CssVarOptions 
             liveOptions.minify
             ?
             `v${((): number => {
-                let id = idMap[propName];
+                let id = idMap.get(propName);
                 if (id === undefined) {
-                    idMap[propName] = id = (++globalIdCounter);
+                    id = (++globalIdCounter);
+                    idMap.set(propName, id);
                 } // if
                 return id;
             })()}`
