@@ -171,7 +171,8 @@ class RenderRule {
     #renderPropValue(renderedPropName: string, propValue: CssCustomValue): string {
         if (!Array.isArray(propValue)) {
             if (typeof(propValue) === 'number') return `${propValue}`; // CssSimpleNumericValue => number => convert to string
-            return propValue; // CssSimpleLiteralValue|CssCustomRef => string
+            if (typeof(propValue) === 'string') return propValue; // CssSimpleLiteralValue|CssCustomRef => string
+            return propValue.toString(); // CssCustomKeyframesRef => toString();
         } // if
         
         
@@ -186,7 +187,8 @@ class RenderRule {
                         hasImportant = true;
                         return null; // do not comma_separated_!important
                     }
-                    return propSubValue; // CssSimpleLiteralValue|CssCustomRef => string
+                    if (typeof(propSubValue) === 'string') return propSubValue; // CssSimpleLiteralValue|CssCustomRef => string
+                    return propSubValue.toString(); // CssCustomKeyframesRef => toString();
                 } // if
                 
                 
@@ -195,7 +197,8 @@ class RenderRule {
                     propSubValue
                     .map((propSubSubValue): string => {
                         if (typeof(propSubSubValue) === 'number') return `${propSubSubValue}`; // CssSimpleNumericValue => number => convert to string
-                        return propSubSubValue; // CssSimpleLiteralValue|CssCustomRef => string
+                        if (typeof(propSubSubValue) === 'string') return propSubSubValue; // CssSimpleLiteralValue|CssCustomRef => string
+                        return propSubSubValue.toString(); // CssCustomKeyframesRef => toString();
                     })
                     .join(' ') // space_separated_values
                 );
