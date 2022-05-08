@@ -341,10 +341,10 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     /**
      * Transforms the specified `srcProps` with the equivalent `Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>` object,  
      * in which some values might be partially/fully *transformed*.  
-     * The duplicate values will be replaced with a `var(...)` linked to the existing props in `refProps` or in `genKeyframes`.  
+     * The duplicate values will be replaced with a `var(...)` linked to the existing props in `refProps`.  
      * @param srcProps     The `Map<TSrcPropName, TSrcPropValue>` object to transform.
      * @param refProps     The `Map<TRefPropName, TRefPropValue>` object as the prop duplicate references.
-     * @param genKeyframes The `Map<CssCustomKeyframesRef, CssKeyframes>` object as the keyframes duplicate references and as a storage for the generated one.
+     * @param genKeyframes The `Map<string, string>` object as a storage for the generated `@keyframes`.
      */
     constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>, genKeyframes: Map<string, string>, options: LiveCssConfigOptions) {
         this.#srcProps     = srcProps;
