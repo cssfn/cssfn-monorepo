@@ -25,6 +25,7 @@ import type {
     CssRuleMap,
     
     CssStyle,
+    CssStyleMap,
     
     CssCustomKeyframesRef,
     CssKeyframesRule,
@@ -168,7 +169,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     //#endregion private properties
     
     //#region public properties
-    readonly #result        : Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData> | null
+    readonly #result        : (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap) | null
     get result() {
         return this.#result;
     }
@@ -197,12 +198,21 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     }
     
     /**
+     * Determines if the specified `value` is neither `undefined` nor `null`.
+     * @param value The value to test.
+     * @returns `true` if the `value` is not nullish, otherwise `false`.
+     */
+    #hasValue<TValue extends TSrcPropValue|TRefPropValue>(value: TValue): value is Exclude<TValue, undefined|null> {
+        return (value !== undefined) && (value !== null);
+    }
+    
+    /**
      * Determines if the specified `srcPropValue` can be transformed to another equivalent prop link `var(...)`.
      * @param srcPropValue The value to test.
      * @returns `true` indicates it's transformable, otherwise `false`.
      */
     #isTransformableProp(srcPropValue: TSrcPropValue): boolean {
-        if ((srcPropValue === undefined) || (srcPropValue === null)) return false; // skip nullish prop
+        if (!this.#hasValue(srcPropValue)) return false; // skip nullish prop
         
         if ((typeof(srcPropValue) === 'string')) {
             switch(srcPropValue) {
@@ -245,9 +255,9 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         //#region deep equal comparison
-        // both must not nullable:
-        if ((srcPropValue === undefined) || (srcPropValue === null)) return false;
-        if ((refPropValue === undefined) || (refPropValue === null)) return false;
+        // both must have a value:
+        if (!this.#hasValue(srcPropValue)) return false;
+        if (!this.#hasValue(refPropValue)) return false;
         
         
         
@@ -292,7 +302,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             if (typeof(refPropName) !== 'string') continue; // symbol & number props are ignored
             
             // skip empty ref:
-            if ((refPropValue === undefined) || (refPropValue === null)) continue;
+            if (!this.#hasValue(refPropValue)) continue;
             
             // stop search if reaches current entry (search for prev entries only):
             if (this.#isSelfProp(srcPropName, refPropName)) break;
@@ -348,12 +358,12 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     //#endregion protected utility methods
     
     //#region virtual methods
-    protected _onCreatePropName(srcPropName: TSrcPropName): TSrcPropName {
+    protected _onCreatePropName<TTSrcPropName extends TSrcPropName|symbol>(srcPropName: TTSrcPropName): TTSrcPropName {
         return srcPropName; // the default behavior is preserve the original prop name
     }
-    protected _onCombineModified(modified: Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>): Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData> {
+    protected _onCombineModified(modified: (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap)): (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap) {
         // clone the entire #srcProps:
-        const combined = new Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>(this.#srcProps);
+        const combined = new Map(this.#srcProps) as (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap);
         
         // then update the changes:
         for (const [propName, propValue] of modified) {
@@ -368,7 +378,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     
     
     /**
-     * Transforms the specified `srcProps` with the equivalent `Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>` object,  
+     * Transforms the specified `srcProps` with the equivalent `(Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap)` object,  
      * in which some values might be partially/fully *transformed*.  
      * The duplicate values will be replaced with a `var(...)` linked to the existing props in `refProps`.  
      * @param srcProps     The `Map<TSrcPropName, TSrcPropValue>` object to transform.
@@ -383,7 +393,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         
-        const modified = new Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>(); // create a blank storage for collecting the changes
+        const modified = new Map() as (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap); // create a blank storage for collecting the changes
         
         
         
@@ -420,7 +430,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         for (const [srcPropName, srcPropValue] of this.#srcProps) { // walk each entry in `#srcProps`
             // skip empty src:
-            if ((srcPropValue === undefined) || (srcPropValue === null)) continue;
+            if (!this.#hasValue(srcPropValue)) continue;
+            
             // skip !important modifier:
             if ((typeof(srcPropName) === 'number') && (srcPropName >= 1) && (srcPropName === (this.#srcProps.size - 1)) && (srcPropValue === '!important')) continue;
             
@@ -435,7 +446,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                     const srcNestedStyle = new Map<keyof CssStyle, ValueOf<CssStyle>>([
                         ...Object.entries(mergedStyles) as [keyof CssStyle, ValueOf<CssStyle>][],
                         ...Object.getOwnPropertySymbols(mergedStyles).map((symbolProp) => [ symbolProp, mergedStyles[symbolProp] ]) as [keyof CssStyle, ValueOf<CssStyle>][],
-                    ]);
+                    ]) as CssStyleMap;
                     
                     
                     
@@ -546,9 +557,9 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
 }
 class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> extends TransformDuplicatesBuilder<keyof TConfigProps, ValueOf<TConfigProps>, keyof TConfigProps, ValueOf<TConfigProps>> {
     //#region overrides
-    protected _onCreatePropName(srcPropName: keyof TConfigProps): keyof TConfigProps {
+    protected _onCreatePropName<TTSrcPropName extends keyof TConfigProps|symbol>(srcPropName: TTSrcPropName): TTSrcPropName {
         if (typeof(srcPropName) !== 'string') return srcPropName; // no change for symbol props
-        return this._createDecl(srcPropName) as CssCustomName as keyof TConfigProps;
+        return this._createDecl(srcPropName) as CssCustomName as TTSrcPropName;
     }
     protected _onCombineModified(modified: Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomValue|CssRuleData>) {
         return modified as Map<keyof TConfigProps, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|ValueOf<Pick<TConfigProps, symbol>>>;
