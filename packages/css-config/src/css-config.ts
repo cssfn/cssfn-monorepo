@@ -537,10 +537,10 @@ class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> e
     //#region overrides
     protected _onCreatePropName(srcPropName: keyof TConfigProps): keyof TConfigProps {
         if (typeof(srcPropName) !== 'string') return srcPropName; // no change for symbol props
-        return this._createDecl(srcPropName) as keyof TConfigProps;
+        return this._createDecl(srcPropName) as CssCustomName as keyof TConfigProps;
     }
-    protected _onCombineModified(modified: Map<keyof TConfigProps, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|ValueOf<Pick<TConfigProps, symbol>>>): Map<keyof TConfigProps, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|ValueOf<Pick<TConfigProps, symbol>>> {
-        return modified;
+    protected _onCombineModified(modified: Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomValue|CssRuleData>) {
+        return modified as Map<keyof TConfigProps, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|ValueOf<Pick<TConfigProps, symbol>>>;
     }
     
     get result() {
