@@ -70,6 +70,7 @@ export type CssCustomProps = Nullable<{
     [name: CssCustomName     ] : CssCustomValue
     [name: CssCustomSimpleRef] : CssCustomValue
 }>
+export type CssCustomPropsMap = MapOf<CssCustomProps>
 //#endregion css custom properties
 
 
@@ -169,8 +170,8 @@ export type CssKnownProps =
 
 
 //#region cssfn properties
-export type CssProps                   = CssCustomProps & CssKnownProps
-export type CssPropsMap                = MapOf<CssProps>
+export type CssProps                   = CssCustomProps    & CssKnownProps
+export type CssPropsMap                = CssCustomPropsMap & MapOf<CssKnownProps>
 
 export type CssRuleData                = readonly [CssRawSelector|CssFinalSelector, CssStyleCollection]
 export type CssRule                    = { // do not use Record<symbol, CssRuleData> => doesn't support circular ref
