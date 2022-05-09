@@ -415,10 +415,10 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             
             
             
-            //#region handle nested style (recursive)
+            //#region handle nested style (recursive) 
             if (typeof(srcPropName) === 'symbol') {
-                const [selector, styles] = srcPropValue as CssRuleData;
-                const mergedStyles = mergeStyles(styles);
+                const [selector, styles] = srcPropValue as CssRuleData; // assumes the value of symbol prop always be `CssRuleData`
+                const mergedStyles = mergeStyles(styles); // render the `CssStyleCollection` to `CssStyle`, so the contents are easily to compare
                 if (mergedStyles) {
                     // convert the style to Map:
                     const srcNestedStyle = new Map<keyof CssStyle, ValueOf<CssStyle>>([
@@ -448,13 +448,13 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 // mission done => continue walk to the next entry:
                 continue;
             } // if
-            //#endregion handle nested style (recursive)
+            //#endregion handle nested style (recursive) 
             
             
             
-            //#region re-link the existing `@keyframes` reference
+            //#region re-link the @keyframes name
             if (this.#updateKeyframesRef(srcPropValue)) continue; // if found & updated => mission done => continue walk to the next entry
-            //#endregion re-link the existing `@keyframes` reference
+            //#endregion re-link the @keyframes name
             
             
             
@@ -474,10 +474,10 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             
             
             
-            //#region handle multi_value (recursive)
+            //#region handle multi_value (recursive) 
             if (Array.isArray(srcPropValue)) {
                 type CssCustomValueArr = Extract<CssCustomValue, Array<any>>
-                const srcNestedValues: CssCustomValueArr = srcPropValue;
+                const srcNestedValues = srcPropValue as CssCustomValueArr;
                 
                 
                 
@@ -505,21 +505,21 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                     continue;
                 } // if
             } // if
-            //#endregion handle multi_value (recursive)
+            //#endregion handle multi_value (recursive) 
             
             
             
             //#region handle no value change
-            const srcPropName2 = this._onCreatePropName(srcPropName);
-            if (srcPropName2 !== srcPropName) {
+            const srcPropRenamed = this._onCreatePropName(srcPropName);
+            if (srcPropRenamed !== srcPropName) {
                 // The `srcPropValue` was not modified but the `srcPropName` needs to be renamed:
                 modified.set(
-                    srcPropName2,
+                    srcPropRenamed,
                     srcPropValue
                 );
             } // if
             //#endregion handle no value change
-        }  // walk each entry in `#srcProps`
+        } // walk each entry in `#srcProps`
         
         
         
