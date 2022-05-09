@@ -13,6 +13,8 @@ import type {
     CssCustomName,
     CssCustomSimpleRef,
     CssCustomValue,
+    CssCustomProps,
+    CssCustomPropsMap,
     
     
     
@@ -20,6 +22,7 @@ import type {
     CssProps,
     
     CssRuleData,
+    CssRuleMap,
     
     CssStyle,
     
@@ -552,7 +555,7 @@ class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> e
     }
     
     get result() {
-        return super.result as Map<CssCustomName, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|ValueOf<Pick<TConfigProps, symbol>>> | null
+        return super.result as (CssCustomPropsMap & CssKeyframesRuleMap) | null
     }
     //#endregion overrides
     
@@ -649,7 +652,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      *    animation   : [[ '100ms', 'ease', 'navb-fly-away' ]],
      * };  
      */
-    #genProps = new Map<CssCustomName, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|ValueOf<Pick<TConfigProps, symbol>>>(); // create a blank generated props collection
+    #genProps = new Map() as (CssCustomPropsMap & CssKeyframesRuleMap); // create a blank generated props collection
     
     /**
      * The *generated css* attached on dom (by default).
@@ -671,7 +674,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         this.#genProps = (
             (new TransformCssConfigDuplicatesBuilder<TConfigProps>(props, genKeyframes, this.#options)).result
             ??
-            (props as Map<CssCustomName, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|ValueOf<Pick<TConfigProps, symbol>>>)
+            (props as (CssCustomPropsMap & CssKeyframesRuleMap))
         );
         //#endregion transform the `props`
         
@@ -680,7 +683,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         // update styleSheet:
         this.#liveStyleSheet.next({
             ...atGlobal({
-                ...rule(this.#options.selector, Object.fromEntries(this.#genProps) as CssStyle),
+                ...rule(this.#options.selector, Object.fromEntries(this.#genProps) as (CssCustomProps | CssKeyframesRule)),
             }),
         });
     }
