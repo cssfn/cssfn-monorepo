@@ -5,6 +5,8 @@ import type {
     Nullable,
     
     ValueOf,
+    
+    MapOf,
 }                           from '@cssfn/types'
 import type {
     // css custom properties:
@@ -23,6 +25,7 @@ import type {
     
     CssCustomKeyframesRef,
     CssKeyframesRule,
+    CssKeyframesRuleMap,
     
     CssSelector,
 }                           from '@cssfn/css-types'
@@ -59,6 +62,11 @@ export type CssConfigProps =
     }>
     & CssKeyframesRule
     & CssProps // for better js doc
+type CssConfigPropsMap =
+    & MapOf<Nullable<{
+        [name: string] : CssCustomValue
+    }>>
+    & CssKeyframesRuleMap
 export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef                                 }
 export type Vals<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue }
 
