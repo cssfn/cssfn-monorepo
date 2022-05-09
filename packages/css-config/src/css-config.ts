@@ -41,6 +41,9 @@ import {
     styleSheet,
 }                           from '@cssfn/cssfn'
 import {
+    isFinalSelector,
+}                           from '@cssfn/cssfn/dist/utilities.js'
+import {
     mergeStyles,
 }                           from '@cssfn/cssfn/dist/mergeStyles.js'
 import {
@@ -335,7 +338,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     
     //#region virtual methods
     protected _onCreatePropName(srcPropName: TSrcPropName): TSrcPropName {
-        return srcPropName;
+        return srcPropName; // the default behavior is preserve the original prop name
     }
     protected _onCombineModified(modified: Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData>): Map<TSrcPropName, TSrcPropValue|CssCustomValue|CssRuleData> {
         // clone the entire #srcProps:
@@ -373,21 +376,21 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         
-        for (const [srcPropName, srcPropValue] of this.#srcProps) { // collect all @keyframes name
-            if (typeof(srcPropName) !== 'symbol')    continue;
-            const [selector, styles] = srcPropValue as CssRuleData;
-            if (typeof(selector) !== 'string')       continue;
-            if (!selector.startsWith('@keyframes ')) continue;
+        for (const [srcPropName, srcPropValue] of this.#srcProps) {  // rename all @keyframes name
+            if (typeof(srcPropName) !== 'symbol')    continue;       // only interested of symbol props
+            const [selector, styles] = srcPropValue  as CssRuleData; // assumes the value of symbol prop always be `CssRuleData`
+            if (!isFinalSelector(selector))          continue;       // only interested of rendered selector
+            if (!selector.startsWith('@keyframes ')) continue;       // only interested of @keyframes rule selector
             
             
             
-            const oldkeyframesName = selector.slice(11).trimStart();
-            const newKeyframesName = this.#createKeyframesName(oldkeyframesName);
-            if (newKeyframesName === oldkeyframesName) continue; // nothing to change => skip
+            const oldkeyframesName = selector.slice(11).trimStart();              // extract the name of @keyframes rule
+            const newKeyframesName = this.#createKeyframesName(oldkeyframesName); // rename the @keyframes rule
+            if (newKeyframesName === oldkeyframesName) continue;                  // no difference => skip
             
             
             
-            // track the @keyframes changes:
+            // track the change of @keyframes name:
             this.#genKeyframes.set(
                 oldkeyframesName,
                 newKeyframesName
@@ -400,7 +403,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 this._onCreatePropName(srcPropName),
                 [`@keyframes ${newKeyframesName}`, styles]
             );
-        }  // collect all @keyframes name
+        }  // rename all @keyframes name
         
         
         
