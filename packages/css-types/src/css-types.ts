@@ -6,7 +6,7 @@ import type {
     
     Nullable,
     
-    Dictionary,
+    MapOf,
 }                           from '@cssfn/types'
 
 // others libs:
@@ -170,14 +170,17 @@ export type CssKnownProps =
 
 //#region cssfn properties
 export type CssProps                   = CssCustomProps & CssKnownProps
+export type CssPropsMap                = MapOf<CssProps>
 
 export type CssRuleData                = readonly [CssRawSelector|CssFinalSelector, CssStyleCollection]
-export type CssRule = { // do not use Record<symbol, CssRuleData> => doesn't support circular ref
+export type CssRule                    = { // do not use Record<symbol, CssRuleData> => doesn't support circular ref
     [name: symbol] : CssRuleData
 }
+export type CssRuleMap                 = MapOf<CssRule>
 export type CssRuleCollection          = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssRule>>
 
-export type CssStyle                   = CssProps & CssRule
+export type CssStyle                   = CssProps    & CssRule
+export type CssStyleMap                = CssPropsMap & CssRuleMap
 export type CssStyleCollection         = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssStyle>>
 export type CssFontFaceStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssFontFaceProps>>
 
@@ -185,10 +188,14 @@ export interface CssCustomKeyframesRef {
     value      : string|null
     toString() : string
 }
-export type CssKeyframes               = Dictionary<CssStyleCollection>
-export type CssKeyframesRule = CssRule & {
+export type CssKeyframes               = {
+    [name: string] : CssStyleCollection
+}
+export type CssKeyframesMap            = MapOf<CssKeyframes>
+export type CssKeyframesRule           = CssRule & {
     [name: symbol] : readonly [`@keyframes ${string}`, CssRuleCollection]
 }
+export type CssKeyframesRuleMap        = MapOf<CssKeyframesRule>
 
 
 
