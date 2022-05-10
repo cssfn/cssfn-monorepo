@@ -59,6 +59,19 @@ import {
 
 
 
+// utilities:
+const asyncExecute = (
+    (typeof(requestAnimationFrame) !== 'undefined')
+    ?
+    requestAnimationFrame
+    :
+    (callback: () => void): void => {
+        Promise.resolve().then(callback);
+    }
+) 
+
+
+
 // general types:
 export type CssConfigProps =
     & PartialNullish<{
@@ -774,7 +787,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             // promise to regenerate the data in the future as soon as possible, before browser repaint:
             
             this.#valid = false;         // mark the `#genProps` as invalid
-            requestAnimationFrame(() => {
+            asyncExecute(() => {
                 if (this.#valid) return; // has been previously generated => abort
                 this.#rebuild();
                 this.#valid = true;      // mark the `#genProps` as valid
