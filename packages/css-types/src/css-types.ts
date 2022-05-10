@@ -80,7 +80,7 @@ export type CssLength   = (string & {}) | 0
 export type CssDuration = (string & {})
 
 export type CssKnownBaseProps<TLength = CssLength, TDuration = CssDuration> = Properties<TLength, TDuration>
-export type CssKnownBaseExProps = CssKnownBaseProps & PartialNullish<{
+type ShorthandProperties = PartialNullish<{
     /**
      * Alias of **`color`**.  
      * The **`color`** CSS property sets the foreground color value of an element's text and text decorations, and sets the `<currentcolor>` value. `currentcolor` may be used as an indirect value on _other_ properties and is the default for other color properties, such as `border-color`.
@@ -296,6 +296,7 @@ export type CssKnownBaseExProps = CssKnownBaseProps & PartialNullish<{
      */
     'gapBlock'  : CssKnownBaseProps['rowGap']
 }>
+export type CssKnownBaseExProps  = CssKnownBaseProps & ShorthandProperties
 
 export type CssKnownName         = keyof   CssKnownBaseExProps
 export type CssKnownValueOf
@@ -359,12 +360,14 @@ export type CssFontFaceProps =
 //#endregion css special properties
 
 export type CssKnownStandardLonghandProps  =
-    & Omit<CssKnownPropsOf<keyof StandardLonghandProperties , true>, keyof CssLonghandFontFaceProps>
-    & CssLonghandFontFaceProps  // some_props like boxShadow, filter are comma/space separated values
+    & Omit<CssKnownPropsOf<keyof StandardLonghandProperties , true>, keyof CssLonghandFontFaceProps>  // some_props like boxShadow, filter are comma/space separated values
+    & CssLonghandFontFaceProps
 export type CssKnownStandardShorthandProps =
-    & Omit<CssKnownPropsOf<keyof StandardShorthandProperties, true>, keyof CssShorthandFontFaceProps>
-    & CssShorthandFontFaceProps // all_props are comma/space separated values
+    & Omit<CssKnownPropsOf<keyof StandardShorthandProperties, true>, keyof CssShorthandFontFaceProps> // all_props are comma/space separated values
+    & CssShorthandFontFaceProps
 export type CssKnownStandardProps          = CssKnownStandardLonghandProps & CssKnownStandardShorthandProps
+
+export type CssKnownShorthandProps         = CssKnownPropsOf<keyof ShorthandProperties , true> // some_props are comma/space separated values
 
 export type CssKnownVendorLonghandProps    = CssKnownPropsOf<keyof VendorLonghandProperties , true> // some_props are comma/space separated values
 export type CssKnownVendorShorthandProps   = CssKnownPropsOf<keyof VendorShorthandProperties, true> // all_props  are comma/space separated values
@@ -378,6 +381,7 @@ export type CssKnownSvgProps               =
 
 export type CssKnownProps =
     & CssKnownStandardProps
+    & CssKnownShorthandProps
     & CssKnownVendorProps
     & CssKnownObsoleteProps
     & CssKnownSvgProps
