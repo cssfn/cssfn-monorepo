@@ -80,15 +80,231 @@ export type CssLength   = (string & {}) | 0
 export type CssDuration = (string & {})
 
 export type CssKnownBaseProps<TLength = CssLength, TDuration = CssDuration> = Properties<TLength, TDuration>
+export type CssKnownBaseExProps = CssKnownBaseProps & PartialNullish<{
+    /**
+     * Alias of **`color`**.  
+     * The **`color`** CSS property sets the foreground color value of an element's text and text decorations, and sets the `<currentcolor>` value. `currentcolor` may be used as an indirect value on _other_ properties and is the default for other color properties, such as `border-color`.
+     *
+     * **Syntax**: `<color>`
+     *
+     * **Initial value**: `canvastext`
+     *
+     * | Chrome | Firefox | Safari |  Edge  |  IE   |
+     * | :----: | :-----: | :----: | :----: | :---: |
+     * | **1**  |  **1**  | **1**  | **12** | **3** |
+     *
+     * @see https://developer.mozilla.org/docs/Web/CSS/color
+     */
+    foreg       : CssKnownBaseProps['color']
+    /**
+     * Alias of **`background`**.  
+     * The **`background`** shorthand CSS property sets all background style properties at once, such as color, image, origin and size, or repeat method.
+     *
+     * **Syntax**: `[ <bg-layer> , ]* <final-bg-layer>`
+     *
+     * | Chrome | Firefox | Safari |  Edge  |  IE   |
+     * | :----: | :-----: | :----: | :----: | :---: |
+     * | **1**  |  **1**  | **1**  | **12** | **4** |
+     *
+     * @see https://developer.mozilla.org/docs/Web/CSS/background
+     */
+    backg       : CssKnownBaseProps['background']
+    /**
+     * Alias of **`background-clip`**.  
+     * The **`background-clip`** CSS property sets whether an element's background extends underneath its border box, padding box, or content box.
+     *
+     * **Syntax**: `<box>#`
+     *
+     * **Initial value**: `border-box`
+     *
+     * | Chrome | Firefox | Safari  |  Edge  |  IE   |
+     * | :----: | :-----: | :-----: | :----: | :---: |
+     * | **1**  |  **4**  | **14**  | **12** | **9** |
+     * |        |         | 3 _-x-_ |        |       |
+     *
+     * @see https://developer.mozilla.org/docs/Web/CSS/background-clip
+     */
+    'backgClip' : CssKnownBaseProps['backgroundClip']
+    
+    /**
+     * Alias of **`animation`**.  
+     * The **`animation`** shorthand CSS property applies an animation between styles. It is a shorthand for `animation-name`, `animation-duration`, `animation-timing-function`, `animation-delay`, `animation-iteration-count`, `animation-direction`, `animation-fill-mode`, and `animation-play-state`.
+     *
+     * **Syntax**: `<single-animation>#`
+     *
+     * | Chrome  | Firefox | Safari  |  Edge  |   IE   |
+     * | :-----: | :-----: | :-----: | :----: | :----: |
+     * | **43**  | **16**  |  **9**  | **12** | **10** |
+     * | 3 _-x-_ | 5 _-x-_ | 4 _-x-_ |        |        |
+     *
+     * @see https://developer.mozilla.org/docs/Web/CSS/animation
+     */
+    anim        : CssKnownBaseProps['animation']
+    /**
+     * Alias of **`transform`**.  
+     * The **`transform`** CSS property lets you rotate, scale, skew, or translate an element. It modifies the coordinate space of the CSS visual formatting model.
+     *
+     * **Syntax**: `none | <transform-list>`
+     *
+     * **Initial value**: `none`
+     *
+     * | Chrome  | Firefox |  Safari   |  Edge  |   IE    |
+     * | :-----: | :-----: | :-------: | :----: | :-----: |
+     * | **36**  | **16**  |   **9**   | **12** | **10**  |
+     * | 1 _-x-_ |         | 3.1 _-x-_ |        | 9 _-x-_ |
+     *
+     * @see https://developer.mozilla.org/docs/Web/CSS/transform
+     */
+    transf      : CssKnownBaseProps['transform']
+    
+    /**
+     * Alias of **`column-gap`**.  
+     * The **`column-gap`** CSS property sets the size of the gap (gutter) between an element's columns.
+     *
+     * **Syntax**: `normal | <length-percentage>`
+     *
+     * **Initial value**: `normal`
+     *
+     * ---
+     *
+     * _Supported in Flex Layout_
+     *
+     * | Chrome | Firefox |  Safari  |  Edge  | IE  |
+     * | :----: | :-----: | :------: | :----: | :-: |
+     * | **84** | **63**  | **14.1** | **84** | No  |
+     *
+     * ---
+     *
+     * _Supported in Grid Layout_
+     *
+     * |         Chrome         |        Firefox         |          Safari          |  Edge  | IE  |
+     * | :--------------------: | :--------------------: | :----------------------: | :----: | :-: |
+     * |         **66**         |         **61**         |          **12**          | **16** | No  |
+     * | 57 _(grid-column-gap)_ | 52 _(grid-column-gap)_ | 10.1 _(grid-column-gap)_ |        |     |
+     *
+     * ---
+     *
+     * _Supported in Multi-column Layout_
+     *
+     * | Chrome  | Firefox | Safari  |  Edge  |   IE   |
+     * | :-----: | :-----: | :-----: | :----: | :----: |
+     * | **50**  | **52**  | **10**  | **12** | **10** |
+     * | 1 _-x-_ |         | 3 _-x-_ |        |        |
+     *
+     * ---
+     *
+     * @see https://developer.mozilla.org/docs/Web/CSS/column-gap
+     */
+    'gapX'      : CssKnownBaseProps['columnGap']
+    /**
+     * Alias of **`row-gap`**.  
+     * The **`row-gap`** CSS property sets the size of the gap (gutter) between an element's grid rows.
+     *
+     * **Syntax**: `normal | <length-percentage>`
+     *
+     * **Initial value**: `normal`
+     *
+     * ---
+     *
+     * _Supported in Flex Layout_
+     *
+     * | Chrome | Firefox |  Safari  |  Edge  | IE  |
+     * | :----: | :-----: | :------: | :----: | :-: |
+     * | **84** | **63**  | **14.1** | **84** | No  |
+     *
+     * ---
+     *
+     * _Supported in Grid Layout_
+     *
+     * |       Chrome        |       Firefox       |        Safari         |  Edge  | IE  |
+     * | :-----------------: | :-----------------: | :-------------------: | :----: | :-: |
+     * |       **66**        |       **61**        |        **12**         | **16** | No  |
+     * | 57 _(grid-row-gap)_ | 52 _(grid-row-gap)_ | 10.1 _(grid-row-gap)_ |        |     |
+     *
+     * ---
+     *
+     * @see https://developer.mozilla.org/docs/Web/CSS/row-gap
+     */
+    'gapY'      : CssKnownBaseProps['rowGap']
+    /**
+     * Alias of **`column-gap`**.  
+     * The **`column-gap`** CSS property sets the size of the gap (gutter) between an element's columns.
+     *
+     * **Syntax**: `normal | <length-percentage>`
+     *
+     * **Initial value**: `normal`
+     *
+     * ---
+     *
+     * _Supported in Flex Layout_
+     *
+     * | Chrome | Firefox |  Safari  |  Edge  | IE  |
+     * | :----: | :-----: | :------: | :----: | :-: |
+     * | **84** | **63**  | **14.1** | **84** | No  |
+     *
+     * ---
+     *
+     * _Supported in Grid Layout_
+     *
+     * |         Chrome         |        Firefox         |          Safari          |  Edge  | IE  |
+     * | :--------------------: | :--------------------: | :----------------------: | :----: | :-: |
+     * |         **66**         |         **61**         |          **12**          | **16** | No  |
+     * | 57 _(grid-column-gap)_ | 52 _(grid-column-gap)_ | 10.1 _(grid-column-gap)_ |        |     |
+     *
+     * ---
+     *
+     * _Supported in Multi-column Layout_
+     *
+     * | Chrome  | Firefox | Safari  |  Edge  |   IE   |
+     * | :-----: | :-----: | :-----: | :----: | :----: |
+     * | **50**  | **52**  | **10**  | **12** | **10** |
+     * | 1 _-x-_ |         | 3 _-x-_ |        |        |
+     *
+     * ---
+     *
+     * @see https://developer.mozilla.org/docs/Web/CSS/column-gap
+     */
+    'gapInline' : CssKnownBaseProps['columnGap']
+    /**
+     * Alias of **`row-gap`**.  
+     * The **`row-gap`** CSS property sets the size of the gap (gutter) between an element's grid rows.
+     *
+     * **Syntax**: `normal | <length-percentage>`
+     *
+     * **Initial value**: `normal`
+     *
+     * ---
+     *
+     * _Supported in Flex Layout_
+     *
+     * | Chrome | Firefox |  Safari  |  Edge  | IE  |
+     * | :----: | :-----: | :------: | :----: | :-: |
+     * | **84** | **63**  | **14.1** | **84** | No  |
+     *
+     * ---
+     *
+     * _Supported in Grid Layout_
+     *
+     * |       Chrome        |       Firefox       |        Safari         |  Edge  | IE  |
+     * | :-----------------: | :-----------------: | :-------------------: | :----: | :-: |
+     * |       **66**        |       **61**        |        **12**         | **16** | No  |
+     * | 57 _(grid-row-gap)_ | 52 _(grid-row-gap)_ | 10.1 _(grid-row-gap)_ |        |     |
+     *
+     * ---
+     *
+     * @see https://developer.mozilla.org/docs/Web/CSS/row-gap
+     */
+    'gapBlock'  : CssKnownBaseProps['rowGap']
+}>
 
-export type CssKnownName         = keyof   CssKnownBaseProps
+export type CssKnownName         = keyof   CssKnownBaseExProps
 export type CssKnownValueOf
-    <TName extends CssKnownName> = Exclude<CssKnownBaseProps[TName], undefined|null>
+    <TName extends CssKnownName> = Exclude<CssKnownBaseExProps[TName], undefined|null>
 
 
 
 export type CssKnownPropsOf<TName extends CssKnownName, multiValue extends boolean = false> = PartialNullish<Pick<{
-    [name in keyof CssKnownBaseProps] ?: multiValue extends false ? CssComplexSingleValueOf<CssKnownValueOf<name>> : CssComplexValueOf<CssKnownValueOf<name>>
+    [name in keyof CssKnownBaseExProps] ?: multiValue extends false ? CssComplexSingleValueOf<CssKnownValueOf<name>> : CssComplexValueOf<CssKnownValueOf<name>>
 }, TName>>
 
 //#region css special properties
