@@ -558,8 +558,8 @@ class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> e
         if (typeof(srcPropName) !== 'string') return srcPropName; // no change for symbol props
         return this._createDecl(srcPropName) as CssCustomName as TTSrcPropName;
     }
-    protected _onCombineModified(modified: Map<keyof TConfigProps, ValueOf<TConfigProps>|CssCustomValue|CssRuleData>) {
-        return modified as Map<keyof TConfigProps, ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|ValueOf<Pick<TConfigProps, symbol>>>;
+    protected _onCombineModified(modified: (Map<keyof TConfigProps, Exclude<ValueOf<TConfigProps>, undefined|null>|CssCustomValue> & CssRuleMap)) {
+        return modified;
     }
     
     get result() {
