@@ -100,7 +100,7 @@ jest.isolateModules(() => {
         
         await new Promise<void>((resolve) => { setTimeout(() => {
             expect(render(lastStyleSheet!))
-            .toEqual(
+            .toBe(
 `
 :root {
 --display: grid;
@@ -112,15 +112,19 @@ jest.isolateModules(() => {
 }
 `
             );
-            expect(cssProps.display) .toEqual('var(--display)');
-            expect(cssProps.colRed)  .toEqual('var(--colRed)' );
-            expect(cssProps.colBlue) .toEqual('var(--colBlue)');
-            expect(cssProps.bdWidth) .toEqual('var(--bdWidth)');
+            expect(cssProps.display)    .toBe('var(--display)'   );
+            expect(cssProps.colRed)     .toBe('var(--colRed)'    );
+            expect(cssProps.colBlue)    .toBe('var(--colBlue)'   );
+            expect(cssProps.bdWidth)    .toBe('var(--bdWidth)'   );
+            expect(cssProps.padding)    .toBe('var(--padding)'   );
+            expect(cssProps.fontFamily) .toBe('var(--fontFamily)');
             
-            expect(cssVals.display) .toEqual('grid'   );
-            expect(cssVals.colRed)  .toEqual('#ff0000');
-            expect(cssVals.colBlue) .toEqual('#0000ff');
-            expect(cssVals.bdWidth) .toEqual('1px'    );
+            expect(cssVals.display)    .toBe('grid'   );
+            expect(cssVals.colRed)     .toBe('#ff0000');
+            expect(cssVals.colBlue)    .toBe('#0000ff');
+            expect(cssVals.bdWidth)    .toBe('1px'    );
+            expect(cssVals.padding)    .toEqual([['10px', 0, '5px', '3%'], '!important']);
+            expect(cssVals.fontFamily) .toEqual(['Arial', 'sans-serif', '!important']);
             
             
             
