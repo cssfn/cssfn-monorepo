@@ -66,6 +66,9 @@ export type CssConfigProps =
     }>
     & CssKeyframesRule
     & CssProps // for better js doc
+type CssConfigPropsMap =
+    & MapOf<RequiredNotNullish<CssCustomProps>>
+    & CssKeyframesRuleMap
 export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef }
 export type Vals<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomValue     }
 
@@ -563,14 +566,14 @@ class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> e
     }
     
     get result() {
-        return super.result as (MapOf<RequiredNotNullish<CssCustomProps>> & CssKeyframesRuleMap) | null
+        return super.result as CssConfigPropsMap|null
     }
     //#endregion overrides
     
     
     
-    constructor(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, genKeyframes: Map<string, string>, options: LiveCssConfigOptions) {
-        super(srcProps, srcProps, genKeyframes, options);
+    constructor(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, options: LiveCssConfigOptions) {
+        super(srcProps, srcProps, new Map<string, string>(), options);
     }
 }
 
@@ -581,43 +584,18 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     
     //#region data sources
-    #_propsCache : Map<keyof TConfigProps, ValueOf<TConfigProps>>|null = null
+    #_propsCache : CssConfigPropsMap|null = null
     /**
-     * A *virtual css*.  
-     * The source of truth.  
-     * If mutated, the `#genProps` and `genKeyframes` need to `update()`.
-     */
-    get #props() : Map<keyof TConfigProps, ValueOf<TConfigProps>> {
-        if (!this.#_propsCache) {
-            const props : TConfigProps = (
-                (typeof(this.#propsFactory) === 'function')
-                ?
-                this.#propsFactory()
-                :
-                this.#propsFactory
-            );
-            
-            // convert props to Map:
-            this.#_propsCache = new Map<keyof TConfigProps, ValueOf<TConfigProps>>([
-                ...Object.entries(props) as [keyof TConfigProps, ValueOf<TConfigProps>][],
-                ...Object.getOwnPropertySymbols(props).map((symbolProp) => [ symbolProp, props[symbolProp] ]) as [keyof TConfigProps, ValueOf<TConfigProps>][],
-            ]);
-        } // if
-        
-        return this.#_propsCache;
-    }
-    //#endregion data sources
-    
-    
-    
-    //#region generated data
-    /**
-     * The *generated css custom props* as an editable_config_storage.  
-     * Similar to `#props` but all keys has been prefixed and some values has been partially/fully *transformed*.  
+     * A *generated css custom props* as the *source of truth*.  
+     *   
+     * Similar to `propsMap` but all keys has been prefixed and some values has been partially/fully *transformed*.  
      * The duplicate values has been replaced with a `var(...)` linked to the previously existing ones.  
-     * eg:  
+     *   
+     * If mutated, the `#genProps` needs to `update()`.  
+     *   
+     * eg data:  
      * // origin:  
-     * #props = {  
+     * propsMap = {  
      *    colRed      : '#ff0000',  
      *    colBlue     : '#0000ff',  
      *    bdWidth     : '1px',  
@@ -637,7 +615,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * };  
      *   
      * // transformed:  
-     * #genProps = {  
+     * #props = {  
      *    --navb-colRed      : '#ff0000',  
      *    --navb-colBlue     : '#0000ff',  
      *    --navb-bdWidth     : '1px',  
@@ -656,7 +634,58 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      *    animation   : [[ '100ms', 'ease', 'navb-fly-away' ]],
      * };  
      */
-    #genProps = new Map() as (MapOf<RequiredNotNullish<CssCustomProps>> & CssKeyframesRuleMap); // create a blank generated props collection
+    get #props() : CssConfigPropsMap {
+        //#region construct `#props` for the first time
+        if (!this.#_propsCache) {
+            const propsFactory = this.#propsFactory;
+            const props : TConfigProps = (
+                (typeof(propsFactory) === 'function')
+                ?
+                propsFactory()
+                :
+                propsFactory
+            );
+            
+            
+            
+            // convert props to propsMap:
+            const propsMap = new Map<keyof TConfigProps, ValueOf<TConfigProps>>([
+                ...Object.entries(props) as [keyof TConfigProps, ValueOf<TConfigProps>][],
+                ...Object.getOwnPropertySymbols(props).map((symbolProp) => [ symbolProp, props[symbolProp] ]) as [keyof TConfigProps, ValueOf<TConfigProps>][],
+            ]);
+            
+            
+            
+            // convert propsMap to cssCustomPropsMap:
+            const cssCustomPropsMap : CssConfigPropsMap = (
+                (new TransformCssConfigDuplicatesBuilder<TConfigProps>(propsMap, this.#options)).result
+                ??
+                propsMap as CssConfigPropsMap
+            );
+            
+            
+            
+            // now the cssCustomPropsMap becomes a new *source of truth*:
+            this.#_propsCache = cssCustomPropsMap;
+        } // if
+        //#endregion construct `#props` for the first time
+        
+        
+        
+        return this.#_propsCache;
+    }
+    //#endregion data sources
+    
+    
+    
+    //#region generated data
+    /**
+     * The *generated css custom props* as an editable_config_storage.  
+     *   
+     * Similar to `#props` but some values has been partially/fully *transformed*.  
+     * The duplicate values has been replaced with a `var(...)` linked to the previously existing ones.  
+     */
+    #genProps = new Map() as CssConfigPropsMap; // create a blank generated props collection
     
     /**
      * The *generated css* attached on dom (by default).
@@ -666,16 +695,13 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     //#endregion private properties
     
     //#region public properties
-    readonly #options      : LiveCssConfigOptions
-    readonly #refs         : Refs<TConfigProps>
-    readonly #vals         : Vals<TConfigProps>
-    
-    
+    readonly #options : LiveCssConfigOptions
+    readonly #refs    : Refs<TConfigProps>
+    readonly #vals    : Vals<TConfigProps>
     
     get options() { return this.#options }
-    
-    get refs() { return this.#refs }
-    get vals() { return this.#vals }
+    get refs()    { return this.#refs    }
+    get vals()    { return this.#vals    }
     //#endregion public properties
     
     
@@ -687,11 +713,16 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         //#region transform the `props`
-        const genKeyframes = new Map<string, string>(); // create a blank @keyframes collection
         this.#genProps = (
-            (new TransformCssConfigDuplicatesBuilder<TConfigProps>(props, genKeyframes, this.#options)).result
+            (new TransformDuplicatesBuilder<
+                keyof CssCustomProps | symbol,
+                CssCustomValue | CssKeyframesRule[symbol],
+                
+                keyof CssCustomProps | symbol,
+                CssCustomValue | CssKeyframesRule[symbol]
+            >(props, props, new Map<string, string>(), this.#options)).result as CssConfigPropsMap
             ??
-            (props as (MapOf<RequiredNotNullish<CssCustomProps>> & CssKeyframesRuleMap))
+            props
         );
         //#endregion transform the `props`
         
@@ -831,13 +862,13 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         if ((newValue === undefined) || (newValue === null)) {
             props.delete(propName);
             
-            this.#update(); // setting changed => the `#genProps` and `genKeyframes` need to `update()`
+            this.#update(); // setting changed => the `#genProps` needs to `update()`
         }
         else {
             if (props.get(propName) !== newValue) {
                 props.set(propName, newValue);
                 
-                this.#update(); // setting changed => the `#genProps` and `genKeyframes` need to `update()`
+                this.#update(); // setting changed => the `#genProps` needs to `update()`
             } // if
         } // if
         
