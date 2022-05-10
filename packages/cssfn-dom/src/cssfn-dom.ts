@@ -18,7 +18,18 @@ import {
 
 
 
+// utilities:
 const isClientSide : boolean = isBrowser || isJsDom;
+
+const asyncExecute = (
+    (typeof(requestAnimationFrame) === 'function')
+    ?
+    requestAnimationFrame
+    :
+    (callback: () => void): void => {
+        Promise.resolve().then(callback);
+    }
+);
 
 
 
@@ -105,14 +116,9 @@ const handleUpdate = (styleSheet: StyleSheet): void => {
     else {
         // async update:
         pendingUpdates.add(styleSheet);
-        if (typeof(requestAnimationFrame) !== 'undefined') {
-            requestAnimationFrame(batchUpdate);
-        }
-        else {
-            Promise.resolve().then(() => {
-                batchUpdate();
-            });
-        }
+        asyncExecute(() => {
+            batchUpdate();
+        });
     } //
 }
 if (isClientSide) styleSheetRegistry.subscribe(handleUpdate);
