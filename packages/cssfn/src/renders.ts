@@ -11,6 +11,8 @@ import type {
     
     
     // cssfn properties:
+    CssProps,
+    
     CssRule,
     
     CssStyle,
@@ -134,7 +136,7 @@ const combineSelector = (parentSelector: CssFinalSelector|null, nestedSelector: 
     return selectorsToString(combinedSelectors);
 };
 
-const shortProps = new Map<string, CssKnownName>(Object.entries({
+const shortProps = new Map<keyof CssProps, CssKnownName>(Object.entries({
     foreg       : 'color',
     
     backg       : 'background',
@@ -147,7 +149,7 @@ const shortProps = new Map<string, CssKnownName>(Object.entries({
     'gapY'      : 'rowGap',
     'gapInline' : 'columnGap',
     'gapBlock'  : 'rowGap',
-}));
+}) as [keyof CssProps, CssKnownName][]);
 
 
 
@@ -159,7 +161,7 @@ class RenderRule {
     
     
     //#region private methods
-    #renderPropName(propName: string): string {
+    #renderPropName(propName: keyof CssProps): string {
         if (propName.startsWith('--')) return propName; // css custom prop
         if (propName.startsWith('var(')) return propName.slice(4, -1); // fix: var(--customProp) => --customProp
         
@@ -228,7 +230,11 @@ class RenderRule {
             renderedPropValue
         );
     }
-    #renderProp(propName: string, propValue: CssCustomValue): void {
+    #renderProp(propName: keyof CssProps, propValue: CssCustomValue|undefined|null): void {
+        if ((propValue === undefined) || (propValue === null)) return;
+        
+        
+        
         this.rendered += '\n';
         const renderedPropName = this.#renderPropName(propName);
         this.rendered += renderedPropName;
@@ -308,7 +314,7 @@ class RenderRule {
         
         if (!finalStyle) return;
         for (const propName in finalStyle) {
-            this.#renderProp(propName, (finalStyle as any)[propName])
+            this.#renderProp(propName as keyof CssProps, finalStyle[propName as keyof CssProps])
         } // for
         
         
