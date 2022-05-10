@@ -66,7 +66,7 @@ export type CssConfigProps =
     }>
     & CssKeyframesRule
     & CssProps // for better js doc
-type CssConfigPropsMap =
+type CssConfigCustomPropsMap =
     & MapOf<RequiredNotNullish<CssCustomProps>>
     & CssKeyframesRuleMap
 export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef }
@@ -585,7 +585,20 @@ class TransformCssConfigFactoryDuplicatesBuilder<TConfigProps extends CssConfigP
     
     
     get props() {
-        return this.result as CssConfigPropsMap|null
+        return this.result as CssConfigCustomPropsMap|null
+    }
+}
+class TransformCssConfigDuplicatesBuilder
+    extends TransformCssStyleDuplicatesBuilder<(keyof CssCustomProps)|symbol, CssCustomValue|CssKeyframesRule[symbol]>
+{
+    constructor(configCustomProps: CssConfigCustomPropsMap, options: LiveCssConfigOptions) {
+        super(configCustomProps, configCustomProps, new Map<string, string>(), options);
+    }
+    
+    
+    
+    get props() {
+        return this.result as CssConfigCustomPropsMap|null
     }
 }
 
@@ -596,7 +609,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     
     //#region data sources
-    #_propsCache : CssConfigPropsMap|null = null
+    #_propsCache : CssConfigCustomPropsMap|null = null
     /**
      * A *generated css custom props* as the *source of truth*.  
      *   
@@ -646,7 +659,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      *    animation   : [[ '100ms', 'ease', 'navb-fly-away' ]],
      * };  
      */
-    get #props() : CssConfigPropsMap {
+    get #props() : CssConfigCustomPropsMap {
         //#region construct `#props` for the first time
         if (!this.#_propsCache) {
             const propsFactory = this.#propsFactory;
@@ -669,10 +682,10 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             
             
             // convert propsMap to cssCustomPropsMap:
-            const cssCustomPropsMap : CssConfigPropsMap = (
+            const cssCustomPropsMap : CssConfigCustomPropsMap = (
                 (new TransformCssConfigFactoryDuplicatesBuilder<TConfigProps>(propsMap, this.#options)).props
                 ??
-                propsMap as CssConfigPropsMap
+                propsMap as CssConfigCustomPropsMap
             );
             
             
@@ -697,7 +710,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * Similar to `#props` but some values has been partially/fully *transformed*.  
      * The duplicate values has been replaced with a `var(...)` linked to the previously existing ones.  
      */
-    #genProps = new Map() as CssConfigPropsMap; // create a blank generated props collection
+    #genProps = new Map() as CssConfigCustomPropsMap; // create a blank generated props collection
     
     /**
      * The *generated css* attached on dom (by default).
@@ -720,21 +733,11 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     //#region data builds
     #rebuild() {
-        const props = this.#props;
-        
-        
-        
         //#region transform the `props`
         this.#genProps = (
-            (new TransformDuplicatesBuilder<
-                keyof CssCustomProps | symbol,
-                CssCustomValue | CssKeyframesRule[symbol],
-                
-                keyof CssCustomProps | symbol,
-                CssCustomValue | CssKeyframesRule[symbol]
-            >(props, props, new Map<string, string>(), this.#options)).result as CssConfigPropsMap
+            (new TransformCssConfigDuplicatesBuilder(this.#props, this.#options)).props
             ??
-            props
+            this.#props
         );
         //#endregion transform the `props`
         
