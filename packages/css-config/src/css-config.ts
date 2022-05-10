@@ -71,8 +71,8 @@ type CssConfigPropsMap =
         [name: string] : CssCustomValue
     }>>
     & CssKeyframesRuleMap
-export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef                                 }
-export type Vals<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue }
+export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef }
+export type Vals<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomValue     }
 
 export interface CssConfigOptions {
     /**
@@ -814,7 +814,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param propName The prop name to retrieve.
      * @returns A `ValueOf<TConfigProps>` or `CssCustomValue` represents the value of the specified `propName` -or- `undefined` if it doesn't exist.
      */
-    #getVal(propName: string): ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue|ValueOf<Pick<TConfigProps, symbol>>|undefined {
+    #getVal(propName: string): CssCustomValue|undefined {
         const propDecl = this.#getDecl(propName);
         if (!propDecl) return undefined; // not found
         
@@ -885,14 +885,14 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         // proxies - representing data in various formats:
-        this.#refs = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */                                CssCustomSimpleRef | /*setter: */ValueOf<TConfigProps> }>(unusedObj as any, {
+        this.#refs = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */CssCustomSimpleRef | /*setter: */ValueOf<TConfigProps> }>(unusedObj as any, {
             get            : (_unusedObj, propName: string)                                  => this.#getRef(propName),
             set            : (_unusedObj, propName: string, newValue: ValueOf<TConfigProps>) => this.#setDirect(propName, newValue),
             deleteProperty : (_unusedObj, propName: string)                                  => this.#setDirect(propName, undefined),
             
             ownKeys        : (_unusedObj)                                                    => this.#getPropList(),
         }) as Refs<TConfigProps>;
-        this.#vals = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */ValueOf<Omit<TConfigProps, symbol>>|CssCustomValue | /*setter: */ValueOf<TConfigProps> }>(unusedObj as any, {
+        this.#vals = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */    CssCustomValue | /*setter: */ValueOf<TConfigProps> }>(unusedObj as any, {
             get            : (_unusedObj, propName: string)                                  => this.#getVal(propName),
             set            : (_unusedObj, propName: string, newValue: ValueOf<TConfigProps>) => this.#setDirect(propName, newValue),
             deleteProperty : (_unusedObj, propName: string)                                  => this.#setDirect(propName, undefined),
