@@ -33,10 +33,6 @@ const simulateBrowserSide = (dom: _JSDOM) => {
     if (oriWindow === undefined) {
         const mockWindow : Window = dom.window as any;
         (globalThis as any).window = mockWindow;
-        (globalThis as any).requestAnimationFrame = (callback: FrameRequestCallback): number => {
-            callback(0);
-            return 123;
-        }
     } // if
     if (oriDocument === undefined) {
         const mockDocument : Document = dom.window.document;
@@ -90,36 +86,46 @@ jest.isolateModules(() => {
     
     
     //#region test properties
-    test(`render() # test standard propName`, () => {
+    test(`cssConfig() # test props`, async () => {
         const [cssProps, cssVals] = cssConfig(() => {
             return {
                 display     : 'grid',
                 colRed      : '#ff0000',
                 colBlue     : '#0000ff',
                 bdWidth     : '1px',
+                padding     : [['10px', 0, '5px', '3%'], '!important'],
+                fontFamily: ['Arial', 'sans-serif', '!important'],
             };
         });
         
-        expect(render(lastStyleSheet!))
-        .toEqual(
+        await new Promise<void>((resolve) => { setTimeout(() => {
+            expect(render(lastStyleSheet!))
+            .toEqual(
 `
 :root {
 --display: grid;
 --colRed: #ff0000;
 --colBlue: #0000ff;
 --bdWidth: 1px;
+--padding: 10px 0 5px 3% !important;
+--fontFamily: Arial, sans-serif !important;
 }
 `
-        );
-        expect(cssProps.display) .toEqual('var(--display)');
-        expect(cssProps.colRed)  .toEqual('var(--colRed)' );
-        expect(cssProps.colBlue) .toEqual('var(--colBlue)');
-        expect(cssProps.bdWidth) .toEqual('var(--bdWidth)');
-        
-        expect(cssVals.display) .toEqual('grid'   );
-        expect(cssVals.colRed)  .toEqual('#ff0000');
-        expect(cssVals.colBlue) .toEqual('#0000ff');
-        expect(cssVals.bdWidth) .toEqual('1px'    );
+            );
+            expect(cssProps.display) .toEqual('var(--display)');
+            expect(cssProps.colRed)  .toEqual('var(--colRed)' );
+            expect(cssProps.colBlue) .toEqual('var(--colBlue)');
+            expect(cssProps.bdWidth) .toEqual('var(--bdWidth)');
+            
+            expect(cssVals.display) .toEqual('grid'   );
+            expect(cssVals.colRed)  .toEqual('#ff0000');
+            expect(cssVals.colBlue) .toEqual('#0000ff');
+            expect(cssVals.bdWidth) .toEqual('1px'    );
+            
+            
+            
+            resolve();
+        }, 0)});
     });
     //#endregion test properties
 });
