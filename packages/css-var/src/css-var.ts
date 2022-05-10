@@ -82,7 +82,7 @@ let globalIdCounter = 0; // should not be incremented on server side
 /**
  * Declares & retrieves *css variables* (css custom properties).
  */
-export const createCssVar = <TCssCustomProps extends {}>(options: CssVarOptions = defaultOptions): CssVar<TCssCustomProps> => {
+export const cssVar = <TCssCustomProps extends {}>(options: CssVarOptions = defaultOptions): CssVar<TCssCustomProps> => {
     // options:
     const liveOptions = new LiveCssVarOptions(options);
     
@@ -152,7 +152,7 @@ export const createCssVar = <TCssCustomProps extends {}>(options: CssVarOptions 
         liveOptions,
     ];
 }
-export { createCssVar as default }
+export { cssVar as default }
 
 
 

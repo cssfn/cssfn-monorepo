@@ -1,5 +1,5 @@
 import {
-    createCssVar,
+    cssVar,
     fallbacks,
 } from '../dist/css-var.js'
 
@@ -20,8 +20,8 @@ interface TestVars2 {
 
 let varCounter = 0;
 
-test(`createCssVar<TestVars1>() with default options`, () => {
-    const [cssVars] = createCssVar<TestVars1>();
+test(`cssVar<TestVars1>() with default options`, () => {
+    const [cssVars] = cssVar<TestVars1>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
@@ -36,8 +36,8 @@ test(`createCssVar<TestVars1>() with default options`, () => {
     } // for
 });
 
-test(`createCssVar<TestVars2>() with default options`, () => {
-    const [cssVars] = createCssVar<TestVars2>();
+test(`cssVar<TestVars2>() with default options`, () => {
+    const [cssVars] = cssVar<TestVars2>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
@@ -54,8 +54,8 @@ test(`createCssVar<TestVars2>() with default options`, () => {
 
 
 
-test(`createCssVar<TestVars1>() with options { prefix: 'btn' }`, () => {
-    const [cssVars] = createCssVar<TestVars1>({ prefix: 'btn' });
+test(`cssVar<TestVars1>() with options { prefix: 'btn' }`, () => {
+    const [cssVars] = cssVar<TestVars1>({ prefix: 'btn' });
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
@@ -70,8 +70,8 @@ test(`createCssVar<TestVars1>() with options { prefix: 'btn' }`, () => {
     } // for
 });
 
-test(`createCssVar<TestVars2>() with options { prefix: 'nav' }`, () => {
-    const [cssVars] = createCssVar<TestVars2>({ prefix: 'nav' });
+test(`cssVar<TestVars2>() with options { prefix: 'nav' }`, () => {
+    const [cssVars] = cssVar<TestVars2>({ prefix: 'nav' });
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
@@ -88,8 +88,8 @@ test(`createCssVar<TestVars2>() with options { prefix: 'nav' }`, () => {
 
 
 
-test(`createCssVar<TestVars1>() with options { minify: false }`, () => {
-    const [cssVars] = createCssVar<TestVars1>({ minify: false });
+test(`cssVar<TestVars1>() with options { minify: false }`, () => {
+    const [cssVars] = cssVar<TestVars1>({ minify: false });
     
     for (let i = 0; i < 5; i++) {
         expect(cssVars.world)
@@ -103,8 +103,8 @@ test(`createCssVar<TestVars1>() with options { minify: false }`, () => {
     } // for
 });
 
-test(`createCssVar<TestVars2>() with options { minify: false }`, () => {
-    const [cssVars] = createCssVar<TestVars2>({ minify: false });
+test(`cssVar<TestVars2>() with options { minify: false }`, () => {
+    const [cssVars] = cssVar<TestVars2>({ minify: false });
     
     for (let i = 0; i < 5; i++) {
         expect(cssVars.alice)
@@ -120,8 +120,8 @@ test(`createCssVar<TestVars2>() with options { minify: false }`, () => {
 
 
 
-test(`createCssVar<TestVars1>() with options { prefix: 'btn', minify: false }`, () => {
-    const [cssVars] = createCssVar<TestVars1>({ prefix: 'btn', minify: false });
+test(`cssVar<TestVars1>() with options { prefix: 'btn', minify: false }`, () => {
+    const [cssVars] = cssVar<TestVars1>({ prefix: 'btn', minify: false });
     
     for (let i = 0; i < 5; i++) {
         expect(cssVars.world)
@@ -135,8 +135,8 @@ test(`createCssVar<TestVars1>() with options { prefix: 'btn', minify: false }`, 
     } // for
 });
 
-test(`createCssVar<TestVars2>() with options { prefix: 'nav', minify: false }`, () => {
-    const [cssVars] = createCssVar<TestVars2>({ prefix: 'nav', minify: false });
+test(`cssVar<TestVars2>() with options { prefix: 'nav', minify: false }`, () => {
+    const [cssVars] = cssVar<TestVars2>({ prefix: 'nav', minify: false });
     
     for (let i = 0; i < 5; i++) {
         expect(cssVars.alice)
@@ -152,8 +152,8 @@ test(`createCssVar<TestVars2>() with options { prefix: 'nav', minify: false }`, 
 
 
 
-test(`createCssVar<TestVars1>() with live options { prefix: 'btn' }`, () => {
-    const [cssVars, options] = createCssVar<TestVars1>();
+test(`cssVar<TestVars1>() with live options { prefix: 'btn' }`, () => {
+    const [cssVars, options] = cssVar<TestVars1>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
@@ -204,8 +204,8 @@ test(`createCssVar<TestVars1>() with live options { prefix: 'btn' }`, () => {
     } // for
 });
 
-test(`createCssVar<TestVars2>() with live options { prefix: 'nav' }`, () => {
-    const [cssVars, options] = createCssVar<TestVars2>();
+test(`cssVar<TestVars2>() with live options { prefix: 'nav' }`, () => {
+    const [cssVars, options] = cssVar<TestVars2>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
@@ -258,8 +258,8 @@ test(`createCssVar<TestVars2>() with live options { prefix: 'nav' }`, () => {
 
 
 
-test(`createCssVar<TestVars1>() with live options { minify: false }`, () => {
-    const [cssVars, options] = createCssVar<TestVars1>();
+test(`cssVar<TestVars1>() with live options { minify: false }`, () => {
+    const [cssVars, options] = cssVar<TestVars1>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
@@ -310,8 +310,8 @@ test(`createCssVar<TestVars1>() with live options { minify: false }`, () => {
     } // for
 });
 
-test(`createCssVar<TestVars2>() with live options { minify: false }`, () => {
-    const [cssVars, options] = createCssVar<TestVars2>();
+test(`cssVar<TestVars2>() with live options { minify: false }`, () => {
+    const [cssVars, options] = cssVar<TestVars2>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
@@ -364,8 +364,8 @@ test(`createCssVar<TestVars2>() with live options { minify: false }`, () => {
 
 
 
-test(`createCssVar<TestVars1>() with live options { prefix: 'btn', minify: false }`, () => {
-    const [cssVars, options] = createCssVar<TestVars1>();
+test(`cssVar<TestVars1>() with live options { prefix: 'btn', minify: false }`, () => {
+    const [cssVars, options] = cssVar<TestVars1>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
@@ -419,8 +419,8 @@ test(`createCssVar<TestVars1>() with live options { prefix: 'btn', minify: false
     } // for
 });
 
-test(`createCssVar<TestVars2>() with live options { prefix: 'nav', minify: false }`, () => {
-    const [cssVars, options] = createCssVar<TestVars2>();
+test(`cssVar<TestVars2>() with live options { prefix: 'nav', minify: false }`, () => {
+    const [cssVars, options] = cssVar<TestVars2>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
@@ -477,7 +477,7 @@ test(`createCssVar<TestVars2>() with live options { prefix: 'nav', minify: false
 
 
 test(`fallbacks()`, () => {
-    const [cssVars] = createCssVar<TestVars2>({ minify: false });
+    const [cssVars] = cssVar<TestVars2>({ minify: false });
     
     expect(
         fallbacks(
@@ -511,8 +511,8 @@ test(`fallbacks()`, () => {
 });
 
 test(`fallbacks(fallbacks())`, () => {
-    const [cssVars1] = createCssVar<TestVars2>({ minify: false });
-    const [cssVars2] = createCssVar<TestVars1>({ minify: false });
+    const [cssVars1] = cssVar<TestVars2>({ minify: false });
+    const [cssVars2] = cssVar<TestVars1>({ minify: false });
     
     expect(
         fallbacks(
