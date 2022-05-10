@@ -582,10 +582,6 @@ class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> e
 class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     //#region private properties
     readonly #propsFactory : ProductOrFactory<TConfigProps>
-    readonly #options      : LiveCssConfigOptions
-    
-    readonly #refs         : Refs<TConfigProps>
-    readonly #vals         : Vals<TConfigProps>
     
     
     
@@ -673,6 +669,19 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     readonly #liveStyleSheet : Subject<CssStyle|null>;
     //#endregion generated data
     //#endregion private properties
+    
+    //#region public properties
+    readonly #options      : LiveCssConfigOptions
+    readonly #refs         : Refs<TConfigProps>
+    readonly #vals         : Vals<TConfigProps>
+    
+    
+    
+    get options() { return this.#options }
+    
+    get refs() { return this.#refs }
+    get vals() { return this.#vals }
+    //#endregion public properties
     
     
     
@@ -892,15 +901,6 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         }) as Vals<TConfigProps>;
     }
     //#endregion constructors
-    
-    
-    
-    //#region public properties
-    get options() { return this.#options }
-    
-    get refs() { return this.#refs }
-    get vals() { return this.#vals }
-    //#endregion public properties
 }
 
 
