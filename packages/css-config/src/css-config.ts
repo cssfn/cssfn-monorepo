@@ -202,7 +202,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param value The value to test.
      * @returns `true` if the `value` is not nullish, otherwise `false`.
      */
-    #hasValue<TValue extends TSrcPropValue|TRefPropValue>(value: TValue): value is Exclude<TValue, undefined|null> {
+    #hasValue<TValue>(value: TValue): value is Exclude<TValue, undefined|null> {
         return (value !== undefined) && (value !== null);
     }
     
@@ -211,9 +211,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param srcPropValue The value to test.
      * @returns `true` indicates it's transformable, otherwise `false`.
      */
-    #isTransformableProp(srcPropValue: TSrcPropValue): boolean {
-        if (!this.#hasValue(srcPropValue)) return false; // skip nullish prop
-        
+    #isTransformableProp(srcPropValue: Exclude<TSrcPropValue, undefined|null>): boolean {
         if ((typeof(srcPropValue) === 'string')) {
             switch(srcPropValue) {
                 // ignore global keywords:
@@ -248,19 +246,13 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param refPropValue The second value to test.
      * @returns `true` if both are equal, otherwise `false`.
      */
-    #isDeepEqual(srcPropValue: TSrcPropValue, refPropValue: TRefPropValue): boolean {
+    #isDeepEqual(srcPropValue: Exclude<TSrcPropValue, undefined|null>, refPropValue: Exclude<TRefPropValue, undefined|null>): boolean {
         // shallow equal comparison:
         if (Object.is(srcPropValue, refPropValue)) return true;
         
         
         
         //#region deep equal comparison
-        // both must have a value:
-        if (!this.#hasValue(srcPropValue)) return false;
-        if (!this.#hasValue(refPropValue)) return false;
-        
-        
-        
         // both must be an object:
         if (typeof(srcPropValue) !== 'object') return false;
         if (typeof(refPropValue) !== 'object') return false;
@@ -279,7 +271,17 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         // both prop values must be the same:
         for (const deepPropName in srcPropValue) {
-            if (!this.#isDeepEqual((srcPropValue as any)[deepPropName], (refPropValue as any)[deepPropName])) return false; // the same prop name with different prop value => false
+            const srcNestedValue = srcPropValue[deepPropName];
+            
+            if (!(deepPropName in refPropValue)) return false;
+            const refNestedValue = refPropValue[deepPropName as Extract<keyof Exclude<TRefPropValue, undefined|null>, string>];
+            
+            if (!this.#hasValue(srcNestedValue) || !this.#hasValue(refNestedValue)) {
+                if (!Object.is(srcNestedValue, refNestedValue)) return false; // the same prop name with different prop value => false
+                continue; // continue to next check loop
+            } // if
+            
+            if (!this.#isDeepEqual(srcNestedValue as any, refNestedValue as any)) return false; // the same prop name with different prop value => false
         } // for
         
         
@@ -296,13 +298,13 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @returns A `CssCustomSimpleRef` represents the link to the equivalent entry in `#refProps`.  
      * -or- `null` if no equivalent found.
      */
-    #findEqualProp(srcPropName: TSrcPropName, srcPropValue: TSrcPropValue): CssCustomSimpleRef|null {
+    #findEqualProp(srcPropName: TSrcPropName, srcPropValue: Exclude<TSrcPropValue, undefined|null>): CssCustomSimpleRef|null {
         for (const [refPropName, refPropValue] of this.#refProps) { // search for duplicates
             // skip non-string ref prop:
             if (typeof(refPropName) !== 'string') continue; // symbol & number props are ignored
             
             // skip empty ref:
-            if (!this.#hasValue(refPropValue)) continue;
+            if (!this.#hasValue(refPropValue)) continue; // undefined & null values are ignored
             
             // stop search if reaches current entry (search for prev entries only):
             if (this.#isSelfProp(srcPropName, refPropName)) break;
@@ -430,7 +432,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         for (const [srcPropName, srcPropValue] of this.#srcProps) { // walk each entry in `#srcProps`
             // skip empty src:
-            if (!this.#hasValue(srcPropValue)) continue;
+            if (!this.#hasValue(srcPropValue)) continue; // undefined & null values are ignored
             
             // skip !important modifier:
             if ((typeof(srcPropName) === 'number') && (srcPropName >= 1) && (srcPropName === (this.#srcProps.size - 1)) && (srcPropValue === '!important')) continue;
