@@ -455,7 +455,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                     const equalNestedStyle = (new TransformDuplicatesBuilder<keyof CssStyle, ValueOf<CssStyle>, TRefPropName, TRefPropValue>(srcNestedStyle, refProps, genKeyframes, options)).result as (CssStyleMap|null);
                     if (equalNestedStyle) {
                         // convert the Map back to style:
-                        const srcNestedStyle = Object.fromEntries(equalNestedStyle) as CssStyle;
+                        const srcNestedStyle = Object.fromEntries(equalNestedStyle) as unknown as CssStyle;
                         
                         
                         
@@ -696,7 +696,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         // update styleSheet:
         this.#liveStyleSheet.next({
             ...atGlobal({
-                ...rule(this.#options.selector, Object.fromEntries(this.#genProps) as (CssCustomProps | CssKeyframesRule)),
+                ...rule(this.#options.selector, Object.fromEntries(this.#genProps) as unknown as (CssCustomProps & CssKeyframesRule)),
             }),
         });
     }
