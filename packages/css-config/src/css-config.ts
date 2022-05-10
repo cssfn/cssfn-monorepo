@@ -450,17 +450,12 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                     
                     
                     
-                    const equalNestedStyle = (new TransformDuplicatesBuilder<keyof CssStyle, ValueOf<CssStyle>, TRefPropName, TRefPropValue>(srcNestedStyle, refProps, genKeyframes, options)).result as (CssStyleMap|null);
+                    const equalNestedStyle = (new TransformCssStyleDuplicatesBuilder<TRefPropName, TRefPropValue>(srcNestedStyle, refProps, genKeyframes, options)).style;
                     if (equalNestedStyle) {
-                        // convert the Map back to style:
-                        const srcNestedStyle = Object.fromEntries(equalNestedStyle) as unknown as CssStyle;
-                        
-                        
-                        
                         // store the modified `srcNestedStyle`:
                         modified.set(
                             this._onCreatePropName(srcPropName),
-                            [selector, srcNestedStyle]
+                            [selector, equalNestedStyle]
                         );
                     } // if
                 } // if
@@ -510,17 +505,12 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 
                 
                 
-                const equalNestedValues = (new TransformDuplicatesBuilder<number, CssCustomValueArr[number], TRefPropName, TRefPropValue>(srcNestedProps, refProps, genKeyframes, options)).result;
+                const equalNestedValues = (new TransformArrayDuplicatesBuilder<CssCustomValueArr, TRefPropName, TRefPropValue>(srcNestedProps, refProps, genKeyframes, options)).array as CssCustomValueArr|null;
                 if (equalNestedValues) {
-                    // convert the Map back to an array:
-                    const srcNestedValues = Array.from(equalNestedValues.values()) as CssCustomValueArr;
-                    
-                    
-                    
                     // store the modified `srcPropValue`:
                     modified.set(
                         this._onCreatePropName(srcPropName),
-                        srcNestedValues
+                        equalNestedValues
                     );
                     
                     // mission done => continue walk to the next entry:
@@ -553,6 +543,22 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         this.#result = null; // `null` means no modification was performed
+    }
+}
+class TransformArrayDuplicatesBuilder<TArray extends Array<any>,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|undefined|null>
+    extends TransformDuplicatesBuilder<number, TArray[number],   TRefPropName, TRefPropValue> {
+    get array() {
+        const result = this.result;
+        if (!result) return null;
+        return Array.from(result.values())
+    }
+}
+class TransformCssStyleDuplicatesBuilder<TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|undefined|null>
+    extends TransformDuplicatesBuilder<keyof CssStyle, ValueOf<CssStyle>,   TRefPropName, TRefPropValue> {
+    get style() {
+        const result = this.result as (CssStyleMap|null);
+        if (!result) return null;
+        return Object.fromEntries(result) as unknown as CssStyle;
     }
 }
 class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> extends TransformDuplicatesBuilder<keyof TConfigProps, ValueOf<TConfigProps>, keyof TConfigProps, ValueOf<TConfigProps>> {
