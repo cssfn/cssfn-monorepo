@@ -853,7 +853,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     /**
      * Gets the *equivalent value* of the specified `propName`, might be the *transformed* value, eg: `[['var(--pad-y)', 'var(--pad-x)']]` -or- the *direct* value, eg: `[['5px', '10px']]`.
      * @param propName The prop name to retrieve.
-     * @returns A `ValueOf<TConfigProps>` or `CssCustomValue` represents the value of the specified `propName` -or- `undefined` if it doesn't exist.
+     * @returns A `CssCustomValue` represents the value of the specified `propName` -or- `undefined` if it doesn't exist.
      */
     #getVal(propName: string): CssCustomValue|undefined {
         const propDecl = this.#getDecl(propName);
@@ -868,20 +868,24 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param newValue The new value.
      * @returns Always return `true`.
      */
-    #setDirect(propName: string, newValue: ValueOf<TConfigProps>|undefined|null) {
-        // the original props:
+    #setDirect(propName: string, newValue: CssCustomValue|undefined|null) {
+        const propDecl = this.#createDecl(propName);
+        
+        
+        
+        // the source of truth:
         const props = this.#props;
         
         
         
         if ((newValue === undefined) || (newValue === null)) {
-            props.delete(propName);
+            props.delete(propDecl);
             
             this.#update(); // setting changed => the `#genProps` needs to `update()`
         }
         else {
-            if (props.get(propName) !== newValue) {
-                props.set(propName, newValue);
+            if (props.get(propDecl) !== newValue) {
+                props.set(propDecl, newValue);
                 
                 this.#update(); // setting changed => the `#genProps` needs to `update()`
             } // if
@@ -898,8 +902,9 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      */
     #getPropList(): ArrayLike<string|symbol> {
         return (
-            Array.from(this.#props.keys())
-            .filter((propName): propName is string => (typeof(propName) === 'string')) // only show string props
+            Array.from(this.#props.keys() as IterableIterator<CssCustomName|symbol>)
+            .filter((propName): propName is CssCustomName => (typeof(propName) === 'string')) // only show string props, ignores symbol props
+            .map((cssCustomName): string => cssCustomName.slice(2)) // remove double dash prefix
         );
     }
     //#endregion proxy getters & setters
