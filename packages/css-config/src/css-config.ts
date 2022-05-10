@@ -169,7 +169,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     //#endregion private properties
     
     //#region public properties
-    readonly #result        : (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap) | null
+    readonly #result       : (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap) | null
     get result() {
         return this.#result;
     }
