@@ -15,7 +15,6 @@ import type {
     CssCustomSimpleRef,
     CssCustomValue,
     CssCustomProps,
-    CssCustomPropsMap,
     
     
     
@@ -67,11 +66,6 @@ export type CssConfigProps =
     }>
     & CssKeyframesRule
     & CssProps // for better js doc
-type CssConfigPropsMap =
-    & MapOf<PartialNullish<{
-        [name: string] : CssCustomValue
-    }>>
-    & CssKeyframesRuleMap
 export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef }
 export type Vals<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomValue     }
 
