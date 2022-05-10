@@ -548,8 +548,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         
-        // if the `modified` is not empty (has any modifications) => return the (original + modified):
         if (modified.size) {
+            // if the `modified` is not empty (has any modifications) => return the (original + modified):
             this.#result = this._onCombineModified(modified);
         }
         else {
