@@ -551,11 +551,10 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         // if the `modified` is not empty (has any modifications) => return the (original + modified):
         if (modified.size) {
             this.#result = this._onCombineModified(modified);
+        }
+        else {
+            this.#result = null; // `null` means no modification was performed
         } // if
-        
-        
-        
-        this.#result = null; // `null` means no modification was performed
     }
 }
 class TransformArrayDuplicatesBuilder<TArray extends Array<any>,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|undefined|null>
