@@ -138,7 +138,7 @@ jest.isolateModules(() => {
             )
         ], { id: '#sheet#1' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .z7qv1 {
 background: pink;
@@ -160,7 +160,7 @@ border-start-end-radius: 0.5px;
             )
         ], { id: '#sheet#2' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .yny9o {
 -webkit-animation-delay: 500ms;
@@ -183,7 +183,7 @@ border-start-end-radius: 0.5px;
             )
         ], { id: '#sheet#3' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .y45ob {
 --custProp1: "yeah";
@@ -214,7 +214,7 @@ border-start-end-radius: 0.5px;
             )
         ], { id: '#sheet#4' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .xkd2y {
 color: pink;
@@ -240,7 +240,7 @@ background-position: 0 0, 1cm 2cm, center !important;
             borderStartEndRadius: '0.5px',
         }), { id: '#sheet#1' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .z7qv1 {
 background: pink;
@@ -258,7 +258,7 @@ border-start-end-radius: 0.5px;
             msFlexDirection: 'column',
         }), { id: '#sheet#2' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .yny9o {
 -webkit-animation-delay: 500ms;
@@ -277,7 +277,7 @@ border-start-end-radius: 0.5px;
             'var(--my-custProp2)': '"good"',
         }), { id: '#sheet#3' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .y45ob {
 --custProp1: "yeah";
@@ -304,7 +304,7 @@ border-start-end-radius: 0.5px;
             backgroundPosition: [[0, 0], ['1cm', '2cm'], ['center'], '!important'],
         }), { id: '#sheet#4' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .xkd2y {
 color: pink;
@@ -337,7 +337,7 @@ background-position: 0 0, 1cm 2cm, center !important;
             )
         ], { id: '#sheet#5' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .x0khl {
 background: red;
@@ -367,7 +367,7 @@ background: linear-gradient(to right, red 0%, green 100%);
             )
         ], { id: '#sheet#6' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .wgrw8 {
 display: none;
@@ -390,7 +390,7 @@ display: grid;
             }),
         }), { id: '#sheet#5' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .x0khl {
 background: red;
@@ -416,7 +416,7 @@ background: linear-gradient(to right, red 0%, green 100%);
             }),
         }), { id: '#sheet#6' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .wgrw8 {
 display: none;
@@ -447,7 +447,7 @@ display: grid;
             )
         ], { id: '#sheet#7' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 @font-face {
 font-family: Open Sans;
@@ -474,7 +474,7 @@ font-style: oblique 40deg;
             )
         ], { id: '#sheet#8' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 @font-face {
 font-family: Open Sans;
@@ -498,7 +498,7 @@ font-style: oblique 40deg;
             }),
         }), { id: '#sheet#7' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 @font-face {
 font-family: Open Sans;
@@ -521,7 +521,7 @@ font-style: oblique 40deg;
             }),
         }), { id: '#sheet#8' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 @font-face {
 font-family: Open Sans;
@@ -557,7 +557,7 @@ font-style: oblique 40deg;
             )
         ], { id: '#sheet#7' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 @keyframes awesome {
 from {
@@ -602,7 +602,7 @@ opacity: 0.9;
             )
         ], { id: '#sheet#8' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 @keyframes awesome {
 from {
@@ -642,7 +642,7 @@ border: solid 4px blue;
             }),
         }), { id: '#sheet#7' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 @keyframes awesome {
 from {
@@ -683,7 +683,7 @@ opacity: 0.9;
             }),
         }), { id: '#sheet#8' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 @keyframes awesome {
 from {
@@ -734,7 +734,7 @@ border: solid 4px blue;
             )
         ], { id: '#sheet#9' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .ute45 {
 background: pink;
@@ -786,7 +786,7 @@ overflow: auto;
             )
         ], { id: '#sheet#10' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .vg4v3.rule.rule.rule {
 padding-inline: 1rem;
@@ -837,7 +837,7 @@ overflow: auto;
             )
         ], { id: '#sheet#11' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .vzxgg {
 background: pink;
@@ -892,7 +892,7 @@ overflow: auto;
             )
         ], { id: '#sheet#12' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .wjq1t.wjq1t.wjq1t {
 background: pink;
@@ -945,7 +945,7 @@ overflow: auto;
             ),
         ], { id: '#sheet#13' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .x3in6.x3in6.rule.rule.rule {
 padding-inline: 1rem;
@@ -997,7 +997,7 @@ overflow: auto;
             )
         ], { id: '#sheet#14' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .xnb8j.xnb8j {
 background: pink;
@@ -1052,7 +1052,7 @@ overflow: auto;
             )
         ], { id: '#sheet#15' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 :where(.y73tw) {
 background: pink;
@@ -1105,7 +1105,7 @@ overflow: auto;
             ),
         ], { id: '#sheet#16' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 :where(.yqwf9).rule.rule.rule {
 padding-inline: 1rem;
@@ -1157,7 +1157,7 @@ overflow: auto;
             )
         ], { id: '#sheet#17' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 :where(.zap0m) {
 background: pink;
@@ -1209,7 +1209,7 @@ overflow: auto;
             }),
         }), { id: '#sheet#9' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .ute45 {
 background: pink;
@@ -1257,7 +1257,7 @@ overflow: auto;
             }, { specificityWeight: 2 }),
         }), { id: '#sheet#10' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .vg4v3.rule.rule.rule {
 padding-inline: 1rem;
@@ -1304,7 +1304,7 @@ overflow: auto;
             ], { specificityWeight: 3 }),
         }), { id: '#sheet#11' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .vzxgg {
 background: pink;
@@ -1354,7 +1354,7 @@ overflow: auto;
             }),
         }), { id: '#sheet#12', specificityWeight: 3 });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .wjq1t.wjq1t.wjq1t {
 background: pink;
@@ -1402,7 +1402,7 @@ overflow: auto;
             }, { specificityWeight: 2 }),
         }), { id: '#sheet#13', specificityWeight: 2 });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .x3in6.x3in6.rule.rule.rule {
 padding-inline: 1rem;
@@ -1449,7 +1449,7 @@ overflow: auto;
             ], { specificityWeight: 3 }),
         }), { id: '#sheet#14', specificityWeight: 2 });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .xnb8j.xnb8j {
 background: pink;
@@ -1499,7 +1499,7 @@ overflow: auto;
             }),
         }), { id: '#sheet#15', specificityWeight: 0 });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 :where(.y73tw) {
 background: pink;
@@ -1547,7 +1547,7 @@ overflow: auto;
             }, { specificityWeight: 2 }),
         }), { id: '#sheet#16', specificityWeight: 0 });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 :where(.yqwf9).rule.rule.rule {
 padding-inline: 1rem;
@@ -1594,7 +1594,7 @@ overflow: auto;
             ], { specificityWeight: 3 }),
         }), { id: '#sheet#17', specificityWeight: 0 });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 :where(.zap0m) {
 background: pink;
@@ -1652,7 +1652,7 @@ overflow: auto;
             )
         ], { id: '#sheet#18' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .zuhlz {
 background: pink;
@@ -1707,7 +1707,7 @@ overflow: auto;
             ),
         ], { id: '#sheet#19' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 :where(.wea7c).rule.rule.rule {
 padding-inline: 1rem;
@@ -1761,7 +1761,7 @@ overflow: auto;
             )
         ], { id: '#sheet#20' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 :where(.chr9a) {
 background: pink;
@@ -1807,7 +1807,7 @@ overflow: auto;
             )
         ], { id: '#sheet#bleh' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .rmnfx:hover, .rmnfx::backdrop {
 color: red;
@@ -1847,7 +1847,7 @@ overflow: auto;
             }),
         }), { id: '#sheet#18' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .zuhlz {
 background: pink;
@@ -1897,7 +1897,7 @@ overflow: auto;
             }, { specificityWeight: 2 }),
         }), { id: '#sheet#19', specificityWeight: 0 });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 :where(.wea7c).rule.rule.rule {
 padding-inline: 1rem;
@@ -1946,7 +1946,7 @@ overflow: auto;
             ], { specificityWeight: 3 }),
         }), { id: '#sheet#20', specificityWeight: 0 });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 :where(.chr9a) {
 background: pink;
@@ -1988,7 +1988,7 @@ overflow: auto;
             }),
         }), { id: '#sheet#bleh' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .rmnfx:hover, .rmnfx::backdrop {
 color: red;
@@ -2047,7 +2047,7 @@ overflow: auto;
             )
         ], { id: '#sheet#22' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .btn {
 background: pink;
@@ -2130,7 +2130,7 @@ justify-content: center;
             }),
         ], { id: '#sheet#23' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .navbar {
 display: grid;
@@ -2216,7 +2216,7 @@ flex: 0 0 auto !important;
             }),
         }), { id: '#sheet#22' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .btn {
 background: pink;
@@ -2299,7 +2299,7 @@ justify-content: center;
             )
         ], { id: '#sheet#24' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .btn {
 background: pink;
@@ -2375,7 +2375,7 @@ justify-content: center;
             }),
         ], { id: '#sheet#25' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .btn {
 background: pink;
@@ -2455,7 +2455,7 @@ justify-content: center;
             )
         ], { id: '#sheet#26' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 @media (min-width: 1024px) {
 .btn {
@@ -2531,7 +2531,7 @@ justify-content: center;
             }),
         ], { id: '#sheet#27' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 @media (min-width: 1024px) {
 .btn {
@@ -2610,7 +2610,7 @@ justify-content: center;
             }),
         }), { id: '#sheet#24' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .btn {
 background: pink;
@@ -2686,7 +2686,7 @@ justify-content: center;
             }),
         }), { id: '#sheet#26' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 @media (min-width: 1024px) {
 .btn {
@@ -2772,7 +2772,7 @@ justify-content: center;
             )
         ], { id: '#sheet#28' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .gw406.btn {
 background: pink;
@@ -2860,7 +2860,7 @@ justify-content: center;
             )
         ], { id: '#sheet#29' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .hfwlj.menu.btn {
 background: pink;
@@ -2924,7 +2924,7 @@ justify-content: center;
             )
         ], { id: '#sheet#30' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .tjdnh.menu.sub-menu {
 margin: 0;
@@ -2960,7 +2960,7 @@ display: block;
             )
         ], { id: '#sheet#31' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 @media (min-width: 1024px) {
 .u368u.menu.sub-menu>:is(div, .container) {
@@ -3011,7 +3011,7 @@ display: block;
             )
         ], { id: '#sheet#32' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .umyu7.btn {
 background: pink;
@@ -3075,7 +3075,7 @@ justify-content: center;
             )
         ], { id: '#sheet#33' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .v6rfk.btn {
 background: pink;
@@ -3127,7 +3127,7 @@ display: block;
             )
         ], { id: '#sheet#34' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .vqk0x.btn {
 background: pink;
@@ -3179,7 +3179,7 @@ display: block;
             )
         ], { id: '#sheet#35' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .wacma.btn {
 background: pink;
@@ -3227,7 +3227,7 @@ display: block;
             )
         ], { id: '#sheet#36' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .wu57n.btn {
 background: pink;
@@ -3290,7 +3290,7 @@ display: block;
             }),
         }), { id: '#sheet#28' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .gw406.btn {
 background: pink;
@@ -3374,7 +3374,7 @@ justify-content: center;
             }),
         }), { id: '#sheet#29' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .hfwlj.menu.btn {
 background: pink;
@@ -3434,7 +3434,7 @@ justify-content: center;
             }),
         }), { id: '#sheet#30' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .tjdnh.menu.sub-menu {
 margin: 0;
@@ -3466,7 +3466,7 @@ display: block;
             }),
         }), { id: '#sheet#31' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 @media (min-width: 1024px) {
 .u368u.menu.sub-menu>:is(div, .container) {
@@ -3513,7 +3513,7 @@ display: block;
             }),
         }), { id: '#sheet#32' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .umyu7.btn {
 background: pink;
@@ -3573,7 +3573,7 @@ justify-content: center;
             }),
         }), { id: '#sheet#33' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .v6rfk.btn {
 background: pink;
@@ -3621,7 +3621,7 @@ display: block;
             }),
         }), { id: '#sheet#34' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .vqk0x.btn {
 background: pink;
@@ -3669,7 +3669,7 @@ display: block;
             }),
         }), { id: '#sheet#35' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .wacma.btn {
 background: pink;
@@ -3713,7 +3713,7 @@ display: block;
             }),
         }), { id: '#sheet#36' });
         expect(render(lastStyleSheet!))
-        .toEqual(
+        .toBe(
 `
 .wu57n.btn {
 background: pink;
