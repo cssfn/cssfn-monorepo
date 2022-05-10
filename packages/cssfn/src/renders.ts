@@ -1,8 +1,16 @@
 // cssfn:
 import type {
-    // cssfn properties:
+    // css custom properties:
     CssCustomValue,
     
+    
+    
+    // css known (standard) properties:
+    CssKnownName,
+    
+    
+    
+    // cssfn properties:
     CssRule,
     
     CssStyle,
@@ -126,7 +134,7 @@ const combineSelector = (parentSelector: CssFinalSelector|null, nestedSelector: 
     return selectorsToString(combinedSelectors);
 };
 
-const shortProps: Record<string, string> = {
+const shortProps = new Map<string, CssKnownName>(Object.entries({
     foreg       : 'color',
     
     backg       : 'background',
@@ -139,7 +147,7 @@ const shortProps: Record<string, string> = {
     'gapY'      : 'rowGap',
     'gapInline' : 'columnGap',
     'gapBlock'  : 'rowGap',
-};
+}));
 
 
 
@@ -157,7 +165,7 @@ class RenderRule {
         
         
         
-        const unshortPropName         : string       = shortProps[propName] ?? propName;
+        const unshortPropName         : string       = shortProps.get(propName) ?? propName;
         const camelCasedPropName      : string       = hyphenate(unshortPropName);
         const browserSpecificPropName : string|false = supportedProperty(camelCasedPropName);
         return (
