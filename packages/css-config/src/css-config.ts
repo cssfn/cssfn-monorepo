@@ -574,16 +574,18 @@ class TransformCssConfigFactoryDuplicatesBuilder<TConfigProps extends CssConfigP
     protected _onCombineModified(modified: (Map<keyof TConfigProps, Exclude<ValueOf<TConfigProps>, undefined|null>|CssCustomValue> & CssRuleMap)) {
         return modified;
     }
-    
-    get result() {
-        return super.result as CssConfigPropsMap|null
-    }
     //#endregion overrides
     
     
     
     constructor(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, options: LiveCssConfigOptions) {
         super(srcProps, srcProps, new Map<string, string>(), options);
+    }
+    
+    
+    
+    get props() {
+        return this.result as CssConfigPropsMap|null
     }
 }
 
@@ -668,7 +670,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             
             // convert propsMap to cssCustomPropsMap:
             const cssCustomPropsMap : CssConfigPropsMap = (
-                (new TransformCssConfigFactoryDuplicatesBuilder<TConfigProps>(propsMap, this.#options)).result
+                (new TransformCssConfigFactoryDuplicatesBuilder<TConfigProps>(propsMap, this.#options)).props
                 ??
                 propsMap as CssConfigPropsMap
             );
