@@ -452,7 +452,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                     
                     
                     
-                    const equalNestedStyle = (new TransformDuplicatesBuilder<keyof CssStyle, ValueOf<CssStyle>, TRefPropName, TRefPropValue>(srcNestedStyle, refProps, genKeyframes, options)).result;
+                    const equalNestedStyle = (new TransformDuplicatesBuilder<keyof CssStyle, ValueOf<CssStyle>, TRefPropName, TRefPropValue>(srcNestedStyle, refProps, genKeyframes, options)).result as (CssStyleMap|null);
                     if (equalNestedStyle) {
                         // convert the Map back to style:
                         const srcNestedStyle = Object.fromEntries(equalNestedStyle) as CssStyle;
