@@ -546,7 +546,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     }
 }
 class TransformArrayDuplicatesBuilder<TArray extends Array<any>,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|undefined|null>
-    extends TransformDuplicatesBuilder<number, TArray[number],   TRefPropName, TRefPropValue> {
+    extends TransformDuplicatesBuilder<number, TArray[number],   TRefPropName, TRefPropValue>
+{
     get array() {
         const result = this.result;
         if (!result) return null;
@@ -554,14 +555,17 @@ class TransformArrayDuplicatesBuilder<TArray extends Array<any>,   TRefPropName 
     }
 }
 class TransformCssStyleDuplicatesBuilder<TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|undefined|null>
-    extends TransformDuplicatesBuilder<keyof CssStyle, ValueOf<CssStyle>,   TRefPropName, TRefPropValue> {
+    extends TransformDuplicatesBuilder<keyof CssStyle, ValueOf<CssStyle>,   TRefPropName, TRefPropValue>
+{
     get style() {
         const result = this.result as (CssStyleMap|null);
         if (!result) return null;
         return Object.fromEntries(result) as unknown as CssStyle;
     }
 }
-class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> extends TransformDuplicatesBuilder<keyof TConfigProps, ValueOf<TConfigProps>, keyof TConfigProps, ValueOf<TConfigProps>> {
+class TransformCssConfigFactoryDuplicatesBuilder<TConfigProps extends CssConfigProps>
+    extends TransformDuplicatesBuilder<keyof TConfigProps, ValueOf<TConfigProps>, keyof TConfigProps, ValueOf<TConfigProps>>
+{
     //#region overrides
     protected _onCreatePropName<TTSrcPropName extends keyof TConfigProps|symbol>(srcPropName: TTSrcPropName): TTSrcPropName {
         if (typeof(srcPropName) !== 'string') return srcPropName; // no change for symbol props
@@ -664,7 +668,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             
             // convert propsMap to cssCustomPropsMap:
             const cssCustomPropsMap : CssConfigPropsMap = (
-                (new TransformCssConfigDuplicatesBuilder<TConfigProps>(propsMap, this.#options)).result
+                (new TransformCssConfigFactoryDuplicatesBuilder<TConfigProps>(propsMap, this.#options)).result
                 ??
                 propsMap as CssConfigPropsMap
             );
