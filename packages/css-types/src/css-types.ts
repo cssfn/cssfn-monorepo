@@ -4,7 +4,7 @@ import type {
     SingleOrDeepArray,
     ProductOrFactoryOrDeepArray,
     
-    Nullable,
+    PartialNullish,
     
     MapOf,
 }                           from '@cssfn/types'
@@ -66,7 +66,7 @@ export type CssCustomRef          =
 
 export type CssCustomValue        = CssComplexValueOf<CssSimpleValue>
 
-export type CssCustomProps = Nullable<{
+export type CssCustomProps = PartialNullish<{
     [name: CssCustomName     ] : CssCustomValue
     [name: CssCustomSimpleRef] : CssCustomValue
 }>
@@ -87,7 +87,7 @@ export type CssKnownValueOf
 
 
 
-export type CssKnownPropsOf<TName extends CssKnownName, multiValue extends boolean = false> = Nullable<Pick<{
+export type CssKnownPropsOf<TName extends CssKnownName, multiValue extends boolean = false> = PartialNullish<Pick<{
     [name in keyof CssKnownBaseProps] ?: multiValue extends false ? CssComplexSingleValueOf<CssKnownValueOf<name>> : CssComplexValueOf<CssKnownValueOf<name>>
 }, TName>>
 
@@ -122,7 +122,7 @@ export type CssLonghandFontFaceProps =
         | 'fontSizeAdjust'
     , true>
     
-    & Nullable<{
+    & PartialNullish<{
         // additional required props:
         // forced to optional ( ?: ) because it may spreaded in partial style(s)
         src             ?: CssComplexValueOf<CssSimpleLiteralValue|`url(${string})`>
