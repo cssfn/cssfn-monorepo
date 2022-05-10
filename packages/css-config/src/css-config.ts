@@ -2,7 +2,8 @@
 import type {
     ProductOrFactory,
     
-    Nullable,
+    PartialNullish,
+    RequiredNotNullish,
     
     ValueOf,
     
@@ -61,13 +62,13 @@ import {
 
 // general types:
 export type CssConfigProps =
-    & Nullable<{
+    & PartialNullish<{
         [name: string] : CssCustomValue
     }>
     & CssKeyframesRule
     & CssProps // for better js doc
 type CssConfigPropsMap =
-    & MapOf<Nullable<{
+    & MapOf<PartialNullish<{
         [name: string] : CssCustomValue
     }>>
     & CssKeyframesRuleMap
@@ -568,7 +569,7 @@ class TransformCssConfigDuplicatesBuilder<TConfigProps extends CssConfigProps> e
     }
     
     get result() {
-        return super.result as (CssCustomPropsMap & CssKeyframesRuleMap) | null
+        return super.result as (MapOf<RequiredNotNullish<CssCustomProps>> & CssKeyframesRuleMap) | null
     }
     //#endregion overrides
     
@@ -661,7 +662,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      *    animation   : [[ '100ms', 'ease', 'navb-fly-away' ]],
      * };  
      */
-    #genProps = new Map() as (CssCustomPropsMap & CssKeyframesRuleMap); // create a blank generated props collection
+    #genProps = new Map() as (MapOf<RequiredNotNullish<CssCustomProps>> & CssKeyframesRuleMap); // create a blank generated props collection
     
     /**
      * The *generated css* attached on dom (by default).
@@ -696,7 +697,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         this.#genProps = (
             (new TransformCssConfigDuplicatesBuilder<TConfigProps>(props, genKeyframes, this.#options)).result
             ??
-            (props as (CssCustomPropsMap & CssKeyframesRuleMap))
+            (props as (MapOf<RequiredNotNullish<CssCustomProps>> & CssKeyframesRuleMap))
         );
         //#endregion transform the `props`
         
