@@ -68,7 +68,7 @@ const asyncExecute = (
     (callback: () => void): void => {
         Promise.resolve().then(callback);
     }
-) 
+);
 
 
 
