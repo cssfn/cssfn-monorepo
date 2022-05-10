@@ -61,7 +61,7 @@ import {
 
 // utilities:
 const asyncExecute = (
-    (typeof(requestAnimationFrame) !== 'undefined')
+    (typeof(requestAnimationFrame) === 'function')
     ?
     requestAnimationFrame
     :
