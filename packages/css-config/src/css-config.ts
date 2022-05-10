@@ -954,7 +954,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
 /**
  * A configurable css variables (css custom properties).  
  */
-const createCssConfig = <TConfigProps extends CssConfigProps>(initialProps: ProductOrFactory<TConfigProps>, options?: CssConfigOptions): CssConfig<TConfigProps> => {
+const cssConfig = <TConfigProps extends CssConfigProps>(initialProps: ProductOrFactory<TConfigProps>, options?: CssConfigOptions): CssConfig<TConfigProps> => {
     const cssConfig = new CssConfigBuilder<TConfigProps>(initialProps, options);
     return [
         cssConfig.refs,
@@ -963,4 +963,4 @@ const createCssConfig = <TConfigProps extends CssConfigProps>(initialProps: Prod
         cssConfig.options,
     ];
 }
-export { createCssConfig, createCssConfig as default }
+export { cssConfig, cssConfig as default }
