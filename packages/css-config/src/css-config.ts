@@ -190,6 +190,15 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     
     //#region private utility methods
     /**
+     * Creates the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
+     * @param propName The prop name to create.
+     * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName`.
+     */
+    #createRef(propName: string): CssCustomSimpleRef {
+        return `var(${this._createDecl(propName)})`;
+    }
+    
+    /**
      * Creates the name of `@keyframes` rule.
      * @param basicKeyframesName The basic name of `@keyframes` rule to create.
      * @returns A `string` represents the name of `@keyframes` rule.
@@ -317,7 +326,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             
             
             // comparing the `srcPropValue` & `refPropValue` deeply:
-            if (this.#isDeepEqual(srcPropValue, refPropValue)) return this._createRef(refPropName); // return the link to the ref
+            if (this.#isDeepEqual(srcPropValue, refPropValue)) return this.#createRef(refPropName); // return the link to the ref
         } // search for duplicates
         
         // not found:
@@ -351,15 +360,6 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     //#endregion private utility methods
     
     //#region protected utility methods
-    /**
-     * Creates the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
-     * @param propName The prop name to create.
-     * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName`.
-     */
-    protected _createRef(propName: string): CssCustomSimpleRef {
-        return `var(${this._createDecl(propName)})`;
-    }
-    
     /**
      * Creates the *declaration name* of the specified `propName`, eg: `--my-favColor`.
      * @param propName The prop name to create.
@@ -603,14 +603,6 @@ class TransformCssConfigFactoryDuplicatesBuilder<TConfigProps extends CssConfigP
 class TransformCssConfigDuplicatesBuilder
     extends TransformCssStyleDuplicatesBuilder<(keyof CssCustomProps)|symbol, CssCustomValue|CssKeyframesRule[symbol]>
 {
-    //#region overrides
-    _createRef(propName: string): CssCustomSimpleRef {
-        return `var(${propName as CssCustomName})`;
-    }
-    //#endregion overrides
-    
-    
-    
     constructor(configCustomProps: CssConfigCustomPropsMap, options: LiveCssConfigOptions) {
         super(configCustomProps, configCustomProps, new Map<string, string>(), options);
     }
