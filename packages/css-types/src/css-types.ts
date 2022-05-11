@@ -305,7 +305,7 @@ export type CssKnownValueOf
 
 
 export type CssKnownPropsOf<TName extends CssKnownName, multiValue extends boolean = false> = PartialNullish<Pick<{
-    [name in keyof CssKnownBaseExProps] ?: multiValue extends false ? CssComplexSingleValueOf<CssKnownValueOf<name>> : CssComplexValueOf<CssKnownValueOf<name>>
+    [name in keyof CssKnownBaseExProps] ?: multiValue extends false ? CssComplexSingleValueOf<CssKnownValueOf<name>|CssCustomKeyframesRef> : CssComplexValueOf<CssKnownValueOf<name>|CssCustomKeyframesRef>
 }, TName>>
 
 //#region css special properties
