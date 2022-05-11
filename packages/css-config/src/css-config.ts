@@ -166,9 +166,9 @@ const unusedObj = {};
  * @param propName The prop name to create.
  * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
  */
-const createDecl = (propName: string, options: LiveCssConfigOptions|null): CssCustomName => {
+const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomName => {
     // add double dash with prefix `--prefix-` or double dash without prefix `--`
-    return options?.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
+    return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
 }
 
 class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|CssRuleData|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|undefined|null> {
@@ -366,6 +366,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
      */
     protected _createDecl(propName: string): CssCustomName {
+        if (this.#options === null) return propName as CssCustomName;
         return createDecl(propName, this.#options);
     }
     //#endregion protected utility methods
@@ -603,14 +604,6 @@ class TransformCssConfigFactoryDuplicatesBuilder<TConfigProps extends CssConfigP
 class TransformCssConfigDuplicatesBuilder
     extends TransformCssStyleDuplicatesBuilder<(keyof CssCustomProps)|symbol, CssCustomValue|CssKeyframesRule[symbol]>
 {
-    //#region overrides
-    protected _createDecl(propName: string): CssCustomName {
-        return propName as CssCustomName;
-    }
-    //#endregion overrides
-    
-    
-    
     constructor(configCustomProps: CssConfigCustomPropsMap) {
         super(configCustomProps, configCustomProps, new Map<string, string>(), null);
     }
