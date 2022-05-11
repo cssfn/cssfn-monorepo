@@ -166,9 +166,9 @@ const unusedObj = {};
  * @param propName The prop name to create.
  * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
  */
-const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomName => {
+const createDecl = (propName: string, options: LiveCssConfigOptions|null): CssCustomName => {
     // add double dash with prefix `--prefix-` or double dash without prefix `--`
-    return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
+    return options?.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
 }
 
 class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|CssRuleData|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|undefined|null> {
@@ -176,7 +176,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
     readonly #genKeyframes : Map<string, string>
-    readonly #options      : LiveCssConfigOptions
+    readonly #options      : LiveCssConfigOptions|null
     //#endregion private properties
     
     //#region public properties
@@ -205,7 +205,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      */
     #createKeyframesName(basicKeyframesName: string): string {
         // add prefix `prefix-` or just a `basicKeyframesName`
-        return this.#options.prefix ? `${this.#options.prefix}-${basicKeyframesName}` : basicKeyframesName;
+        return this.#options?.prefix ? `${this.#options.prefix}-${basicKeyframesName}` : basicKeyframesName;
     }
     
     /**
@@ -398,7 +398,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param refProps     The `Map<TRefPropName, TRefPropValue>` object as the prop duplicate references.
      * @param genKeyframes The `Map<string, string>` object as a storage for the generated `@keyframes`.
      */
-    constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>, genKeyframes: Map<string, string>, options: LiveCssConfigOptions) {
+    constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>, genKeyframes: Map<string, string>, options: LiveCssConfigOptions|null) {
         this.#srcProps     = srcProps;
         this.#refProps     = refProps;
         this.#genKeyframes = genKeyframes;
@@ -590,7 +590,7 @@ class TransformCssConfigFactoryDuplicatesBuilder<TConfigProps extends CssConfigP
     
     
     
-    constructor(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, options: LiveCssConfigOptions) {
+    constructor(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, options: LiveCssConfigOptions|null) {
         super(srcProps, srcProps, new Map<string, string>(), options);
     }
     
@@ -603,8 +603,16 @@ class TransformCssConfigFactoryDuplicatesBuilder<TConfigProps extends CssConfigP
 class TransformCssConfigDuplicatesBuilder
     extends TransformCssStyleDuplicatesBuilder<(keyof CssCustomProps)|symbol, CssCustomValue|CssKeyframesRule[symbol]>
 {
-    constructor(configCustomProps: CssConfigCustomPropsMap, options: LiveCssConfigOptions) {
-        super(configCustomProps, configCustomProps, new Map<string, string>(), options);
+    //#region overrides
+    protected _createDecl(propName: string): CssCustomName {
+        return propName as CssCustomName;
+    }
+    //#endregion overrides
+    
+    
+    
+    constructor(configCustomProps: CssConfigCustomPropsMap) {
+        super(configCustomProps, configCustomProps, new Map<string, string>(), null);
     }
     
     
@@ -613,6 +621,8 @@ class TransformCssConfigDuplicatesBuilder
         return this.result as CssConfigCustomPropsMap|null
     }
 }
+
+
 
 class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     //#region private properties
@@ -747,7 +757,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     #rebuild() {
         //#region transform the `props`
         this.#genProps = (
-            (new TransformCssConfigDuplicatesBuilder(this.#props, this.#options)).props
+            (new TransformCssConfigDuplicatesBuilder(this.#props)).props
             ??
             this.#props
         );
@@ -960,8 +970,6 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     }
     //#endregion constructors
 }
-
-
 
 /**
  * A configurable css variables (css custom properties).  
