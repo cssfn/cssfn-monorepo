@@ -401,8 +401,8 @@ jest.isolateModules(() => {
     
     
     
-    //#region test properties
-    test(`cssConfig() # test props`, async () => {
+    //#region test @keyframes
+    test(`cssConfig() # test @keyframes`, async () => {
         let flyAwayRefObj : object|null = null;
         const [cssProps, cssVals] = cssConfig(() => {
             const [flyAwayRole, flyAwayRef] = keyframes({
@@ -411,7 +411,7 @@ jest.isolateModules(() => {
                     background : ['url(image1.png)', 'url(image2.png)'],
                 },
                 to: {
-                    color : '#ffffff',
+                    color      : '#ffffff',
                     background : ['url(image1b.png)', 'url(image2b.png)'],
                 },
             });
@@ -479,5 +479,114 @@ background: url(image1b.png), url(image2b.png);
             resolve();
         }, 0)});
     });
-    //#endregion test properties
+    
+    test(`cssConfig() # test @keyframes`, async () => {
+        let flyAwayRefObj   : object|null = null;
+        let bounchingRefObj : object|null = null;
+        const [cssProps, cssVals] = cssConfig(() => {
+            const [flyAwayRole, flyAwayRef] = keyframes({
+                from: {
+                    color      : '#ff0000',
+                    background : ['url(image1.png)', 'url(image2.png)'],
+                },
+                to: {
+                    color      : '#ffffff',
+                    background : ['url(image1b.png)', 'url(image2b.png)'],
+                },
+            });
+            flyAwayRefObj = flyAwayRef;
+            
+            const [bounchingRole, bounchingRef] = keyframes({
+                from: {
+                    color      : '#0000ff',
+                    padding     : [['10px', 0, '5px', '3%'], '!important'],
+                },
+                to: {
+                    color      : '#ff0000',
+                    padding     : [['1px', 0, '5px', '3%']],
+                },
+            });
+            bounchingRefObj = bounchingRef;
+            
+            return {
+                display     : 'grid',
+                colRed      : '#ff0000',
+                colBlue     : '#0000ff',
+                bdWidth     : '1px',
+                padding     : [['10px', 0, '5px', '3%'], '!important'],
+                fontFamily  : ['Arial', 'sans-serif', '!important'],
+                
+                ...flyAwayRole,
+                ...bounchingRole,
+                animation   : [[ '100ms', 'ease', flyAwayRef ]],
+                animation2  : [[ '100ms', 'ease', bounchingRef ]],
+            };
+        });
+        
+        await new Promise<void>((resolve) => { setTimeout(() => {
+            expect(render(lastStyleSheet!))
+            .toBe(
+`
+:root {
+--display: grid;
+--colRed: #ff0000;
+--colBlue: #0000ff;
+--bdWidth: 1px;
+--padding: 10px 0 5px 3% !important;
+--fontFamily: Arial, sans-serif !important;
+--animation: 100ms ease k2;
+--animation2: 100ms ease k3;
+}
+
+@keyframes k2 {
+from {
+color: var(--colRed);
+background: url(image1.png), url(image2.png);
+}
+
+to {
+color: #ffffff;
+background: url(image1b.png), url(image2b.png);
+}
+
+}
+
+@keyframes k3 {
+from {
+color: var(--colBlue);
+padding: var(--padding);
+}
+
+to {
+color: var(--colRed);
+padding: var(--bdWidth) 0 5px 3%;
+}
+
+}
+`
+            );
+            expect(cssProps.display)    .toBe('var(--display)'   );
+            expect(cssProps.colRed)     .toBe('var(--colRed)'    );
+            expect(cssProps.colBlue)    .toBe('var(--colBlue)'   );
+            expect(cssProps.bdWidth)    .toBe('var(--bdWidth)'   );
+            expect(cssProps.padding)    .toBe('var(--padding)'   );
+            expect(cssProps.fontFamily) .toBe('var(--fontFamily)');
+            expect(cssProps.animation)  .toBe('var(--animation)');
+            expect(cssProps.animation2) .toBe('var(--animation2)');
+            
+            expect(cssVals.display)    .toBe('grid'   );
+            expect(cssVals.colRed)     .toBe('#ff0000');
+            expect(cssVals.colBlue)    .toBe('#0000ff');
+            expect(cssVals.bdWidth)    .toBe('1px'    );
+            expect(cssVals.padding)    .toEqual([['10px', 0, '5px', '3%'], '!important']);
+            expect(cssVals.fontFamily) .toEqual(['Arial', 'sans-serif', '!important']);
+            expect(cssVals.animation)  .toEqual([[ '100ms', 'ease', flyAwayRefObj ]]);
+            expect(cssVals.animation2) .toEqual([[ '100ms', 'ease', bounchingRefObj ]]);
+            
+            
+            
+            resolve();
+        }, 0)});
+    });
+    //#endregion test @keyframes
 });
