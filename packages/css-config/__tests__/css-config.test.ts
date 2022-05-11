@@ -521,26 +521,26 @@ background: url(image1b.png), url(image2b.png);
                 animation   : [[ '100ms', 'ease', flyAwayRef ]],
                 animation2  : [[ '100ms', 'ease', bounchingRef ]],
             };
-        });
+        }, { prefix: 'navb' });
         
         await new Promise<void>((resolve) => { setTimeout(() => {
             expect(render(lastStyleSheet!))
             .toBe(
 `
 :root {
---display: grid;
---colRed: #ff0000;
---colBlue: #0000ff;
---bdWidth: 1px;
---padding: 10px 0 5px 3% !important;
---fontFamily: Arial, sans-serif !important;
---animation: 100ms ease k2;
---animation2: 100ms ease k3;
+--navb-display: grid;
+--navb-colRed: #ff0000;
+--navb-colBlue: #0000ff;
+--navb-bdWidth: 1px;
+--navb-padding: 10px 0 5px 3% !important;
+--navb-fontFamily: Arial, sans-serif !important;
+--navb-animation: 100ms ease k2;
+--navb-animation2: 100ms ease k3;
 }
 
 @keyframes k2 {
 from {
-color: var(--colRed);
+color: var(--navb-colRed);
 background: url(image1.png), url(image2.png);
 }
 
@@ -553,26 +553,26 @@ background: url(image1b.png), url(image2b.png);
 
 @keyframes k3 {
 from {
-color: var(--colBlue);
-padding: var(--padding);
+color: var(--navb-colBlue);
+padding: var(--navb-padding);
 }
 
 to {
-color: var(--colRed);
-padding: var(--bdWidth) 0 5px 3%;
+color: var(--navb-colRed);
+padding: var(--navb-bdWidth) 0 5px 3%;
 }
 
 }
 `
             );
-            expect(cssProps.display)    .toBe('var(--display)'   );
-            expect(cssProps.colRed)     .toBe('var(--colRed)'    );
-            expect(cssProps.colBlue)    .toBe('var(--colBlue)'   );
-            expect(cssProps.bdWidth)    .toBe('var(--bdWidth)'   );
-            expect(cssProps.padding)    .toBe('var(--padding)'   );
-            expect(cssProps.fontFamily) .toBe('var(--fontFamily)');
-            expect(cssProps.animation)  .toBe('var(--animation)');
-            expect(cssProps.animation2) .toBe('var(--animation2)');
+            expect(cssProps.display)    .toBe('var(--navb-display)'   );
+            expect(cssProps.colRed)     .toBe('var(--navb-colRed)'    );
+            expect(cssProps.colBlue)    .toBe('var(--navb-colBlue)'   );
+            expect(cssProps.bdWidth)    .toBe('var(--navb-bdWidth)'   );
+            expect(cssProps.padding)    .toBe('var(--navb-padding)'   );
+            expect(cssProps.fontFamily) .toBe('var(--navb-fontFamily)');
+            expect(cssProps.animation)  .toBe('var(--navb-animation)');
+            expect(cssProps.animation2) .toBe('var(--navb-animation2)');
             
             expect(cssVals.display)    .toBe('grid'   );
             expect(cssVals.colRed)     .toBe('#ff0000');
