@@ -271,7 +271,15 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         // both must be an array -or- both must not be an array:
-        if (Array.isArray(srcPropValue) !== Array.isArray(refPropValue)) return false;
+        const isArraySrcPropValue = Array.isArray(srcPropValue);
+        const isArrayRefPropValue = Array.isArray(refPropValue);
+        if (isArraySrcPropValue !== isArrayRefPropValue) return false;
+        
+        
+        
+        // if not an array => must be a literal object:
+        if (!isArraySrcPropValue && (Object.getPrototypeOf(srcPropValue) !== Object.prototype)) return false;
+        if (!isArrayRefPropValue && (Object.getPrototypeOf(refPropValue) !== Object.prototype)) return false;
         
         
         
