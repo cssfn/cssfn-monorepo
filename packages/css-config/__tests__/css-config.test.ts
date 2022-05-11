@@ -588,5 +588,116 @@ padding: var(--navb-bdWidth) 0 5px 3%;
             resolve();
         }, 0)});
     });
+    
+    test(`cssConfig() # test @keyframes`, async () => {
+        let flyAwayRefObj   : object|null = null;
+        let bounchingRefObj : object|null = null;
+        const [cssProps, cssVals] = cssConfig(() => {
+            const [flyAwayRole, flyAwayRef] = keyframes({
+                from: {
+                    color      : '#ff0000',
+                    background : ['url(image1.png)', 'url(image2.png)'],
+                },
+                to: {
+                    color      : '#ffffff',
+                    background : ['url(image1b.png)', 'url(image2b.png)'],
+                },
+            });
+            flyAwayRef.value = 'flyAway';
+            flyAwayRefObj = flyAwayRef;
+            
+            const [bounchingRole, bounchingRef] = keyframes({
+                from: {
+                    color      : '#0000ff',
+                    padding     : [['10px', 0, '5px', '3%'], '!important'],
+                },
+                to: {
+                    color      : '#ff0000',
+                    padding     : [['1px', 0, '5px', '3%']],
+                },
+            });
+            bounchingRef.value = 'bounching';
+            bounchingRefObj = bounchingRef;
+            
+            return {
+                display     : 'grid',
+                colRed      : '#ff0000',
+                colBlue     : '#0000ff',
+                bdWidth     : '1px',
+                padding     : [['10px', 0, '5px', '3%'], '!important'],
+                fontFamily  : ['Arial', 'sans-serif', '!important'],
+                
+                ...flyAwayRole,
+                ...bounchingRole,
+                animation   : [[ '100ms', 'ease', flyAwayRef ]],
+                animation2  : [[ '100ms', 'ease', bounchingRef ]],
+            };
+        }, { prefix: 'navb' });
+        
+        await new Promise<void>((resolve) => { setTimeout(() => {
+            expect(render(lastStyleSheet!))
+            .toBe(
+`
+:root {
+--navb-display: grid;
+--navb-colRed: #ff0000;
+--navb-colBlue: #0000ff;
+--navb-bdWidth: 1px;
+--navb-padding: 10px 0 5px 3% !important;
+--navb-fontFamily: Arial, sans-serif !important;
+--navb-animation: 100ms ease navb-flyAway;
+--navb-animation2: 100ms ease navb-bounching;
+}
+
+@keyframes navb-flyAway {
+from {
+color: var(--navb-colRed);
+background: url(image1.png), url(image2.png);
+}
+
+to {
+color: #ffffff;
+background: url(image1b.png), url(image2b.png);
+}
+
+}
+
+@keyframes navb-bounching {
+from {
+color: var(--navb-colBlue);
+padding: var(--navb-padding);
+}
+
+to {
+color: var(--navb-colRed);
+padding: var(--navb-bdWidth) 0 5px 3%;
+}
+
+}
+`
+            );
+            expect(cssProps.display)    .toBe('var(--navb-display)'   );
+            expect(cssProps.colRed)     .toBe('var(--navb-colRed)'    );
+            expect(cssProps.colBlue)    .toBe('var(--navb-colBlue)'   );
+            expect(cssProps.bdWidth)    .toBe('var(--navb-bdWidth)'   );
+            expect(cssProps.padding)    .toBe('var(--navb-padding)'   );
+            expect(cssProps.fontFamily) .toBe('var(--navb-fontFamily)');
+            expect(cssProps.animation)  .toBe('var(--navb-animation)');
+            expect(cssProps.animation2) .toBe('var(--navb-animation2)');
+            
+            expect(cssVals.display)    .toBe('grid'   );
+            expect(cssVals.colRed)     .toBe('#ff0000');
+            expect(cssVals.colBlue)    .toBe('#0000ff');
+            expect(cssVals.bdWidth)    .toBe('1px'    );
+            expect(cssVals.padding)    .toEqual([['10px', 0, '5px', '3%'], '!important']);
+            expect(cssVals.fontFamily) .toEqual(['Arial', 'sans-serif', '!important']);
+            expect(cssVals.animation)  .toEqual([[ '100ms', 'ease', flyAwayRefObj ]]);
+            expect(cssVals.animation2) .toEqual([[ '100ms', 'ease', bounchingRefObj ]]);
+            
+            
+            
+            resolve();
+        }, 0)});
+    });
     //#endregion test @keyframes
 });
