@@ -480,7 +480,7 @@ background: url(image1b.png), url(image2b.png);
         }, 0)});
     });
     
-    test(`cssConfig() # test @keyframes`, async () => {
+    test(`cssConfig() # test @keyframes + options`, async () => {
         let flyAwayRefObj   : object|null = null;
         let bounchingRefObj : object|null = null;
         const [cssProps, cssVals] = cssConfig(() => {
@@ -589,7 +589,7 @@ padding: var(--navb-bdWidth) 0 5px 3%;
         }, 0)});
     });
     
-    test(`cssConfig() # test @keyframes`, async () => {
+    test(`cssConfig() # test @keyframes + rename ref`, async () => {
         let flyAwayRefObj   : object|null = null;
         let bounchingRefObj : object|null = null;
         const [cssProps, cssVals] = cssConfig(() => {
