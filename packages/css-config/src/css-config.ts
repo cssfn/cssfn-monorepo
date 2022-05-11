@@ -175,7 +175,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
-    readonly #genKeyframes : Map<string, string>
+    readonly #genKeyframes : Map<string, string>|null
     readonly #options      : LiveCssConfigOptions|null
     //#endregion private properties
     
@@ -347,7 +347,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @returns `true` if found and updated, otherwise `false`.
      */
     #updateKeyframesRef(srcPropValue: TSrcPropValue): boolean {
-        if (!this.#genKeyframes.size) return false; // nothing to update
+        const genKeyframes = this.#genKeyframes;
+        if (!genKeyframes || !genKeyframes.size) return false; // nothing to update
         
         
         
@@ -355,7 +356,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             const keyframesRef = srcPropValue as CssCustomKeyframesRef;
             const oldkeyframesName = keyframesRef.value;
             if (oldkeyframesName) { // if not auto_name
-                const newKeyframesName = this.#genKeyframes.get(oldkeyframesName);
+                const newKeyframesName = genKeyframes.get(oldkeyframesName);
                 if (newKeyframesName) {
                     keyframesRef.value = newKeyframesName;
                     return true; // updated
@@ -407,7 +408,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param refProps     The `Map<TRefPropName, TRefPropValue>` object as the prop duplicate references.
      * @param genKeyframes The `Map<string, string>` object as a storage for the generated `@keyframes`.
      */
-    constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>, genKeyframes: Map<string, string>, options: LiveCssConfigOptions|null) {
+    constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>, genKeyframes: Map<string, string>|null, options: LiveCssConfigOptions|null) {
         this.#srcProps     = srcProps;
         this.#refProps     = refProps;
         this.#genKeyframes = genKeyframes;
@@ -419,34 +420,36 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         
-        for (const [srcPropName, srcPropValue] of this.#srcProps) {  // rename all @keyframes name
-            if (typeof(srcPropName) !== 'symbol')    continue;       // only interested of symbol props
-            const [selector, styles] = srcPropValue  as CssRuleData; // assumes the value of symbol prop always be `CssRuleData`
-            if (!isFinalSelector(selector))          continue;       // only interested of rendered selector
-            if (!selector.startsWith('@keyframes ')) continue;       // only interested of @keyframes rule selector
-            
-            
-            
-            const oldkeyframesName = selector.slice(11).trimStart();              // extract the name of @keyframes rule
-            const newKeyframesName = this.#createKeyframesName(oldkeyframesName); // rename the @keyframes rule
-            if (newKeyframesName === oldkeyframesName) continue;                  // no difference => skip
-            
-            
-            
-            // track the change of @keyframes name:
-            this.#genKeyframes.set(
-                oldkeyframesName,
-                newKeyframesName
-            );
-            
-            
-            
-            // store the modified `newKeyframesName`:
-            modified.set(
-                this._onCreatePropName(srcPropName),
-                [`@keyframes ${newKeyframesName}`, styles]
-            );
-        }  // rename all @keyframes name
+        if (genKeyframes) {
+            for (const [srcPropName, srcPropValue] of this.#srcProps) {  // rename all @keyframes name
+                if (typeof(srcPropName) !== 'symbol')    continue;       // only interested of symbol props
+                const [selector, styles] = srcPropValue  as CssRuleData; // assumes the value of symbol prop always be `CssRuleData`
+                if (!isFinalSelector(selector))          continue;       // only interested of rendered selector
+                if (!selector.startsWith('@keyframes ')) continue;       // only interested of @keyframes rule selector
+                
+                
+                
+                const oldkeyframesName = selector.slice(11).trimStart();              // extract the name of @keyframes rule
+                const newKeyframesName = this.#createKeyframesName(oldkeyframesName); // rename the @keyframes rule
+                if (newKeyframesName === oldkeyframesName) continue;                  // no difference => skip
+                
+                
+                
+                // track the change of @keyframes name:
+                genKeyframes.set(
+                    oldkeyframesName,
+                    newKeyframesName
+                );
+                
+                
+                
+                // store the modified `newKeyframesName`:
+                modified.set(
+                    this._onCreatePropName(srcPropName),
+                    [`@keyframes ${newKeyframesName}`, styles]
+                );
+            }  // rename all @keyframes name
+        } // if
         
         
         
@@ -492,7 +495,9 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             
             
             //#region re-link the @keyframes name
-            if (this.#updateKeyframesRef(srcPropValue)) continue; // if found & updated => mission done => continue walk to the next entry
+            if (genKeyframes) {
+                if (this.#updateKeyframesRef(srcPropValue)) continue; // if found & updated => mission done => continue walk to the next entry
+            } // if
             //#endregion re-link the @keyframes name
             
             
