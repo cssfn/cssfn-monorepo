@@ -255,17 +255,14 @@ export function keyframes(nameOrItems : string|CssKeyframes, items ?: CssKeyfram
     // second overloading:
     if (items !== undefined) throw TypeError();
     const keyframesRef = new CssCustomKeyframesRefImpl(null, (value) => {
-        (keyframesSelector as unknown as Array<any>)[0] = `@keyframes ${value}`;
+        (ruleData as unknown as Array<any>)[0] = `@keyframes ${value}`;
     });
-    const keyframesSelector : CssRawSelector = [
+    const ruleData : CssRuleData = [
         `@keyframes ${keyframesRef.toString()}`,
-        undefined,
+        createKeyframesRules(nameOrItems)
     ];
     const keyframesRule = {
-        [Symbol()] : [
-            keyframesSelector,
-            createKeyframesRules(nameOrItems)
-        ] as const,
+        [Symbol()] : ruleData,
     } as CssKeyframesRule;
     return [
         keyframesRule,
