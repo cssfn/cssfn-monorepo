@@ -346,7 +346,54 @@ jest.isolateModules(() => {
                 
                 
                 
-                resolve();
+                (cssVals as any).thickBorder = '4px';
+                setTimeout(() => {
+                    expect(render(lastStyleSheet!))
+                    .toBe(
+`
+:root {
+--navb-display: flex;
+--navb-colRed: #ff0000;
+--navb-colBlue: #0000ff;
+--navb-bdWidth: 1px;
+--navb-theTrap: !important;
+--navb-myFavFont: Arial;
+--navb-padding: 10px 0 5px 3% !important;
+--navb-fontFamily: var(--navb-myFavFont), var(--navb-myFavFont) !important;
+--navb-colFavorite: var(--navb-colBlue);
+--navb-theBorder: solid var(--navb-thickBorder) var(--navb-colRed);
+--navb-thickBorder: 4px;
+}
+`
+                    );
+                    expect(cssProps.display)     .toBe('var(--navb-display)'    );
+                    expect(cssProps.colRed)      .toBe('var(--navb-colRed)'     );
+                    expect(cssProps.colBlue)     .toBe('var(--navb-colBlue)'    );
+                    expect(cssProps.bdWidth)     .toBe('var(--navb-bdWidth)'    );
+                    expect(cssProps.theTrap)     .toBe('var(--navb-theTrap)'    );
+                    expect(cssProps.myFavFont)   .toBe('var(--navb-myFavFont)'  );
+                    expect(cssProps.padding)     .toBe('var(--navb-padding)'    );
+                    expect(cssProps.fontFamily)  .toBe('var(--navb-fontFamily)' );
+                    expect(cssProps.colFavorite) .toBe('var(--navb-colFavorite)');
+                    expect(cssProps.theBorder)   .toBe('var(--navb-theBorder)'  );
+                    expect((cssProps as any).thickBorder)   .toBe('var(--navb-thickBorder)'  );
+                    
+                    expect(cssVals.display)     .toBe('flex'      );
+                    expect(cssVals.colRed)      .toBe('#ff0000'   );
+                    expect(cssVals.colBlue)     .toBe('#0000ff'   );
+                    expect(cssVals.bdWidth)     .toBe('1px'       );
+                    expect(cssVals.theTrap)     .toBe('!important');
+                    expect(cssVals.myFavFont)   .toBe('Arial');
+                    expect(cssVals.padding)     .toEqual([['10px', 0, '5px', '3%'], '!important']);
+                    expect(cssVals.fontFamily)  .toEqual(['var(--navb-myFavFont)', 'var(--navb-myFavFont)', '!important']);
+                    expect(cssVals.colFavorite) .toBe('var(--navb-colBlue)');
+                    expect(cssVals.theBorder)   .toEqual([['solid', 'var(--navb-thickBorder)', 'var(--navb-colRed)']]);
+                    expect((cssVals as any).thickBorder)   .toBe('4px'  );
+                    
+                    
+                    
+                    resolve();
+                }, 0);
             }, 0);
         }, 0)});
     });
