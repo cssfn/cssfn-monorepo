@@ -365,7 +365,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param propName The prop name to create.
      * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
      */
-    _createDecl(propName: string): CssCustomName {
+    protected _createDecl(propName: string): CssCustomName {
         return createDecl(propName, this.#options);
     }
     //#endregion protected utility methods
