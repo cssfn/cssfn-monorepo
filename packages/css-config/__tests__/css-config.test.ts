@@ -305,6 +305,23 @@ jest.isolateModules(() => {
             cssVals.colFavorite = '#0000ff';
             cssVals.theBorder   = [['solid', '4px', '#ff0000']];
             setTimeout(() => {
+                expect(render(lastStyleSheet!))
+                .toBe(
+`
+:root {
+--navb-display: flex;
+--navb-colRed: #ff0000;
+--navb-colBlue: #0000ff;
+--navb-bdWidth: 1px;
+--navb-theTrap: !important;
+--navb-myFavFont: Arial;
+--navb-padding: 10px 0 5px 3% !important;
+--navb-fontFamily: var(--navb-myFavFont), var(--navb-myFavFont) !important;
+--navb-colFavorite: var(--navb-colBlue);
+--navb-theBorder: solid 4px var(--navb-colRed);
+}
+`
+                );
                 expect(cssProps.display)     .toBe('var(--navb-display)'    );
                 expect(cssProps.colRed)      .toBe('var(--navb-colRed)'     );
                 expect(cssProps.colBlue)     .toBe('var(--navb-colBlue)'    );
