@@ -424,7 +424,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         if (genKeyframes) {
             for (const [srcPropName, srcPropValue] of this.#srcProps) {  // rename all @keyframes name
                 if (typeof(srcPropName) !== 'symbol')    continue;       // only interested of symbol props
-                const [selector, styles] = srcPropValue  as CssRuleData; // assumes the value of symbol prop always be `CssRuleData`
+                const [selector] = srcPropValue          as CssRuleData; // assumes the value of symbol prop always be `CssRuleData`
                 if (!isFinalSelector(selector))          continue;       // only interested of rendered selector
                 if (!selector.startsWith('@keyframes ')) continue;       // only interested of @keyframes rule selector
                 
@@ -444,11 +444,16 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 
                 
                 
-                // store the modified `newKeyframesName`:
-                modified.set(
-                    this._onCreatePropName(srcPropName),
-                    [`@keyframes ${newKeyframesName}`, styles]
-                );
+                /*
+                    no need to store the modified `newKeyframesName`.
+                    assigning the `CssCustomKeyframesRef.value = newKeyframesName`
+                    will automatically update the `CssKeyframesRule`.
+                */
+                // // store the modified `newKeyframesName`:
+                // modified.set(
+                //     this._onCreatePropName(srcPropName),
+                //     [`@keyframes ${newKeyframesName}`, styles]
+                // );
             }  // rename all @keyframes name
         } // if
         
