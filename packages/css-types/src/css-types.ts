@@ -414,7 +414,7 @@ export type CssKeyframes               = {
 }
 export type CssKeyframesMap            = MapOf<CssKeyframes>
 export type CssKeyframesRule           = CssRule & {
-    [name: symbol] : readonly [(`@keyframes ${string}`|[`@keyframes ${string}`, undefined]), CssRuleCollection]
+    [name: symbol] : readonly [`@keyframes ${string}`, CssRuleCollection]
 }
 export type CssKeyframesRuleMap        = MapOf<CssKeyframesRule>
 
