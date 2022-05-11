@@ -94,7 +94,7 @@ jest.isolateModules(() => {
                 colBlue     : '#0000ff',
                 bdWidth     : '1px',
                 padding     : [['10px', 0, '5px', '3%'], '!important'],
-                fontFamily: ['Arial', 'sans-serif', '!important'],
+                fontFamily  : ['Arial', 'sans-serif', '!important'],
             };
         });
         
@@ -129,6 +129,208 @@ jest.isolateModules(() => {
             
             
             resolve();
+        }, 0)});
+    });
+    
+    test(`cssConfig() # test options`, async () => {
+        const [cssProps, cssVals] = cssConfig(() => {
+            return {
+                display     : 'grid',
+                colRed      : '#ff0000',
+                colBlue     : '#0000ff',
+                bdWidth     : '1px',
+                padding     : [['10px', 0, '5px', '3%'], '!important'],
+                fontFamily  : ['Arial', 'sans-serif', '!important'],
+            };
+        }, { prefix: 'navb', selector: '.navbar' });
+        
+        await new Promise<void>((resolve) => { setTimeout(() => {
+            expect(render(lastStyleSheet!))
+            .toBe(
+`
+.navbar {
+--navb-display: grid;
+--navb-colRed: #ff0000;
+--navb-colBlue: #0000ff;
+--navb-bdWidth: 1px;
+--navb-padding: 10px 0 5px 3% !important;
+--navb-fontFamily: Arial, sans-serif !important;
+}
+`
+            );
+            expect(cssProps.display)    .toBe('var(--navb-display)'   );
+            expect(cssProps.colRed)     .toBe('var(--navb-colRed)'    );
+            expect(cssProps.colBlue)    .toBe('var(--navb-colBlue)'   );
+            expect(cssProps.bdWidth)    .toBe('var(--navb-bdWidth)'   );
+            expect(cssProps.padding)    .toBe('var(--navb-padding)'   );
+            expect(cssProps.fontFamily) .toBe('var(--navb-fontFamily)');
+            
+            expect(cssVals.display)    .toBe('grid'   );
+            expect(cssVals.colRed)     .toBe('#ff0000');
+            expect(cssVals.colBlue)    .toBe('#0000ff');
+            expect(cssVals.bdWidth)    .toBe('1px'    );
+            expect(cssVals.padding)    .toEqual([['10px', 0, '5px', '3%'], '!important']);
+            expect(cssVals.fontFamily) .toEqual(['Arial', 'sans-serif', '!important']);
+            
+            
+            
+            resolve();
+        }, 0)});
+    });
+    
+    test(`cssConfig() # test linking props`, async () => {
+        const [cssProps, cssVals] = cssConfig(() => {
+            return {
+                display     : 'grid',
+                colRed      : '#ff0000',
+                colBlue     : '#0000ff',
+                bdWidth     : '1px',
+                theTrap     : '!important',
+                myFavFont   : 'sans-serif',
+                padding     : [['10px', 0, '5px', '3%'], '!important'],
+                fontFamily  : ['Arial', 'sans-serif', '!important'],
+                
+                colFavorite : '#ff0000',
+                theBorder   : [[ 'solid', '1px', '#0000ff' ]],
+            };
+        }, { prefix: 'navb' });
+        
+        await new Promise<void>((resolve) => { setTimeout(() => {
+            expect(render(lastStyleSheet!))
+            .toBe(
+`
+:root {
+--navb-display: grid;
+--navb-colRed: #ff0000;
+--navb-colBlue: #0000ff;
+--navb-bdWidth: 1px;
+--navb-theTrap: !important;
+--navb-myFavFont: sans-serif;
+--navb-padding: 10px 0 5px 3% !important;
+--navb-fontFamily: Arial, var(--navb-myFavFont) !important;
+--navb-colFavorite: var(--navb-colRed);
+--navb-theBorder: solid var(--navb-bdWidth) var(--navb-colBlue);
+}
+`
+            );
+            expect(cssProps.display)     .toBe('var(--navb-display)'    );
+            expect(cssProps.colRed)      .toBe('var(--navb-colRed)'     );
+            expect(cssProps.colBlue)     .toBe('var(--navb-colBlue)'    );
+            expect(cssProps.bdWidth)     .toBe('var(--navb-bdWidth)'    );
+            expect(cssProps.theTrap)     .toBe('var(--navb-theTrap)'    );
+            expect(cssProps.myFavFont)   .toBe('var(--navb-myFavFont)'  );
+            expect(cssProps.padding)     .toBe('var(--navb-padding)'    );
+            expect(cssProps.fontFamily)  .toBe('var(--navb-fontFamily)' );
+            expect(cssProps.colFavorite) .toBe('var(--navb-colFavorite)');
+            expect(cssProps.theBorder)   .toBe('var(--navb-theBorder)'  );
+            
+            expect(cssVals.display)     .toBe('grid'      );
+            expect(cssVals.colRed)      .toBe('#ff0000'   );
+            expect(cssVals.colBlue)     .toBe('#0000ff'   );
+            expect(cssVals.bdWidth)     .toBe('1px'       );
+            expect(cssVals.theTrap)     .toBe('!important');
+            expect(cssVals.myFavFont)   .toBe('sans-serif');
+            expect(cssVals.padding)     .toEqual([['10px', 0, '5px', '3%'], '!important']);
+            expect(cssVals.fontFamily)  .toEqual(['Arial', 'var(--navb-myFavFont)', '!important']);
+            expect(cssVals.colFavorite) .toBe('var(--navb-colRed)');
+            expect(cssVals.theBorder)   .toEqual([['solid', 'var(--navb-bdWidth)', 'var(--navb-colBlue)']]);
+            
+            
+            
+            resolve();
+        }, 0)});
+    });
+    
+    test(`cssConfig() # test linking props`, async () => {
+        const [cssProps, cssVals] = cssConfig(() => {
+            return {
+                display     : 'grid',
+                colRed      : '#ff0000',
+                colBlue     : '#0000ff',
+                bdWidth     : '1px',
+                theTrap     : '!important',
+                myFavFont   : 'sans-serif',
+                padding     : [['10px', 0, '5px', '3%'], '!important'],
+                fontFamily  : ['Arial', 'sans-serif', '!important'],
+                
+                colFavorite : '#ff0000',
+                theBorder   : [[ 'solid', '1px', '#0000ff' ]],
+            };
+        }, { prefix: 'navb' });
+        
+        await new Promise<void>((resolve) => { setTimeout(() => {
+            expect(render(lastStyleSheet!))
+            .toBe(
+`
+:root {
+--navb-display: grid;
+--navb-colRed: #ff0000;
+--navb-colBlue: #0000ff;
+--navb-bdWidth: 1px;
+--navb-theTrap: !important;
+--navb-myFavFont: sans-serif;
+--navb-padding: 10px 0 5px 3% !important;
+--navb-fontFamily: Arial, var(--navb-myFavFont) !important;
+--navb-colFavorite: var(--navb-colRed);
+--navb-theBorder: solid var(--navb-bdWidth) var(--navb-colBlue);
+}
+`
+            );
+            expect(cssProps.display)     .toBe('var(--navb-display)'    );
+            expect(cssProps.colRed)      .toBe('var(--navb-colRed)'     );
+            expect(cssProps.colBlue)     .toBe('var(--navb-colBlue)'    );
+            expect(cssProps.bdWidth)     .toBe('var(--navb-bdWidth)'    );
+            expect(cssProps.theTrap)     .toBe('var(--navb-theTrap)'    );
+            expect(cssProps.myFavFont)   .toBe('var(--navb-myFavFont)'  );
+            expect(cssProps.padding)     .toBe('var(--navb-padding)'    );
+            expect(cssProps.fontFamily)  .toBe('var(--navb-fontFamily)' );
+            expect(cssProps.colFavorite) .toBe('var(--navb-colFavorite)');
+            expect(cssProps.theBorder)   .toBe('var(--navb-theBorder)'  );
+            
+            expect(cssVals.display)     .toBe('grid'      );
+            expect(cssVals.colRed)      .toBe('#ff0000'   );
+            expect(cssVals.colBlue)     .toBe('#0000ff'   );
+            expect(cssVals.bdWidth)     .toBe('1px'       );
+            expect(cssVals.theTrap)     .toBe('!important');
+            expect(cssVals.myFavFont)   .toBe('sans-serif');
+            expect(cssVals.padding)     .toEqual([['10px', 0, '5px', '3%'], '!important']);
+            expect(cssVals.fontFamily)  .toEqual(['Arial', 'var(--navb-myFavFont)', '!important']);
+            expect(cssVals.colFavorite) .toBe('var(--navb-colRed)');
+            expect(cssVals.theBorder)   .toEqual([['solid', 'var(--navb-bdWidth)', 'var(--navb-colBlue)']]);
+            
+            
+            
+            cssVals.display     = 'flex';
+            cssVals.myFavFont   = 'Arial';
+            cssVals.colFavorite = '#0000ff';
+            cssVals.theBorder   = [['solid', '4px', '#ff0000']];
+            setTimeout(() => {
+                expect(cssProps.display)     .toBe('var(--navb-display)'    );
+                expect(cssProps.colRed)      .toBe('var(--navb-colRed)'     );
+                expect(cssProps.colBlue)     .toBe('var(--navb-colBlue)'    );
+                expect(cssProps.bdWidth)     .toBe('var(--navb-bdWidth)'    );
+                expect(cssProps.theTrap)     .toBe('var(--navb-theTrap)'    );
+                expect(cssProps.myFavFont)   .toBe('var(--navb-myFavFont)'  );
+                expect(cssProps.padding)     .toBe('var(--navb-padding)'    );
+                expect(cssProps.fontFamily)  .toBe('var(--navb-fontFamily)' );
+                expect(cssProps.colFavorite) .toBe('var(--navb-colFavorite)');
+                expect(cssProps.theBorder)   .toBe('var(--navb-theBorder)'  );
+                
+                expect(cssVals.display)     .toBe('flex'      );
+                expect(cssVals.colRed)      .toBe('#ff0000'   );
+                expect(cssVals.colBlue)     .toBe('#0000ff'   );
+                expect(cssVals.bdWidth)     .toBe('1px'       );
+                expect(cssVals.theTrap)     .toBe('!important');
+                expect(cssVals.myFavFont)   .toBe('Arial');
+                expect(cssVals.padding)     .toEqual([['10px', 0, '5px', '3%'], '!important']);
+                expect(cssVals.fontFamily)  .toEqual(['var(--navb-myFavFont)', 'var(--navb-myFavFont)', '!important']);
+                expect(cssVals.colFavorite) .toBe('var(--navb-colBlue)');
+                expect(cssVals.theBorder)   .toEqual([['solid', '4px', 'var(--navb-colRed)']]);
+                
+                
+                
+                resolve();
+            }, 0);
         }, 0)});
     });
     //#endregion test properties
