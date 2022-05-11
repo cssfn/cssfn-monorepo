@@ -422,19 +422,12 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         for (const [srcPropName, srcPropValue] of this.#srcProps) {  // rename all @keyframes name
             if (typeof(srcPropName) !== 'symbol')    continue;       // only interested of symbol props
             const [selector, styles] = srcPropValue  as CssRuleData; // assumes the value of symbol prop always be `CssRuleData`
-            const selectorName = (
-                isFinalSelector(selector)
-                ?
-                selector    // CssFinalSelector
-                :
-                selector[0] // CssSelectorCollection
-            );
-            if (!selectorName || (typeof(selectorName) !== 'string')) continue; // only interested of @keyframes rule selector
-            if (!selectorName.startsWith('@keyframes ')) continue;              // only interested of @keyframes rule selector
+            if (!isFinalSelector(selector))          continue;       // only interested of rendered selector
+            if (!selector.startsWith('@keyframes ')) continue;       // only interested of @keyframes rule selector
             
             
             
-            const oldkeyframesName = selectorName.slice(11).trimStart();          // extract the name of @keyframes rule
+            const oldkeyframesName = selector.slice(11).trimStart();              // extract the name of @keyframes rule
             const newKeyframesName = this.#createKeyframesName(oldkeyframesName); // rename the @keyframes rule
             if (newKeyframesName === oldkeyframesName) continue;                  // no difference => skip
             
