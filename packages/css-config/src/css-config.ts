@@ -619,7 +619,7 @@ class TransformCssConfigDuplicatesBuilder
     extends TransformCssStyleDuplicatesBuilder<(keyof CssCustomProps)|symbol, CssCustomValue|CssKeyframesRule[symbol]>
 {
     constructor(configCustomProps: CssConfigCustomPropsMap) {
-        super(configCustomProps, configCustomProps, new Map<string, string>(), null);
+        super(configCustomProps, configCustomProps, null, null);
     }
     
     
