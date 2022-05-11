@@ -185,14 +185,16 @@ export const states   = (states  : CssRuleCollection, options?: CssSelectorOptio
 const globalAutoKeyframesIdRegistry = new Map<CssCustomKeyframesRefImpl, string>(); // should not be added on server side
 class CssCustomKeyframesRefImpl implements CssCustomKeyframesRef {
     //#region private properties
-    #value: string|null;
+    #value         : string|null;
+    #onValueChange : (value: string) => void
     //#endregion private properties
     
     
     
     //#region constructors
-    constructor(value: string|null = null) {
+    constructor(value: string|null, onValueChange: (value: string) => void) {
         this.#value = value || null; // non_empty_string or null
+        this.#onValueChange = onValueChange;
     }
     //#endregion constructors
     
@@ -203,7 +205,13 @@ class CssCustomKeyframesRefImpl implements CssCustomKeyframesRef {
         return this.#value;
     }
     set value(value: string|null) {
-        this.#value = value || null; // non_empty_string or null
+        const newValue = value || null; // non_empty_string or null
+        if (this.#value === newValue) return;
+        this.#value = newValue;
+        
+        
+        
+        this.#onValueChange(this.toString());
     }
     //#endregion public properties
     
@@ -239,29 +247,42 @@ export function keyframes(nameOrItems : string|CssKeyframes, items ?: CssKeyfram
     if (typeof(nameOrItems) === 'string') {
         if (items === undefined) throw TypeError();
         
-        return atRule(`@keyframes ${nameOrItems}`, (Object.fromEntries(
-            Object.entries(items)
-            .map(([key, frame]): readonly [symbol, CssRuleData] => [
-                Symbol(),
-                [
-                    ` ${key}`, // add a single space as PropRule token
-                    frame
-                ]
-            ])
-        ) as CssRuleCollection)) as CssKeyframesRule;
+        return atRule(`@keyframes ${nameOrItems}`, createKeyframesRules(items)) as CssKeyframesRule;
     } // if
     
     
     
     // second overloading:
     if (items !== undefined) throw TypeError();
-    const keyframesRef = new CssCustomKeyframesRefImpl();
-    const keyframesRule = keyframes(keyframesRef.toString(), nameOrItems);
+    const keyframesRef = new CssCustomKeyframesRefImpl(null, (value) => {
+        (keyframesSelector as unknown as Array<any>)[0] = `@keyframes ${value}`;
+    });
+    const keyframesSelector : CssRawSelector = [
+        `@keyframes ${keyframesRef.toString()}`,
+        undefined,
+    ];
+    const keyframesRule = {
+        [Symbol()] : [
+            keyframesSelector,
+            createKeyframesRules(nameOrItems)
+        ] as const,
+    } as CssKeyframesRule;
     return [
         keyframesRule,
         keyframesRef,
     ];
 }
+const createKeyframesRules = (items: CssKeyframes): CssRuleCollection => Object.fromEntries(
+    Object.entries(items)
+    .map(([key, frame]): readonly [symbol, CssRuleData] => [
+        Symbol(),
+        [
+            ` ${key}`, // add a single space as PropRule token
+            frame
+        ]
+    ])
+) as CssRuleCollection
+
 
 
 // rule shortcuts:
