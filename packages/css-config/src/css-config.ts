@@ -409,6 +409,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param genKeyframes The `Map<string, string>` object as a storage for the generated `@keyframes`.
      */
     constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>, genKeyframes: Map<string, string>|null, options: LiveCssConfigOptions|null) {
+        if (!options?.prefix) genKeyframes = null; // no prefix modifier => no need to mutate the @keyframes names
         this.#srcProps     = srcProps;
         this.#refProps     = refProps;
         this.#genKeyframes = genKeyframes;
