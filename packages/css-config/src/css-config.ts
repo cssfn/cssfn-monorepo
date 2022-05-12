@@ -1154,77 +1154,17 @@ export const usesSuffixedProps = <TConfigProps extends CssConfigProps>(cssProps:
 }
 
 /**
- * Backups the values of the specified `cssProps`.
- * @param cssProps The css vars to be backed up.
- * @param backupSuff The suffix name of the backup's props.
- * @returns A new `CssCustomProps` object which is the copy of the specified `cssProps` that the props names was suffixed by `backupSuff`.  
- * eg:  
- * --com-backgBak     : var(--com-backg)  
- * --com-boxShadowBak : var(--com-boxShadow)
+ * Overwrites props declarations from the specified `cssSourceProps` (source) to the specified `cssTargetProps` (target).
+ * @param cssTargetProps The css vars to be overwritten (target).
+ * @param cssSourceProps The css vars for overwritting (source).
+ * @returns A new `CssProps` object which is the copy of the specified `cssSourceProps` which overwrites the specified `cssTargetProps`.
  */
-export const backupProps = (cssProps: CssCustomProps, backupSuff: string = 'Bak'): CssCustomProps => {
-    backupSuff = pascalCase(backupSuff);
-    const result: CssCustomProps = {};
-    for (const propName in cssProps) {
-        result[`${propName}${backupSuff}` as CssCustomName] = `var(${propName})`;
-    } // for
-    return result;
-}
-
-/**
- * Restores the values of the specified `cssProps`.
- * @param cssProps The css vars to be restored.
- * @param backupSuff The suffix name of the backup's props.
- * @returns A new `CssCustomProps` object which is the copy of the specified `cssProps` that the props names was un-suffixed by `backupSuff`.  
- * eg:  
- * --com-backg     : var(--com-backgBak)  
- * --com-boxShadow : var(--com-boxShadowBak)
- */
-export const restoreProps = (cssProps: CssCustomProps, backupSuff: string = 'Bak'): CssCustomProps => {
-    const result: CssCustomProps = {};
-    for (const propName in cssProps) {
-        result[propName as CssCustomName] = `var(${propName}${backupSuff})`;
-    } // for
-    return result;
-}
-
-/**
- * Overwrites prop declarations from the specified `cssProps` (source) to the specified `cssDecls` (target).
- * @param cssDecls The collection of the css vars to be overwritten (target).
- * @param cssProps The collection of the css vars for overwritting (source).
- * @returns A new `CssProps` object which is the copy of the specified `cssProps` that overwrites to the specified `cssDecls`.
- */
-export const overwriteProps = <TProps extends {}>(cssDecls: Decls<TProps>, cssProps: Refs<{}>): CssProps => {
+export const overwriteProps = <TConfigProps extends CssConfigProps>(cssTargetProps: Refs<TConfigProps>, cssSourceProps: Refs<TConfigProps>): CssProps => {
     const result: CssProps = {};
-    for (const [propName, propValue] of Object.entries(cssProps)) {
-        const targetPropName = (cssDecls as DictionaryOf<typeof cssDecls>)[propName];
-        if (!targetPropName) continue; // target prop not found => skip
+    for (const srcPropName in cssSourceProps) {
+        if (!(srcPropName in cssTargetProps)) continue; // only in source but not found in target => useless => ignore
         
-        result[targetPropName] = (propValue as Cust.Ref);
+        result[srcPropName as any] = cssSourceProps[srcPropName];
     } // for
-    return result;
-}
-
-/**
- * Overwrites prop declarations from the specified `cssProps` (source) to the specified `cssDeclss` (targets).
- * @param cssProps The collection of the css vars for overwritting (source).
- * @param cssDeclss The list of the parent's collection css props to be overwritten (targets).
- * The order must be from the most specific parent to the least specific one.
- * @returns A new `CssProps` object which is the copy of the specified `cssProps` that overwrites to the specified `cssDeclss`.
- */
-export const overwriteParentProps = (cssProps: Refs<{}>, ...cssDeclss: Decls<{}>[]): CssProps => {
-    const result: CssProps = {};
-    for (const [propName, propValue] of Object.entries(cssProps)) {
-        const targetPropName = ((): Cust.Decl => {
-            for (const cssDecls of cssDeclss) {
-                if (propName in cssDecls) return (cssDecls as DictionaryOf<typeof cssDecls>)[propName]; // found => replace the cssDecl
-            } // for
-            
-            return (propName as Cust.Decl); // not found => use the original decl name
-        })();
-        if (!targetPropName) continue; // target prop not found => skip
-        
-        result[targetPropName] = (propValue as Cust.Ref);
-    }
     return result;
 }
