@@ -1006,7 +1006,10 @@ export { cssConfig, cssConfig as default }
 
 
 // utilities:
-const isUppercase = (test: string) => (test >= 'A') && (test <= 'Z');
+const isUppercase  = (test: string) => (test >= 'A') && (test <= 'Z');
+const isLowercase  = (test: string) => (test >= 'a') && (test <= 'z');
+const isNumbercase = (test: string) => (test >= '0') && (test <= '9');
+
 const reservedComponentNames = [
     'icon', 'img', 'media', 'arrow', 'arrowTop', 'arrowRight', 'arrowBottom', 'arrowLeft', 'separator', 'items', 'item', 'sub', 'logo', 'toggler', 'menus', 'menu', 'label', 'control', 'btn', 'navBtn', 'prevBtn', 'nextBtn', 'nav', 'switch', 'link', 'bullet', 'ghost', 'overlay', 'card', 'caption', 'header', 'footer', 'body', 'tab', 'breadcrumb', 'numbered', 'element', 'component', 'track', 'tracklower', 'trackupper', 'thumb'
 ];
@@ -1019,6 +1022,26 @@ const isPrefixOrMatchOf = (propName: string, prefix: string) => (
         isUppercase(propName.slice(prefix.length)[0]) // followed by uppercase
     )
 );
+
+const reservedSizeNames = [
+    'Xs', 'Sm', 'Nm', 'Md', 'Lg', 'Xl', 'Xxl', 'Xxxl'
+];
+const reservedWeightNames = [
+    'Lighter', 'Light', 'Normal', 'Bold', 'Bolder'
+];
+const reservedStateNames = [
+    'None', 'Excited', 'Running', 'Enable', 'Disable', 'Active', 'Passive', 'Press', 'Release', 'Check', 'Clear', 'Hover', 'Arrive', 'Leave', 'Focus', 'Blur', 'Valid', 'Unvalid', 'Invalid', 'Uninvalid', 'Full', 'Compact'
+];
+const isSuffixOf = (propName: string, prefix: string) => (
+    propName.endsWith(prefix)
+    &&
+    (propName.length > prefix.length) // sub match
+    &&
+    isLowercase(propName.slice(- prefix.length - 1, - prefix.length)) // a lowercase before the suffix
+);
+
+
+
 /**
  * Includes a *valid* css props from the specified `cssProps`.
  * @param cssProps The css vars to be filtered.
@@ -1028,7 +1051,8 @@ export const usesCssProps = <TConfigProps extends CssConfigProps>(cssProps: Refs
     const result: CssProps = {};
     for (const propName in cssProps) {
         // predicates:
-        const isPrefixOrMatch = (prefix: string) => isPrefixOrMatchOf(propName, prefix);
+        const isPrefixOrMatchBy = (prefix: string) => isPrefixOrMatchOf(propName, prefix);
+        const isSuffixBy        = (suffix: string) =>        isSuffixOf(propName, suffix);
         
         
         
@@ -1036,10 +1060,9 @@ export const usesCssProps = <TConfigProps extends CssConfigProps>(cssProps: Refs
         
         
         
-        // prefixes:
         /**
-         * For sub-component-variant
-         * Eg:
+         * (sub) component prefixes
+         * eg:
          * fooBorder
          * booPadding
          * logoBackgColor
@@ -1048,41 +1071,59 @@ export const usesCssProps = <TConfigProps extends CssConfigProps>(cssProps: Refs
          */
         
         // not prefixed or match by reserved (sub) component names:
-        if (reservedComponentNames.some(isPrefixOrMatch)) continue;
+        if (reservedComponentNames.some(isPrefixOrMatchBy)) continue;
         
         // not prefixed or match by `list` exept `listStyle`:
-        if (isPrefixOrMatch('list') && (propName.slice(4, 9) !== 'Style')) continue;
+        if (isPrefixOrMatchBy('list') && (propName.slice(4, 9) !== 'Style')) continue;
         
         
         
-        // suffixes:
         /**
-         * For size-variant
-         * Eg:
+         * size-variant suffixes
+         * eg:
          * paddingSm
          * borderRadius0em
          * fontSizeSm
          * fontSizeXl
          */
-        if ((/[a-z](Xs|Sm|Nm|Md|Lg|Xl|Xxl|Xxxl|[0-9]+em)$/).test(propName)) continue; // exclude
         
-        // suffixes:
+        // not suffixed by reserved size names:
+        if (reservedSizeNames.some(isSuffixBy)) continue;
+        
+        // not suffixed by {number}em :
+        if ((propName.length >= 4) && propName.endsWith('em') && isNumbercase(propName.slice(-3, -2))) continue;
+        
+        
+        
         /**
-         * For weight-variant
-         * Eg:
+         * weight-variant suffixes
+         * eg:
          * fontWeightLight
          * fontWeightNormal
          */
-        if ((/[a-z](Lighter|Light|Normal|Bold|Bolder)$/).test(propName)) continue; // exclude
         
-        // suffixes:
+        // not suffixed by reserved weight names:
+        if (reservedWeightNames.some(isSuffixBy)) continue;
+        
+        
+        
         /**
-         * For state-variant
-         * Eg:
+         * state-variant suffixes
+         * eg:
          * animValid
          * animInvalidInline
          */
-        if ((/(None|Excited|Running|Enable|Disable|Active|Passive|Press|Release|Check|Clear|Hover|Arrive|Leave|Focus|Blur|Valid|Unvalid|Invalid|Uninvalid|Full|Compact)(Block|Inline)?$/).test(propName)) continue; // exclude
+        
+        // not suffixed by reserved state names (and optionally suffixed by Block|Inline):
+        {
+            let propName2 : string = propName;
+            if (propName2.endsWith('Block'))       propName2 = propName2.slice(0, -5);
+            else if (propName2.endsWith('Inline')) propName2 = propName2.slice(0, -6);
+            
+            if (reservedStateNames.some((suffix) => isSuffixOf(propName2, suffix))) continue;
+        }
+        
+        
         
         // some props ending with inline|block:
         /**
