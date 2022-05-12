@@ -1032,6 +1032,17 @@ const reservedWeightNames = [
 const reservedStateNames = [
     'None', 'Excited', 'Running', 'Enable', 'Disable', 'Active', 'Passive', 'Press', 'Release', 'Check', 'Clear', 'Hover', 'Arrive', 'Leave', 'Focus', 'Blur', 'Valid', 'Unvalid', 'Invalid', 'Uninvalid', 'Full', 'Compact'
 ];
+const reservedWordsEndsWithInlineBlock = [
+    'inlineSize'   , 'blockSize',
+    'minInlineSize', 'minBlockSize',
+    'maxInlineSize', 'maxBlockSize',
+    
+    'marginInline', 'marginBlock',
+    
+    'paddingInline', 'paddingBlock',
+    
+    'cursor',
+]
 const isSuffixOf = (propName: string, prefix: string) => (
     propName.endsWith(prefix)
     &&
@@ -1133,7 +1144,18 @@ export const usesCssProps = <TConfigProps extends CssConfigProps>(cssProps: Refs
          * inlineSizeBlock
          *  blockSizeBlock
          */
-        if ((/^(((((inline|block)|(min|max)(Inline|Block))Size)|(margin|padding)(Inline|Block)|cursor)(Inline|Block))$/).test(propName)) continue; // exclude
+        
+        // not a special props which always ends with Block|Inline:
+        {
+            let propName2 : string = propName;
+            if (propName2.endsWith('Block'))       propName2 = propName2.slice(0, -5);
+            else if (propName2.endsWith('Inline')) propName2 = propName2.slice(0, -6);
+            else                                   continue; // Block|Inline is required
+            
+            if (reservedWordsEndsWithInlineBlock.some((suffix) => isSuffixOf(propName2, suffix))) continue;
+        }
+        
+        
         
         // special props:
         /**
