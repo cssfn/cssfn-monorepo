@@ -1112,7 +1112,7 @@ const isKnownCssProps = (propName: string): boolean => {
     let min = 0, max = sortedKnownCssPropsMax, middle : number;
     let find: string;
     
-    while (min < max) {
+    while (min <= max) {
         middle = ((min + max) / 2)|0;
         
         find = sortedKnownCssProps[middle];
