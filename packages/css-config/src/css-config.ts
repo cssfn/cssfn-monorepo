@@ -1013,7 +1013,7 @@ const isNumbercase = (test: string) => (test >= '0') && (test <= '9');
 const reservedComponentNames = [
     'icon', 'img', 'media', 'arrow', 'arrowTop', 'arrowRight', 'arrowBottom', 'arrowLeft', 'separator', 'items', 'item', 'sub', 'logo', 'toggler', 'menus', 'menu', 'label', 'control', 'btn', 'navBtn', 'prevBtn', 'nextBtn', 'nav', 'switch', 'link', 'bullet', 'ghost', 'overlay', 'card', 'caption', 'header', 'footer', 'body', 'tab', 'breadcrumb', 'numbered', 'element', 'component', 'track', 'tracklower', 'trackupper', 'thumb'
 ];
-const isPrefixOrMatchOf = (propName: string, prefix: string) => (
+const isPrefixOrMatchOf = (propName: string, prefix: string): boolean => (
     propName.startsWith(prefix)
     &&
     (
@@ -1077,13 +1077,26 @@ const reservedWords = [
     'leftTransform',
     'rightTransform',
 ];
-const isSuffixOf = (propName: string, prefix: string) => (
-    propName.endsWith(prefix)
+const isSuffixOf = (propName: string, suffix: string): boolean => (
+    propName.endsWith(suffix)
     &&
-    (propName.length > prefix.length) // sub match
+    (propName.length > suffix.length) // sub match
     &&
-    isLowercase(propName.slice(- prefix.length - 1, - prefix.length)) // a lowercase before the suffix
+    isLowercase(propName.slice(- suffix.length - 1, - suffix.length)) // a lowercase before the suffix
 );
+const isSuffixOfOptionalInlineBlock = (propName: string, suffix: string): boolean => {
+    if (propName.endsWith('Block'))       propName = propName.slice(0, -5);
+    else if (propName.endsWith('Inline')) propName = propName.slice(0, -6);
+    
+    return isSuffixOf(propName, suffix);
+};
+const isSuffixOfRequiredInlineBlock = (propName: string, suffix: string): boolean => {
+    if (propName.endsWith('Block'))       propName = propName.slice(0, -5);
+    else if (propName.endsWith('Inline')) propName = propName.slice(0, -6);
+    else                                  return false; // Block|Inline is required
+    
+    return isSuffixOf(propName, suffix);
+};
 
 
 
@@ -1096,8 +1109,8 @@ export const usesCssProps = <TConfigProps extends CssConfigProps>(cssProps: Refs
     const result: CssProps = {};
     for (const propName in cssProps) {
         // predicates:
-        const isPrefixOrMatchBy = (prefix: string) => isPrefixOrMatchOf(propName, prefix);
-        const isSuffixBy        = (suffix: string) =>        isSuffixOf(propName, suffix);
+        const isPrefixOrMatchBy = (prefix: string): boolean => isPrefixOrMatchOf(propName, prefix);
+        const isSuffixBy        = (suffix: string): boolean =>        isSuffixOf(propName, suffix);
         
         
         
@@ -1160,18 +1173,12 @@ export const usesCssProps = <TConfigProps extends CssConfigProps>(cssProps: Refs
          */
         
         // not suffixed by reserved state names (and optionally suffixed by Block|Inline):
-        {
-            let propName2 : string = propName;
-            if (propName2.endsWith('Block'))       propName2 = propName2.slice(0, -5);
-            else if (propName2.endsWith('Inline')) propName2 = propName2.slice(0, -6);
-            
-            if (reservedStateNames.some((suffix) => isSuffixOf(propName2, suffix))) continue;
-        }
+        if (reservedStateNames.some((suffix) => isSuffixOfOptionalInlineBlock(propName, suffix))) continue;
         
         
         
-        // some props ending with inline|block:
         /**
+         * special props ending with inline|block:
          * Eg:
          * inlineSizeInline
          *  blockSizeInline
@@ -1180,19 +1187,12 @@ export const usesCssProps = <TConfigProps extends CssConfigProps>(cssProps: Refs
          */
         
         // not a special props which always ends with Block|Inline:
-        {
-            let propName2 : string = propName;
-            if (propName2.endsWith('Block'))       propName2 = propName2.slice(0, -5);
-            else if (propName2.endsWith('Inline')) propName2 = propName2.slice(0, -6);
-            else                                   continue; // Block|Inline is required
-            
-            if (reservedWordsEndsWithInlineBlock.some((suffix) => isSuffixOf(propName2, suffix))) continue;
-        }
+        if (reservedWordsEndsWithInlineBlock.some((suffix) => isSuffixOfRequiredInlineBlock(propName, suffix))) continue;
         
         
         
-        // special props:
         /**
+         * special props:
          * Eg:
          * spacing
          * valid
