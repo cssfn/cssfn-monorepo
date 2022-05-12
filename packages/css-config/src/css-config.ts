@@ -59,6 +59,13 @@ import {
 import {
     mergeStyles,
 }                           from '@cssfn/cssfn/dist/mergeStyles.js'
+
+// internals:
+import {
+    default as sortedKnownCssProps
+}                           from './sorted-known-css-props.js'
+
+// other libs:
 import {
     Subject,
 }                           from 'rxjs'
@@ -1100,6 +1107,38 @@ const isSuffixOfRequiredInlineBlock = (propName: string, suffix: string): boolea
 
 
 
+const sortedKnownCssPropsMax = sortedKnownCssProps.length - 1;
+const isKnownCssProps = (propName: string): boolean => {
+    let min = 0, max = sortedKnownCssPropsMax, middle : number;
+    let find: string;
+    
+    while (min < max) {
+        middle = ((min + max) / 2)|0;
+        
+        find = sortedKnownCssProps[middle];
+        if (propName < find) {
+            max = (middle - 1); // search in smaller range, excluding the middle
+        }
+        else if (propName > find) {
+            min = (middle + 1); // search in bigger range, excluding the middle
+        }
+        else {
+            return true; // found
+        } // if
+    } // while
+    
+    return false; // not found
+}
+export const usesCssPropsQ = <TConfigProps extends CssConfigProps>(cssProps: Refs<TConfigProps>): CssProps => {
+    const result: CssProps = {};
+    for (const propName in cssProps) {
+        if (!isKnownCssProps(propName)) continue; // unknown css prop => ignore
+        
+        // if passed => include it:
+        result[propName as any] = cssProps[propName];
+    } // for
+    return result;
+}
 /**
  * Includes a *valid* css props from the specified `cssProps`.
  * @param cssProps The css vars to be filtered.
