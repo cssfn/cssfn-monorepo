@@ -1094,6 +1094,7 @@ export const usesGeneralProps = (cssProps: Refs<{}>): CssProps => {
     return result;
 }
 
+const isUppercase = (test: string) => (test >= 'A') && (test <= 'Z');
 /**
  * Includes the props in the specified `cssProps` starting with the specified `prefix`.
  * @param cssProps The css vars to be filtered.
@@ -1110,14 +1111,14 @@ export const usesPrefixedProps = <TConfigProps extends CssConfigProps>(cssProps:
         if (propName.length === prefix.length) continue; // at least 1 char left;
         
         const propNameLeft = propName.slice(prefix.length); // remove the `prefix`
-        if (!(/^[A-Z]/).test(propNameLeft)) continue; // the first character must be a capital
         /**
-         * removing `menu`:
-         * menuColor  => Color  => ok
-         * menusColor => sColor => `menus` is not part of `menu`
+         * prefix: `menu`
+         * menuColor  => Color  => [ok]  => but still need to camelized
+         * menusColor => sColor => [err]
          */
+        if (!isUppercase(propNameLeft[0])) continue; // workaround for [err] => the first character must be a capital
         
-        // if match => normalize the case => include it:
+        // if passed => camelized the case => include it:
         result[(remove ? camelCase(propNameLeft) : propName) as any] = cssProps[propName];
     } // for
     return result;
@@ -1139,15 +1140,15 @@ export const usesSuffixedProps = <TConfigProps extends CssConfigProps>(cssProps:
         if (!propName.endsWith(suffix)) continue; // exclude
         if (propName.length === suffix.length) continue; // at least 1 char left;
         
-        const propNameLeft = remove ? propName.slice(0, - suffix.length) : propName; // remove the `suffix`
+        const propNameLeft = propName.slice(0, - suffix.length); // remove the `suffix`
         /**
-         * removing `valid` => `Valid`:
-         * colorValid   => color => ok
-         * colorInvalid => filtered by pascalized `Valid`
+         * suffix: `valid` => `Valid`
+         * colorValid   => color   => [ok]
+         * colorInvalid => colorIn => never happened, because filtered by pascalized `Valid`
          */
         
-        // if match => include it:
-        result[propNameLeft as any] = cssProps[propName];
+        // if passed => include it:
+        result[(remove ? propNameLeft : propName) as any] = cssProps[propName];
     } // for
     return result;
 }
