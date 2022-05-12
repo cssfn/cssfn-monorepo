@@ -46,6 +46,12 @@ import {
     
     // style sheets:
     styleSheet,
+    
+    
+    
+    // utilities:
+    camelCase,
+    pascalCase,
 }                           from '@cssfn/cssfn'
 import {
     isFinalSelector,
@@ -996,3 +1002,228 @@ const cssConfig = <TConfigProps extends CssConfigProps>(initialProps: ProductOrF
     ];
 }
 export { cssConfig, cssConfig as default }
+
+
+
+// utilities:
+/**
+ * Includes the *general* props in the specified `cssProps`.
+ * @param cssProps The collection of the css vars to be filtered.
+ * @returns A `PropList` which is the copy of the `cssProps` that only having *general* props.
+ */
+export const usesGeneralProps = (cssProps: Refs<{}>): CssProps => {
+    const result: CssProps = {};
+    for (const [propName, propValue] of Object.entries(cssProps)) {
+        // excludes the entries if the `propName` matching with following:
+        
+        // prefixes:
+        /**
+         * For sub-component-variant
+         * Eg:
+         * fooBorder
+         * booPadding
+         * logoBackgColor
+         * logoOpacity
+         * subOpacity
+         */
+        if ((/^(icon|img|media|arrow(Top|Right|Bottom|Left)?|separator|items|item|sub|logo|toggler|menus|menu|label|control|btn|navBtn|prevBtn|nextBtn|nav|switch|link|bullet|ghost|overlay|list(?!Style)|card|caption|header|footer|body|tab|breadcrumb|numbered|element|component|track|tracklower|trackupper|thumb)($|[A-Z])/).test(propName)) continue; // exclude
+        
+        // suffixes:
+        /**
+         * For size-variant
+         * Eg:
+         * paddingSm
+         * borderRadius0em
+         * fontSizeSm
+         * fontSizeXl
+         */
+        if ((/[a-z](Xs|Sm|Nm|Md|Lg|Xl|Xxl|Xxxl|[0-9]+em)$/).test(propName)) continue; // exclude
+        
+        // suffixes:
+        /**
+         * For weight-variant
+         * Eg:
+         * fontWeightLight
+         * fontWeightNormal
+         */
+        if ((/[a-z](Lighter|Light|Normal|Bold|Bolder)$/).test(propName)) continue; // exclude
+        
+        // suffixes:
+        /**
+         * For state-variant
+         * Eg:
+         * animValid
+         * animInvalidInline
+         */
+        if ((/(None|Excited|Running|Enable|Disable|Active|Passive|Press|Release|Check|Clear|Hover|Arrive|Leave|Focus|Blur|Valid|Unvalid|Invalid|Uninvalid|Full|Compact)(Block|Inline)?$/).test(propName)) continue; // exclude
+        
+        // some props ending with inline|block:
+        /**
+         * Eg:
+         * inlineSizeInline
+         *  blockSizeInline
+         * inlineSizeBlock
+         *  blockSizeBlock
+         */
+        if ((/^(((((inline|block)|(min|max)(Inline|Block))Size)|(margin|padding)(Inline|Block)|cursor)(Inline|Block))$/).test(propName)) continue; // exclude
+        
+        // special props:
+        /**
+         * Eg:
+         * spacing
+         * valid
+         * vertAlign
+         * orientation
+         * valid   => (icon)Valid   => valid
+         * invalid => (icon)Invalid => invalid
+         */
+        if ((/^(backgGrad(Inline|Block)?|backg(Overlay|Striped)(Img|Size)?|orientation|align|horzAlign|vertAlign|spacing|img|size|valid|invalid|transDuration|(top|bottom|left|right)Transform|fontFamily\w+|fontSize[0-9]+)$/).test(propName)) continue; // exclude
+        
+        // props starting with `@`:
+        /**
+         * Eg:
+         * @keyframes
+         */
+        if ((/^@/).test(propName)) continue; // exclude
+        
+        
+        
+        // if not match => include it:
+        result[propName] = (propValue as Cust.Ref);
+    } // for
+    return result;
+}
+
+/**
+ * Includes the props in the specified `cssProps` starting with specified `prefix`.
+ * @param cssProps The collection of the css vars to be filtered.
+ * @param prefix The prefix name of the props to be *included*.
+ * @param remove Remove the prefix to the returning result. The default is `true`.
+ * @returns A `PropList` which is the copy of the `cssProps` that only having matching `prefix` name.  
+ * If `remove === true`, the returning props has been normalized (renamed), so they don't start with `prefix`.
+ */
+export const usesPrefixedProps = (cssProps: Refs<{}>, prefix: string, remove = true): CssProps => {
+    const result: CssProps = {};
+    for (const [propName, propValue] of Object.entries(cssProps)) {
+        // excludes the entries if the `propName` not starting with specified `prefix`:
+        if (!propName.startsWith(prefix)) continue; // exclude
+        if (propName.length <= prefix.length) continue; // at least 1 char left;
+        
+        const propNameLeft = propName.slice(prefix.length); // remove the `prefix`
+        if (!(/^[A-Z]/).test(propNameLeft)) continue; // the first character must be a capital
+        /**
+         * removing `menu`:
+         * menuColor  => Color  => ok
+         * menusColor => sColor => `menus` is not part of `menu`
+         */
+        
+        // if match => normalize the case => include it:
+        result[remove ? camelCase(propNameLeft) : propName] = (propValue as Cust.Ref);
+    } // for
+    return result;
+}
+
+/**
+ * Includes the props in the specified `cssProps` ending with specified `suffix`.
+ * @param cssProps The collection of the css vars to be filtered.
+ * @param suffix The suffix name of the props to be *included*.
+ * @param remove Remove the suffix to the returning result. The default is `true`.
+ * @returns A `PropList` which is the copy of the `cssProps` that only having matching `suffix` name.  
+ * If `remove === true`, the returning props has been normalized (renamed), so they don't end with `suffix`.
+ */
+export const usesSuffixedProps = (cssProps: Refs<{}>, suffix: string, remove = true): CssProps => {
+    suffix = pascalCase(suffix);
+    const result: CssProps = {};
+    for (const [propName, propValue] of Object.entries(cssProps)) {
+        // excludes the entries if the `propName` not ending with specified `suffix`:
+        if (!propName.endsWith(suffix)) continue; // exclude
+        if (propName.length <= suffix.length) continue; // at least 1 char left;
+        
+        const propNameLeft = remove ? propName.slice(0, - suffix.length) : propName; // remove the `suffix`
+        /**
+         * removing `valid` => `Valid`:
+         * colorValid   => color => ok
+         * colorInvalid => filtered by pascalized `Valid`
+         */
+        
+        // if match => include it:
+        result[propNameLeft] = (propValue as Cust.Ref);
+    } // for
+    return result;
+}
+
+/**
+ * Backups the prop's values in the specified `cssProps`.
+ * @param cssProps The collection of the css vars to be backed up.
+ * @param backupSuff The suffix name of the backup's props.
+ * @returns A `PropList` which is the copy of the `cssProps` that the prop's names was renamed with the specified `backupSuff` name.  
+ * eg:  
+ * --com-backgBak     : var(--com-backg)  
+ * --com-boxShadowBak : var(--com-boxShadow)
+ */
+export const backupProps = (cssProps: Refs<{}>, backupSuff: string = 'Bak'): CssProps => {
+    backupSuff = pascalCase(backupSuff);
+    const result: CssProps = {};
+    for (const propName of Object.keys(cssProps)) {
+        result[`${propName}${backupSuff}`] = `var(${propName})`;
+    } // for
+    return result;
+}
+
+/**
+ * Restores the prop's values in the specified `cssProps`.
+ * @param cssProps The collection of the css vars to be restored.
+ * @param backupSuff The suffix name of the backup's props.
+ * @returns A `PropList` which is the copy of the `cssProps` that the prop's values pointed to the backup's values.  
+ * eg:  
+ * --com-backg     : var(--com-backgBak)  
+ * --com-boxShadow : var(--com-boxShadowBak)
+ */
+export const restoreProps = (cssProps: Refs<{}>, backupSuff: string = 'Bak'): CssProps => {
+    const result: CssProps = {};
+    for (const propName of Object.keys(cssProps)) {
+        result[propName] = `var(${propName}${backupSuff})`;
+    } // for
+    return result;
+}
+
+/**
+ * Overwrites prop declarations from the specified `cssProps` (source) to the specified `cssDecls` (target).
+ * @param cssDecls The collection of the css vars to be overwritten (target).
+ * @param cssProps The collection of the css vars for overwritting (source).
+ * @returns A `PropList` which is the copy of the `cssProps` that overwrites to the specified `cssDecls`.
+ */
+export const overwriteProps = <TProps extends {}>(cssDecls: Decls<TProps>, cssProps: Refs<{}>): CssProps => {
+    const result: CssProps = {};
+    for (const [propName, propValue] of Object.entries(cssProps)) {
+        const targetPropName = (cssDecls as DictionaryOf<typeof cssDecls>)[propName];
+        if (!targetPropName) continue; // target prop not found => skip
+        
+        result[targetPropName] = (propValue as Cust.Ref);
+    } // for
+    return result;
+}
+
+/**
+ * Overwrites prop declarations from the specified `cssProps` (source) to the specified `cssDeclss` (targets).
+ * @param cssProps The collection of the css vars for overwritting (source).
+ * @param cssDeclss The list of the parent's collection css props to be overwritten (targets).
+ * The order must be from the most specific parent to the least specific one.
+ * @returns A `PropList` which is the copy of the `cssProps` that overwrites to the specified `cssDeclss`.
+ */
+export const overwriteParentProps = (cssProps: Refs<{}>, ...cssDeclss: Decls<{}>[]): CssProps => {
+    const result: CssProps = {};
+    for (const [propName, propValue] of Object.entries(cssProps)) {
+        const targetPropName = ((): Cust.Decl => {
+            for (const cssDecls of cssDeclss) {
+                if (propName in cssDecls) return (cssDecls as DictionaryOf<typeof cssDecls>)[propName]; // found => replace the cssDecl
+            } // for
+            
+            return (propName as Cust.Decl); // not found => use the original decl name
+        })();
+        if (!targetPropName) continue; // target prop not found => skip
+        
+        result[targetPropName] = (propValue as Cust.Ref);
+    }
+    return result;
+}
