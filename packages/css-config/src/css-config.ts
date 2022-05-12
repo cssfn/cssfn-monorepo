@@ -82,8 +82,8 @@ export type CssConfigProps =
 type CssConfigCustomPropsMap =
     & MapOf<RequiredNotNullish<CssCustomProps>>
     & CssKeyframesRuleMap
-export type Refs<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomSimpleRef }
-export type Vals<TConfigProps extends CssConfigProps> = { [Key in keyof TConfigProps]: CssCustomValue     }
+export type Refs<TConfigProps extends CssConfigProps> = { [Key in (keyof TConfigProps)|(string & {})]: CssCustomSimpleRef }
+export type Vals<TConfigProps extends CssConfigProps> = { [Key in (keyof TConfigProps)|(string & {})]: CssCustomValue     }
 
 export interface CssConfigOptions {
     /**
