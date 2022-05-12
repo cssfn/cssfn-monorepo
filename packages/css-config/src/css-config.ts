@@ -1006,15 +1006,35 @@ export { cssConfig, cssConfig as default }
 
 
 // utilities:
+const isUppercase = (test: string) => (test >= 'A') && (test <= 'Z');
+const reservedComponentNames = [
+    'icon', 'img', 'media', 'arrow', 'arrowTop', 'arrowRight', 'arrowBottom', 'arrowLeft', 'separator', 'items', 'item', 'sub', 'logo', 'toggler', 'menus', 'menu', 'label', 'control', 'btn', 'navBtn', 'prevBtn', 'nextBtn', 'nav', 'switch', 'link', 'bullet', 'ghost', 'overlay', 'card', 'caption', 'header', 'footer', 'body', 'tab', 'breadcrumb', 'numbered', 'element', 'component', 'track', 'tracklower', 'trackupper', 'thumb'
+];
+const isPrefixOrMatchOf = (propName: string, prefix: string) => (
+    propName.startsWith(prefix)
+    &&
+    (
+        (propName.length === prefix.length)           // exact match
+        ||
+        isUppercase(propName.slice(prefix.length)[0]) // followed by uppercase
+    )
+);
 /**
- * Includes the *general* props of the specified `cssProps`.
- * @param cssProps The collection of the css vars to be filtered.
- * @returns A new `CssProps` object which is the copy of the specified `cssProps` that only having *general* props.
+ * Includes a *valid* css props from the specified `cssProps`.
+ * @param cssProps The css vars to be filtered.
+ * @returns A new `CssProps` object which is the copy of the specified `cssProps` that only having *valid* css props.
  */
-export const usesGeneralProps = (cssProps: Refs<{}>): CssProps => {
+export const usesCssProps = <TConfigProps extends CssConfigProps>(cssProps: Refs<TConfigProps>): CssProps => {
     const result: CssProps = {};
-    for (const [propName, propValue] of Object.entries(cssProps)) {
-        // excludes the entries if the `propName` matching with following:
+    for (const propName in cssProps) {
+        // predicates:
+        const isPrefixOrMatch = (prefix: string) => isPrefixOrMatchOf(propName, prefix);
+        
+        
+        
+        // excludes the entries if the `propName` is matching with following:
+        
+        
         
         // prefixes:
         /**
@@ -1026,7 +1046,14 @@ export const usesGeneralProps = (cssProps: Refs<{}>): CssProps => {
          * logoOpacity
          * subOpacity
          */
-        if ((/^(icon|img|media|arrow(Top|Right|Bottom|Left)?|separator|items|item|sub|logo|toggler|menus|menu|label|control|btn|navBtn|prevBtn|nextBtn|nav|switch|link|bullet|ghost|overlay|list(?!Style)|card|caption|header|footer|body|tab|breadcrumb|numbered|element|component|track|tracklower|trackupper|thumb)($|[A-Z])/).test(propName)) continue; // exclude
+        
+        // not prefixed or match by reserved (sub) component names:
+        if (reservedComponentNames.some(isPrefixOrMatch)) continue;
+        
+        // not prefixed or match by `list` exept `listStyle`:
+        if (isPrefixOrMatch('list') && (propName.slice(4, 9) !== 'Style')) continue;
+        
+        
         
         // suffixes:
         /**
@@ -1094,7 +1121,6 @@ export const usesGeneralProps = (cssProps: Refs<{}>): CssProps => {
     return result;
 }
 
-const isUppercase = (test: string) => (test >= 'A') && (test <= 'Z');
 /**
  * Includes the props in the specified `cssProps` starting with the specified `prefix`.
  * @param cssProps The css vars to be filtered.
