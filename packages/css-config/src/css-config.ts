@@ -1007,7 +1007,7 @@ export { cssConfig, cssConfig as default }
 
 // utilities:
 /**
- * Includes the *general* props in the specified `cssProps`.
+ * Includes the *general* props of the specified `cssProps`.
  * @param cssProps The collection of the css vars to be filtered.
  * @returns A new `CssProps` object which is the copy of the specified `cssProps` that only having *general* props.
  */
@@ -1154,36 +1154,36 @@ export const usesSuffixedProps = <TConfigProps extends CssConfigProps>(cssProps:
 }
 
 /**
- * Backups the prop's values in the specified `cssProps`.
- * @param cssProps The collection of the css vars to be backed up.
+ * Backups the values of the specified `cssProps`.
+ * @param cssProps The css vars to be backed up.
  * @param backupSuff The suffix name of the backup's props.
- * @returns A new `CssProps` object which is the copy of the specified `cssProps` that the prop's names was renamed with the specified `backupSuff` name.  
+ * @returns A new `CssCustomProps` object which is the copy of the specified `cssProps` that the props names was suffixed by `backupSuff`.  
  * eg:  
  * --com-backgBak     : var(--com-backg)  
  * --com-boxShadowBak : var(--com-boxShadow)
  */
-export const backupProps = (cssProps: Refs<{}>, backupSuff: string = 'Bak'): CssProps => {
+export const backupProps = (cssProps: CssCustomProps, backupSuff: string = 'Bak'): CssCustomProps => {
     backupSuff = pascalCase(backupSuff);
-    const result: CssProps = {};
-    for (const propName of Object.keys(cssProps)) {
-        result[`${propName}${backupSuff}`] = `var(${propName})`;
+    const result: CssCustomProps = {};
+    for (const propName in cssProps) {
+        result[`${propName}${backupSuff}` as CssCustomName] = `var(${propName})`;
     } // for
     return result;
 }
 
 /**
- * Restores the prop's values in the specified `cssProps`.
- * @param cssProps The collection of the css vars to be restored.
+ * Restores the values of the specified `cssProps`.
+ * @param cssProps The css vars to be restored.
  * @param backupSuff The suffix name of the backup's props.
- * @returns A new `CssProps` object which is the copy of the specified `cssProps` that the prop's values pointed to the backup's values.  
+ * @returns A new `CssCustomProps` object which is the copy of the specified `cssProps` that the props names was un-suffixed by `backupSuff`.  
  * eg:  
  * --com-backg     : var(--com-backgBak)  
  * --com-boxShadow : var(--com-boxShadowBak)
  */
-export const restoreProps = (cssProps: Refs<{}>, backupSuff: string = 'Bak'): CssProps => {
-    const result: CssProps = {};
-    for (const propName of Object.keys(cssProps)) {
-        result[propName] = `var(${propName}${backupSuff})`;
+export const restoreProps = (cssProps: CssCustomProps, backupSuff: string = 'Bak'): CssCustomProps => {
+    const result: CssCustomProps = {};
+    for (const propName in cssProps) {
+        result[propName as CssCustomName] = `var(${propName}${backupSuff})`;
     } // for
     return result;
 }
