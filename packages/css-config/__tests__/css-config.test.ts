@@ -376,7 +376,7 @@ jest.isolateModules(() => {
                     expect(cssProps.fontFamily)  .toBe('var(--navb-fontFamily)' );
                     expect(cssProps.colFavorite) .toBe('var(--navb-colFavorite)');
                     expect(cssProps.theBorder)   .toBe('var(--navb-theBorder)'  );
-                    expect((cssProps as any).thickBorder)   .toBe('var(--navb-thickBorder)'  );
+                    expect((cssProps as any).thickBorder) .toBe('var(--navb-thickBorder)'  );
                     
                     expect(cssVals.display)     .toBe('flex'      );
                     expect(cssVals.colRed)      .toBe('#ff0000'   );
@@ -388,7 +388,7 @@ jest.isolateModules(() => {
                     expect(cssVals.fontFamily)  .toEqual(['var(--navb-myFavFont)', 'var(--navb-myFavFont)', '!important']);
                     expect(cssVals.colFavorite) .toBe('var(--navb-colBlue)');
                     expect(cssVals.theBorder)   .toEqual([['solid', 'var(--navb-thickBorder)', 'var(--navb-colRed)']]);
-                    expect((cssVals as any).thickBorder)   .toBe('4px'  );
+                    expect((cssVals as any).thickBorder) .toBe('4px'  );
                     
                     
                     
@@ -697,7 +697,7 @@ padding: var(--navb-bdWidth) 0 5px 3%;
             
             
             (cssVals as any).animDuration = '100ms';
-            (cssVals as any).thickBorder = '5px';
+            (cssVals as any).thickBorder  = '5px';
             setTimeout(() => {
                 expect(render(lastStyleSheet!))
                 .toBe(
@@ -742,27 +742,27 @@ padding: var(--navb-bdWidth) 0 var(--navb-thickBorder) 3%;
 }
 `
                 );
-                expect(cssProps.display)    .toBe('var(--navb-display)'   );
-                expect(cssProps.colRed)     .toBe('var(--navb-colRed)'    );
-                expect(cssProps.colBlue)    .toBe('var(--navb-colBlue)'   );
-                expect(cssProps.bdWidth)    .toBe('var(--navb-bdWidth)'   );
-                expect(cssProps.padding)    .toBe('var(--navb-padding)'   );
-                expect(cssProps.fontFamily) .toBe('var(--navb-fontFamily)');
-                expect(cssProps.animation)  .toBe('var(--navb-animation)');
-                expect(cssProps.animation2) .toBe('var(--navb-animation2)');
+                expect(cssProps.display)      .toBe('var(--navb-display)'   );
+                expect(cssProps.colRed)       .toBe('var(--navb-colRed)'    );
+                expect(cssProps.colBlue)      .toBe('var(--navb-colBlue)'   );
+                expect(cssProps.bdWidth)      .toBe('var(--navb-bdWidth)'   );
+                expect(cssProps.padding)      .toBe('var(--navb-padding)'   );
+                expect(cssProps.fontFamily)   .toBe('var(--navb-fontFamily)');
+                expect(cssProps.animation)    .toBe('var(--navb-animation)');
+                expect(cssProps.animation2)   .toBe('var(--navb-animation2)');
                 expect((cssProps as any).animDuration) .toBe('var(--navb-animDuration)');
-                expect((cssProps as any).thickBorder) .toBe('var(--navb-thickBorder)');
+                expect((cssProps as any).thickBorder)  .toBe('var(--navb-thickBorder)');
                 
-                expect(cssVals.display)    .toBe('grid'   );
-                expect(cssVals.colRed)     .toBe('#ff0000');
-                expect(cssVals.colBlue)    .toBe('#0000ff');
-                expect(cssVals.bdWidth)    .toBe('1px'    );
-                expect(cssVals.padding)    .toEqual([['10px', 0, 'var(--navb-thickBorder)', '3%'], '!important']);
-                expect(cssVals.fontFamily) .toEqual(['Arial', 'sans-serif', '!important']);
-                expect(cssVals.animation)  .toEqual([[ 'var(--navb-animDuration)', 'ease', flyAwayRefObj ]]);
-                expect(cssVals.animation2) .toEqual([[ 'var(--navb-animDuration)', 'ease', bounchingRefObj ]]);
+                expect(cssVals.display)      .toBe('grid'   );
+                expect(cssVals.colRed)       .toBe('#ff0000');
+                expect(cssVals.colBlue)      .toBe('#0000ff');
+                expect(cssVals.bdWidth)      .toBe('1px'    );
+                expect(cssVals.padding)      .toEqual([['10px', 0, 'var(--navb-thickBorder)', '3%'], '!important']);
+                expect(cssVals.fontFamily)   .toEqual(['Arial', 'sans-serif', '!important']);
+                expect(cssVals.animation)    .toEqual([[ 'var(--navb-animDuration)', 'ease', flyAwayRefObj ]]);
+                expect(cssVals.animation2)   .toEqual([[ 'var(--navb-animDuration)', 'ease', bounchingRefObj ]]);
                 expect((cssVals as any).animDuration) .toBe('100ms');
-                expect((cssVals as any).thickBorder) .toBe('5px');
+                expect((cssVals as any).thickBorder)  .toBe('5px');
                 
                 
                 
