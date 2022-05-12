@@ -1042,7 +1042,41 @@ const reservedWordsEndsWithInlineBlock = [
     'paddingInline', 'paddingBlock',
     
     'cursor',
-]
+];
+const reservedWords = [
+    'backgGrad',
+    'backgGradInline',
+    'backgGradBlock',
+    
+    'backgOverlay',
+    'backgOverlayImg',
+    'backgOverlaySize',
+    'backgStriped',
+    'backgStripedImg',
+    'backgStripedSize',
+    
+    'orientation',
+    
+    'align',
+    'horzAlign',
+    'vertAlign',
+    
+    'spacing',
+    
+    'img',
+    
+    'size',
+    
+    'valid',
+    'invalid',
+    
+    'transDuration',
+    
+    'topTransform',
+    'bottomTransform',
+    'leftTransform',
+    'rightTransform',
+];
 const isSuffixOf = (propName: string, prefix: string) => (
     propName.endsWith(prefix)
     &&
@@ -1167,19 +1201,20 @@ export const usesCssProps = <TConfigProps extends CssConfigProps>(cssProps: Refs
          * valid   => (icon)Valid   => valid
          * invalid => (icon)Invalid => invalid
          */
-        if ((/^(backgGrad(Inline|Block)?|backg(Overlay|Striped)(Img|Size)?|orientation|align|horzAlign|vertAlign|spacing|img|size|valid|invalid|transDuration|(top|bottom|left|right)Transform|fontFamily\w+|fontSize[0-9]+)$/).test(propName)) continue; // exclude
         
-        // props starting with `@`:
-        /**
-         * Eg:
-         * @keyframes
-         */
-        if ((/^@/).test(propName)) continue; // exclude
+        // not a special props:
+        if (reservedWords.some(isSuffixBy)) continue;
+        
+        // not a fontFamily{name}:
+        if (isPrefixOrMatchBy('fontFamily') && (propName.length >= 11)) continue;
+        
+        // not a fontSize{number}:
+        if (propName.startsWith('fontSize') && (propName.length >= 9)) continue;
         
         
         
         // if not match => include it:
-        result[propName] = (propValue as Cust.Ref);
+        result[propName as any] = cssProps[propName];
     } // for
     return result;
 }
