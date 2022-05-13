@@ -942,6 +942,15 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     }
     
     /**
+     * Determines whether the specified `propName` exists.
+     * @param propName The prop name to check.
+     * @returns `true` indicates the specified `propName` exists -or- `false` if it doesn't exist.
+     */
+    #hasProp(propName: string): boolean {
+        const propDecl = this.#getDecl(propName);
+        return !!propDecl;
+    }
+    /**
      * Gets the *all possible* `propName`s in the css-config.
      * @returns An `Array<string>` contains *all possible* `propName`s in the css-config.
      */
@@ -1023,6 +1032,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             set                      : (_unusedObj, propName: string, newValue: CssCustomValue|undefined|null) => this.#setDirect(propName, newValue),
             deleteProperty           : (_unusedObj, propName: string)                                          => this.#setDirect(propName, undefined),
             
+            has                      : (_unusedObj, propName: string)                                          => this.#hasProp(propName),
             ownKeys                  : (_unusedObj)                                                            => this.#getPropList(),
             getOwnPropertyDescriptor : (_unusedObj, propName: string)                                          => this.#getPropDescRef(propName),
         }) as Refs<TConfigProps>;
@@ -1031,6 +1041,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             set                      : (_unusedObj, propName: string, newValue: CssCustomValue|undefined|null) => this.#setDirect(propName, newValue),
             deleteProperty           : (_unusedObj, propName: string)                                          => this.#setDirect(propName, undefined),
             
+            has                      : (_unusedObj, propName: string)                                          => this.#hasProp(propName),
             ownKeys                  : (_unusedObj)                                                            => this.#getPropList(),
             getOwnPropertyDescriptor : (_unusedObj, propName: string)                                          => this.#getPropDescVal(propName),
         }) as Vals<TConfigProps>;
