@@ -86,7 +86,7 @@ for (const prop of uniqueSortedKnownCssProps) {
 const sortedWordList = (
     Array.from(wordStatistic.entries())
     .sort((a, b) => b[1] - a[1])
-    .map((entry) => entry[0])
+    .map((entry): string => entry[0])
 );
 const encodedSortedWordList = sortedWordList.join(',');
 const decodedSortedWordList = encodedSortedWordList.split(',')
@@ -94,20 +94,47 @@ const decodedSortedWordList = encodedSortedWordList.split(',')
 
 
 // indexing the words:
-const indexedKnownCssProps : number[][] = [];
+const prevWordIndexMap = new Map<number, number>();
+const indexedKnownCssProps : (number|null)[][] = [];
 for (const prop of uniqueSortedKnownCssProps) {
     const subWords = splitWord(prop);
     
-    const indexedSubWords = subWords.map((subWord) => decodedSortedWordList.indexOf(subWord));
+    const indexedSubWords = (
+        subWords
+        .map((subWord, index): number|null => {
+            const wordIndex = decodedSortedWordList.indexOf(subWord);
+            
+            const prevWordIndex = prevWordIndexMap.get(index);
+            if (prevWordIndex !== undefined) {
+                if (wordIndex === prevWordIndex) return null; // null means: same as previous index
+            } // if
+            prevWordIndexMap.set(index, wordIndex);
+            
+            return wordIndex;
+        })
+    );
+    
     indexedKnownCssProps.push(indexedSubWords);
 } // for
 
 
 
 // verify the result:
+const prevWordIndexMap2 = new Map<number, number>();
 for (let i = 0; i < uniqueSortedKnownCssProps.length; i++) {
     const word1 = uniqueSortedKnownCssProps[i];
-    const word2 = indexedKnownCssProps[i].map((wordIndex) => decodedSortedWordList[wordIndex]).join('');
+    
+    const word2 = indexedKnownCssProps[i].map((wordIndex, index): string => {
+        if (wordIndex === null) {
+            wordIndex = prevWordIndexMap2.get(index) ?? 0;
+        }
+        else {
+            prevWordIndexMap2.set(index, wordIndex);
+        } // if
+        
+        return decodedSortedWordList[wordIndex];
+    }).join('');
+    
     if (word1 !== word2) throw Error('invalid algorithm');
 } // for
 
