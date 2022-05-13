@@ -88,6 +88,8 @@ const sortedWordList = (
     .sort((a, b) => b[1] - a[1])
     .map((entry) => entry[0])
 );
+const encodedSortedWordList = sortedWordList.join(',');
+const decodedSortedWordList = encodedSortedWordList.split(',')
 
 
 
@@ -96,7 +98,7 @@ const indexedKnownCssProps : number[][] = [];
 for (const prop of uniqueSortedKnownCssProps) {
     const subWords = splitWord(prop);
     
-    const indexedSubWords = subWords.map((subWord) => sortedWordList.indexOf(subWord));
+    const indexedSubWords = subWords.map((subWord) => decodedSortedWordList.indexOf(subWord));
     indexedKnownCssProps.push(indexedSubWords);
 } // for
 
@@ -105,14 +107,14 @@ for (const prop of uniqueSortedKnownCssProps) {
 // verify the result:
 for (let i = 0; i < uniqueSortedKnownCssProps.length; i++) {
     const word1 = uniqueSortedKnownCssProps[i];
-    const word2 = indexedKnownCssProps[i].map((wordIndex) => sortedWordList[wordIndex]).join('');
+    const word2 = indexedKnownCssProps[i].map((wordIndex) => decodedSortedWordList[wordIndex]).join('');
     if (word1 !== word2) throw Error('invalid algorithm');
 } // for
 
 
 
 // show the result:
-console.log(sortedWordList);
+console.log(encodedSortedWordList);
 console.log(indexedKnownCssProps);
 console.log('succcess. Please copy the results above to your script!');
 debugger;
