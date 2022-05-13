@@ -1,5 +1,5 @@
 
-export const standardLonghandProperties = [
+export const standardLonghandProps = [
 'accentColor',
 'alignContent',
 'alignItems',
@@ -358,7 +358,7 @@ export const standardLonghandProperties = [
 'zoom',
 ];
 
-export const standardShorthandProperties = [
+export const standardShorthandProps = [
 'all',
 'animation',
 'background',
@@ -408,7 +408,7 @@ export const standardShorthandProperties = [
 'transition',
 ];
 
-export const vendorLonghandProperties = [
+export const vendorLonghandProps = [
 'MozAnimationDelay',
 'MozAnimationDirection',
 'MozAnimationDuration',
@@ -638,7 +638,7 @@ export const vendorLonghandProperties = [
 'WebkitWritingMode',
 ];
 
-export const vendorShorthandProperties = [
+export const vendorShorthandProps = [
 'MozAnimation',
 'MozBorderImage',
 'MozColumnRule',
@@ -666,7 +666,7 @@ export const vendorShorthandProperties = [
 'WebkitTransition',
 ];
 
-export const obsoleteProperties = [
+export const obsoleteProps = [
 'azimuth',
 'boxAlign',
 'boxDirection',
@@ -775,7 +775,7 @@ export const obsoleteProperties = [
 'WebkitScrollSnapPointsY',
 ];
 
-export const svgProperties = [
+export const svgProps = [
 'alignmentBaseline',
 'baselineShift',
 'clip',
@@ -836,4 +836,13 @@ export const svgProperties = [
 'whiteSpace',
 'wordSpacing',
 'writingMode',
+];
+
+export const knownCssProps = [
+    ...standardLonghandProps,
+    ...standardShorthandProps,
+    ...vendorLonghandProps,
+    ...vendorShorthandProps,
+    ...obsoleteProps,
+    ...svgProps,
 ];

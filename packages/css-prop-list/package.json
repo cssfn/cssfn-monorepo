@@ -1,5 +1,5 @@
 {
-  "name": "@cssfn/css-property-list",
+  "name": "@cssfn/css-prop-list",
   "version": "2.0.0",
   "description": "Checks for valid css properties.",
   "keywords": [
@@ -10,8 +10,8 @@
   "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
   "homepage": "https://nodestrap.org",
   "license": "ISC",
-  "main": "dist/css-property-list.js",
-  "types": "dist/css-property-list.d.ts",
+  "main": "dist/css-prop-list.js",
+  "types": "dist/css-prop-list.d.ts",
   "type": "module",
   "sideEffects": false,
   "publishConfig": {

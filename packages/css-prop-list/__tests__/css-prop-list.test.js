@@ -2,6 +2,6 @@
 
 const cssPropertyList = require('..');
 
-describe('@cssfn/css-property-list', () => {
+describe('@cssfn/css-prop-list', () => {
     it('needs tests');
 });
