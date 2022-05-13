@@ -1,0 +1,27 @@
+{
+  "name": "@cssfn/css-property-list",
+  "version": "2.0.0",
+  "description": "Checks for valid css properties.",
+  "keywords": [
+    "css",
+    "property",
+    "list"
+  ],
+  "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
+  "homepage": "https://nodestrap.org",
+  "license": "ISC",
+  "main": "dist/css-property-list.js",
+  "types": "dist/css-property-list.d.ts",
+  "type": "module",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "tsc:watch": "tsc --watch",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
+  },
+  "dependencies": {
+  }
+}
