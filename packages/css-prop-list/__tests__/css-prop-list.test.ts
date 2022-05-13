@@ -157,6 +157,82 @@ const strangeProps : string[] = [
     
     'foregRefs',
     'foregDecls',
+    
+    'borderRadiusSm',
+    'borderRadiusLg',
+    
+    'paddingInlineSm',
+    'paddingBlockSm',
+    'paddingInlineLg',
+    'paddingBlockLg',
+    
+    'fontSizeSm',
+    'fontSizeLg',
+    
+    'transDuration',
+    
+    'filterExcited',
+    'animExcited',
+
+    'filterDisable',
+    'filterActive',
+    'animEnable',
+    'animDisable',
+    'animActive',
+    'animPassive',
+    
+    'cursorDisable',
+    'boxShadowFocus',
+    'filterArrive',
+    
+    'animFocus',
+    'animBlur',
+    'animArrive',
+    'animLeave',
+    
+    'keyframesValid',
+    'keyframesUnvalid',
+    'keyframesInvalid',
+    'keyframesUninvalid',
+    'animValid',
+    'animUnvalid',
+    'animInvalid',
+    'animUninvalid',
+    
+    'keyframesPress',
+    'keyframesRelease',
+    'filterPress',
+    'animPress',
+    'animRelease',
+    
+    'iconSize',
+    'iconValid',
+    'iconInvalid',
+    
+    'img',
+    'switchImg',
+    
+    'filterCheck',
+    'filterClear',
+    'transfCheck',
+    'transfClear',
+    'animCheck',
+    'animClear',
+    
+    'switchFilterCheck',
+    'switchFilterClear',
+    'switchTransfCheck',
+    'switchTransfClear',
+    'switchAnimCheck',
+    'switchAnimClear',
+    
+    'gapInlineSm',
+    'gapBlockSm',
+    'gapInlineLg',
+    'gapBlockLg',
+    
+    'ghostOpacity',
+    'ghostOpacityArrive',
 ];
 strangeProps.forEach((propName) => {
     test(`test isKnownCssProp(strangeProps: ${propName})`, () => {
