@@ -1,4 +1,4 @@
-const sortedWordList: string[] = (
+const indexedWordList: string[] = (
     'border,Block,Inline,scroll,text,End,Start,Color,Style,Width,font,Margin,mask,grid,background,Size,Bottom,Left,Right,Top,margin,padding,Padding,animation,Image,Position,Radius,Decoration,column,overflow,Snap,stroke,flex,Variant,inset,Border,Mode,Break,Rule,offset,Behavior,color,Adjust,max,outline,overscroll,Align,transition,align,Clip,Origin,Repeat,Rendering,Opacity,Template,justify,line,Height,list,marker,min,motion,shape,Emphasis,transform,Content,Items,Self,X,Y,Spacing,box,break,clip,Path,counter,fill,Wrap,Orientation,Auto,Column,Row,image,Type,Anchor,page,place,ruby,scrollbar,word,Tracks,Baseline,Delay,Direction,Duration,Fill,Count,Timing,Function,Visibility,Blend,block,Overflow,Outset,Slice,Source,Shadow,Sizing,After,Before,Inside,Gap,content,Flow,flood,Settings,Columns,Rows,Distance,Rotation,object,Offset,Box,perspective,stop,Skip,Underline,accent,alignment,all,Iteration,Name,Play,State,Timeline,appearance,aspect,Ratio,backdrop,Filter,backface,Attachment,baseline,Shift,Collapse,bottom,caption,Side,caret,clear,Interpolation,Scheme,Span,columns,contain,Increment,Reset,Set,cursor,direction,display,dominant,empty,Cells,filter,Basis,Grow,Shrink,float,Family,Feature,Kerning,Language,Override,Optical,Smooth,Stretch,Synthesis,Alternates,Caps,East,Asian,Ligatures,Numeric,Variation,Weight,forced,gap,glyph,Vertical,Area,Areas,hanging,Punctuation,height,hyphenate,Character,hyphens,Resolution,initial,Letter,inline,input,Security,isolation,left,letter,lighting,Clamp,Step,Mid,Composite,math,Lines,mix,Fit,Rotate,opacity,order,orphans,paint,Order,pointer,Events,position,print,quotes,resize,right,rotate,row,Merge,scale,Stop,Gutter,Threshold,Outside,Dasharray,Dashoffset,Linecap,Linejoin,Miterlimit,tab,table,Layout,Last,Combine,Upright,Line,Ink,Thickness,Indent,Justify,Transform,top,touch,Action,Property,translate,unicode,Bidi,user,Select,vector,Effect,vertical,visibility,white,Space,widows,width,will,Change,writing,z,Index,zoom'
     .split(',')
 );
@@ -33,7 +33,7 @@ export const getKnownCssPropList = (): string[] => (
     .map((subWordIndices): string => ( // decode subWordIndices to word
         subWordIndices
         .map((wordIndex): string => ( // decode wordIndex to subWord
-            sortedWordList[wordIndex]
+            indexedWordList[wordIndex]
         ))
         .join('')
     ))
@@ -42,7 +42,7 @@ export const getKnownCssPropList = (): string[] => (
 
 
 const indexedKnownCssPropsMaxIndex = indexedKnownCssProps.length - 1;
-const resolveWord = (wordIndex: number): string => sortedWordList[wordIndex];
+const resolveWord = (wordIndex: number): string => indexedWordList[wordIndex];
 export const isKnownCssProp = (propName: string): boolean => {
     let min = 0, max = indexedKnownCssPropsMaxIndex, middle : number;
     let middleWordIndices: number[];
