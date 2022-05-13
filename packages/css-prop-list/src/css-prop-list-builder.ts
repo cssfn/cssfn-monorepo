@@ -26,11 +26,14 @@ const wordSplitter = (accum: WordAccum, char: string): WordAccum => {
     if (!isUppercase(char)) {
         accum.buffer.push(char);
     }
-    else if (accum.buffer.length) {
-        accum.words.push(
-            accum.buffer.join('')
-        );
-        accum.buffer = []; // clear
+    else {
+        if (accum.buffer.length) {
+            accum.words.push(
+                accum.buffer.join('')
+            );
+        } // if
+        
+        accum.buffer = [char]; // reset to beginning
     } // if
     
     return accum;
@@ -42,6 +45,9 @@ const splitWord = (word: string): string[] => {
             accum.buffer.join('')
         );
     } // if
+    
+    // verify the result:
+    if (accum.words.join('') !== word) throw Error('invalid algorithm');
     
     return accum.words;
 };
@@ -64,6 +70,15 @@ for (const prop of uniqueSortedKnownCssProps) {
 } // for
 
 const wordList = Array.from(wordSet);
+
+
+
+// verify the result:
+for (let i = 0; i < uniqueSortedKnownCssProps.length; i++) {
+    const word1 = uniqueSortedKnownCssProps[i];
+    const word2 = indexedKnownCssProps[i].map((wordIndex) => wordList[wordIndex]).join('');
+    if (word1 !== word2) throw Error('invalid algorithm');
+} // for
 
 
 
