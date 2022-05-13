@@ -52,7 +52,7 @@ export const isKnownCssProp = (propName: string): boolean => {
         middle = ((min + max) / 2)|0;
         
         middleWordIndices = indexedKnownCssProps[middle];
-        middlePropName    = middleWordIndices.map(resolveWord).join();
+        middlePropName    = middleWordIndices.map(resolveWord).join('');
         if (propName < middlePropName) {
             max = (middle - 1); // search in smaller range, excluding the middle
         }
