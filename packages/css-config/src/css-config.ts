@@ -59,11 +59,9 @@ import {
 import {
     mergeStyles,
 }                           from '@cssfn/cssfn/dist/mergeStyles.js'
-
-// internals:
 import {
-    default as sortedKnownCssProps
-}                           from './sorted-known-css-props.js'
+    isKnownCssProp,
+}                           from '@cssfn/css-prop-list'
 
 // other libs:
 import {
@@ -1014,131 +1012,9 @@ export { cssConfig, cssConfig as default }
 
 // utilities:
 const isUppercase  = (test: string) => (test >= 'A') && (test <= 'Z');
-const isLowercase  = (test: string) => (test >= 'a') && (test <= 'z');
-const isNumbercase = (test: string) => (test >= '0') && (test <= '9');
-
-const reservedComponentNames = [
-    'icon', 'img', 'media', 'arrow', 'arrowTop', 'arrowRight', 'arrowBottom', 'arrowLeft', 'separator', 'items', 'item', 'sub', 'logo', 'toggler', 'menus', 'menu', 'label', 'control', 'btn', 'navBtn', 'prevBtn', 'nextBtn', 'nav', 'switch', 'link', 'bullet', 'ghost', 'overlay', 'card', 'caption', 'header', 'footer', 'body', 'tab', 'breadcrumb', 'numbered', 'element', 'component', 'track', 'tracklower', 'trackupper', 'thumb'
-];
-const isPrefixOrMatchOf = (propName: string, prefix: string): boolean => (
-    propName.startsWith(prefix)
-    &&
-    (
-        (propName.length === prefix.length)           // exact match
-        ||
-        isUppercase(propName.slice(prefix.length)[0]) // followed by uppercase
-    )
-);
-
-const reservedSizeNames = [
-    'Xs', 'Sm', 'Nm', 'Md', 'Lg', 'Xl', 'Xxl', 'Xxxl'
-];
-const reservedWeightNames = [
-    'Lighter', 'Light', 'Normal', 'Bold', 'Bolder'
-];
-const reservedStateNames = [
-    'None', 'Excited', 'Running', 'Enable', 'Disable', 'Active', 'Passive', 'Press', 'Release', 'Check', 'Clear', 'Hover', 'Arrive', 'Leave', 'Focus', 'Blur', 'Valid', 'Unvalid', 'Invalid', 'Uninvalid', 'Full', 'Compact'
-];
-const reservedWordsEndsWithInlineBlock = [
-    'inlineSize'   , 'blockSize',
-    'minInlineSize', 'minBlockSize',
-    'maxInlineSize', 'maxBlockSize',
-    
-    'marginInline', 'marginBlock',
-    
-    'paddingInline', 'paddingBlock',
-    
-    'cursor',
-];
-const reservedWords = [
-    'backgGrad',
-    'backgGradInline',
-    'backgGradBlock',
-    
-    'backgOverlay',
-    'backgOverlayImg',
-    'backgOverlaySize',
-    'backgStriped',
-    'backgStripedImg',
-    'backgStripedSize',
-    
-    'orientation',
-    
-    'align',
-    'horzAlign',
-    'vertAlign',
-    
-    'spacing',
-    
-    'img',
-    
-    'size',
-    
-    'valid',
-    'invalid',
-    
-    'transDuration',
-    
-    'topTransform',
-    'bottomTransform',
-    'leftTransform',
-    'rightTransform',
-];
-const isSuffixOf = (propName: string, suffix: string): boolean => (
-    propName.endsWith(suffix)
-    &&
-    (propName.length > suffix.length) // sub match
-    &&
-    isLowercase(propName.slice(- suffix.length - 1, - suffix.length)) // a lowercase before the suffix
-);
-const isSuffixOfOptionalInlineBlock = (propName: string, suffix: string): boolean => {
-    if (propName.endsWith('Block'))       propName = propName.slice(0, -5);
-    else if (propName.endsWith('Inline')) propName = propName.slice(0, -6);
-    
-    return isSuffixOf(propName, suffix);
-};
-const isSuffixOfRequiredInlineBlock = (propName: string, suffix: string): boolean => {
-    if (propName.endsWith('Block'))       propName = propName.slice(0, -5);
-    else if (propName.endsWith('Inline')) propName = propName.slice(0, -6);
-    else                                  return false; // Block|Inline is required
-    
-    return isSuffixOf(propName, suffix);
-};
 
 
 
-const sortedKnownCssPropsMax = sortedKnownCssProps.length - 1;
-const isKnownCssProps = (propName: string): boolean => {
-    let min = 0, max = sortedKnownCssPropsMax, middle : number;
-    let find: string;
-    
-    while (min <= max) {
-        middle = ((min + max) / 2)|0;
-        
-        find = sortedKnownCssProps[middle];
-        if (propName < find) {
-            max = (middle - 1); // search in smaller range, excluding the middle
-        }
-        else if (propName > find) {
-            min = (middle + 1); // search in bigger range, excluding the middle
-        }
-        else {
-            return true; // found
-        } // if
-    } // while
-    
-    return false; // not found
-}
-export const usesCssPropsQ = <TConfigProps extends CssConfigProps>(cssProps: Refs<TConfigProps>): CssProps => {
-    const result: CssProps = {};
-    for (const propName in cssProps) {
-        if (!isKnownCssProps(propName)) continue; // unknown css prop => ignore
-        
-        // if passed => include it:
-        result[propName as any] = cssProps[propName];
-    } // for
-    return result;
-}
 /**
  * Includes a *valid* css props from the specified `cssProps`.
  * @param cssProps The css vars to be filtered.
@@ -1147,112 +1023,9 @@ export const usesCssPropsQ = <TConfigProps extends CssConfigProps>(cssProps: Ref
 export const usesCssProps = <TConfigProps extends CssConfigProps>(cssProps: Refs<TConfigProps>): CssProps => {
     const result: CssProps = {};
     for (const propName in cssProps) {
-        // predicates:
-        const isPrefixOrMatchBy = (prefix: string): boolean => isPrefixOrMatchOf(propName, prefix);
-        const isSuffixBy        = (suffix: string): boolean =>        isSuffixOf(propName, suffix);
+        if (!isKnownCssProp(propName)) continue; // unknown css prop => ignore
         
-        
-        
-        // excludes the entries if the `propName` is matching with following:
-        
-        
-        
-        /**
-         * (sub) component prefixes
-         * eg:
-         * fooBorder
-         * booPadding
-         * logoBackgColor
-         * logoOpacity
-         * subOpacity
-         */
-        
-        // not prefixed or match by reserved (sub) component names:
-        if (reservedComponentNames.some(isPrefixOrMatchBy)) continue;
-        
-        // not prefixed or match by `list` exept `listStyle`:
-        if (isPrefixOrMatchBy('list') && (propName.slice(4, 9) !== 'Style')) continue;
-        
-        
-        
-        /**
-         * size-variant suffixes
-         * eg:
-         * paddingSm
-         * borderRadius0em
-         * fontSizeSm
-         * fontSizeXl
-         */
-        
-        // not suffixed by reserved size names:
-        if (reservedSizeNames.some(isSuffixBy)) continue;
-        
-        // not suffixed by {number}em :
-        if ((propName.length >= 4) && propName.endsWith('em') && isNumbercase(propName.slice(-3, -2))) continue;
-        
-        
-        
-        /**
-         * weight-variant suffixes
-         * eg:
-         * fontWeightLight
-         * fontWeightNormal
-         */
-        
-        // not suffixed by reserved weight names:
-        if (reservedWeightNames.some(isSuffixBy)) continue;
-        
-        
-        
-        /**
-         * state-variant suffixes
-         * eg:
-         * animValid
-         * animInvalidInline
-         */
-        
-        // not suffixed by reserved state names (and optionally suffixed by Block|Inline):
-        if (reservedStateNames.some((suffix) => isSuffixOfOptionalInlineBlock(propName, suffix))) continue;
-        
-        
-        
-        /**
-         * special props ending with inline|block:
-         * Eg:
-         * inlineSizeInline
-         *  blockSizeInline
-         * inlineSizeBlock
-         *  blockSizeBlock
-         */
-        
-        // not a special props which always ends with Block|Inline:
-        if (reservedWordsEndsWithInlineBlock.some((suffix) => isSuffixOfRequiredInlineBlock(propName, suffix))) continue;
-        
-        
-        
-        /**
-         * special props:
-         * Eg:
-         * spacing
-         * valid
-         * vertAlign
-         * orientation
-         * valid   => (icon)Valid   => valid
-         * invalid => (icon)Invalid => invalid
-         */
-        
-        // not a special props:
-        if (reservedWords.some(isSuffixBy)) continue;
-        
-        // not a fontFamily{name}:
-        if (isPrefixOrMatchBy('fontFamily') && (propName.length >= 11)) continue;
-        
-        // not a fontSize{number}:
-        if (propName.startsWith('fontSize') && (propName.length >= 9)) continue;
-        
-        
-        
-        // if not match => include it:
+        // if passed => include it:
         result[propName as any] = cssProps[propName];
     } // for
     return result;
