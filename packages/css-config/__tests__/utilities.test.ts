@@ -2,6 +2,7 @@ import {
     cssConfig,
     usesPrefixedProps,
     usesSuffixedProps,
+    overwriteProps,
 } from '../dist/css-config.js'
 
 
@@ -565,5 +566,249 @@ test(`test usesSuffixedProps(prefix: 'boo', remove: false)`, () => {
         boxShadowActive : `var(--boo-boxShadowActive)`,
         filterActive    : `var(--boo-filterActive)`,
         borderActive    : `var(--boo-borderActive)`,
+    });
+});
+
+
+
+test(`test overwriteProps(usesSuffixedProps())`, () => {
+    const [cssProps] = cssConfig({
+        borderRadius    : 'unset',
+        borderRadiusSm  : 'unset',
+        borderRadiusLg  : 'unset',
+        
+        fontSize        : 'unset',
+        fontSizeSm      : 'unset',
+        fontSizeLg      : 'unset',
+        
+        boxShadowLg     : 'unset',
+    });
+    expect(
+        overwriteProps(cssProps, usesSuffixedProps(cssProps, 'sm'))
+    )
+    .toEqual({
+        borderRadius    : `var(--borderRadiusSm)`,
+        fontSize        : `var(--fontSizeSm)`,
+    });
+});
+test(`test overwriteProps(usesSuffixedProps())`, () => {
+    const [cssProps] = cssConfig({
+        borderRadius    : 'unset',
+        borderRadiusSm  : 'unset',
+        borderRadiusLg  : 'unset',
+        
+        fontSize        : 'unset',
+        fontSizeSm      : 'unset',
+        fontSizeLg      : 'unset',
+        
+        boxShadowLg     : 'unset',
+    });
+    expect(
+        overwriteProps(cssProps, usesSuffixedProps(cssProps, 'lg'))
+    )
+    .toEqual({
+        borderRadius    : `var(--borderRadiusLg)`,
+        fontSize        : `var(--fontSizeLg)`,
+    });
+});
+test(`test overwriteProps(usesSuffixedProps())`, () => {
+    const [cssProps] = cssConfig({
+        borderRadius    : 'unset',
+        borderRadiusSm  : 'unset',
+        borderRadiusLg  : 'unset',
+        
+        fontSize        : 'unset',
+        fontSizeSm      : 'unset',
+        fontSizeLg      : 'unset',
+        
+        boxShadowLg     : 'unset',
+    });
+    expect(
+        overwriteProps(cssProps, usesSuffixedProps(cssProps, 'blah'))
+    )
+    .toEqual({
+        /* empty */
+    });
+});
+
+test(`test overwriteProps(usesSuffixedProps(prefix: 'boo'))`, () => {
+    const [cssProps] = cssConfig({
+        borderRadius    : 'unset',
+        borderRadiusSm  : 'unset',
+        borderRadiusLg  : 'unset',
+        
+        fontSize        : 'unset',
+        fontSizeSm      : 'unset',
+        fontSizeLg      : 'unset',
+        
+        boxShadowLg     : 'unset',
+    }, { prefix: 'boo' });
+    expect(
+        overwriteProps(cssProps, usesSuffixedProps(cssProps, 'sm'))
+    )
+    .toEqual({
+        borderRadius    : `var(--boo-borderRadiusSm)`,
+        fontSize        : `var(--boo-fontSizeSm)`,
+    });
+});
+test(`test overwriteProps(usesSuffixedProps(prefix: 'boo'))`, () => {
+    const [cssProps] = cssConfig({
+        borderRadius    : 'unset',
+        borderRadiusSm  : 'unset',
+        borderRadiusLg  : 'unset',
+        
+        fontSize        : 'unset',
+        fontSizeSm      : 'unset',
+        fontSizeLg      : 'unset',
+        
+        boxShadowLg     : 'unset',
+    }, { prefix: 'boo' });
+    expect(
+        overwriteProps(cssProps, usesSuffixedProps(cssProps, 'lg'))
+    )
+    .toEqual({
+        borderRadius    : `var(--boo-borderRadiusLg)`,
+        fontSize        : `var(--boo-fontSizeLg)`,
+    });
+});
+test(`test overwriteProps(usesSuffixedProps(prefix: 'boo'))`, () => {
+    const [cssProps] = cssConfig({
+        borderRadius    : 'unset',
+        borderRadiusSm  : 'unset',
+        borderRadiusLg  : 'unset',
+        
+        fontSize        : 'unset',
+        fontSizeSm      : 'unset',
+        fontSizeLg      : 'unset',
+        
+        boxShadowLg     : 'unset',
+    }, { prefix: 'boo' });
+    expect(
+        overwriteProps(cssProps, usesSuffixedProps(cssProps, 'blah'))
+    )
+    .toEqual({
+        /* empty */
+    });
+});
+
+test(`test overwriteProps(usesSuffixedProps(remove: false))`, () => {
+    const [cssProps] = cssConfig({
+        borderRadius    : 'unset',
+        borderRadiusSm  : 'unset',
+        borderRadiusLg  : 'unset',
+        
+        fontSize        : 'unset',
+        fontSizeSm      : 'unset',
+        fontSizeLg      : 'unset',
+        
+        boxShadowLg     : 'unset',
+    });
+    expect(
+        overwriteProps(cssProps, usesSuffixedProps(cssProps, 'sm', false))
+    )
+    .toEqual({
+        borderRadiusSm  : `var(--borderRadiusSm)`,
+        fontSizeSm      : `var(--fontSizeSm)`,
+    });
+});
+test(`test overwriteProps(usesSuffixedProps(remove: false))`, () => {
+    const [cssProps] = cssConfig({
+        borderRadius    : 'unset',
+        borderRadiusSm  : 'unset',
+        borderRadiusLg  : 'unset',
+        
+        fontSize        : 'unset',
+        fontSizeSm      : 'unset',
+        fontSizeLg      : 'unset',
+        
+        boxShadowLg     : 'unset',
+    });
+    expect(
+        overwriteProps(cssProps, usesSuffixedProps(cssProps, 'lg', false))
+    )
+    .toEqual({
+        borderRadiusLg  : `var(--borderRadiusLg)`,
+        fontSizeLg      : `var(--fontSizeLg)`,
+        boxShadowLg     : `var(--boxShadowLg)`,
+    });
+});
+test(`test overwriteProps(usesSuffixedProps(remove: false))`, () => {
+    const [cssProps] = cssConfig({
+        borderRadius    : 'unset',
+        borderRadiusSm  : 'unset',
+        borderRadiusLg  : 'unset',
+        
+        fontSize        : 'unset',
+        fontSizeSm      : 'unset',
+        fontSizeLg      : 'unset',
+        
+        boxShadowLg     : 'unset',
+    });
+    expect(
+        overwriteProps(cssProps, usesSuffixedProps(cssProps, 'blah', false))
+    )
+    .toEqual({
+        /* empty */
+    });
+});
+
+test(`test usesSuffixedProps(prefix: 'boo', remove: false)`, () => {
+    const [cssProps] = cssConfig({
+        borderRadius    : 'unset',
+        borderRadiusSm  : 'unset',
+        borderRadiusLg  : 'unset',
+        
+        fontSize        : 'unset',
+        fontSizeSm      : 'unset',
+        fontSizeLg      : 'unset',
+        
+        boxShadowLg     : 'unset',
+    }, { prefix: 'boo' });
+    expect(
+        overwriteProps(cssProps, usesSuffixedProps(cssProps, 'sm', false))
+    )
+    .toEqual({
+        borderRadiusSm  : `var(--boo-borderRadiusSm)`,
+        fontSizeSm      : `var(--boo-fontSizeSm)`,
+    });
+});
+test(`test usesSuffixedProps(prefix: 'boo', remove: false)`, () => {
+    const [cssProps] = cssConfig({
+        borderRadius    : 'unset',
+        borderRadiusSm  : 'unset',
+        borderRadiusLg  : 'unset',
+        
+        fontSize        : 'unset',
+        fontSizeSm      : 'unset',
+        fontSizeLg      : 'unset',
+        
+        boxShadowLg     : 'unset',
+    }, { prefix: 'boo' });
+    expect(
+        overwriteProps(cssProps, usesSuffixedProps(cssProps, 'lg', false))
+    )
+    .toEqual({
+        borderRadiusLg  : `var(--boo-borderRadiusLg)`,
+        fontSizeLg      : `var(--boo-fontSizeLg)`,
+        boxShadowLg     : `var(--boo-boxShadowLg)`,
+    });
+});
+test(`test usesSuffixedProps(prefix: 'boo', remove: false)`, () => {
+    const [cssProps] = cssConfig({
+        borderRadius    : 'unset',
+        borderRadiusSm  : 'unset',
+        borderRadiusLg  : 'unset',
+        
+        fontSize        : 'unset',
+        fontSizeSm      : 'unset',
+        fontSizeLg      : 'unset',
+        
+        boxShadowLg     : 'unset',
+    }, { prefix: 'boo' });
+    expect(
+        overwriteProps(cssProps, usesSuffixedProps(cssProps, 'blah', false))
+    )
+    .toEqual({
+        /* empty */
     });
 });
