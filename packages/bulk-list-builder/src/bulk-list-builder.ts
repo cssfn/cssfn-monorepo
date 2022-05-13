@@ -67,8 +67,8 @@ export const createBulkList = (list: string[]) => {
     // sort the words by frequency, from most frequent to most rare:
     const sortedWordList = (
         Array.from(wordStatistic.entries())
-        .sort((a, b) => b[1] - a[1])
-        .map((entry): string => entry[0])
+        .sort((a, b) => b[1] - a[1])      // sort the entries by the frequency
+        .map((entry): string => entry[0]) // get the word from entry
     );
     const encodedSortedWordList = sortedWordList.join(',');
     const decodedSortedWordList = encodedSortedWordList.split(',');
@@ -86,7 +86,7 @@ export const createBulkList = (list: string[]) => {
         
         const indexedSubWords : number[] = (
             subWords
-            .map((subWord): number => {
+            .map((subWord): number => { // encode subWord to wordIndex
                 const wordIndex = decodedSortedWordList.indexOf(subWord);
                 
                 return wordIndex;
@@ -99,9 +99,9 @@ export const createBulkList = (list: string[]) => {
     const prevWordIndexMap = new Map<number, number>();
     const compressedIndexedList : (number|null)[][] = (
         indexedList
-        .map((subWordIndices): (number|null)[] => (
+        .map((subWordIndices): (number|null)[] => ( // compacting the subWordIndices (if possible)
             subWordIndices
-            .map((wordIndex, index): number|null => {
+            .map((wordIndex, index): number|null => { // convert the wordIndex to null if the same as the previous (compressing the data)
                 const prevWordIndex = prevWordIndexMap.get(index);
                 if (prevWordIndex !== undefined) {
                     if (wordIndex === prevWordIndex) return null; // null means: same as previous index
@@ -115,9 +115,9 @@ export const createBulkList = (list: string[]) => {
     
     const encodedIndexedList = (
         compressedIndexedList
-        .map((subWordIndices): string => (
+        .map((subWordIndices): string => ( // encode the subWordIndices to base36[]
             subWordIndices
-            .map((wordIndex) => (
+            .map((wordIndex): string => ( // encode the wordIndex to base36
                 (wordIndex === null)
                 ?
                 ''
@@ -132,9 +132,9 @@ export const createBulkList = (list: string[]) => {
     const prevWordIndexMap2 = new Map<number, number>();
     const decodedIndexedList = (
         encodedIndexedList.split(',')
-        .map((encodedItem): number[] => (
+        .map((encodedItem): number[] => ( // decode the base36[] to subWordIndices
             encodedItem.split('-')
-            .map((encodedWord, index): number => {
+            .map((encodedWord, index): number => { // decode the base36 to wordIndex
                 if (encodedWord === '') {
                     return prevWordIndexMap2.get(index) ?? 0;
                 }
@@ -161,7 +161,7 @@ export const createBulkList = (list: string[]) => {
     for (let i = 0; i < uniqueSortedList.length; i++) {
         const word1 = uniqueSortedList[i];
         
-        const word2 = decodedIndexedList[i].map((wordIndex, index): string => {
+        const word2 = decodedIndexedList[i].map((wordIndex, index): string => { // decode subWordIndices to subWord[]
             if (wordIndex === null) {
                 wordIndex = prevWordIndexMap3.get(index) ?? 0;
             }
