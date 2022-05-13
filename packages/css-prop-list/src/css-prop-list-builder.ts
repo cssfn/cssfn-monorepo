@@ -147,6 +147,26 @@ const encodedIndexedList = (
     .join(',')
 );
 
+const encodedIndexedListBy2Chars = (
+    compressedIndexedList
+    .map((subWordIndices): string => (
+        subWordIndices
+        .map((wordIndex) => (
+            (wordIndex === null)
+            ?
+            '-'
+            :
+            ((): string => {
+                const encodedNum = wordIndex.toString(36)
+                if (encodedNum.length === 1) return `0${encodedNum}`;
+                return encodedNum;
+            })()
+        ))
+        .join('')
+    ))
+    .join(',')
+);
+
 const prevWordIndexMap2 = new Map<number, number>();
 const decodedIndexedList = (
     encodedIndexedList.split(',')
@@ -198,5 +218,6 @@ for (let i = 0; i < uniqueSortedList.length; i++) {
 // show the result:
 console.log(encodedSortedWordList);
 console.log(encodedIndexedList);
+console.log(encodedIndexedListBy2Chars);
 console.log('succcess. Please copy the results above to your script!');
 debugger;
