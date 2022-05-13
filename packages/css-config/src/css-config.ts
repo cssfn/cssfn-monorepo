@@ -960,6 +960,40 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             .map((cssCustomName): string => cssCustomName.slice(skipPrefixChars)) // remove prefix
         );
     }
+    /**
+     * Gets the behavior of the specified `propName`.
+     * @param propName The prop name to retrieve.
+     * @returns A `PropertyDescriptor` represents the behavior of the specified `propName` -or- `undefined` if it doesn't exist.
+     */
+    #getPropDescRef(propName: string): PropertyDescriptor|undefined {
+        const propRef = this.#getRef(propName);
+        if (!propRef) return undefined; // not found
+        
+        return {
+            value        : propRef,
+            
+            writable     : true, // make sure the propName is assignable
+            enumerable   : true, // make sure the propName always listed by `for (const i in refs)`
+            configurable : true, // make sure the propName can be deleted
+        };
+    }
+    /**
+     * Gets the behavior of the specified `propName`.
+     * @param propName The prop name to retrieve.
+     * @returns A `PropertyDescriptor` represents the behavior of the specified `propName` -or- `undefined` if it doesn't exist.
+     */
+    #getPropDescVal(propName: string): PropertyDescriptor|undefined {
+        const propVal = this.#getVal(propName);
+        if (!propVal) return undefined; // not found
+        
+        return {
+            value        : propVal,
+            
+            writable     : true, // make sure the propName is assignable
+            enumerable   : true, // make sure the propName always listed by `for (const i in refs)`
+            configurable : true, // make sure the propName can be deleted
+        };
+    }
     //#endregion proxy getters & setters
     
     
@@ -985,18 +1019,20 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         // proxies - representing data in various formats:
         this.#refs = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */CssCustomSimpleRef | /*setter: */CssCustomValue|undefined|null }>(unusedObj as any, {
-            get            : (_unusedObj, propName: string)                                          => this.#getRef(propName),
-            set            : (_unusedObj, propName: string, newValue: CssCustomValue|undefined|null) => this.#setDirect(propName, newValue),
-            deleteProperty : (_unusedObj, propName: string)                                          => this.#setDirect(propName, undefined),
+            get                      : (_unusedObj, propName: string)                                          => this.#getRef(propName),
+            set                      : (_unusedObj, propName: string, newValue: CssCustomValue|undefined|null) => this.#setDirect(propName, newValue),
+            deleteProperty           : (_unusedObj, propName: string)                                          => this.#setDirect(propName, undefined),
             
-            ownKeys        : (_unusedObj)                                                            => this.#getPropList(),
+            ownKeys                  : (_unusedObj)                                                            => this.#getPropList(),
+            getOwnPropertyDescriptor : (_unusedObj, propName: string)                                          => this.#getPropDescRef(propName),
         }) as Refs<TConfigProps>;
         this.#vals = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */    CssCustomValue | /*setter: */CssCustomValue|undefined|null }>(unusedObj as any, {
-            get            : (_unusedObj, propName: string)                                          => this.#getVal(propName),
-            set            : (_unusedObj, propName: string, newValue: CssCustomValue|undefined|null) => this.#setDirect(propName, newValue),
-            deleteProperty : (_unusedObj, propName: string)                                          => this.#setDirect(propName, undefined),
+            get                      : (_unusedObj, propName: string)                                          => this.#getVal(propName),
+            set                      : (_unusedObj, propName: string, newValue: CssCustomValue|undefined|null) => this.#setDirect(propName, newValue),
+            deleteProperty           : (_unusedObj, propName: string)                                          => this.#setDirect(propName, undefined),
             
-            ownKeys        : (_unusedObj)                                                            => this.#getPropList(),
+            ownKeys                  : (_unusedObj)                                                            => this.#getPropList(),
+            getOwnPropertyDescriptor : (_unusedObj, propName: string)                                          => this.#getPropDescVal(propName),
         }) as Vals<TConfigProps>;
     }
     //#endregion constructors
