@@ -1139,12 +1139,12 @@ export const usesSuffixedProps = <TConfigProps extends CssConfigProps>(cssProps:
  * @param cssSourceProps The css vars for overwritting (source).
  * @returns A new `CssProps` object which is the copy of the specified `cssSourceProps` which overwrites the specified `cssTargetProps`.
  */
-export const overwriteProps = <TConfigProps extends CssConfigProps>(cssTargetProps: Refs<TConfigProps>, cssSourceProps: Refs<TConfigProps>): CssProps => {
+export const overwriteProps = <TConfigProps extends CssConfigProps>(cssTargetProps: Refs<TConfigProps>, cssSourceProps: CssProps): CssProps => {
     const result: CssProps = {};
     for (const srcPropName in cssSourceProps) {
         if (!(srcPropName in cssTargetProps)) continue; // only in source but not found in target => useless => ignore
         
-        result[srcPropName as any] = cssSourceProps[srcPropName];
+        result[srcPropName as any] = cssSourceProps[srcPropName as any];
     } // for
     return result;
 }
