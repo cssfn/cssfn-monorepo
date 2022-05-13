@@ -27,6 +27,16 @@ const { encodedSortedWordList, encodedIndexedList } = createBulkList([
     ...standardLonghandProps,
     ...standardShorthandProps,
     ...svgProps,
+
+    'foreg',
+    'backg',
+    'backgClip',
+    'anim',
+    'transf',
+    'gapX',
+    'gapY',
+    'gapInline',
+    'gapBlock',
 ]);
 
 
