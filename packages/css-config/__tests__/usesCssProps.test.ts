@@ -5,17 +5,28 @@ import {
 
 import {
     standardLonghandProps,
-    // standardShorthandProps,
-    // vendorLonghandProps,
-    // vendorShorthandProps,
-    // obsoleteProps,
-    // svgProps,
+    standardShorthandProps,
+    vendorLonghandProps,
+    vendorShorthandProps,
+    obsoleteProps,
+    svgProps,
 }                           from '@cssfn/css-prop-list/dist/known-css-props.js'
 
 
 
 standardLonghandProps.forEach((propName) => {
-    test(`test isKnownCssProp(standardLonghandProps: ${propName})`, () => {
+    test(`test usesCssProps(standardLonghandProps: ${propName})`, () => {
+        const [cssProps] = cssConfig({
+            [propName]: 'unset',
+        });
+        expect(
+            usesCssProps(cssProps)
+        )
+        .toEqual({
+            [propName]: `var(--${propName})`,
+        });
+    });
+    test(`test usesCssProps(standardLonghandProps: ${propName})`, () => {
         const [cssProps] = cssConfig({
             [propName]: 'unset',
         }, { prefix: 'boo' });
@@ -23,36 +34,83 @@ standardLonghandProps.forEach((propName) => {
             usesCssProps(cssProps)
         )
         .toEqual({
-            [propName]: `var(--boo-${propName})`
+            [propName]: `var(--boo-${propName})`,
         });
     });
 });
-/*
 standardShorthandProps.forEach((propName) => {
-    test(`test isKnownCssProp(standardShorthandProps: ${propName})`, () => {
+    test(`test usesCssProps(standardShorthandProps: ${propName})`, () => {
+        const [cssProps] = cssConfig({
+            [propName]: 'unset',
+        });
         expect(
-            isKnownCssProp(propName)
+            usesCssProps(cssProps)
         )
-        .toBe(true);
+        .toEqual({
+            [propName]: `var(--${propName})`,
+        });
+    });
+    test(`test usesCssProps(standardShorthandProps: ${propName})`, () => {
+        const [cssProps] = cssConfig({
+            [propName]: 'unset',
+        }, { prefix: 'boo' });
+        expect(
+            usesCssProps(cssProps)
+        )
+        .toEqual({
+            [propName]: `var(--boo-${propName})`,
+        });
     });
 });
 
 
 
 vendorLonghandProps.forEach((propName) => {
-    test(`test isKnownCssProp(vendorLonghandProps: ${propName})`, () => {
+    test(`test usesCssProps(vendorLonghandProps: ${propName})`, () => {
+        const [cssProps] = cssConfig({
+            [propName]: 'unset',
+        });
         expect(
-            isKnownCssProp(propName)
+            usesCssProps(cssProps)
         )
-        .toBe(true);
+        .toEqual({
+            [propName]: `var(--${propName})`,
+        });
+    });
+    test(`test usesCssProps(vendorLonghandProps: ${propName})`, () => {
+        const [cssProps] = cssConfig({
+            [propName]: 'unset',
+        }, { prefix: 'boo' });
+        expect(
+            usesCssProps(cssProps)
+        )
+        .toEqual({
+            [propName]: `var(--boo-${propName})`,
+        });
     });
 });
 vendorShorthandProps.forEach((propName) => {
-    test(`test isKnownCssProp(vendorShorthandProps: ${propName})`, () => {
+    test(`test usesCssProps(vendorShorthandProps: ${propName})`, () => {
+        const [cssProps] = cssConfig({
+            [propName]: 'unset',
+        });
         expect(
-            isKnownCssProp(propName)
+            usesCssProps(cssProps)
         )
-        .toBe(true);
+        .toEqual({
+            [propName]: `var(--${propName})`,
+        });
+    });
+    test(`test usesCssProps(vendorShorthandProps: ${propName})`, () => {
+        const [cssProps] = cssConfig({
+            [propName]: 'unset',
+        }, { prefix: 'boo' });
+        expect(
+            usesCssProps(cssProps)
+        )
+        .toEqual({
+            [propName]: `var(--boo-${propName})`,
+        });
     });
 });
 
@@ -69,19 +127,51 @@ obsoleteProps.forEach((propName) => {
         ||
         (propName.startsWith('Webkit') && isUppercase(propName[6])) // Webkit[A-Z] => always considered valid
     ) {
-        test(`test isKnownCssProp(obsoleteProps: ${propName})`, () => {
+        test(`test usesCssProps(obsoleteProps: ${propName})`, () => {
+            const [cssProps] = cssConfig({
+                [propName]: 'unset',
+            });
             expect(
-                isKnownCssProp(propName)
+                usesCssProps(cssProps)
             )
-            .toBe(true);
+            .toEqual({
+                [propName]: `var(--${propName})`,
+            });
+        });
+        test(`test usesCssProps(obsoleteProps: ${propName})`, () => {
+            const [cssProps] = cssConfig({
+                [propName]: 'unset',
+            }, { prefix: 'boo' });
+            expect(
+                usesCssProps(cssProps)
+            )
+            .toEqual({
+                [propName]: `var(--boo-${propName})`,
+            });
         });
     }
     else {
-        test(`test isKnownCssProp(obsoleteProps: ${propName})`, () => {
+        test(`test usesCssProps(obsoleteProps: ${propName})`, () => {
+            const [cssProps] = cssConfig({
+                [propName]: 'unset',
+            });
             expect(
-                isKnownCssProp(propName)
+                usesCssProps(cssProps)
             )
-            .toBe(false);
+            .toEqual({
+                /* empty */
+            });
+        });
+        test(`test usesCssProps(obsoleteProps: ${propName})`, () => {
+            const [cssProps] = cssConfig({
+                [propName]: 'unset',
+            }, { prefix: 'boo' });
+            expect(
+                usesCssProps(cssProps)
+            )
+            .toEqual({
+                /* empty */
+            });
         });
     } // if
 });
@@ -89,11 +179,27 @@ obsoleteProps.forEach((propName) => {
 
 
 svgProps.forEach((propName) => {
-    test(`test isKnownCssProp(svgProps: ${propName})`, () => {
+    test(`test usesCssProps(svgProps: ${propName})`, () => {
+        const [cssProps] = cssConfig({
+            [propName]: 'unset',
+        });
         expect(
-            isKnownCssProp(propName)
+            usesCssProps(cssProps)
         )
-        .toBe(true);
+        .toEqual({
+            [propName]: `var(--${propName})`,
+        });
+    });
+    test(`test usesCssProps(svgProps: ${propName})`, () => {
+        const [cssProps] = cssConfig({
+            [propName]: 'unset',
+        }, { prefix: 'boo' });
+        expect(
+            usesCssProps(cssProps)
+        )
+        .toEqual({
+            [propName]: `var(--boo-${propName})`,
+        });
     });
 });
 
@@ -111,11 +217,27 @@ const shorthandProps : string[] = [
     'gapBlock',
 ];
 shorthandProps.forEach((propName) => {
-    test(`test isKnownCssProp(shorthandProps: ${propName})`, () => {
+    test(`test usesCssProps(shorthandProps: ${propName})`, () => {
+        const [cssProps] = cssConfig({
+            [propName]: 'unset',
+        });
         expect(
-            isKnownCssProp(propName)
+            usesCssProps(cssProps)
         )
-        .toBe(true);
+        .toEqual({
+            [propName]: `var(--${propName})`,
+        });
+    });
+    test(`test usesCssProps(shorthandProps: ${propName})`, () => {
+        const [cssProps] = cssConfig({
+            [propName]: 'unset',
+        }, { prefix: 'boo' });
+        expect(
+            usesCssProps(cssProps)
+        )
+        .toEqual({
+            [propName]: `var(--boo-${propName})`,
+        });
     });
 });
 
@@ -242,11 +364,26 @@ const strangeProps : string[] = [
     'ghostOpacityArrive',
 ];
 strangeProps.forEach((propName) => {
-    test(`test isKnownCssProp(strangeProps: ${propName})`, () => {
+    test(`test usesCssProps(strangeProps: ${propName})`, () => {
+        const [cssProps] = cssConfig({
+            [propName]: 'unset',
+        });
         expect(
-            isKnownCssProp(propName)
+            usesCssProps(cssProps)
         )
-        .toBe(false);
+        .toEqual({
+            /* empty */
+        });
+    });
+    test(`test usesCssProps(strangeProps: ${propName})`, () => {
+        const [cssProps] = cssConfig({
+            [propName]: 'unset',
+        }, { prefix: 'boo' });
+        expect(
+            usesCssProps(cssProps)
+        )
+        .toEqual({
+            /* empty */
+        });
     });
 });
-*/
