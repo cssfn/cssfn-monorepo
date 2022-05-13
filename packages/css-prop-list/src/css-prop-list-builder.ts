@@ -69,33 +69,50 @@ const splitWord = (word: string): string[] => {
 
 // compress the list:
 
-const wordSet = new Set<string>();
-const indexedKnownCssProps : number[][] = [];
-
+// collect the words:
+const wordStatistic = new Map<string, number>();
 for (const prop of uniqueSortedKnownCssProps) {
     const subWords = splitWord(prop);
-    subWords.forEach((subWord) => wordSet.add(subWord));
     
-    const wordList = Array.from(wordSet);
-    const indexedSubWords = subWords.map((subWord) => wordList.indexOf(subWord));
-    indexedKnownCssProps.push(indexedSubWords);
+    subWords.forEach((subWord) => {
+        const counter = (wordStatistic.get(subWord) ?? 0) + 1;
+        wordStatistic.set(subWord, counter);
+    });
 } // for
 
-const wordList = Array.from(wordSet);
+
+
+// sort the words by frequency, from most frequent to most rare:
+const sortedWordList = (
+    Array.from(wordStatistic.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map((entry) => entry[0])
+);
+
+
+
+// indexing the words:
+const indexedKnownCssProps : number[][] = [];
+for (const prop of uniqueSortedKnownCssProps) {
+    const subWords = splitWord(prop);
+    
+    const indexedSubWords = subWords.map((subWord) => sortedWordList.indexOf(subWord));
+    indexedKnownCssProps.push(indexedSubWords);
+} // for
 
 
 
 // verify the result:
 for (let i = 0; i < uniqueSortedKnownCssProps.length; i++) {
     const word1 = uniqueSortedKnownCssProps[i];
-    const word2 = indexedKnownCssProps[i].map((wordIndex) => wordList[wordIndex]).join('');
+    const word2 = indexedKnownCssProps[i].map((wordIndex) => sortedWordList[wordIndex]).join('');
     if (word1 !== word2) throw Error('invalid algorithm');
 } // for
 
 
 
 // show the result:
-console.log(wordList);
+console.log(sortedWordList);
 console.log(indexedKnownCssProps);
 console.log('succcess. Please copy the results above to your script!');
 debugger;
