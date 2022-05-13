@@ -22,6 +22,9 @@
     "tsc:watch": "tsc --watch",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
+  "dependencies": {
+    "@cssfn/css-types": "^2.0.0"
+  },
   "devDependencies": {
     "@cssfn/bulk-list-builder": "^2.0.0"
   }
