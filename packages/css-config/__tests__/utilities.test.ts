@@ -1,6 +1,7 @@
 import {
     cssConfig,
     usesPrefixedProps,
+    usesSuffixedProps,
 } from '../dist/css-config.js'
 
 
@@ -23,9 +24,9 @@ test(`test usesPrefixedProps()`, () => {
         usesPrefixedProps(cssProps, 'menu')
     )
     .toEqual({
-        color       : `var(--menuColor)`,
-        background  : `var(--menuBackground)`,
-        opacity     : `var(--menuOpacity)`,
+        color           : `var(--menuColor)`,
+        background      : `var(--menuBackground)`,
+        opacity         : `var(--menuOpacity)`,
     });
 });
 test(`test usesPrefixedProps()`, () => {
@@ -46,9 +47,9 @@ test(`test usesPrefixedProps()`, () => {
         usesPrefixedProps(cssProps, 'menus')
     )
     .toEqual({
-        padding    : `var(--menusPadding)`,
-        cursor     : `var(--menusCursor)`,
-        opacity    : `var(--menusOpacity)`,
+        padding         : `var(--menusPadding)`,
+        cursor          : `var(--menusCursor)`,
+        opacity         : `var(--menusOpacity)`,
     });
 });
 test(`test usesPrefixedProps()`, () => {
@@ -69,9 +70,9 @@ test(`test usesPrefixedProps()`, () => {
         usesPrefixedProps(cssProps, 'button')
     )
     .toEqual({
-        boxShadow : `var(--buttonBoxShadow)`,
-        filter    : `var(--buttonFilter)`,
-        border    : `var(--buttonBorder)`,
+        boxShadow       : `var(--buttonBoxShadow)`,
+        filter          : `var(--buttonFilter)`,
+        border          : `var(--buttonBorder)`,
     });
 });
 
@@ -93,9 +94,9 @@ test(`test usesPrefixedProps(prefix: 'boo')`, () => {
         usesPrefixedProps(cssProps, 'menu')
     )
     .toEqual({
-        color       : `var(--boo-menuColor)`,
-        background  : `var(--boo-menuBackground)`,
-        opacity     : `var(--boo-menuOpacity)`,
+        color           : `var(--boo-menuColor)`,
+        background      : `var(--boo-menuBackground)`,
+        opacity         : `var(--boo-menuOpacity)`,
     });
 });
 test(`test usesPrefixedProps(prefix: 'boo')`, () => {
@@ -116,9 +117,9 @@ test(`test usesPrefixedProps(prefix: 'boo')`, () => {
         usesPrefixedProps(cssProps, 'menus')
     )
     .toEqual({
-        padding    : `var(--boo-menusPadding)`,
-        cursor     : `var(--boo-menusCursor)`,
-        opacity    : `var(--boo-menusOpacity)`,
+        padding         : `var(--boo-menusPadding)`,
+        cursor          : `var(--boo-menusCursor)`,
+        opacity         : `var(--boo-menusOpacity)`,
     });
 });
 test(`test usesPrefixedProps(prefix: 'boo')`, () => {
@@ -139,9 +140,9 @@ test(`test usesPrefixedProps(prefix: 'boo')`, () => {
         usesPrefixedProps(cssProps, 'button')
     )
     .toEqual({
-        boxShadow : `var(--boo-buttonBoxShadow)`,
-        filter    : `var(--boo-buttonFilter)`,
-        border    : `var(--boo-buttonBorder)`,
+        boxShadow       : `var(--boo-buttonBoxShadow)`,
+        filter          : `var(--boo-buttonFilter)`,
+        border          : `var(--boo-buttonBorder)`,
     });
 });
 
@@ -282,5 +283,287 @@ test(`test usesPrefixedProps(prefix: 'boo', remove: false)`, () => {
         buttonBoxShadow : `var(--boo-buttonBoxShadow)`,
         buttonFilter    : `var(--boo-buttonFilter)`,
         buttonBorder    : `var(--boo-buttonBorder)`,
+    });
+});
+
+
+
+test(`test usesSuffixedProps()`, () => {
+    const [cssProps] = cssConfig({
+        colorValid      : 'unset',
+        backgroundValid : 'unset',
+        opacityValid    : 'unset',
+        
+        paddingInvalid  : 'unset',
+        cursorInvalid   : 'unset',
+        opacityInvalid  : 'unset',
+        
+        boxShadowActive : 'unset',
+        filterActive    : 'unset',
+        borderActive    : 'unset',
+    });
+    expect(
+        usesSuffixedProps(cssProps, 'valid')
+    )
+    .toEqual({
+        color           : `var(--colorValid)`,
+        background      : `var(--backgroundValid)`,
+        opacity         : `var(--opacityValid)`,
+    });
+});
+test(`test usesSuffixedProps()`, () => {
+    const [cssProps] = cssConfig({
+        colorValid      : 'unset',
+        backgroundValid : 'unset',
+        opacityValid    : 'unset',
+        
+        paddingInvalid  : 'unset',
+        cursorInvalid   : 'unset',
+        opacityInvalid  : 'unset',
+        
+        boxShadowActive : 'unset',
+        filterActive    : 'unset',
+        borderActive    : 'unset',
+    });
+    expect(
+        usesSuffixedProps(cssProps, 'invalid')
+    )
+    .toEqual({
+        padding         : `var(--paddingInvalid)`,
+        cursor          : `var(--cursorInvalid)`,
+        opacity         : `var(--opacityInvalid)`,
+    });
+});
+test(`test usesSuffixedProps()`, () => {
+    const [cssProps] = cssConfig({
+        colorValid      : 'unset',
+        backgroundValid : 'unset',
+        opacityValid    : 'unset',
+        
+        paddingInvalid  : 'unset',
+        cursorInvalid   : 'unset',
+        opacityInvalid  : 'unset',
+        
+        boxShadowActive : 'unset',
+        filterActive    : 'unset',
+        borderActive    : 'unset',
+    });
+    expect(
+        usesSuffixedProps(cssProps, 'active')
+    )
+    .toEqual({
+        boxShadow       : `var(--boxShadowActive)`,
+        filter          : `var(--filterActive)`,
+        border          : `var(--borderActive)`,
+    });
+});
+
+test(`test usesSuffixedProps(prefix: 'boo')`, () => {
+    const [cssProps] = cssConfig({
+        colorValid      : 'unset',
+        backgroundValid : 'unset',
+        opacityValid    : 'unset',
+        
+        paddingInvalid  : 'unset',
+        cursorInvalid   : 'unset',
+        opacityInvalid  : 'unset',
+        
+        boxShadowActive : 'unset',
+        filterActive    : 'unset',
+        borderActive    : 'unset',
+    }, { prefix: 'boo' });
+    expect(
+        usesSuffixedProps(cssProps, 'valid')
+    )
+    .toEqual({
+        color           : `var(--boo-colorValid)`,
+        background      : `var(--boo-backgroundValid)`,
+        opacity         : `var(--boo-opacityValid)`,
+    });
+});
+test(`test usesSuffixedProps(prefix: 'boo')`, () => {
+    const [cssProps] = cssConfig({
+        colorValid      : 'unset',
+        backgroundValid : 'unset',
+        opacityValid    : 'unset',
+        
+        paddingInvalid  : 'unset',
+        cursorInvalid   : 'unset',
+        opacityInvalid  : 'unset',
+        
+        boxShadowActive : 'unset',
+        filterActive    : 'unset',
+        borderActive    : 'unset',
+    }, { prefix: 'boo' });
+    expect(
+        usesSuffixedProps(cssProps, 'invalid')
+    )
+    .toEqual({
+        padding         : `var(--boo-paddingInvalid)`,
+        cursor          : `var(--boo-cursorInvalid)`,
+        opacity         : `var(--boo-opacityInvalid)`,
+    });
+});
+test(`test usesSuffixedProps(prefix: 'boo')`, () => {
+    const [cssProps] = cssConfig({
+        colorValid      : 'unset',
+        backgroundValid : 'unset',
+        opacityValid    : 'unset',
+        
+        paddingInvalid  : 'unset',
+        cursorInvalid   : 'unset',
+        opacityInvalid  : 'unset',
+        
+        boxShadowActive : 'unset',
+        filterActive    : 'unset',
+        borderActive    : 'unset',
+    }, { prefix: 'boo' });
+    expect(
+        usesSuffixedProps(cssProps, 'active')
+    )
+    .toEqual({
+        boxShadow       : `var(--boo-boxShadowActive)`,
+        filter          : `var(--boo-filterActive)`,
+        border          : `var(--boo-borderActive)`,
+    });
+});
+
+test(`test usesSuffixedProps(remove: false)`, () => {
+    const [cssProps] = cssConfig({
+        colorValid      : 'unset',
+        backgroundValid : 'unset',
+        opacityValid    : 'unset',
+        
+        paddingInvalid  : 'unset',
+        cursorInvalid   : 'unset',
+        opacityInvalid  : 'unset',
+        
+        boxShadowActive : 'unset',
+        filterActive    : 'unset',
+        borderActive    : 'unset',
+    });
+    expect(
+        usesSuffixedProps(cssProps, 'valid', false)
+    )
+    .toEqual({
+        colorValid      : `var(--colorValid)`,
+        backgroundValid : `var(--backgroundValid)`,
+        opacityValid    : `var(--opacityValid)`,
+    });
+});
+test(`test usesSuffixedProps(remove: false)`, () => {
+    const [cssProps] = cssConfig({
+        colorValid      : 'unset',
+        backgroundValid : 'unset',
+        opacityValid    : 'unset',
+        
+        paddingInvalid  : 'unset',
+        cursorInvalid   : 'unset',
+        opacityInvalid  : 'unset',
+        
+        boxShadowActive : 'unset',
+        filterActive    : 'unset',
+        borderActive    : 'unset',
+    });
+    expect(
+        usesSuffixedProps(cssProps, 'invalid', false)
+    )
+    .toEqual({
+        paddingInvalid  : `var(--paddingInvalid)`,
+        cursorInvalid   : `var(--cursorInvalid)`,
+        opacityInvalid  : `var(--opacityInvalid)`,
+    });
+});
+test(`test usesSuffixedProps(remove: false)`, () => {
+    const [cssProps] = cssConfig({
+        colorValid      : 'unset',
+        backgroundValid : 'unset',
+        opacityValid    : 'unset',
+        
+        paddingInvalid  : 'unset',
+        cursorInvalid   : 'unset',
+        opacityInvalid  : 'unset',
+        
+        boxShadowActive : 'unset',
+        filterActive    : 'unset',
+        borderActive    : 'unset',
+    });
+    expect(
+        usesSuffixedProps(cssProps, 'active', false)
+    )
+    .toEqual({
+        boxShadowActive : `var(--boxShadowActive)`,
+        filterActive    : `var(--filterActive)`,
+        borderActive    : `var(--borderActive)`,
+    });
+});
+
+test(`test usesSuffixedProps(prefix: 'boo', remove: false)`, () => {
+    const [cssProps] = cssConfig({
+        colorValid      : 'unset',
+        backgroundValid : 'unset',
+        opacityValid    : 'unset',
+        
+        paddingInvalid  : 'unset',
+        cursorInvalid   : 'unset',
+        opacityInvalid  : 'unset',
+        
+        boxShadowActive : 'unset',
+        filterActive    : 'unset',
+        borderActive    : 'unset',
+    }, { prefix: 'boo' });
+    expect(
+        usesSuffixedProps(cssProps, 'valid', false)
+    )
+    .toEqual({
+        colorValid      : `var(--boo-colorValid)`,
+        backgroundValid : `var(--boo-backgroundValid)`,
+        opacityValid    : `var(--boo-opacityValid)`,
+    });
+});
+test(`test usesSuffixedProps(prefix: 'boo', remove: false)`, () => {
+    const [cssProps] = cssConfig({
+        colorValid      : 'unset',
+        backgroundValid : 'unset',
+        opacityValid    : 'unset',
+        
+        paddingInvalid  : 'unset',
+        cursorInvalid   : 'unset',
+        opacityInvalid  : 'unset',
+        
+        boxShadowActive : 'unset',
+        filterActive    : 'unset',
+        borderActive    : 'unset',
+    }, { prefix: 'boo' });
+    expect(
+        usesSuffixedProps(cssProps, 'invalid', false)
+    )
+    .toEqual({
+        paddingInvalid  : `var(--boo-paddingInvalid)`,
+        cursorInvalid   : `var(--boo-cursorInvalid)`,
+        opacityInvalid  : `var(--boo-opacityInvalid)`,
+    });
+});
+test(`test usesSuffixedProps(prefix: 'boo', remove: false)`, () => {
+    const [cssProps] = cssConfig({
+        colorValid      : 'unset',
+        backgroundValid : 'unset',
+        opacityValid    : 'unset',
+        
+        paddingInvalid  : 'unset',
+        cursorInvalid   : 'unset',
+        opacityInvalid  : 'unset',
+        
+        boxShadowActive : 'unset',
+        filterActive    : 'unset',
+        borderActive    : 'unset',
+    }, { prefix: 'boo' });
+    expect(
+        usesSuffixedProps(cssProps, 'active', false)
+    )
+    .toEqual({
+        boxShadowActive : `var(--boo-boxShadowActive)`,
+        filterActive    : `var(--boo-filterActive)`,
+        borderActive    : `var(--boo-borderActive)`,
     });
 });
