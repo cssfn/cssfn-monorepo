@@ -946,10 +946,18 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @returns An `Array<string>` contains *all possible* `propName`s in the css-config.
      */
     #getPropList(): ArrayLike<string|symbol> {
+        const prefixLength    = this.#options.prefix.length;
+        const skipPrefixChars = (
+            prefixLength
+            ?
+            (3 + prefixLength) // remove double dash -- AND remove prefix AND remove single dash -
+            :
+            2                  // remove double dash --
+        );
         return (
             Array.from(this.#props.keys() as IterableIterator<CssCustomName|symbol>)
             .filter((propName): propName is CssCustomName => (typeof(propName) === 'string')) // only show string props, ignores symbol props
-            .map((cssCustomName): string => cssCustomName.slice(2)) // remove double dash prefix
+            .map((cssCustomName): string => cssCustomName.slice(skipPrefixChars)) // remove prefix
         );
     }
     //#endregion proxy getters & setters
