@@ -41,9 +41,20 @@ export const getKnownCssPropList = (): string[] => (
 
 
 
+// utilities:
+const isUppercase  = (test: string) => (test >= 'A') && (test <= 'Z');
+
+
+
 const indexedKnownCssPropsMaxIndex = indexedKnownCssProps.length - 1;
 const resolveWord = (wordIndex: number): string => indexedWordList[wordIndex];
 export const isKnownCssProp = (propName: string): boolean => {
+         if (propName.startsWith('Moz')    && isUppercase(propName.slice(3, 4))) return true; // Moz[A-Z]    => always considered valid
+    else if (propName.startsWith('ms')     && isUppercase(propName.slice(2, 3))) return true; // ms[A-Z]     => always considered valid
+    else if (propName.startsWith('Webkit') && isUppercase(propName.slice(6, 7))) return true; // Webkit[A-Z] => always considered valid
+    
+    
+    
     let min = 0, max = indexedKnownCssPropsMaxIndex, middle : number;
     let middleWordIndices: number[];
     let middlePropName: string;
