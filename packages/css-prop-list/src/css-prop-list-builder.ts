@@ -18,12 +18,12 @@ import {
 
 
 // sort the list:
-const sortedKnownCssProps = knownCssProps.slice(0).sort();
+const sortedList = knownCssProps.slice(0).sort();
 
 
 
 // remove the duplicates:
-const uniqueSortedKnownCssProps = Array.from(new Set(sortedKnownCssProps));
+const uniqueSortedList = Array.from(new Set(sortedList));
 
 
 
@@ -71,8 +71,8 @@ const splitWord = (word: string): string[] => {
 
 // collect the words:
 const wordStatistic = new Map<string, number>();
-for (const prop of uniqueSortedKnownCssProps) {
-    const subWords = splitWord(prop);
+for (const item of uniqueSortedList) {
+    const subWords = splitWord(item);
     
     subWords.forEach((subWord) => {
         const counter = (wordStatistic.get(subWord) ?? 0) + 1;
@@ -98,9 +98,9 @@ for (let i = 0; i < sortedWordList.length; i++) {
 
 
 // indexing the words:
-const indexedKnownCssProps : number[][] = [];
-for (const prop of uniqueSortedKnownCssProps) {
-    const subWords = splitWord(prop);
+const indexedList : number[][] = [];
+for (const item of uniqueSortedList) {
+    const subWords = splitWord(item);
     
     const indexedSubWords : number[] = (
         subWords
@@ -111,14 +111,14 @@ for (const prop of uniqueSortedKnownCssProps) {
         })
     );
     
-    indexedKnownCssProps.push(indexedSubWords);
+    indexedList.push(indexedSubWords);
 } // for
 
 const prevWordIndexMap = new Map<number, number>();
-const compressedIndexedKnownCssProps : (number|null)[][] = (
-    indexedKnownCssProps
-    .map((indexedSubWords): (number|null)[] => (
-        indexedSubWords
+const compressedIndexedList : (number|null)[][] = (
+    indexedList
+    .map((subWordIndices): (number|null)[] => (
+        subWordIndices
         .map((wordIndex, index): number|null => {
             const prevWordIndex = prevWordIndexMap.get(index);
             if (prevWordIndex !== undefined) {
@@ -131,10 +131,10 @@ const compressedIndexedKnownCssProps : (number|null)[][] = (
     ))
 );
 
-const encodedIndexedKnownCssProps = (
-    compressedIndexedKnownCssProps
-    .map((indexedKnownCssProp): string => (
-        indexedKnownCssProp
+const encodedIndexedList = (
+    compressedIndexedList
+    .map((subWordIndices): string => (
+        subWordIndices
         .map((wordIndex) => (
             (wordIndex === null)
             ?
@@ -148,10 +148,10 @@ const encodedIndexedKnownCssProps = (
 );
 
 const prevWordIndexMap2 = new Map<number, number>();
-const decodedIndexedKnownCssProps = (
-    encodedIndexedKnownCssProps.split(',')
-    .map((encodedProp): number[] => (
-        encodedProp.split('-')
+const decodedIndexedList = (
+    encodedIndexedList.split(',')
+    .map((encodedItem): number[] => (
+        encodedItem.split('-')
         .map((encodedWord, index): number => {
             if (encodedWord === '') {
                 return prevWordIndexMap2.get(index) ?? 0;
@@ -166,9 +166,9 @@ const decodedIndexedKnownCssProps = (
     ))
 );
 // verify the decoded:
-for (let i = 0; i < indexedKnownCssProps.length; i++) {
-    for (let j = 0; j < indexedKnownCssProps[i].length; j++) {
-        if (indexedKnownCssProps[i][j] !== decodedIndexedKnownCssProps[i][j]) throw Error('invalid algorithm');
+for (let i = 0; i < indexedList.length; i++) {
+    for (let j = 0; j < indexedList[i].length; j++) {
+        if (indexedList[i][j] !== decodedIndexedList[i][j]) throw Error('invalid algorithm');
     } // for
 } // for
 
@@ -176,10 +176,10 @@ for (let i = 0; i < indexedKnownCssProps.length; i++) {
 
 // verify the result:
 const prevWordIndexMap3 = new Map<number, number>();
-for (let i = 0; i < uniqueSortedKnownCssProps.length; i++) {
-    const word1 = uniqueSortedKnownCssProps[i];
+for (let i = 0; i < uniqueSortedList.length; i++) {
+    const word1 = uniqueSortedList[i];
     
-    const word2 = decodedIndexedKnownCssProps[i].map((wordIndex, index): string => {
+    const word2 = decodedIndexedList[i].map((wordIndex, index): string => {
         if (wordIndex === null) {
             wordIndex = prevWordIndexMap3.get(index) ?? 0;
         }
@@ -197,6 +197,6 @@ for (let i = 0; i < uniqueSortedKnownCssProps.length; i++) {
 
 // show the result:
 console.log(encodedSortedWordList);
-console.log(encodedIndexedKnownCssProps);
+console.log(encodedIndexedList);
 console.log('succcess. Please copy the results above to your script!');
 debugger;
