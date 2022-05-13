@@ -1169,3 +1169,42 @@ const indexedKnownCssProps = [
     [372, 373],
     [374],
 ];
+
+
+
+export const getKnownCssPropList = () => (
+    indexedKnownCssProps
+    .map((wordIndices) => (
+        wordIndices
+        .map((wordIndex) => wordList[wordIndex])
+        .join('')
+    ))
+);
+
+
+
+const indexedKnownCssPropsMaxIndex = indexedKnownCssProps.length - 1;
+const resolveIndexedWord = (wordIndex: number) => wordList[wordIndex];
+export const isKnownCssProp = (propName: string) => {
+    let min = 0, max = indexedKnownCssPropsMaxIndex, middle : number;
+    let find: number[];
+    let findPropName: string;
+    
+    while (min <= max) {
+        middle = ((min + max) / 2)|0;
+        
+        find = indexedKnownCssProps[middle];
+        findPropName = find.map(resolveIndexedWord).join();
+        if (propName < findPropName) {
+            max = (middle - 1); // search in smaller range, excluding the middle
+        }
+        else if (propName > findPropName) {
+            min = (middle + 1); // search in bigger range, excluding the middle
+        }
+        else {
+            return true; // found
+        } // if
+    } // while
+    
+    return false; // not found
+};
