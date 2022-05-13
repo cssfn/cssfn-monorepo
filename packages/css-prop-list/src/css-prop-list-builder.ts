@@ -1,3 +1,15 @@
+/**
+ * This script is a tool for building and compressing the source of __css_prop_list__ (`known-css-props.ts`).
+ * 
+ * This script __is_not_exported__ to this package entry point,
+ * so it wouldn't affected to client's project performance.
+ * 
+ * -== just a script for making a script ==-
+ * The final script is `css-prop-list.ts` => `css-prop-list.js`
+ */
+
+
+
 // internals:
 import {
     knownCssProps,
@@ -85,4 +97,5 @@ for (let i = 0; i < uniqueSortedKnownCssProps.length; i++) {
 // show the result:
 console.log(wordList);
 console.log(indexedKnownCssProps);
+console.log('succcess. Please copy the results above to your script!');
 debugger;
