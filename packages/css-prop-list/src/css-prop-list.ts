@@ -1,5 +1,5 @@
-const sortedWordList = (
-    'Webkit,Moz,ms,border,Color,scroll,Box,Inline,Block,Border,End,Style,Start,Width,Animation,Text,text,Snap,Radius,Margin,Image,O,Size,Column,font,Transition,Mask,grid,Flex,Decoration,Position,mask,Scroll,Align,Padding,Bottom,Left,Right,Top,Rule,Mode,Origin,Content,X,Y,background,offset,Khtml,Direction,Break,box,margin,Limit,padding,Transform,animation,Delay,Duration,Timing,Function,Outline,Adjust,column,overflow,User,Fill,Background,Clip,Overflow,Variant,Repeat,Type,Emphasis,stroke,Group,Line,Count,Gap,Font,Wrap,Points,flex,inset,Zoom,Scrollbar,Opacity,Select,Shadow,Self,Before,Flow,Behavior,Lines,Orient,Sizing,Columns,Property,color,max,outline,overscroll,transition,Ordinal,Pack,Iteration,Name,Play,State,Visibility,Colors,Settings,Perspective,Items,Filter,Slice,Path,Hyphenate,Max,Orientation,align,Rendering,Row,Template,justify,line,Height,list,marker,min,motion,scrollbar,shape,transform,Feature,Hyphens,Justify,Outset,Source,Order,Combine,Skip,Stroke,Underline,Touch,Spacing,break,clip,counter,fill,Auto,Rows,image,Min,Anchor,page,place,ruby,word,Appearance,Backface,Bottomleft,Bottomright,Topleft,Topright,Language,Override,Smoothing,Tab,Last,Modify,Window,Object,Fit,Span,Basis,Grow,Shrink,Kerning,Ligatures,Character,Letter,Clamp,Attachment,Composite,Highlight,Writing,Tracks,Baseline,Blend,block,After,Inside,content,flood,Distance,Rotation,Chaining,Grid,Ime,Track,Action,object,Offset,perspective,stop,Policy,Binding,Context,Properties,Float,Edge,Force,Broken,Icon,Region,Osx,Stack,Blink,Focus,Input,Dragging,Backdrop,Reflect,Initial,Scrolling,Print,Ruby,Shape,Tap,Callout,accent,alignment,all,Timeline,appearance,aspect,Ratio,azimuth,backdrop,backface,baseline,Shift,Collapse,bottom,caption,Side,caret,clear,Interpolation,Scheme,columns,contain,Increment,Reset,Set,cursor,direction,display,dominant,empty,Cells,filter,float,Family,Optical,Smooth,Stretch,Synthesis,Alternates,Caps,East,Asian,Numeric,Variation,Weight,forced,gap,glyph,Vertical,Area,Areas,hanging,Punctuation,height,hyphenate,hyphens,Resolution,ime,initial,inline,input,Security,isolation,left,letter,lighting,Step,Mid,math,mix,Accelerator,Progression,Zooming,Positive,From,Into,High,Contrast,Chars,Zone,Rails,Translation,Scrollbar3dlight,Arrow,Base,Darkshadow,Face,Autospace,Horizontal,Word,Through,Rotate,opacity,order,orphans,paint,pointer,Events,position,print,quotes,resize,right,rotate,row,Merge,scale,Coordinate,Destination,Stop,Gutter,Threshold,Outside,Dasharray,Dashoffset,Linecap,Linejoin,Miterlimit,tab,table,Layout,Upright,Ink,Thickness,Indent,top,touch,translate,unicode,Bidi,user,vector,Effect,vertical,visibility,white,Space,widows,width,will,Change,writing,z,Index,zoom'
+const sortedWordList: string[] = (
+    'border,Block,Inline,scroll,text,End,Start,Color,Style,Width,font,Margin,mask,grid,background,Size,Bottom,Left,Right,Top,margin,padding,Padding,animation,Image,Position,Radius,Decoration,column,overflow,Snap,stroke,flex,Variant,inset,Border,Mode,Break,Rule,offset,Behavior,color,Adjust,max,outline,overscroll,Align,transition,align,Clip,Origin,Repeat,Rendering,Opacity,Template,justify,line,Height,list,marker,min,motion,shape,Emphasis,transform,Content,Items,Self,X,Y,Spacing,box,break,clip,Path,counter,fill,Wrap,Orientation,Auto,Column,Row,image,Type,Anchor,page,place,ruby,scrollbar,word,Tracks,Baseline,Delay,Direction,Duration,Fill,Count,Timing,Function,Visibility,Blend,block,Overflow,Outset,Slice,Source,Shadow,Sizing,After,Before,Inside,Gap,content,Flow,flood,Settings,Columns,Rows,Distance,Rotation,object,Offset,Box,perspective,stop,Skip,Underline,accent,alignment,all,Iteration,Name,Play,State,Timeline,appearance,aspect,Ratio,backdrop,Filter,backface,Attachment,baseline,Shift,Collapse,bottom,caption,Side,caret,clear,Interpolation,Scheme,Span,columns,contain,Increment,Reset,Set,cursor,direction,display,dominant,empty,Cells,filter,Basis,Grow,Shrink,float,Family,Feature,Kerning,Language,Override,Optical,Smooth,Stretch,Synthesis,Alternates,Caps,East,Asian,Ligatures,Numeric,Variation,Weight,forced,gap,glyph,Vertical,Area,Areas,hanging,Punctuation,height,hyphenate,Character,hyphens,Resolution,initial,Letter,inline,input,Security,isolation,left,letter,lighting,Clamp,Step,Mid,Composite,math,Lines,mix,Fit,Rotate,opacity,order,orphans,paint,Order,pointer,Events,position,print,quotes,resize,right,rotate,row,Merge,scale,Stop,Gutter,Threshold,Outside,Dasharray,Dashoffset,Linecap,Linejoin,Miterlimit,tab,table,Layout,Last,Combine,Upright,Line,Ink,Thickness,Indent,Justify,Transform,top,touch,Action,Property,translate,unicode,Bidi,user,Select,vector,Effect,vertical,visibility,white,Space,widows,width,will,Change,writing,z,Index,zoom'
     .split(',')
 );
 
@@ -7,11 +7,11 @@ const indexedKnownCssProps : number[][] = (() : number[][] => {
     const prevWordIndexMap = new Map<number, number>();
     
     return (
-        '1b-6-x,--1c,--s,---22,--2k,--2u-,--2l,--2v,-23-1d,-2d,-1s-2e,1-e,--1k,--1c,--1l,--1t-14,--2w-24,--2x,--2y-2z,--1m-1n,-4e,-4f-30,-1u-1v,--7-5p,--15,--m,-5q,-9-z-31,--a-4,---b,---d,--k,--10-31,--i,---4g,---4h,---4i,---4j,--11-31,--c-4,---b,--12-31,-6-x,--1c,--s,--2u-22,--2l,--2v,--2f,--2m,-n-24,--1t,--25,--13,---4,---b,---d,--d,-2n,-5r-5s,-5t-5u,-26-3p-32,--4k-4l,-5v-5w-k-5x,-3q,-k-5y,-j-a,--c,-2d,-2l,-5z-26-4m,-1o,--4,--i,---4g,---4h,---4i,---4j,--b,--d,-y-a,--c,-33,--15,-60-2m,-4n-m,-f-x-4o,--61,--t-4,---23,---b,--m-1p,-1i-15,--b,-p,--1k,--1l,--2o,--1m-1n,-1s-62,--63,--4p,--2e,-4q-64,--2f,l-e,--1k,--1c,--1l,--1t-14,--2w-24,--2x,--2y-2z,--1m-1n,-1u-m,-9-k,-4r-4s,--u,-4n-m,-f-1w,-1i,--15,-p,--1k,--1l,--2o,--1m-,0-x-16,--34,--2g,-e,--1k,--1c,--1l,--1t-14,--2w-24,--2x,--2y-2z,--1m-1n,-4e,-65-35,-4f-30,-1u-1v,--15,--m,-9-2h,---4,---b,---d,--z-10-i,---11-,--k,---36,--i,--12-10-,---11-,-6-x,--t-1d,--1c,--s,---22,--2k,--2u-,--2l,--2v,--66,--2f,--2m,-1v-37,-n-24,--1t,--25,--13,---4,---b,---d,--4t,--d,-2n,-35,-s,--4u,--1c,--2i,--4v,--4w,--27,-26-3p-32,--4x,--4m,--1x-4y,-38-4z,-3q,-67-50,-3r-16,-23-1d,--51,-j-a,--c,-q,--52,--6-k,----3s,----1y,----36,----3t,----d,--1v,--53,--k,--15,--u,---17,---18,--1y,---17,---18,--m,-39-7-m,-3u,-1w-68,-y-a,--c,-33,--15,-69-4-1p,-6a-u,-w-h-28-17,----18,---1z,-6b-j,-6c-54-4,-f-3v,--t-,---23,---3w,---b,--20,---4,---u,---b,--1t-4,--3a,--m-1p,--3x,---4,---d,--3y-u,-3z-6d,-1i,--15,--b,-p,--1k,--1l,--2o,--1m-1n,-1s-4p,--2e,-55-14,6e-4,3b-16,-34,-2g,-56,6f-57,6g,1j,-1k,-1c,-1l,-1t-,-2w-24,-2x,-2y-2z,-6h,-1m-1n,6i,6j-6k,6l,6m-35,6n-30,19,-52,-58-14,-1v,-4,-k,-15,-u,--17,--18,-1y,-m,6o-6p,59-1w,-m,3,-8,--4,--a,---4,---b,---d,--c,---4,---b,---d,--b,--d,-z,--4,--10-i,--11-,--b,--d,-6q,-4,-a-a-,--c-,-k,--3s,--1y,--36,--3t,--d,-7,--4,--a,---4,---b,---d,--c,---4,---b,---d,--b,--d,-10,--4,--b,--d,-i,-11,--4,--b,--d,-40,-c-a-i,--c-,-b,-12,--4,--10-,--11-,--b,--d,-d,6r,1e-x,-t-1d,-1c,-s,--22,-2k,-2u-,-2l,-2v,-2f,-2m,41-5a,-2h,-5b,6s-6t,6u-4,6v,42,-37,-13,2p,-1p,-6w,-3c,-6x,1q-24,-1t,-25,-13,--4,--b,--d,-4t,-d,6y,6z,5c,-30,43-70,-71,-72,73,74,75,76-57,77-78,44,-2d,-13,79,29,-4u,-1c,-2i,-4v,-4w,-27,7a,5d-4,-2d,o,-7b,-3p-32,-4x,-4k-4l,-7c-2m,-m,--1p,-7d,-7e,-b,-7f,-1x,--7g,--7h,--7i-7j,--4y,--7k,--u,-7l-32,-7m,7n-4-1p,7o,7p-3a-7q,r,-7r,-45-2n,--2i,--46,-n,--a,--25,--c,-25,-3d,--a,--25,--c,-3e,--7s,--2n,--46,7t-7u,7v,7w-4z,7x,47-3a,-3c,-7y,7z-14,80-50,81-m,82-83,2a,-8,--a,--c,-7,--a,--c,84,3f-16,-34,-2g,-56,85,86-40,87-4,3g-1d,-51,-3h,--88,3i-b,--k,--u,--1z,1f,-8,--a,--c,-z,-7,--a,--c,-10,-11,-12,3j,-a,-89,-c,v,-9,--14,--3s,--1y,--36,--3t,--d,-1v,-53,-k,-14,-15,-u,-1y,-m,-1z,8a-b,2q-8-m,-3h,-7-,-2k,-d,3k-8-,-3h,-7-,-d,8b-58-14,3l,-5e,-37,-5f,2-8c,-x-2g,-8-8d,-16-2b-5g,---1g,----39,----48,---h,----28,----1z,--8e,-35,-s,--1c,--8f,-2i-8g,--8h,-5h-2n,--46,-8i-8j-1p,-38-1g-8k,---2k,---8l,-3q,-5i-x,--14,-3r-2g,-23-1d,-3u,-1w-b,--17,--18,-w-5g,--1g,---17-39,----48,---18-39,----48,--8m,--h-28-17,----18,---1z,---17,---18,--8n,-8o-4,-2c-8p-4,--8q-,--8r-,--8s-,--54-,--2f-,--5j-,-f-8t,--3v-8u,--1w,-3z-5k,--2e,-1i,--15,-p,--1k,--1l,--2o,--1m-1n,-1s-2e,-8v-1d,-27-2i,--j,--8w,-55-14,5l-4s,-u,1a,-49,-8,--a,--c,-5e,-7,--a,--c,-37,-8x,-5f,8y,8z,90,2r,-4,-5m,-b,-d,1r,-49,-8,-1v-6,--j,-7,-27,-17,-18,2s-2j,--8,--7,--17,--18,1h,-8,--a,--c,-z,-7,--a,--c,-10,-11,-12,4a-1d-5a,--2h,--5b,91-3u,5n,-15,4b-16,-34,-2g,92-93,94,95-4-1p,96,97,98,99,9a-25,4c-x,-9b,-u,9c,5-2j,-j,--8,---a,---c,--z,--7,---a,---c,--10,--11,--12,-y,--8,---a,---c,--z,--7,---a,---c,--10,--11,--12,-h-x,--9d,--9e,--j,---z,---10,---11,---12,--28-17,---18,--9f,--1z,---17,---18,3m-4,-9g,-5j-4,-d,3n-k-9h,-j,-9i,-3c,5o-4,-2d,21,-9j,-9k,-9l,-9m,-9n,-2d,-d,9o-m,9p-9q,g-x,--4o,-49,-3v-9r,-t,--4,--23,--3w,---9s,--b,--9t,--d,-20,--4,--u,--b,-9u,-3r,-3a,-1w,-3c,-2f,-m-1p,-1i,-3y-5m,--u,9v,9w-5k,3o,-6,-15,-b,2t,-1k,-1l,-2o,-1m-1n,9x,9y-9z,a0-2e,a1-a2,a3-x,a4,a5-a6,a7,a8,a9-aa,4d-1d,-40,-27,ab-14,ac-ad,ae'
+        '3j-7,1c-1t,-1u,-1v,-2i,3k-2j,3l,n,-2k,-2l,-2m,-2n-10,-3m-2o,-3n,-3o-3p,-3q,-2p-2q,3r,3s-3t,3u-3v,3w-2r,e,-3x,-2s-10,-1d,-7,-o,-1e,-p,--1w,--1x,-1f,-f,3y-3z,2t-2u,-f,0,-1,--7,--5,---7,---8,---9,--6,---7,---8,---9,--8,--9,-g,--7,--h-q,--i-,--8,--9,-40,-7,-5-5-,--6-,-o,--2v,--1f,--2w,--2x,--9,-2,--7,--5,---7,---8,---9,--6,---7,---8,---9,--8,--9,-h,--7,--8,--9,-q,-i,--7,--8,--9,-1y,-6-5-q,--6-,-8,-j,--7,--h-,--i-,--8,--9,-9,41,1z-r-11,-2y,-2z,20-30,-31,-32,42-43,44-7,45,21,-22,-12,15,-16,-46,-1g,-47,s-2o,-2n,-33,-12,--7,--8,--9,-48,-9,49,4a,34,-2r,23-4b,-4c,-4d,4e,4f,4g,4h-2j,4i-4j,24,-1h,-12,4k,w,-4l,-2l,-35,-4m,-4n,-25,4o,36-7,-1h,a,-4p,-4q-37,-4r,-4s-4t,-4u-2z,-f,--16,-4v,-4w,-8,-4x,-x,--4y,--4z,--50-51,--52,--53,--p,-54-37,-55,56-7-16,57,58-26-59,d,-5a,-27-38,--35,--39,-28,--5,--6,-29,--5,--6,-1i,--5b,--38,--39,5c-5d,5e,5f-5g,5h,2a-26,-1g,-5i,5j-5k,5l-f,5m-5n,y,-1,--5,--6,-2,--5,--6,5o,1j-1t,-1u,-1v,-2i,5p,5q-1y,5r-7,1k-11,-5s,-1l,--5t,1m-8,--o,--p,--2b,k,-1,--5,--6,-g,-2,--5,--6,-h,-i,-j,1n,-5,-5u,-6,c,-z,--10,--2v,--1f,--2w,--2x,--9,-1d,-5v,-o,-10,-1e,-p,-1f,-f,-2b,5w-8,17-1-f,-1l,-2-,-5x,-9,1o-1-,-1l,-2-,-9,5y-2s-10,1p,-3a,-22,-3b,3c-5z,-p,13,-2c,-3a,-22,-60,-3b,61,62,63,18,-7,-3d,-8,-9,t,-2c,-1,-1d-3e,--b,-2,-25,-1w,-1x,19-14,--1,--2,--1w,--1x,l,-1,--5,--6,-g,-2,--5,--6,-h,-i,-j,2d-11-30,--31,--32,64-65,3f,-1e,2e-1t,-1u,-1v,66-67,68,69-7-16,6a,6b,6c,6d,6e-33,2f-1a,-6f,-p,6g,3-14,-b,--1,---5,---6,--g,--2,---5,---6,--h,--i,--j,-m,--1,---5,---6,--g,--2,---5,---6,--h,--i,--j,-u-1a,--b,---g,---h,---i,---j,--6h,--2b,2g-7,-6i,-9,1q-o-6j,-b,-6k,-1g,3g-7,-1h,v,-6l,-6m,-6n,-6o,-6p,-1h,-9,6q-f,6r-6s,4-1a,--6t,-2c,-6u-6v,-r,--7,--6w,--3h,---6x,--8,--6y,--9,-1r,--7,--p,--8,-6z,-70,-26,-2u,-1g,-2y,-f-16,-71,-3i-3d,--p,72,73-74,1s,-3e,-1e,-8,1b,-2k,-2m,-75,-2p-2q,76,77-78,79-7a,7b-7c,7d-1a,7e,7f-7g,7h,7i,7j-7k,2h-11,-1y,-25,7l-10,7m-7n,7o'
         .split(',')
-        .map((encodedItem): number[] => (
+        .map((encodedItem): number[] => ( // decode the base36[] to subWordIndices
             encodedItem.split('-')
-            .map((encodedWord, index): number => {
+            .map((encodedWord, index): number => { // decode the base36 to wordIndex
                 if (encodedWord === '') {
                     return prevWordIndexMap.get(index) ?? 0;
                 }
@@ -28,11 +28,13 @@ const indexedKnownCssProps : number[][] = (() : number[][] => {
 
 
 
-export const getKnownCssPropList = () => (
+export const getKnownCssPropList = (): string[] => (
     indexedKnownCssProps
-    .map((wordIndices) => (
-        wordIndices
-        .map((wordIndex) => sortedWordList[wordIndex])
+    .map((subWordIndices): string => ( // decode subWordIndices to word
+        subWordIndices
+        .map((wordIndex): string => ( // decode wordIndex to subWord
+            sortedWordList[wordIndex]
+        ))
         .join('')
     ))
 );
@@ -40,21 +42,21 @@ export const getKnownCssPropList = () => (
 
 
 const indexedKnownCssPropsMaxIndex = indexedKnownCssProps.length - 1;
-const resolveIndexedWord = (wordIndex: number) => sortedWordList[wordIndex];
-export const isKnownCssProp = (propName: string) => {
+const resolveWord = (wordIndex: number): string => sortedWordList[wordIndex];
+export const isKnownCssProp = (propName: string): boolean => {
     let min = 0, max = indexedKnownCssPropsMaxIndex, middle : number;
-    let find: number[];
-    let findPropName: string;
+    let middleWordIndices: number[];
+    let middlePropName: string;
     
     while (min <= max) {
         middle = ((min + max) / 2)|0;
         
-        find = indexedKnownCssProps[middle];
-        findPropName = find.map(resolveIndexedWord).join();
-        if (propName < findPropName) {
+        middleWordIndices = indexedKnownCssProps[middle];
+        middlePropName    = middleWordIndices.map(resolveWord).join();
+        if (propName < middlePropName) {
             max = (middle - 1); // search in smaller range, excluding the middle
         }
-        else if (propName > findPropName) {
+        else if (propName > middlePropName) {
             min = (middle + 1); // search in bigger range, excluding the middle
         }
         else {
