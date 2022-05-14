@@ -14,7 +14,7 @@ import {
     // hooks:
     useState,
     useLayoutEffect,
-    // useEffect,
+    useEffect,
     useReducer,
     
     
@@ -35,21 +35,21 @@ import {
 }                           from '@cssfn/cssfn/dist/renders.js'
 
 // other libs:
-// import {
-//     // tests:
-//     isBrowser,
-//     isJsDom,
-// }                           from 'is-in-browser'
+import {
+    // tests:
+    isBrowser,
+    isJsDom,
+}                           from 'is-in-browser'
 
 
 
 // utilities:
-// const isClientSide : boolean = isBrowser || isJsDom;
+const isClientSide : boolean = isBrowser || isJsDom;
 
 
 
 // hooks:
-// const useIsomorphicLayoutEffect = isClientSide ? useLayoutEffect : useEffect;
+const useIsomorphicLayoutEffect = isClientSide ? useLayoutEffect : useEffect;
 
 const triggerRenderReducer = (indices: object, newIndices: void): object => {
     return {}; // update with a new object
@@ -84,7 +84,7 @@ export const Styles : FC = () => {
     
     
     // dom effects:
-    useLayoutEffect(() => {
+    useIsomorphicLayoutEffect(() => {
         // handlers:
         const handleUpdate = (styleSheet: StyleSheet): void => {
             pendingUpdates.add(styleSheet);
@@ -103,7 +103,7 @@ export const Styles : FC = () => {
         };
     }, []); // runs once on startup
     
-    useLayoutEffect(() => {
+    useIsomorphicLayoutEffect(() => {
         // conditions:
         if (!pendingUpdates.size) return;
         
