@@ -14,7 +14,7 @@ import {
     // hooks:
     useState,
     useLayoutEffect,
-    useEffect,
+    // useEffect,
     useReducer,
     
     
@@ -35,21 +35,21 @@ import {
 }                           from '@cssfn/cssfn/dist/renders.js'
 
 // other libs:
-import {
-    // tests:
-    isBrowser,
-    isJsDom,
-}                           from 'is-in-browser'
+// import {
+//     // tests:
+//     isBrowser,
+//     isJsDom,
+// }                           from 'is-in-browser'
 
 
 
 // utilities:
-const isClientSide : boolean = isBrowser || isJsDom;
+// const isClientSide : boolean = isBrowser || isJsDom;
 
 
 
 // hooks:
-const useIsomorphicLayoutEffect = isClientSide ? useLayoutEffect : useEffect;
+// const useIsomorphicLayoutEffect = isClientSide ? useLayoutEffect : useEffect;
 
 const triggerRenderReducer = (indices: object, newIndices: void): object => {
     return {}; // update with a new object
@@ -74,6 +74,7 @@ const Style : FC<StyleProps> = memo(({ content }: StyleProps) => {
     );
 });
 
+let styleKeyCounter = 0;
 export const Styles : FC = () => {
     // states:
     const [pendingUpdates] = useState<Set<StyleSheet>>(() => new Set());
@@ -83,7 +84,7 @@ export const Styles : FC = () => {
     
     
     // dom effects:
-    useIsomorphicLayoutEffect(() => {
+    useLayoutEffect(() => {
         // handlers:
         const handleUpdate = (styleSheet: StyleSheet): void => {
             pendingUpdates.add(styleSheet);
@@ -102,9 +103,9 @@ export const Styles : FC = () => {
         };
     }, []); // runs once on startup
     
-    useIsomorphicLayoutEffect(() => {
+    useLayoutEffect(() => {
         // conditions:
-        if (!pendingUpdates) return;
+        if (!pendingUpdates.size) return;
         
         
         
@@ -130,8 +131,9 @@ export const Styles : FC = () => {
             }
             else {
                 // add/update the <Style>:
+                const style = styles.get(styleSheet);
                 styles.set(styleSheet,
-                    <Style content={rendered} />
+                    <Style content={rendered} key={style?.key ?? (++styleKeyCounter)} />
                 );
             } // if
         } // for
