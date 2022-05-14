@@ -97,7 +97,9 @@ export const Styles : FC = () => {
         
         
         // cleanups:
-        unsubscribe?.unsubscribe();
+        return () => {
+            unsubscribe?.unsubscribe();
+        };
     }, []); // runs once on startup
     
     useIsomorphicLayoutEffect(() => {
