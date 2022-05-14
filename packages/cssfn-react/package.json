@@ -25,7 +25,9 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
-  },
-  "devDependencies": {
+    "@cssfn/cssfn": "^2.0.0",
+    "@types/react": "^18.0.9",
+    "is-in-browser": "^2.0.0",
+    "react": "^18.1.0"
   }
 }
