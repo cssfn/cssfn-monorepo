@@ -10,7 +10,8 @@ import {
 styleSheet(new Observable((observer) => {
     const colorList = ['red', 'orange', 'yellow', 'green', 'blue', 'violet', 'purple'];
     let colorIndex = 0;
-    setInterval(() => {
+    let remainingCounter = 3;
+    const tickHandler = setInterval(() => {
         colorIndex = (colorIndex + 1) % colorList.length;
         
         observer.next({
@@ -18,5 +19,8 @@ styleSheet(new Observable((observer) => {
             visibility : 'visible',
             color      : colorList[colorIndex],
         });
-    }, 5000);
+        
+        remainingCounter--;
+        if (!remainingCounter) clearInterval(tickHandler);
+    }, 3000);
 }), { id: 'styleSheet-3'});
