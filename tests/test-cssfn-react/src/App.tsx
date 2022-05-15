@@ -1,5 +1,6 @@
 import {
     default as React,
+    useState,
 } from 'react';
 // import logo from './logo.svg';
 import './App.css';
@@ -22,6 +23,13 @@ import './stylesheet3.css.ts'
 
 
 function App() {
+    const [value, setValue] = useState(0);
+    const handleTriggerRerender = () => {
+        setValue(value + 1);
+    };
+    
+    
+    console.log('App render!');
     return (
         <div className="App">
             <article>
@@ -31,6 +39,11 @@ function App() {
                 <div className='stylesheet-view'>
                     <Styles />
                 </div>
+            </article>
+            <article>
+                <button onClick={handleTriggerRerender}>
+                    Trigger re-render whole app
+                </button>
             </article>
         </div>
     );
