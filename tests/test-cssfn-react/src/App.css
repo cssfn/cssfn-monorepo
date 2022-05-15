@@ -44,6 +44,8 @@
   padding: 0;
   gap: 0;
   margin: 2rem;
+  padding: 0.5rem;
+  gap: 0.5rem;
 }
 .stylesheet-view>style {
   display: block;
