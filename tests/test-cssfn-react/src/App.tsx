@@ -11,9 +11,10 @@ import { Styles } from '@cssfn/cssfn-react'
 
 
 
-import './stylesheet1.css.ts'
-import './stylesheet2.css.ts'
-import './stylesheet3.css.ts'
+import './stylesheet1_css.ts'
+import './stylesheet2_css.ts'
+import { className3, mutateSheet3 } from './stylesheet3_css'
+import './stylesheet4_css.ts'
 // styleSheet(() => ({
 //     display: 'flex',
 //     flexDirection: 'row',
@@ -42,8 +43,16 @@ function App() {
                 </div>
             </article>
             <article>
+                <div className={className3}>
+                    test sheet #3
+                </div>
+            </article>
+            <article className='actions'>
                 <button onClick={handleTriggerRerender}>
                     Trigger re-render whole app
+                </button>
+                <button onClick={mutateSheet3}>
+                    Mutate sheet #3
                 </button>
             </article>
         </div>

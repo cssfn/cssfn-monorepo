@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@cssfn/css-types": "^2.0.0",
     "@cssfn/cssfn": "^2.0.0",
     "@cssfn/cssfn-react": "^2.0.0",
     "@testing-library/jest-dom": "^5.16.4",
