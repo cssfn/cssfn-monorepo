@@ -15,6 +15,7 @@ import './stylesheet1_css.ts'
 import './stylesheet2_css.ts'
 import { className3, mutateSheet3 } from './stylesheet3_css'
 import './stylesheet4_css.ts'
+import { mutateSheet5 } from './stylesheet5_css'
 // styleSheet(() => ({
 //     display: 'flex',
 //     flexDirection: 'row',
@@ -53,6 +54,9 @@ function App() {
                 </button>
                 <button onClick={mutateSheet3}>
                     Mutate sheet #3
+                </button>
+                <button onClick={() =>{mutateSheet3(); mutateSheet5();}}>
+                    Mutate sheet #3 &amp; sheet #5
                 </button>
             </article>
         </div>
