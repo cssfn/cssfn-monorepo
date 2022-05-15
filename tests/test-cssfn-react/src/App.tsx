@@ -29,7 +29,8 @@ function App() {
     };
     
     
-    console.log('App render!');
+    console.log('');
+    console.log('<App> render!');
     return (
         <div className="App">
             <article>
