@@ -96,6 +96,7 @@ export const Styles : FC = () => {
         // handlers:
         const handleUpdate = (styleSheet: StyleSheet): void => {
             pendingUpdates.add(styleSheet);
+            triggerRender();
         };
         
         
