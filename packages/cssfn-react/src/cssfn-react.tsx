@@ -16,6 +16,7 @@ import {
     useLayoutEffect,
     useEffect,
     useReducer,
+    useRef,
     
     
     
@@ -74,11 +75,11 @@ const Style : FC<StyleProps> = memo(({ content }: StyleProps) => {
     );
 });
 
-let styleKeyCounter = 0;
 export const Styles : FC = () => {
     // states:
     const [pendingUpdates] = useState<Set<StyleSheet>>(() => new Set());
     const [styles        ] = useState<Map<StyleSheet, ReactElement<StyleProps, typeof Style>>>(() => new Map());
+    const styleKeyCounter  = useRef(0);
     const triggerRender    = useTriggerRender();
     
     
@@ -133,7 +134,7 @@ export const Styles : FC = () => {
                 // add/update the <Style>:
                 const style = styles.get(styleSheet);
                 styles.set(styleSheet,
-                    <Style content={rendered} key={style?.key ?? (++styleKeyCounter)} />
+                    <Style content={rendered} key={style?.key ?? (++styleKeyCounter.current)} />
                 );
             } // if
         } // for
@@ -149,7 +150,7 @@ export const Styles : FC = () => {
     // jsx:
     return (
         <>
-            { styles.values() }
+            { Array.from(styles.values()) }
         </>
     );
 }
