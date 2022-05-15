@@ -1,4 +1,4 @@
-// cssfn:
+// react:
 import {
     // react:
     default as React,
@@ -35,15 +35,10 @@ import {
     render,
 }                           from '@cssfn/cssfn/dist/renders.js'
 
-// other libs:
-import type {
-    Subscription,
-}                           from 'rxjs'
-
 
 
 // hooks:
-const triggerRenderReducer = (indices: object, newIndices: void): object => {
+const triggerRenderReducer = (_currentGeneration: object, _newGeneration: void): object => {
     return {}; // update with a new object
 };
 export const useTriggerRender = () => {
@@ -83,7 +78,7 @@ export const Styles : FC = () => {
     
     
     // dom effects:
-    const [unsubscribe] = useState<Subscription|undefined>(() => styleSheetRegistry.subscribe((styleSheet: StyleSheet): void => {
+    const [unsubscribe] = useState(() => styleSheetRegistry.subscribe((styleSheet: StyleSheet): void => {
         const renderedCss = (styleSheet.enabled || null) && render(styleSheet);
         if (!renderedCss) {
             // remove the <Style>:
@@ -143,5 +138,5 @@ export const Styles : FC = () => {
                 { Array.from(styles.values()) }
             </>
         );
-    }, [generation]);
+    }, [generation]); // re-create the memo if `generation` changed
 }
