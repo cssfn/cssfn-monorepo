@@ -87,11 +87,13 @@ export const Styles : FC = () => {
         const renderedCss = (styleSheet.enabled || null) && render(styleSheet);
         if (!renderedCss) {
             // remove the <Style>:
+            console.log('');
             console.log(`<Style> removed!`);
             styles.delete(styleSheet);
         }
         else {
             // add/update the <Style>:
+            console.log('');
             console.log(`<Style> updated!`);
             const style = styles.get(styleSheet);
             styles.set(styleSheet,
