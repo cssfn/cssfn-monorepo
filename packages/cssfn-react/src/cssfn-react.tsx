@@ -63,14 +63,21 @@ export const useTriggerRender = () => {
 
 
 // react components:
+interface StyleContent {
+    rendered : string|null
+}
 interface StyleProps {
-    content : string
+    content : StyleContent
 }
 const Style : FC<StyleProps> = memo(({ content }: StyleProps) => {
+    // because the `rendered` may a_huge_string, we need to *unreference* it:
+    const rendered = content.rendered; // copy        the props' rendered
+    content.rendered = null;           // unreference the props' rendered
+    
     // jsx:
     return (
         <style>
-            { content }
+            { rendered }
         </style>
     );
 });
@@ -134,7 +141,21 @@ export const Styles : FC = () => {
                 // add/update the <Style>:
                 const style = styles.get(styleSheet);
                 styles.set(styleSheet,
-                    <Style content={rendered} key={style?.key ?? (++styleKeyCounter.current)} />
+                    /**
+                     * <Style> is a pure component and will never re-render by itself.
+                     * To update <Style>, we need to re-create <Style>.
+                     */
+                    <Style
+                        content={
+                            { rendered } as StyleContent
+                        }
+                        
+                        key={
+                            style?.key                  // re-use the existing key
+                            ??
+                            (++styleKeyCounter.current) // generate a new key
+                        }
+                    />
                 );
             } // if
         } // for
