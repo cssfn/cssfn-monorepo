@@ -16,6 +16,7 @@ import {
     useEffect,
     useReducer,
     useRef,
+    useMemo,
     
     
     
@@ -46,8 +47,8 @@ const triggerRenderReducer = (indices: object, newIndices: void): object => {
     return {}; // update with a new object
 };
 export const useTriggerRender = () => {
-    const [, setState] = useReducer(triggerRenderReducer, {});
-    return setState;
+    const [generation, setState] = useReducer(triggerRenderReducer, {});
+    return [setState, generation] as const;
 };
 
 
@@ -75,26 +76,26 @@ const Style : FC<StyleProps> = memo(({ content }: StyleProps) => {
 
 export const Styles : FC = () => {
     // states:
-    const loaded           = useRef(false);
-    const [styles        ] = useState<Map<StyleSheet, ReactElement<StyleProps, typeof Style>>>(() => new Map());
-    const styleKeyCounter  = useRef(0);
-    const triggerRender    = useTriggerRender();
+    const loaded                      = useRef(false);
+    const [styles                   ] = useState<Map<StyleSheet, ReactElement<StyleProps, typeof Style>|null>>(() => new Map());
+    const [triggerRender, generation] = useTriggerRender();
     
     
     
     // dom effects:
-    const [unsubscribe   ] = useState<Subscription|undefined>(() => styleSheetRegistry.subscribe((styleSheet: StyleSheet): void => {
+    const [unsubscribe] = useState<Subscription|undefined>(() => styleSheetRegistry.subscribe((styleSheet: StyleSheet): void => {
         const renderedCss = (styleSheet.enabled || null) && render(styleSheet);
         if (!renderedCss) {
             // remove the <Style>:
             console.log('');
             console.log(`<Style> removed!`);
-            styles.delete(styleSheet);
+            // styles.delete(styleSheet); // do not delete an item in collection
+            styles.set(styleSheet, null); // instead assign to `null` to mark as deleted, so we can un-delete it later in the same prev order
         }
         else {
             // add/update the <Style>:
             console.log('');
-            console.log(`<Style> updated!`);
+            console.log(`<Style> mutated!`);
             const style = styles.get(styleSheet);
             styles.set(styleSheet,
                 /**
@@ -107,9 +108,9 @@ export const Styles : FC = () => {
                     }
                     
                     key={
-                        style?.key                  // re-use the existing key
+                        style?.key    // re-use the existing key
                         ??
-                        (++styleKeyCounter.current) // generate a new key
+                        (styles.size) // generate a new key by looking `styles.size`, it always growing, never shrinking
                     }
                 />
             );
@@ -134,11 +135,13 @@ export const Styles : FC = () => {
     
     
     // jsx:
-    console.log('');
-    console.log(`<Styles> render!`);
-    return (
-        <>
-            { Array.from(styles.values()) }
-        </>
-    );
+    return useMemo<JSX.Element>(() => {
+        console.log('');
+        console.log(`<Styles> render!`);
+        return (
+            <>
+                { Array.from(styles.values()) }
+            </>
+        );
+    }, [generation]);
 }
