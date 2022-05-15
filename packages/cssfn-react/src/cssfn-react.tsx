@@ -41,7 +41,7 @@ import {
 const triggerRenderReducer = (_currentGeneration: object, _newGeneration: void): object => {
     return {}; // update with a new object
 };
-export const useTriggerRender = () => {
+const useTriggerRender = () => {
     const [generation, setState] = useReducer(triggerRenderReducer, {});
     return [setState, generation] as const;
 };
@@ -56,15 +56,15 @@ interface StyleProps {
     content : StyleContent
 }
 const Style : FC<StyleProps> = memo(({ content }: StyleProps) => {
-    // because the `renderedCss` may a_huge_string, we need to *unreference* it:
-    const renderedCss = content.renderedCss; // copy        the props' `renderedCss`
-    content.renderedCss = null;              // unreference the props' `renderedCss`
+    // because the `renderedCss` may be a_huge_string, we need to *unreference* it:
+    const localRenderedCss = content.renderedCss; // copy         the `renderedCss` to local variable
+    content.renderedCss    = null;                // de-reference the `renderedCss` from `props`
     
     // jsx:
     console.log(`<Style> render!`);
     return (
         <style>
-            { renderedCss }
+            { localRenderedCss }
         </style>
     );
 });
