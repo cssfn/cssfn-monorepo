@@ -57,13 +57,17 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     
              #scopes          : ProductOrFactory<CssScopeList<TCssScopeName>|null>
     readonly #classes         : CssScopeMap<TCssScopeName>
+             
+             /**
+             * Prevents unecessary firing `#updatedCallback` until the first time of renderable StyleSheet is constructed
+             */
              #loaded          : boolean
     //#endregion private properties
     
     
     
     //#region constructors
-    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
+    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
         const styleSheetOptions : Required<StyleSheetOptions> = {
             ...(options ?? {}),
             enabled : options?.enabled ?? defaultStyleSheetOptions.enabled,
@@ -99,14 +103,21 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     
     
     //#region private methods
-    #updateScopes(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null>) {
+    #updateScopes(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>) {
         if (scopes && (typeof(scopes) === 'object') && !Array.isArray(scopes)) {
             this.#scopes     = null;  // initially empty scope, until the Observable gives the first update
             this.#loaded     = false; // partially initialized => not ready
             
             let asyncUpdate = false;
-            scopes.subscribe((newScopes) => {
-                this.#scopes = newScopes;
+            scopes.subscribe((newScopesOrEnabled) => {
+                if (typeof(newScopesOrEnabled) === 'boolean') {
+                    this.#options.enabled = newScopesOrEnabled;
+                    return;
+                } // if
+                
+                
+                
+                this.#scopes = newScopesOrEnabled;
                 this.#loaded = true;  // fully initialized => ready
                 if (asyncUpdate) {
                     this.#update();   // notify a StyleSheet updated
@@ -120,7 +131,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
         } // if
     }
     
-    #update(newScopes?: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null>) {
+    #update(newScopes?: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>) {
         if (newScopes !== undefined) {
             this.#updateScopes(newScopes); // assign #scopes & #loaded
         } // if
@@ -191,7 +202,7 @@ class StyleSheetRegistry {
     
     
     //#region public methods
-    add<TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null>, options?: StyleSheetOptions) {
+    add<TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>, options?: StyleSheetOptions) {
         if (!isClientSide) { // on server side => just pass a StyleSheet object
             return new StyleSheet<TCssScopeName>(
                 scopes,
@@ -252,7 +263,7 @@ export type { StyleSheetRegistry } // only export the type but not the actual cl
 
 
 export const styleSheetRegistry = new StyleSheetRegistry();
-export const styleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null>, options?: StyleSheetOptions): CssScopeMap<TCssScopeName> => {
+export const styleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>, options?: StyleSheetOptions): CssScopeMap<TCssScopeName> => {
     const sheet = styleSheetRegistry.add(scopes, options);
     return sheet.classes;
 }
