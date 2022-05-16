@@ -51,6 +51,7 @@ import {
     normalizeSelectorOptions,
 }                           from './utilities.js'
 export {
+    StyleSheetOptions,
     StyleSheet,
     styleSheets,
     styleSheet,
