@@ -91,7 +91,6 @@ export const Styles : FC = () => {
             // add/update the <Style>:
             // console.log('');
             // console.log(`<Style> mutated!`);
-            const style = styles.get(styleSheet);
             styles.set(styleSheet,
                 /**
                  * <Style> is a pure static component and will never re-render by itself.
@@ -100,12 +99,6 @@ export const Styles : FC = () => {
                 <Style
                     content={
                         { renderedCss } as StyleContent
-                    }
-                    
-                    key={
-                        style?.key  // re-use the existing key
-                        ??
-                        styles.size // generate a new key by looking `styles.size`, it always growing, never shrinking
                     }
                 />
             );
@@ -135,7 +128,16 @@ export const Styles : FC = () => {
         // console.log(`<Styles> render!`);
         return (
             <>
-                { Array.from(styles.values()) }
+                {
+                    Array.from(styles.values())
+                    .map((style, index) =>
+                        !!style
+                        ?
+                        React.cloneElement(style, { key: index })
+                        :
+                        style
+                    )
+                }
             </>
         );
     }, [generation]); // re-create the `JSX.Element` if `generation` changed
