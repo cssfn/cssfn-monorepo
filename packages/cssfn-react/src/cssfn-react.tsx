@@ -167,97 +167,109 @@ export const Styles : FC = () => {
 
 
 
-// utilities:
-
-
-
 // hooks:
-export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
-    const isStaticEnabled = typeof(options?.enabled) === 'boolean';
-    const dynamicStyleSheet = new Subject<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>();
-    const scopeMap = styleSheets(
-        scopes,
-        (
-            isStaticEnabled
-            ?
-            options
-            :
-            {
-                ...options,
-                enabled: false, // initially disabled, will be enabled at runtime
-            }
-        )
-    );
+class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
+    readonly #isStaticEnabled   : boolean
+    readonly #dynamicStyleSheet : Subject<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>
+    readonly #scopeMap          : CssScopeMap<TCssScopeName>
+    #registeredUsesStyleSheet   : number
     
     
-    
-    if (scopes && (typeof(scopes) === 'object') && !Array.isArray(scopes)) {
-        scopes.subscribe((newScopesOrEnabled) => {
-            dynamicStyleSheet.next(newScopesOrEnabled); // forwards
-        });
-    }
-    else {
-        dynamicStyleSheet.next(
-            scopes // forward once
+    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions) {
+        this.#isStaticEnabled   = typeof(options?.enabled) === 'boolean';
+        
+        
+        
+        //#region setup dynamic styleSheet
+        this.#dynamicStyleSheet = new Subject<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>();
+        this.#scopeMap = styleSheets(
+            this.#dynamicStyleSheet,
+            (
+                this.#isStaticEnabled
+                ?
+                options
+                :
+                {
+                    ...options,
+                    enabled: false, // initially disabled, will be enabled at runtime
+                }
+            )
         );
-    } // if
-    
-    
-    
-    /**
-     * Counts how many components are currently using this styleSheet.
-     */
-    let registeredUsingStyleSheet = 0;
-    const registerUsingStyleSheet = () => {
-        registeredUsingStyleSheet++;
-        
-        if (registeredUsingStyleSheet === 1) {
-            dynamicStyleSheet.next(true); // first user => enable styleSheet
+        if (scopes && (typeof(scopes) === 'object') && !Array.isArray(scopes)) {
+            scopes.subscribe((newScopesOrEnabled) => {
+                this.#dynamicStyleSheet.next(newScopesOrEnabled); // forwards
+            });
+        }
+        else {
+            this.#dynamicStyleSheet.next(
+                scopes // forward once
+            );
         } // if
-    };
-    const unregisterUsingStyleSheet = () => {
-        registeredUsingStyleSheet--;
+        //#endregion setup dynamic styleSheet
         
-        if (registeredUsingStyleSheet === 1) {
-            dynamicStyleSheet.next(false); // no user => disable styleSheet
+        
+        
+        this.#registeredUsesStyleSheet = 0;
+        //#endregion hook implementation
+    }
+    
+    
+    
+    #registerUsingStyleSheet() {
+        this.#registeredUsesStyleSheet++;
+        
+        if (this.#registeredUsesStyleSheet === 1) {
+            this.#dynamicStyleSheet.next(true); // first user => enable styleSheet
         } // if
-    };
+    }
+    #unregisterUsingStyleSheet() {
+        this.#registeredUsesStyleSheet--;
+        
+        if (this.#registeredUsesStyleSheet === 1) {
+            this.#dynamicStyleSheet.next(false); // no user => disable styleSheet
+        } // if
+    }
     
     
     
-    // hook implementation:
-    return (): CssScopeMap<TCssScopeName> => {
+    createStyleSheetsHook(): CssScopeMap<TCssScopeName> {
         // dom effects:
         const isStyleSheetInUse = useRef(false);
         useEffect(() => {
             // cleanups:
             return () => {
                 if (isStyleSheetInUse.current) {
-                    unregisterUsingStyleSheet();
+                    this.#unregisterUsingStyleSheet();
                 } // if
             }
         }, []); // runs once on startup
         
         
         
-        if (isStaticEnabled) { // static enabled
-            return scopeMap;
+        if (this.#isStaticEnabled) { // static enabled
+            return this.#scopeMap;
         }
         else { // dynamic enabled
-            return new Proxy<CssScopeMap<TCssScopeName>>(scopeMap, {
+            return new Proxy<CssScopeMap<TCssScopeName>>(this.#scopeMap, {
                 get: (scopeMap: CssScopeMap<TCssScopeName>, scopeName: CssScopeName): CssClassName|undefined => {
                     if (!(scopeName in scopeMap)) return undefined; // not found => return undefined
                     
                     if (!isStyleSheetInUse.current) {
                         isStyleSheetInUse.current = true; // mark the styleSheet as in use
-                        registerUsingStyleSheet();
+                        this.#registerUsingStyleSheet();
                     } // if
                     
                     return scopeMap[scopeName as keyof CssScopeMap<TCssScopeName>];
                 },
             });
         } // if
-    };
+    }
+}
+export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
+    return (
+        (new StyleSheetsHookBuilder(scopes, options))
+        .createStyleSheetsHook
+    );
 }
 export const createUseStyleSheet = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>, options?: StyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
     if (!styles || (styles === true)) {
