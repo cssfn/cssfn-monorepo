@@ -169,12 +169,16 @@ export const Styles : FC = () => {
 
 // hooks:
 class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
-    readonly #isStaticEnabled   : boolean
-    readonly #dynamicStyleSheet : Subject<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>
-    readonly #scopeMap          : CssScopeMap<TCssScopeName>
-    #registeredUsesStyleSheet   : number
+    //#region private properties
+    readonly    #isStaticEnabled          : boolean
+    readonly    #dynamicStyleSheet        : Subject<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>
+    readonly    #scopeMap                 : CssScopeMap<TCssScopeName>
+    /*mutable*/ #registeredUsesStyleSheet : number
+    //#endregion private properties
     
     
+    
+    //#region constructors
     constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions) {
         this.#isStaticEnabled   = typeof(options?.enabled) === 'boolean';
         
@@ -209,12 +213,14 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
         
         
         
+        // reset the user counter:
         this.#registeredUsesStyleSheet = 0;
-        //#endregion hook implementation
     }
+    //#endregion constructors
     
     
     
+    //#region private methods
     #registerUsingStyleSheet() {
         this.#registeredUsesStyleSheet++;
         
@@ -229,9 +235,11 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
             this.#dynamicStyleSheet.next(false); // no user => disable styleSheet
         } // if
     }
+    //#endregion private methods
     
     
     
+    //#region public methods
     createStyleSheetsHook(): CssScopeMap<TCssScopeName> {
         // dom effects:
         const isStyleSheetInUse = useRef(false);
@@ -264,6 +272,7 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
             });
         } // if
     }
+    //#endregion public methods
 }
 export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
     return (
