@@ -111,13 +111,18 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
             let asyncUpdate = false;
             scopes.subscribe((newScopesOrEnabled) => {
                 if (typeof(newScopesOrEnabled) === 'boolean') {
-                    this.#options.enabled = newScopesOrEnabled;
+                    if (this.#options.enabled === newScopesOrEnabled) return; // no change => no need to update
+                    
+                    this.#options.enabled = newScopesOrEnabled; // update
                     return;
                 } // if
                 
                 
                 
-                this.#scopes = newScopesOrEnabled;
+                if ((this.#scopes === null) && (newScopesOrEnabled === null)) return; // still null => no change => no need to update
+                // CssScopeList is always treated as unique object even though it's equal by ref, no deep comparison for performance reason
+                
+                this.#scopes = newScopesOrEnabled; // update
                 this.#loaded = true;  // fully initialized => ready
                 if (asyncUpdate) {
                     this.#update();   // notify a StyleSheet updated
