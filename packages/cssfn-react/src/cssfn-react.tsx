@@ -51,8 +51,9 @@ import {
 }                           from '@cssfn/cssfn/dist/renders.js'
 
 // other libs:
-import type {
+import {
     Observable,
+    Subject,
 }                           from 'rxjs'
 
 
@@ -170,8 +171,9 @@ export const Styles : FC = () => {
 
 
 // hooks:
-export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>, options?: StyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
+export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
     const isStaticEnabled = typeof(options?.enabled) === 'boolean';
+    const dynamicStyleSheet = new Subject<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>();
     const scopeMap = styleSheets(
         scopes,
         (
@@ -181,10 +183,25 @@ export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes:
             :
             {
                 ...options,
-                enabled: false,
+                enabled: false, // initially disabled, will be enabled at runtime
             }
         )
     );
+    
+    
+    
+    if (scopes && (typeof(scopes) === 'object') && !Array.isArray(scopes)) {
+        scopes.subscribe((newScopesOrEnabled) => {
+            dynamicStyleSheet.next(newScopesOrEnabled); // forwards
+        });
+    }
+    else {
+        dynamicStyleSheet.next(
+            scopes // forward once
+        );
+    } // if
+    
+    
     
     /**
      * Counts how many components are currently using this styleSheet.
@@ -192,9 +209,17 @@ export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes:
     let registeredUsingStyleSheet = 0;
     const registerUsingStyleSheet = () => {
         registeredUsingStyleSheet++;
+        
+        if (registeredUsingStyleSheet === 1) {
+            dynamicStyleSheet.next(true); // first user => enable styleSheet
+        } // if
     };
     const unregisterUsingStyleSheet = () => {
         registeredUsingStyleSheet--;
+        
+        if (registeredUsingStyleSheet === 1) {
+            dynamicStyleSheet.next(false); // no user => disable styleSheet
+        } // if
     };
     
     
