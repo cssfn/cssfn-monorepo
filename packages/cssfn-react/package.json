@@ -25,8 +25,11 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
+    "@cssfn/css-types": "^2.0.0",
     "@cssfn/cssfn": "^2.0.0",
-    "@types/react": "^18.0.9"
+    "@cssfn/types": "^2.0.0",
+    "@types/react": "^18.0.9",
+    "rxjs": "^7.5.5"
   },
   "peerDependencies": {
     "react": "^18.1.0"

@@ -26,7 +26,20 @@ import {
 
 // cssfn:
 import type {
+    // types:
+    ProductOrFactory,
+}                           from '@cssfn/types'
+import type {
+    // cssfn properties:
+    CssScopeName,
+    CssScopeList,
+    CssScopeMap,
+}                           from '@cssfn/css-types'
+import {
+    StyleSheetOptions,
     StyleSheet,
+    styleSheets,
+    // styleSheet,
 }                           from '@cssfn/cssfn'
 import {
     styleSheetRegistry,
@@ -34,6 +47,11 @@ import {
 import {
     render,
 }                           from '@cssfn/cssfn/dist/renders.js'
+
+// other libs:
+import type {
+    Observable,
+}                           from 'rxjs'
 
 
 
@@ -141,4 +159,38 @@ export const Styles : FC = () => {
             </>
         );
     }, [generation]); // re-create the `JSX.Element` if `generation` changed
+}
+
+
+
+// utilities:
+
+
+
+// hooks:
+export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>, options?: StyleSheetOptions): CssScopeMap<TCssScopeName> => {
+    const isEnabledSet = typeof(options?.enabled) === 'boolean';
+    const scopeMap = styleSheets(
+        scopes,
+        (
+            isEnabledSet
+            ?
+            options
+            :
+            {
+                ...options,
+                enabled: false,
+            }
+        )
+    );
+    
+    
+    
+    if (!isEnabledSet) { // auto enabled
+        //
+    } // if
+    
+    
+    
+    return scopeMap;
 }
