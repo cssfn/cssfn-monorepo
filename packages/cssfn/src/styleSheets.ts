@@ -106,7 +106,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     #updateScopes(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>) {
         if (scopes && (typeof(scopes) === 'object') && !Array.isArray(scopes)) {
             this.#scopes     = null;  // initially empty scope, until the Observable gives the first update
-            this.#loaded     = false; // partially initialized => not ready
+            this.#loaded     = false; // partially initialized => not ready to render for the first time, waiting until the Observable giving __the_first_CssScopeList__
             
             let asyncUpdate = false;
             scopes.subscribe((newScopesOrEnabled) => {
@@ -114,21 +114,27 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
                     if (this.#options.enabled === newScopesOrEnabled) return; // no change => no need to update
                     
                     this.#options.enabled = newScopesOrEnabled; // update
-                    return;
+                }
+                else {
+                    if ((this.#scopes === null) && (newScopesOrEnabled === null)) return; // still null => no change => no need to update
+                    // CssScopeList is always treated as unique object even though it's equal by ref, no deep comparison for performance reason
+                    
+                    this.#scopes = newScopesOrEnabled; // update
                 } // if
                 
                 
                 
-                if ((this.#scopes === null) && (newScopesOrEnabled === null)) return; // still null => no change => no need to update
-                // CssScopeList is always treated as unique object even though it's equal by ref, no deep comparison for performance reason
+                if (this.#options.enabled && this.#scopes) {
+                    this.#loaded = true; // fully initialized => ready to render for the first time
+                } // if
                 
-                this.#scopes = newScopesOrEnabled; // update
-                this.#loaded = true;  // fully initialized => ready
+                
+                
                 if (asyncUpdate) {
-                    this.#update();   // notify a StyleSheet updated
+                    this.#notifyUpdated(); // notify a StyleSheet updated
                 } // if
             });
-            asyncUpdate = true;       // any updates after this mark is async update
+            asyncUpdate = true; // any updates after this mark is async update
         }
         else {
             this.#scopes     = scopes;
@@ -136,14 +142,8 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
         } // if
     }
     
-    #update(newScopes?: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>): void {
-        if (newScopes !== undefined) {
-            this.#updateScopes(newScopes); // assign #scopes & #loaded
-        } // if
-        
-        
-        
-        if (!this.#loaded) return; // partially initialized => not ready to render
+    #notifyUpdated(): void {
+        if (!this.#loaded) return; // partially initialized => not ready to render for the first time
         
         
         
