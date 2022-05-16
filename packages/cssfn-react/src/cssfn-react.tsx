@@ -61,7 +61,7 @@ const Style : FC<StyleProps> = memo(({ content }: StyleProps) => {
     content.renderedCss    = null;                // de-reference the `renderedCss` from `props`
     
     // jsx:
-    console.log(`<Style> render!`);
+    // console.log(`<Style> render!`);
     return (
         <style>
             { localRenderedCss }
@@ -82,15 +82,15 @@ export const Styles : FC = () => {
         const renderedCss = (styleSheet.enabled || null) && render(styleSheet);
         if (!renderedCss) {
             // remove the <Style>:
-            console.log('');
-            console.log(`<Style> removed!`);
+            // console.log('');
+            // console.log(`<Style> removed!`);
             // styles.delete(styleSheet); // do not delete an item in collection
             styles.set(styleSheet, null); // instead assign to `null` to mark as deleted, so we can un-delete it later in the same prev order
         }
         else {
             // add/update the <Style>:
-            console.log('');
-            console.log(`<Style> mutated!`);
+            // console.log('');
+            // console.log(`<Style> mutated!`);
             const style = styles.get(styleSheet);
             styles.set(styleSheet,
                 /**
@@ -131,8 +131,8 @@ export const Styles : FC = () => {
     
     // jsx:
     return useMemo<JSX.Element>(() => {
-        console.log('');
-        console.log(`<Styles> render!`);
+        // console.log('');
+        // console.log(`<Styles> render!`);
         return (
             <>
                 { Array.from(styles.values()) }
