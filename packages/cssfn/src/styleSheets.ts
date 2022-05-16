@@ -131,7 +131,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
         } // if
     }
     
-    #update(newScopes?: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>) {
+    #update(newScopes?: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>): void {
         if (newScopes !== undefined) {
             this.#updateScopes(newScopes); // assign #scopes & #loaded
         } // if
