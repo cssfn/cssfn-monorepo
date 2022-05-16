@@ -290,21 +290,21 @@ export const styleSheet = (styles: CssStyleCollection | Observable<CssStyleColle
         return classes.main;
     }
     else if (isObservable(styles)) {
-        const subject = new Subject<CssScopeList<'main'>|null|boolean>();
+        const dynamicStyleSheet = new Subject<CssScopeList<'main'>|null|boolean>();
         const classes = styleSheets(
-            subject,
+            dynamicStyleSheet,
             options  // styleSheet options
         );
         styles.subscribe((newStylesOrEnabled) => {
             if (typeof(newStylesOrEnabled) === 'boolean') {
                 // update prop `enabled`:
                 
-                subject.next(newStylesOrEnabled);
+                dynamicStyleSheet.next(newStylesOrEnabled);
             }
             else {
                 // update prop `scopes`:
                 
-                subject.next(
+                dynamicStyleSheet.next(
                     (!newStylesOrEnabled /* || (newStyles === true)*/)
                     ?
                     null                           // empty scope
