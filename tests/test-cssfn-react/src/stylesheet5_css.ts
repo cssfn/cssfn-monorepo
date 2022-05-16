@@ -1,4 +1,4 @@
-import {
+import type {
     CssStyle,
 } from '@cssfn/css-types'
 import {

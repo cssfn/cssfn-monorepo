@@ -14,7 +14,7 @@ import { Styles } from '@cssfn/cssfn-react'
 import './stylesheet1_css.ts'
 import './stylesheet2_css.ts'
 import { className3, mutateSheet3, toggleSheet3 } from './stylesheet3_css'
-import './stylesheet4_css.ts'
+import { toggleSheet4 } from './stylesheet4_css'
 import { mutateSheet5 } from './stylesheet5_css'
 // styleSheet(() => ({
 //     display: 'flex',
@@ -60,6 +60,9 @@ function App() {
                 </button>
                 <button onClick={toggleSheet3}>
                     toggle sheet #3
+                </button>
+                <button onClick={toggleSheet4}>
+                    toggle sheet #4
                 </button>
             </article>
         </div>
