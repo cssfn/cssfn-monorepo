@@ -31,20 +31,21 @@ import type {
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
+    CssStyleCollection,
+    
     CssClassName,
     
     CssScopeName,
+    CssScopeOptions,
     CssScopeList,
     CssScopeMap,
 }                           from '@cssfn/css-types'
 import {
     StyleSheetOptions,
     StyleSheet,
-    styleSheets,
-    // styleSheet,
-}                           from '@cssfn/cssfn'
-import {
     styleSheetRegistry,
+    styleSheets,
+    isObservableStyles,
 }                           from '@cssfn/cssfn/dist/styleSheets.js'
 import {
     render,
@@ -257,4 +258,44 @@ export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes:
             });
         } // if
     };
+}
+export const createUseStyleSheet = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>, options?: StyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
+    if (!styles || (styles === true)) {
+        return createUseStyleSheets<'main'>(
+            null,   // empty scope
+            options // styleSheet options
+        );
+    }
+    else if (isObservableStyles(styles)) {
+        const dynamicStyleSheet = new Subject<CssScopeList<'main'>|null|boolean>();
+        const scopeMapHook = createUseStyleSheets(
+            dynamicStyleSheet,
+            options  // styleSheet options
+        );
+        styles.subscribe((newStylesOrEnabled) => {
+            if (typeof(newStylesOrEnabled) === 'boolean') {
+                // update prop `enabled`:
+                
+                dynamicStyleSheet.next(newStylesOrEnabled);
+            }
+            else {
+                // update prop `scopes`:
+                
+                dynamicStyleSheet.next(
+                    (!newStylesOrEnabled /* || (newStyles === true)*/)
+                    ?
+                    null                           // empty scope
+                    :
+                    [['main', newStylesOrEnabled, options]] // scopeOf('main', styles, options)
+                );
+            } // if
+        });
+        return scopeMapHook;
+    }
+    else {
+        return createUseStyleSheets(
+            [['main', styles, options]], // scopeOf('main', styles, options)
+            options                      // styleSheet options
+        );
+    } // if
 }
