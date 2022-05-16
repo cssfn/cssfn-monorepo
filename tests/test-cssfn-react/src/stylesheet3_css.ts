@@ -9,7 +9,7 @@ import {
 }                           from 'rxjs'
 
 
-const sheetContent = new Subject<CssStyle>();
+const sheetContent = new Subject<CssStyle|boolean>();
 
 export const className3 = styleSheet(sheetContent, { id: 'styleSheet-3'});
 
@@ -31,3 +31,10 @@ export const mutateSheet3 = () => {
 };
 
 mutateSheet3(); // first mutation
+
+
+let enabled = true;
+export const toggleSheet3 = () => {
+    enabled = !enabled;
+    sheetContent.next(enabled);
+};

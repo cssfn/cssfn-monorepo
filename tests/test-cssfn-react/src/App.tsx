@@ -13,7 +13,7 @@ import { Styles } from '@cssfn/cssfn-react'
 
 import './stylesheet1_css.ts'
 import './stylesheet2_css.ts'
-import { className3, mutateSheet3 } from './stylesheet3_css'
+import { className3, mutateSheet3, toggleSheet3 } from './stylesheet3_css'
 import './stylesheet4_css.ts'
 import { mutateSheet5 } from './stylesheet5_css'
 // styleSheet(() => ({
@@ -57,6 +57,9 @@ function App() {
                 </button>
                 <button onClick={() =>{mutateSheet3(); mutateSheet5();}}>
                     Mutate sheet #3 &amp; sheet #5
+                </button>
+                <button onClick={toggleSheet3}>
+                    toggle sheet #3
                 </button>
             </article>
         </div>
