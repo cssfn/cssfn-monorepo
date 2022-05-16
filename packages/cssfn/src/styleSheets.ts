@@ -111,11 +111,15 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
             let asyncUpdate = false;
             scopes.subscribe((newScopesOrEnabled) => {
                 if (typeof(newScopesOrEnabled) === 'boolean') {
+                    // update prop `enabled`:
+                    
                     if (this.#options.enabled === newScopesOrEnabled) return; // no change => no need to update
                     
                     this.#options.enabled = newScopesOrEnabled; // update
                 }
                 else {
+                    // update prop `scopes`:
+                    
                     if ((this.#scopes === null) && (newScopesOrEnabled === null)) return; // still null => no change => no need to update
                     // CssScopeList is always treated as unique object even though it's equal by ref, no deep comparison for performance reason
                     
@@ -273,14 +277,14 @@ export const styleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductO
     return sheet.classes;
 }
 
-const isObservable = (styles: CssStyleCollection | Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>>): styles is Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>> => (
+const isObservable = (styles: CssStyleCollection | Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>|boolean>): styles is Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>|boolean> => (
     !!styles
     &&
     (typeof(styles) === 'object')
     &&
     (styles.constructor !== {}.constructor)
 )
-export const styleSheet = (styles: CssStyleCollection | Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>>, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
+export const styleSheet = (styles: CssStyleCollection | Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>|boolean>, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
     if (!styles || (styles === true)) {
         const classes = styleSheets<'main'>(
             null,   // empty scope
@@ -289,19 +293,28 @@ export const styleSheet = (styles: CssStyleCollection | Observable<SingleOrDeepA
         return classes.main;
     }
     else if (isObservable(styles)) {
-        const subject = new Subject<CssScopeList<'main'>|null>();
+        const subject = new Subject<CssScopeList<'main'>|null|boolean>();
         const classes = styleSheets(
             subject,
             options  // styleSheet options
         );
-        styles.subscribe((newStyles) => {
-            subject.next(
-                (!newStyles || (newStyles === true))
-                ?
-                null                           // empty scope
-                :
-                [['main', newStyles, options]] // scopeOf('main', styles, options)
-            );
+        styles.subscribe((newStylesOrEnabled) => {
+            if (typeof(newStylesOrEnabled) === 'boolean') {
+                // update prop `enabled`:
+                
+                subject.next(newStylesOrEnabled);
+            }
+            else {
+                // update prop `scopes`:
+                
+                subject.next(
+                    (!newStylesOrEnabled /* || (newStyles === true)*/)
+                    ?
+                    null                           // empty scope
+                    :
+                    [['main', newStylesOrEnabled, options]] // scopeOf('main', styles, options)
+                );
+            } // if
         });
         return classes.main;
     }
