@@ -1,13 +1,10 @@
 // cssfn:
 import type {
     // types:
-    OptionalOrBoolean,
-    SingleOrDeepArray,
     ProductOrFactory,
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
-    CssStyle,
     CssStyleCollection,
     
     CssClassName,
@@ -67,7 +64,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     
     
     //#region constructors
-    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
+    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
         const styleSheetOptions : Required<StyleSheetOptions> = {
             ...(options ?? {}),
             enabled : options?.enabled ?? defaultStyleSheetOptions.enabled,
@@ -103,7 +100,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     
     
     //#region private methods
-    #updateScopes(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>) {
+    #updateScopes(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>) {
         if (scopes && (typeof(scopes) === 'object') && !Array.isArray(scopes)) {
             this.#scopes     = null;  // initially empty scope, until the Observable gives the first update
             this.#loaded     = false; // partially initialized => not ready to render for the first time, waiting until the Observable giving __the_first_CssScopeList__
@@ -211,7 +208,7 @@ class StyleSheetRegistry {
     
     
     //#region public methods
-    add<TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>, options?: StyleSheetOptions) {
+    add<TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions) {
         if (!isClientSide) { // on server side => just pass a StyleSheet object
             return new StyleSheet<TCssScopeName>(
                 scopes,
@@ -272,19 +269,19 @@ export type { StyleSheetRegistry } // only export the type but not the actual cl
 
 
 export const styleSheetRegistry = new StyleSheetRegistry();
-export const styleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>, options?: StyleSheetOptions): CssScopeMap<TCssScopeName> => {
+export const styleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions): CssScopeMap<TCssScopeName> => {
     const sheet = styleSheetRegistry.add(scopes, options);
     return sheet.classes;
 }
 
-const isObservable = (styles: CssStyleCollection | Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>|boolean>): styles is Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>|boolean> => (
+const isObservable = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>): styles is Observable<CssStyleCollection|boolean> => (
     !!styles
     &&
     (typeof(styles) === 'object')
     &&
     (styles.constructor !== {}.constructor)
 )
-export const styleSheet = (styles: CssStyleCollection | Observable<SingleOrDeepArray<OptionalOrBoolean<CssStyle>>|boolean>, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
+export const styleSheet = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
     if (!styles || (styles === true)) {
         const classes = styleSheets<'main'>(
             null,   // empty scope
