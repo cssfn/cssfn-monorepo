@@ -31,6 +31,8 @@ import type {
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
+    CssClassName,
+    
     CssScopeName,
     CssScopeList,
     CssScopeMap,
@@ -168,12 +170,12 @@ export const Styles : FC = () => {
 
 
 // hooks:
-export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>, options?: StyleSheetOptions): CssScopeMap<TCssScopeName> => {
-    const isEnabledSet = typeof(options?.enabled) === 'boolean';
+export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<CssScopeList<TCssScopeName>|null|boolean>, options?: StyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
+    const isStaticEnabled = typeof(options?.enabled) === 'boolean';
     const scopeMap = styleSheets(
         scopes,
         (
-            isEnabledSet
+            isStaticEnabled
             ?
             options
             :
@@ -184,13 +186,50 @@ export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes:
         )
     );
     
+    /**
+     * Counts how many components are currently using this styleSheet.
+     */
+    let registeredUsingStyleSheet = 0;
+    const registerUsingStyleSheet = () => {
+        registeredUsingStyleSheet++;
+    };
+    const unregisterUsingStyleSheet = () => {
+        registeredUsingStyleSheet--;
+    };
     
     
-    if (!isEnabledSet) { // auto enabled
-        //
-    } // if
     
-    
-    
-    return scopeMap;
+    // hook implementation:
+    return (): CssScopeMap<TCssScopeName> => {
+        // dom effects:
+        const isStyleSheetInUse = useRef(false);
+        useEffect(() => {
+            // cleanups:
+            return () => {
+                if (isStyleSheetInUse.current) {
+                    unregisterUsingStyleSheet();
+                } // if
+            }
+        }, []); // runs once on startup
+        
+        
+        
+        if (isStaticEnabled) { // static enabled
+            return scopeMap;
+        }
+        else { // dynamic enabled
+            return new Proxy<CssScopeMap<TCssScopeName>>(scopeMap, {
+                get: (scopeMap: CssScopeMap<TCssScopeName>, scopeName: CssScopeName): CssClassName|undefined => {
+                    if (!(scopeName in scopeMap)) return undefined; // not found => return undefined
+                    
+                    if (!isStyleSheetInUse.current) {
+                        isStyleSheetInUse.current = true; // mark the styleSheet as in use
+                        registerUsingStyleSheet();
+                    } // if
+                    
+                    return scopeMap[scopeName as keyof CssScopeMap<TCssScopeName>];
+                },
+            });
+        } // if
+    };
 }
