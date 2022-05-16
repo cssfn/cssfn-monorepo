@@ -94,8 +94,8 @@ export const Styles : FC = () => {
             const style = styles.get(styleSheet);
             styles.set(styleSheet,
                 /**
-                 * <Style> is a pure component and will never re-render by itself.
-                 * To update <Style>, we need to re-create <Style>.
+                 * <Style> is a pure static component and will never re-render by itself.
+                 * To update <Style>, we need to re-create a new <Style>.
                  */
                 <Style
                     content={
@@ -103,9 +103,9 @@ export const Styles : FC = () => {
                     }
                     
                     key={
-                        style?.key    // re-use the existing key
+                        style?.key  // re-use the existing key
                         ??
-                        (styles.size) // generate a new key by looking `styles.size`, it always growing, never shrinking
+                        styles.size // generate a new key by looking `styles.size`, it always growing, never shrinking
                     }
                 />
             );
@@ -138,5 +138,5 @@ export const Styles : FC = () => {
                 { Array.from(styles.values()) }
             </>
         );
-    }, [generation]); // re-create the memo if `generation` changed
+    }, [generation]); // re-create the `JSX.Element` if `generation` changed
 }
