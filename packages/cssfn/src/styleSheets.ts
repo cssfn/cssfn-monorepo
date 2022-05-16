@@ -274,7 +274,7 @@ export const styleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductO
     return sheet.classes;
 }
 
-const isObservable = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>): styles is Observable<CssStyleCollection|boolean> => (
+export const isObservableStyles = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>): styles is Observable<CssStyleCollection|boolean> => (
     !!styles
     &&
     (typeof(styles) === 'object')
@@ -289,7 +289,7 @@ export const styleSheet = (styles: CssStyleCollection | Observable<CssStyleColle
         );
         return classes.main;
     }
-    else if (isObservable(styles)) {
+    else if (isObservableStyles(styles)) {
         const dynamicStyleSheet = new Subject<CssScopeList<'main'>|null|boolean>();
         const classes = styleSheets(
             dynamicStyleSheet,
