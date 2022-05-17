@@ -13,4 +13,4 @@ export const useStyleSheet6 = createUseStyleSheet(() => ({
     flexDirection :  'row',
     padding       : '0.5rem',
     gap           : '1rem',
-}), { id: 'styleSheet-2'});
+}), { id: 'styleSheet-6'});

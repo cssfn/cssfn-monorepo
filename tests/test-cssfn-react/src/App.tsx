@@ -21,6 +21,8 @@ import { className3, mutateSheet3, toggleSheet3 } from './stylesheet3_css'
 import { toggleSheet4 } from './stylesheet4_css'
 import { mutateSheet5 } from './stylesheet5_css'
 import { useStyleSheet6 } from './stylesheet6_css'
+import { useStyleSheet7 } from './stylesheet7_css'
+import { useStyleSheet8 } from './stylesheet8_css'
 // styleSheet(() => ({
 //     display: 'flex',
 //     flexDirection: 'row',
@@ -59,9 +61,29 @@ function App() {
         });
     }
     const listItemIdCounter = useRef(0);
-    const handleAddListItem = () => {
+    const handleAddListItemA = () => {
         const thisJsx : { item?: ToDoItemType } = {};
-        const listItem : ToDoItemType = <ToDoItem name={`to do # ${++listItemIdCounter.current}`} onRemove={() => handleRemoveListItem(thisJsx.item!)} />
+        const listItem : ToDoItemType = <ToDoItemA name={`to do a# ${++listItemIdCounter.current}`} onRemove={() => handleRemoveListItem(thisJsx.item!)} />
+        thisJsx.item = listItem;
+        
+        toDoListAction({
+            type : 'add',
+            item : listItem
+        });
+    }
+    const handleAddListItemB = () => {
+        const thisJsx : { item?: ToDoItemType } = {};
+        const listItem : ToDoItemType = <ToDoItemB name={`to do b# ${++listItemIdCounter.current}`} onRemove={() => handleRemoveListItem(thisJsx.item!)} />
+        thisJsx.item = listItem;
+        
+        toDoListAction({
+            type : 'add',
+            item : listItem
+        });
+    }
+    const handleAddListItemC = () => {
+        const thisJsx : { item?: ToDoItemType } = {};
+        const listItem : ToDoItemType = <ToDoItemC name={`to do c# ${++listItemIdCounter.current}`} onRemove={() => handleRemoveListItem(thisJsx.item!)} />
         thisJsx.item = listItem;
         
         toDoListAction({
@@ -110,7 +132,9 @@ function App() {
                     { toDoList.map((toDoItem, index) =>
                         React.cloneElement(toDoItem, { key: index })
                     ) }
-                    <button onClick={handleAddListItem}>Add new</button>
+                    <button onClick={handleAddListItemA}>Add new A</button>
+                    <button onClick={handleAddListItemB}>Add new B</button>
+                    <button onClick={handleAddListItemC}>Add new C</button>
                 </ul>
             </article>
         </div>
@@ -124,7 +148,7 @@ interface ToDoItemProps {
     name      : string
     onRemove ?: () => void
 }
-const ToDoItem : FC<ToDoItemProps> = (props) => {
+const ToDoItemA : FC<ToDoItemProps> = (props) => {
     const classes = useStyleSheet6();
     return (
         <li className={classes.main}>
@@ -135,4 +159,32 @@ const ToDoItem : FC<ToDoItemProps> = (props) => {
         </li>
     )
 }
-type ToDoItemType = ReactElement<ToDoItemProps, typeof ToDoItem>
+const ToDoItemB : FC<ToDoItemProps> = (props) => {
+    const classes = useStyleSheet7();
+    return (
+        <li className={classes.main}>
+            <span>
+                { props.name }
+            </span>
+            <button onClick={props.onRemove}>Remove</button>
+        </li>
+    )
+}
+const ToDoItemC : FC<ToDoItemProps> = (props) => {
+    const classes = useStyleSheet7();
+    return (
+        <li className={classes.main}>
+            <ToDoItemCC {...props} />
+            <button onClick={props.onRemove}>Remove</button>
+        </li>
+    )
+}
+const ToDoItemCC : FC<ToDoItemProps> = (props) => {
+    const classes = useStyleSheet8();
+    return (
+        <span className={classes.main}>
+            { props.name }
+        </span>
+    );
+}
+type ToDoItemType = ReactElement<ToDoItemProps, typeof ToDoItemA | typeof ToDoItemB | typeof ToDoItemC>
