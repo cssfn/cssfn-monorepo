@@ -91,8 +91,8 @@ import {
 
 
 // utilities:
-const conditionalNestedAtRules = ['@media', '@supports', '@document'];
-export const isConditionalNestedAtRules = (finalSelector: CssFinalSelector) => conditionalNestedAtRules.some((at) => finalSelector.startsWith(at));
+const nestedAtRules = ['@media', '@supports', '@layer', '@document'];
+export const isNestedAtRules = (finalSelector: CssFinalSelector) => nestedAtRules.some((at) => finalSelector.startsWith(at));
 
 const combineSelector = (parentSelector: CssFinalSelector|null, nestedSelector: CssFinalSelector): CssFinalSelector|null => {
     //#region parse parentSelector & nestedSelector
@@ -292,7 +292,7 @@ class RenderRule {
         this.rendered += '\n}\n';
         //#endregion render complete .selector { style }
     }
-    #renderConditionalSelector(finalSelector: CssFinalSelector, nestedRules: CssRule|null): void {
+    #renderNestedSelector(finalSelector: CssFinalSelector, nestedRules: CssRule|null): void {
         if (!nestedRules) return;
         
         
@@ -367,7 +367,7 @@ class RenderRule {
             if (finalSelector === '@global') { // special @global rule
                 this.rendered += (new RenderRule(null, finalStyle)).rendered;
             }
-            else if (isConditionalNestedAtRules(finalSelector)) {
+            else if (isNestedAtRules(finalSelector)) {
                 /*
                     for non-@global parent:
                     
@@ -375,7 +375,7 @@ class RenderRule {
                     .parent {                                // parentRule
                         color: black;
                         .awesome { fontSize: 'small' }
-                        @media (min-width: 1024px) {         // nested conditional
+                        @media (min-width: 1024px) {         // nested at rule
                             color: red;                      // the nestedStyles
                             .awesome { fontSize: 'large' }   // the nestedRules
                         }
@@ -401,7 +401,7 @@ class RenderRule {
                     @global {                                // parentRule
                         color: black;
                         .awesome { fontSize: 'small' }
-                        @media (min-width: 1024px) {         // nested conditional
+                        @media (min-width: 1024px) {         // nested at rule
                             color: red;                      // the nestedStyles
                             .awesome { fontSize: 'large' }   // the nestedRules
                         }
@@ -421,12 +421,12 @@ class RenderRule {
                     // top_level at rule with nestedRules
                     
                     // this.rendered += (new RenderRule(finalSelector, finalStyle)).rendered; doesn't work, the nested will automatically unnested
-                    this.#renderConditionalSelector(finalSelector, finalStyle);
+                    this.#renderNestedSelector(finalSelector, finalStyle);
                 }
                 else {
                     // top_level at rule with nestedRules
                     
-                    this.#renderConditionalSelector(finalSelector,
+                    this.#renderNestedSelector(finalSelector,
                         //#region wrap the style with a duplicated parentRule selector
                         {
                             [Symbol()] : [
