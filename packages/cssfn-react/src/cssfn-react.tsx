@@ -265,14 +265,19 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
         else { // dynamic enabled
             return new Proxy<CssScopeMap<TCssScopeName>>(this.#scopeMap, {
                 get: (scopeMap: CssScopeMap<TCssScopeName>, scopeName: CssScopeName): CssClassName|undefined => {
-                    if (!(scopeName in scopeMap)) return undefined; // not found => return undefined
+                    const className = scopeMap[scopeName as keyof CssScopeMap<TCssScopeName>];
+                    if (className === undefined) return undefined; // not found => return undefined
+                    
+                    
                     
                     if (!isStyleSheetInUse.current) {
                         isStyleSheetInUse.current = true; // mark the styleSheet as in use
                         this.#registerUsingStyleSheet();
                     } // if
                     
-                    return scopeMap[scopeName as keyof CssScopeMap<TCssScopeName>];
+                    
+                    
+                    return className;
                 },
             });
         } // if
