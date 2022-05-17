@@ -280,9 +280,13 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     //#endregion public methods
 }
 export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
-    return (
-        (new StyleSheetsHookBuilder(scopes, options))
-        .createStyleSheetsHook
+    // a single builder for creating many hooks:
+    const builder = new StyleSheetsHookBuilder(scopes, options);
+    
+    // the hook:
+    return () => ( // wrap with arrow func so the `this` in `createStyleSheetsHook` preserved
+        builder
+        .createStyleSheetsHook()
     );
 }
 export const createUseStyleSheet  = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>, options?: StyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
