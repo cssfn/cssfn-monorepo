@@ -133,7 +133,15 @@ export const Styles : FC = () => {
         
         
         
-        if (loaded.current) triggerRender(); // re-render the <Styles>
+        if (loaded.current) {
+            /**
+             * prevents re-rendering the <Style> while another <Component> is currently rendering
+             * => the solution is async execution => executes after the another <Component> has finished rendering
+             */
+            Promise.resolve().then(() => {
+                triggerRender(); // re-render the <Styles>
+            });
+        } // if
     }));
     useEffect(() => {
         // setups:
