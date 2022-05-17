@@ -94,3 +94,25 @@
   gap: 1rem;
   align-items: center;
 }
+
+
+
+.toDoList > ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 2rem;
+  padding: 2rem;
+  background: lightgray;
+  border: solid 1px black;
+}
+
+.toDoList > ul > li {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  border: solid 1px black;
+  background: lightblue;
+  padding: 0.5rem;
+  gap: 1rem;
+}
