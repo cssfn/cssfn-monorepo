@@ -317,7 +317,7 @@ export const styleSheet  = (styles: CssStyleCollection | Observable<CssStyleColl
                 dynamicStyleSheet.next(
                     (!newStylesOrEnabled /* || (newStyles === true)*/)
                     ?
-                    null                           // empty scope
+                    null                                    // empty scope
                     :
                     [['main', newStylesOrEnabled, options]] // scopeOf('main', styles, options)
                 );
