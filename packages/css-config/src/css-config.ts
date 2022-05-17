@@ -866,7 +866,9 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      */
     #getDecl(propName: string): CssCustomName|undefined {
         // ignores react runtime type check:
-        if (propName === '$$typeof') return undefined;
+        if (propName === '$$typeof') {
+            return undefined;
+        } // if
         
         
         
