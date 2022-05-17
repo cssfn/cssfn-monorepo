@@ -6,6 +6,7 @@ import type {
 import type {
     // cssfn properties:
     CssStyle,
+    CssStyleMap,
     CssStyleCollection,
     
     CssSelector,
@@ -343,6 +344,24 @@ export const mergeNested  = (style: CssStyle): void => {
         for (const symbolProp of mergeableSymbolGroup.slice(0, -1)) delete style[symbolProp];
     } // for
     //#endregion merge duplicates (nested) mergeable Rule(s) to unique ones
+}
+
+
+
+const cssStyleToMap = (style: CssStyle): CssStyleMap => {
+    // fetch string props:
+    // const map = new Map(Object.entries(style)) as CssStyleMap; // slow!
+    const map = new Map() as CssStyleMap;
+    for (const propName in style) { // faster!
+        map.set(propName as keyof Omit<CssStyle, symbol> as any, style[propName as keyof Omit<CssStyle, symbol>]);
+    } //
+    
+    // fetch symbol props:
+    for (const propName of Object.getOwnPropertySymbols(style)) {
+        map.set(propName, style[propName]);
+    } // for
+    
+    return map;
 }
 
 
