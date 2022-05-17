@@ -41,11 +41,16 @@ import type {
     CssScopeMap,
 }                           from '@cssfn/css-types'
 import {
+    isObservableScopes,
+    isObservableStyles,
+    
+    
+    
+    // style sheets:
     StyleSheetOptions,
     StyleSheet,
     styleSheetRegistry,
     styleSheets,
-    isObservableStyles,
 }                           from '@cssfn/cssfn/dist/styleSheets.js'
 import {
     render,
@@ -191,15 +196,15 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
             (
                 this.#isStaticEnabled
                 ?
-                options
+                options // an option with `enabled` assigned
                 :
                 {
                     ...options,
-                    enabled: false, // initially disabled, will be enabled at runtime
+                    enabled: false, // initially disabled, will be re-enabled/re-disabled at runtime
                 }
             )
         );
-        if (scopes && (typeof(scopes) === 'object') && !Array.isArray(scopes)) {
+        if (isObservableScopes(scopes)) {
             scopes.subscribe((newScopesOrEnabled) => {
                 this.#dynamicStyleSheet.next(newScopesOrEnabled); // forwards
             });
