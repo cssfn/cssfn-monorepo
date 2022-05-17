@@ -35,6 +35,24 @@ const isClientSide : boolean = isBrowser || isJsDom;
 
 
 
+// utilities:
+export const isObservableScopes = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>): scopes is Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean> => (
+    !!scopes
+    &&
+    (typeof(scopes) === 'object')
+    &&
+    !Array.isArray(scopes)
+)
+export const isObservableStyles = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>): styles is Observable<CssStyleCollection|boolean> => (
+    !!styles
+    &&
+    (typeof(styles) === 'object')
+    &&
+    (styles.constructor !== {}.constructor)
+)
+
+
+
 // style sheets:
 
 export interface StyleSheetOptions {
@@ -101,7 +119,7 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
     
     //#region private methods
     #updateScopes(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>) {
-        if (scopes && (typeof(scopes) === 'object') && !Array.isArray(scopes)) {
+        if (isObservableScopes(scopes)) {
             this.#scopes     = null;  // initially empty scope, until the Observable gives the first update
             this.#loaded     = false; // partially initialized => not ready to render for the first time, waiting until the Observable giving __the_first_CssScopeList__
             
@@ -273,15 +291,7 @@ export const styleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductO
     const sheet = styleSheetRegistry.add(scopes, options);
     return sheet.classes;
 }
-
-export const isObservableStyles = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>): styles is Observable<CssStyleCollection|boolean> => (
-    !!styles
-    &&
-    (typeof(styles) === 'object')
-    &&
-    (styles.constructor !== {}.constructor)
-)
-export const styleSheet = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
+export const styleSheet  = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
     if (!styles || (styles === true)) {
         const classes = styleSheets<'main'>(
             null,   // empty scope
