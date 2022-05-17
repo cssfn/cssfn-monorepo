@@ -106,13 +106,3 @@
   background: lightgray;
   border: solid 1px black;
 }
-
-.toDoList > ul > li {
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: row;
-  border: solid 1px black;
-  background: lightblue;
-  padding: 0.5rem;
-  gap: 1rem;
-}

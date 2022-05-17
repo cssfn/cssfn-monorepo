@@ -20,6 +20,7 @@ import './stylesheet2_css.ts'
 import { className3, mutateSheet3, toggleSheet3 } from './stylesheet3_css'
 import { toggleSheet4 } from './stylesheet4_css'
 import { mutateSheet5 } from './stylesheet5_css'
+import { useStyleSheet6 } from './stylesheet6_css'
 // styleSheet(() => ({
 //     display: 'flex',
 //     flexDirection: 'row',
@@ -124,8 +125,9 @@ interface ToDoItemProps {
     onRemove ?: () => void
 }
 const ToDoItem : FC<ToDoItemProps> = (props) => {
+    const classes = useStyleSheet6();
     return (
-        <li>
+        <li className={classes.main}>
             <span>
                 { props.name }
             </span>
