@@ -265,6 +265,13 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
         else { // dynamic enabled
             return new Proxy<CssScopeMap<TCssScopeName>>(this.#scopeMap, {
                 get: (scopeMap: CssScopeMap<TCssScopeName>, scopeName: CssScopeName): CssClassName|undefined => {
+                    // ignores react runtime type check:
+                    if (scopeName === '$$typeof') {
+                        return undefined;
+                    } // if
+                    
+                    
+                    
                     const className = scopeMap[scopeName as keyof CssScopeMap<TCssScopeName>];
                     if (className === undefined) return undefined; // not found => return undefined
                     
