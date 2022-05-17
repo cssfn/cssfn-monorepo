@@ -175,10 +175,10 @@ export const Styles : FC = () => {
 // hooks:
 class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     //#region private properties
-    readonly    #isStaticEnabled          : boolean
-    readonly    #dynamicStyleSheet        : Subject<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>
-    readonly    #scopeMap                 : CssScopeMap<TCssScopeName>
-    /*mutable*/ #registeredUsesStyleSheet : number
+    readonly    #isStaticEnabled           : boolean
+    readonly    #dynamicStyleSheet         : Subject<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>
+    readonly    #scopeMap                  : CssScopeMap<TCssScopeName>
+    /*mutable*/ #registeredUsingStyleSheet : number
     //#endregion private properties
     
     
@@ -219,7 +219,7 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
         
         
         // reset the user counter:
-        this.#registeredUsesStyleSheet = 0;
+        this.#registeredUsingStyleSheet = 0; // initially no user using this styleSheet
     }
     //#endregion constructors
     
@@ -227,16 +227,16 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     
     //#region private methods
     #registerUsingStyleSheet() {
-        this.#registeredUsesStyleSheet++;
+        this.#registeredUsingStyleSheet++;
         
-        if (this.#registeredUsesStyleSheet === 1) {
+        if (this.#registeredUsingStyleSheet === 1) { // first user
             this.#dynamicStyleSheet.next(true); // first user => enable styleSheet
         } // if
     }
     #unregisterUsingStyleSheet() {
-        this.#registeredUsesStyleSheet--;
+        this.#registeredUsingStyleSheet--;
         
-        if (this.#registeredUsesStyleSheet === 1) {
+        if (this.#registeredUsingStyleSheet === 0) { // no user
             this.#dynamicStyleSheet.next(false); // no user => disable styleSheet
         } // if
     }
