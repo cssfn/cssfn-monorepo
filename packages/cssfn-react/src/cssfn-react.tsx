@@ -285,7 +285,7 @@ export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes:
         .createStyleSheetsHook
     );
 }
-export const createUseStyleSheet = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>, options?: StyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
+export const createUseStyleSheet  = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>, options?: StyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
     if (!styles || (styles === true)) {
         return createUseStyleSheets<'main'>(
             null,   // empty scope
@@ -310,7 +310,7 @@ export const createUseStyleSheet = (styles: CssStyleCollection | Observable<CssS
                 dynamicStyleSheet.next(
                     (!newStylesOrEnabled /* || (newStyles === true)*/)
                     ?
-                    null                           // empty scope
+                    null                                    // empty scope
                     :
                     [['main', newStylesOrEnabled, options]] // scopeOf('main', styles, options)
                 );
