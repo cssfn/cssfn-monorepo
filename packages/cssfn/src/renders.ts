@@ -92,7 +92,7 @@ import {
 
 // utilities:
 const nestedAtRules = ['@media', '@supports', '@layer', '@document'];
-export const isNestedAtRules = (finalSelector: CssFinalSelector) => nestedAtRules.some((at) => finalSelector.startsWith(at));
+export const isNestedAtRule = (finalSelector: CssFinalSelector) => nestedAtRules.some((at) => finalSelector.startsWith(at));
 
 const combineSelector = (parentSelector: CssFinalSelector|null, nestedSelector: CssFinalSelector): CssFinalSelector|null => {
     //#region parse parentSelector & nestedSelector
@@ -367,7 +367,7 @@ class RenderRule {
             if (finalSelector === '@global') { // special @global rule
                 this.rendered += (new RenderRule(null, finalStyle)).rendered;
             }
-            else if (isNestedAtRules(finalSelector)) {
+            else if (isNestedAtRule(finalSelector)) {
                 /*
                     for non-@global parent:
                     
