@@ -1,6 +1,7 @@
 import type {
     CssRule,
     CssStyle,
+    CssStyleMap,
     CssStyleCollection,
     
     CssSelectorCollection,
@@ -10,6 +11,7 @@ import type {
     Combinator,
 } from '@cssfn/css-selectors'
 import {
+    filterOnlyRuleKeys,
     mergeStyles,
 } from '../dist/mergeStyles.js'
 import {
@@ -68,18 +70,30 @@ import './jest-custom'
 
 
 
-const firstSelectorOf = (style: CssStyle|null): string|null => {
+const cssMapToStyle = (style: CssStyleMap|null): CssStyle|null => {
+    if (!style || !style.size) return null;
+    
+    
+    
+    const styleString = Object.fromEntries(Array.from(style).filter(([key]) => (typeof(key) !== 'symbol')));
+    const styleSymbol = Object.fromEntries(Array.from(style).filter(([key]) => (typeof(key) === 'symbol')));
+    return Object.assign({}, styleString, styleSymbol) as unknown as CssStyle;
+}
+
+
+
+const firstSelectorOf = (style: CssStyleMap|null): string|null => {
     if (!style) return null;
-    const symbolProp = Object.getOwnPropertySymbols(style)[0];
+    const symbolProp = Array.from(filterOnlyRuleKeys(style.keys()))[0];
     if (symbolProp === undefined) return null;
-    const [selector] = style[symbolProp];
+    const [selector] = style.get(symbolProp)!;
     return isFinalSelector(selector) ? selector : null;
 }
-const firstStylesOf = (style: CssStyle|null): CssStyle|null => {
+const firstStylesOf = (style: CssStyleMap|null): CssStyle|null => {
     if (!style) return null;
-    const symbolProp = Object.getOwnPropertySymbols(style)[0];
+    const symbolProp = Array.from(filterOnlyRuleKeys(style.keys()))[0];
     if (symbolProp === undefined) return null;
-    const [, styles] = style[symbolProp];
+    const [, styles] = style.get(symbolProp)!;
     return styles as CssStyle;
 }
 
@@ -1730,12 +1744,12 @@ test(`keyframes()`, () => {
 
 //#region rule shortcuts
 test(`noRule()`, () => {
-    expect(mergeStyles({
+    expect(cssMapToStyle(mergeStyles({
         background: 'pink',
         ...noRule({
             color: 'red',
         })
-    }))
+    })))
     .toExactEqual({
         background: 'pink',
         color: 'red',
@@ -1743,10 +1757,10 @@ test(`noRule()`, () => {
 });
 
 test(`emptyRule()`, () => {
-    expect(mergeStyles({
+    expect(cssMapToStyle(mergeStyles({
         background: 'pink',
         ...emptyRule(),
-    }))
+    })))
     .toExactEqual({
         background: 'pink',
     });
@@ -2368,19 +2382,19 @@ combinators.forEach(([combinatorFunc, combinator]) => {
 
 //#region styles
 test(`style()`, () => {
-    expect(mergeStyles(
+    expect(cssMapToStyle(mergeStyles(
         style({
             color      : 'blue',
             background : 'lightblue',
         })
-    ))
+    )))
     .toExactEqual({
         color      : 'blue',
         background : 'lightblue',
     });
 });
 test(`vars()`, () => {
-    expect(mergeStyles(
+    expect(cssMapToStyle(mergeStyles(
         vars({
             '--site-name'      : 'bob',
             '--bg-color'       : 'blue',
@@ -2388,7 +2402,7 @@ test(`vars()`, () => {
             'var(--myVar)'     : '"boo"',
             'var(--myBorder)'  : [['dashed', '2px', 'blue']],
         })
-    ))
+    )))
     .toExactEqual({
         '--site-name'      : 'bob',
         '--bg-color'       : 'blue',
@@ -2398,21 +2412,21 @@ test(`vars()`, () => {
     });
 });
 test(`imports()`, () => {
-    expect(mergeStyles(
+    expect(cssMapToStyle(mergeStyles(
         imports([
             {
                 color      : 'blue',
                 background : 'lightblue',
             },
         ])
-    ))
+    )))
     .toExactEqual({
         color      : 'blue',
         background : 'lightblue',
     });
 });
 test(`imports()`, () => {
-    expect(mergeStyles(
+    expect(cssMapToStyle(mergeStyles(
         imports([
             {
                 color      : 'blue',
@@ -2423,7 +2437,7 @@ test(`imports()`, () => {
                 width      : '300px',
             },
         ])
-    ))
+    )))
     .toExactEqual({
         color      : 'blue',
         background : 'lightblue',
@@ -2437,28 +2451,28 @@ test(`imports()`, () => {
 
 //#region test iif()
 test(`iif()`, () => {
-    expect(mergeStyles({
+    expect(cssMapToStyle(mergeStyles({
         opacity: 0.5,
         visibility: 'visible',
         ...iif(false, style({
             background: 'pink',
             color: 'red',
         })),
-    }))
+    })))
     .toExactEqual({
         opacity: 0.5,
         visibility: 'visible',
     });
 });
 test(`iif()`, () => {
-    expect(mergeStyles({
+    expect(cssMapToStyle(mergeStyles({
         opacity: 0.5,
         visibility: 'visible',
         ...iif(true, style({
             background: 'pink',
             color: 'red',
         })),
-    }))
+    })))
     .toExactEqual({
         opacity: 0.5,
         visibility: 'visible',

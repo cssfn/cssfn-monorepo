@@ -1,5 +1,9 @@
 import type {
+    OptionalOrBoolean,
+} from '@cssfn/types'
+import type {
     CssStyle,
+    CssStyleMap,
 } from '@cssfn/css-types'
 import {
     mergeLiteral,
@@ -11,23 +15,58 @@ import './jest-custom'
 
 
 
+const cssStyleToMap = (style: OptionalOrBoolean<CssStyle>): CssStyleMap|null => {
+    if (!style || (style === true)) return new Map() as CssStyleMap; // allow empty CssStyleMap for testing purpose
+    
+    
+    
+    // fetch string props:
+    // const map = new Map(Object.entries(style)) as CssStyleMap; // slow!
+    const map = new Map() as CssStyleMap;
+    for (const propName in style) { // faster!
+        const propName2 = propName as keyof Omit<CssStyle, symbol>;
+        map.set(propName2 as any, style[propName2]);
+    } //
+    
+    // fetch symbol props:
+    for (const propName of Object.getOwnPropertySymbols(style)) {
+        map.set(propName, style[propName]);
+    } // for
+    
+    
+    
+    // if (!map.size) return null; // allow empty CssStyleMap for testing purpose
+    return map;
+}
+const cssMapToStyle = (style: CssStyleMap|null): CssStyle|null => {
+    if (!style || !style.size) return null;
+    
+    
+    
+    const styleString = Object.fromEntries(Array.from(style).filter(([key]) => (typeof(key) !== 'symbol')));
+    const styleSymbol = Object.fromEntries(Array.from(style).filter(([key]) => (typeof(key) === 'symbol')));
+    return Object.assign({}, styleString, styleSymbol) as unknown as CssStyle;
+}
+
+
+
 //#region test mergeLiteral()
 test(`mergeLiteral({empty}, {empty})`, () => {
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         /* empty */
-    };
-    const addStyle: CssStyle = {
+    })!;
+    const addStyle = cssStyleToMap({
         /* empty */
-    };
+    })!;
     mergeLiteral(mainStyle, addStyle);
-    expect(mainStyle)
-    .toExactEqual({
-        /* empty */
-    });
+    expect(cssMapToStyle(mainStyle))
+    .toBe(
+        null
+    );
 });
 
 test(`mergeLiteral({some}, {empty})`, () => {
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         background: 'red',
         color: 'blue',
         opacity: 0.5,
@@ -40,12 +79,12 @@ test(`mergeLiteral({some}, {empty})`, () => {
             ['-1em', '0', '.4em', 'olive'],
         ],
         paddingInline: '2rem',
-    };
-    const addStyle: CssStyle = {
+    })!;
+    const addStyle = cssStyleToMap({
         /* empty */
-    };
+    })!;
     mergeLiteral(mainStyle, addStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         background: 'red',
         color: 'blue',
@@ -63,10 +102,10 @@ test(`mergeLiteral({some}, {empty})`, () => {
 });
 
 test(`mergeLiteral({empty}, {some})`, () => {
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         /* empty */
-    };
-    const addStyle: CssStyle = {
+    })!;
+    const addStyle = cssStyleToMap({
         background: 'red',
         color: 'blue',
         opacity: 0.5,
@@ -79,9 +118,9 @@ test(`mergeLiteral({empty}, {some})`, () => {
             ['-1em', '0', '.4em', 'olive'],
         ],
         paddingInline: '2rem',
-    };
+    })!;
     mergeLiteral(mainStyle, addStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         background: 'red',
         color: 'blue',
@@ -101,7 +140,7 @@ test(`mergeLiteral({empty}, {some})`, () => {
 test(`mergeLiteral({some+symbols}, {empty})`, () => {
     const symbol1 = Symbol();
     const symbol2 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         background: 'red',
         color: 'blue',
         [symbol1]: ['&.boo', {
@@ -123,12 +162,12 @@ test(`mergeLiteral({some+symbols}, {empty})`, () => {
             animation: 'none',
         }],
         paddingInline: '2rem',
-    };
-    const addStyle: CssStyle = {
+    })!;
+    const addStyle = cssStyleToMap({
         /* empty */
-    };
+    })!;
     mergeLiteral(mainStyle, addStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         background: 'red',
         color: 'blue',
@@ -157,10 +196,10 @@ test(`mergeLiteral({some+symbols}, {empty})`, () => {
 test(`mergeLiteral({empty}, {some+symbols})`, () => {
     const symbol1 = Symbol();
     const symbol2 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         /* empty */
-    };
-    const addStyle: CssStyle = {
+    })!;
+    const addStyle = cssStyleToMap({
         background: 'red',
         color: 'blue',
         [symbol1]: ['&.boo', {
@@ -182,9 +221,9 @@ test(`mergeLiteral({empty}, {some+symbols})`, () => {
             animation: 'none',
         }],
         paddingInline: '2rem',
-    };
+    })!;
     mergeLiteral(mainStyle, addStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         background: 'red',
         color: 'blue',
@@ -211,12 +250,12 @@ test(`mergeLiteral({empty}, {some+symbols})`, () => {
 });
 
 test(`mergeLiteral({some}, {some})`, () => {
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         color: 'blue',
         opacity: 0.5,
         border: [['solid', '2px', 'dashed']],
-    };
-    const addStyle: CssStyle = {
+    })!;
+    const addStyle = cssStyleToMap({
         background: 'red',
         boxShadow: [
             ['10px', '5px', '5px', 'red'],
@@ -226,9 +265,9 @@ test(`mergeLiteral({some}, {some})`, () => {
             ['-1em', '0', '.4em', 'olive'],
         ],
         paddingInline: '2rem',
-    };
+    })!;
     mergeLiteral(mainStyle, addStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         color: 'blue',
         opacity: 0.5,
@@ -250,7 +289,7 @@ test(`mergeLiteral({some+symbols}, {some+symbols})`, () => {
     const symbol2 = Symbol();
     const symbol3 = Symbol();
     const symbol4 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [symbol1]: ['&.boo', {
             margin: '2rem',
             minWidth: '100px',
@@ -263,8 +302,8 @@ test(`mergeLiteral({some+symbols}, {some+symbols})`, () => {
             animation: 'none',
         }],
         border: [['solid', '2px', 'dashed']],
-    };
-    const addStyle: CssStyle = {
+    })!;
+    const addStyle = cssStyleToMap({
         background: 'red',
         [symbol3]: ['&.alice', {
             justifySelf: 'stretch',
@@ -282,9 +321,9 @@ test(`mergeLiteral({some+symbols}, {some+symbols})`, () => {
             opacity: 0.9,
         }],
         paddingInline: '2rem',
-    };
+    })!;
     mergeLiteral(mainStyle, addStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         color: 'blue',
         opacity: 0.5,
@@ -319,7 +358,7 @@ test(`mergeLiteral({some+symbols}, {some+symbols})`, () => {
 });
 
 test(`mergeLiteral({conflict}, {conflict})`, () => {
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         background: 'red',
         color: 'blue',
         opacity: 0.5,
@@ -332,8 +371,8 @@ test(`mergeLiteral({conflict}, {conflict})`, () => {
             ['-1em', '0', '.4em', 'olive'],
         ],
         paddingInline: '2rem',
-    };
-    const addStyle: CssStyle = {
+    })!;
+    const addStyle = cssStyleToMap({
         appearance: 'none',
         opacity: 0.85,
         display: 'flex',
@@ -342,9 +381,9 @@ test(`mergeLiteral({conflict}, {conflict})`, () => {
             ['30px', '20px', 'purple'],
         ],
         background: 'black',
-    };
+    })!;
     mergeLiteral(mainStyle, addStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         color: 'blue',
         border: [['solid', '2px', 'dashed']],
@@ -366,7 +405,7 @@ test(`mergeLiteral({conflict+symbols}, {conflict+symbols})`, () => {
     const symbol2 = Symbol();
     const symbol3 = Symbol();
     const symbol4 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         background: 'red',
         color: 'blue',
         [symbol1]: ['&.boo', {
@@ -388,8 +427,8 @@ test(`mergeLiteral({conflict+symbols}, {conflict+symbols})`, () => {
             visibility: 'hidden',
             animation: 'none',
         }],
-    };
-    const addStyle: CssStyle = {
+    })!;
+    const addStyle = cssStyleToMap({
         appearance: 'none',
         opacity: 0.85,
         display: 'flex',
@@ -406,9 +445,9 @@ test(`mergeLiteral({conflict+symbols}, {conflict+symbols})`, () => {
             opacity: 0.9,
         }],
         background: 'black',
-    };
+    })!;
     mergeLiteral(mainStyle, addStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         color: 'blue',
         border: [['solid', '2px', 'dashed']],
@@ -448,14 +487,14 @@ test(`mergeLiteral({conflict+symbols}, {conflict+symbols})`, () => {
 
 //#region test mergeParent()
 test(`mergeParent( &{empty} )`, () => {
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         /* empty */
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
-    .toExactEqual({
-        /* empty */
-    });
+    expect(cssMapToStyle(mainStyle))
+    .toBe(
+        null
+    );
 });
 
 test(`mergeParent( &{unique} )`, () => {
@@ -465,7 +504,7 @@ test(`mergeParent( &{unique} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -486,9 +525,9 @@ test(`mergeParent( &{unique} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&:hover', {
             color: 'red',
@@ -520,7 +559,7 @@ test(`mergeParent( &{same-all} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -541,9 +580,9 @@ test(`mergeParent( &{same-all} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&:hover', {
             color: 'red',
@@ -575,7 +614,7 @@ test(`mergeParent( &{same-partial} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -596,9 +635,9 @@ test(`mergeParent( &{same-partial} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&:hover', {
             color: 'red',
@@ -630,7 +669,7 @@ test(`mergeParent( &{same-partial} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -651,9 +690,9 @@ test(`mergeParent( &{same-partial} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&:hover', {
             color: 'red',
@@ -685,7 +724,7 @@ test(`mergeParent( &{same-partial empty-partial} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
         }],
         [rule2]: ['@supports (display: grid)', {
@@ -704,9 +743,9 @@ test(`mergeParent( &{same-partial empty-partial} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&:hover', {
         }],
@@ -736,7 +775,7 @@ test(`mergeParent( &{same-partial empty-partial} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -755,9 +794,9 @@ test(`mergeParent( &{same-partial empty-partial} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&:hover', {
             color: 'red',
@@ -787,7 +826,7 @@ test(`mergeParent( &{same-partial empty-all} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
         }],
         [rule2]: ['@supports (display: grid)', {
@@ -804,9 +843,9 @@ test(`mergeParent( &{same-partial empty-all} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&:hover', {
         }],
@@ -833,7 +872,7 @@ test(`mergeParent( &{same-partial empty-all} )`, () => {
     const rule3 = Symbol();
     const rule4 = Symbol();
     const rule5 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -848,9 +887,9 @@ test(`mergeParent( &{same-partial empty-all} )`, () => {
         }],
         [rule5]: ['@supports (display: grid)', {
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&:hover', {
             color: 'red',
@@ -875,7 +914,7 @@ test(`mergeParent( &{parent-all} )`, () => {
     const rule3 = Symbol();
     const rule4 = Symbol();
     const rule5 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&', {
             color: 'red',
             opacity: 0.5,
@@ -893,9 +932,9 @@ test(`mergeParent( &{parent-all} )`, () => {
         }],
         [rule5]: ['&', {
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         color: 'red',
         opacity: 0.5,
@@ -917,7 +956,7 @@ test(`mergeParent( &{parent-all} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&', {
             color: 'red',
             opacity: 0.5,
@@ -938,9 +977,9 @@ test(`mergeParent( &{parent-all} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         color: 'red',
         opacity: 0.5,
@@ -966,7 +1005,7 @@ test(`mergeParent( &{parent-all-deep} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const rule6 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&', {
             color: 'red',
             opacity: 0.5,
@@ -987,9 +1026,9 @@ test(`mergeParent( &{parent-all-deep} )`, () => {
                 }],
             }],
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         color: 'red',
         opacity: 0.5,
@@ -1013,7 +1052,7 @@ test(`mergeParent( &{parent-all-deep} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const rule6 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&', {
             color: 'red',
             opacity: 0.5,
@@ -1034,9 +1073,9 @@ test(`mergeParent( &{parent-all-deep} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         color: 'red',
         opacity: 0.5,
@@ -1068,7 +1107,7 @@ test(`mergeParent( &{parent-all-deep-deep} )`, () => {
     const rule8 = Symbol();
     const rule9 = Symbol();
     const rule10 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&', {
             color: 'red',
             opacity: 0.5,
@@ -1098,9 +1137,9 @@ test(`mergeParent( &{parent-all-deep-deep} )`, () => {
                 }],
             }],
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         // color: 'red',
         opacity: 0.5,
@@ -1135,7 +1174,7 @@ test(`mergeParent( &{parent-all-deep-deep} )`, () => {
     const rule9 = Symbol();
     const rule10 = Symbol();
     const rule11 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&', {
             color: 'red',
             opacity: 0.5,
@@ -1174,9 +1213,9 @@ test(`mergeParent( &{parent-all-deep-deep} )`, () => {
                 }],
             }],
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         // color: 'red',
         opacity: 0.5,
@@ -1211,7 +1250,7 @@ test(`mergeParent( &{parent unique} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -1232,9 +1271,9 @@ test(`mergeParent( &{parent unique} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         margin: '2rem',
         minWidth: '100px',
@@ -1264,7 +1303,7 @@ test(`mergeParent( &{parent-some unique-partial} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -1285,9 +1324,9 @@ test(`mergeParent( &{parent-some unique-partial} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         margin: '2rem',
         minWidth: '100px',
@@ -1319,7 +1358,7 @@ test(`mergeParent( &{parent-some nested-rule preserve-order} )`, () => {
     const rule6 = Symbol();
     const rule7  = Symbol();
     const rule8  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -1349,9 +1388,9 @@ test(`mergeParent( &{parent-some nested-rule preserve-order} )`, () => {
             width: '10px',
             height: '50vh',
         }],
-    };
+    })!;
     mergeParent(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         margin: '2rem',
         minWidth: '100px',
@@ -1390,14 +1429,14 @@ test(`mergeParent( &{parent-some nested-rule preserve-order} )`, () => {
 
 //#region test mergeNested()
 test(`mergeNested( &{empty} )`, () => {
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         /* empty */
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
-    .toExactEqual({
-        /* empty */
-    });
+    expect(cssMapToStyle(mainStyle))
+    .toBe(
+        null
+    );
 });
 
 test(`mergeNested( &{unique} )`, () => {
@@ -1407,7 +1446,7 @@ test(`mergeNested( &{unique} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -1428,9 +1467,9 @@ test(`mergeNested( &{unique} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&:hover', {
             color: 'red',
@@ -1462,7 +1501,7 @@ test(`mergeNested( &{same-all} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -1483,9 +1522,9 @@ test(`mergeNested( &{same-all} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule5]: ['&:hover', {
             color: 'red',
@@ -1513,7 +1552,7 @@ test(`mergeNested( &{same-partial} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -1534,9 +1573,9 @@ test(`mergeNested( &{same-partial} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule3]: ['&:hover', {
             color: 'red',
@@ -1565,7 +1604,7 @@ test(`mergeNested( &{same-partial} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -1586,9 +1625,9 @@ test(`mergeNested( &{same-partial} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule3]: ['&:active', {
             visibility: 'hidden',
@@ -1618,7 +1657,7 @@ test(`mergeNested( &{same-partial empty-partial} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
         }],
         [rule2]: ['@supports (display: grid)', {
@@ -1637,9 +1676,9 @@ test(`mergeNested( &{same-partial empty-partial} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule3]: ['&:hover', {
             visibility: 'hidden',
@@ -1665,7 +1704,7 @@ test(`mergeNested( &{same-partial empty-partial} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -1684,9 +1723,9 @@ test(`mergeNested( &{same-partial empty-partial} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule3]: ['&:hover', {
             color: 'red',
@@ -1712,7 +1751,7 @@ test(`mergeNested( &{same-partial empty-all} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
         }],
         [rule2]: ['@supports (display: grid)', {
@@ -1729,9 +1768,9 @@ test(`mergeNested( &{same-partial empty-all} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule5]: ['@supports (display: grid)', {
             margin: '2rem',
@@ -1752,7 +1791,7 @@ test(`mergeNested( &{same-partial empty-all} )`, () => {
     const rule3 = Symbol();
     const rule4 = Symbol();
     const rule5 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -1767,9 +1806,9 @@ test(`mergeNested( &{same-partial empty-all} )`, () => {
         }],
         [rule5]: ['@supports (display: grid)', {
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule3]: ['&:hover', {
             color: 'red',
@@ -1787,7 +1826,7 @@ test(`mergeNested( &{parent-all} )`, () => {
     const rule3 = Symbol();
     const rule4 = Symbol();
     const rule5 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&', {
             color: 'red',
             opacity: 0.5,
@@ -1805,9 +1844,9 @@ test(`mergeNested( &{parent-all} )`, () => {
         }],
         [rule5]: ['&', {
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&', {
             color: 'red',
@@ -1836,7 +1875,7 @@ test(`mergeNested( &{parent-all} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&', {
             color: 'red',
             opacity: 0.5,
@@ -1857,9 +1896,9 @@ test(`mergeNested( &{parent-all} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&', {
             color: 'red',
@@ -1891,7 +1930,7 @@ test(`mergeNested( &{parent-all-deep} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const rule6 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&', {
             color: 'red',
             opacity: 0.5,
@@ -1912,9 +1951,9 @@ test(`mergeNested( &{parent-all-deep} )`, () => {
                 }],
             }],
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&', {
             color: 'red',
@@ -1946,7 +1985,7 @@ test(`mergeNested( &{parent-all-deep} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const rule6 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&', {
             color: 'red',
             opacity: 0.5,
@@ -1967,9 +2006,9 @@ test(`mergeNested( &{parent-all-deep} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&', {
             color: 'red',
@@ -2003,7 +2042,7 @@ test(`mergeNested( &{parent-all-deep-deep} )`, () => {
     const rule8 = Symbol();
     const rule9 = Symbol();
     const rule10 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&', {
             color: 'red',
             opacity: 0.5,
@@ -2033,9 +2072,9 @@ test(`mergeNested( &{parent-all-deep-deep} )`, () => {
                 }],
             }],
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&', {
             color: 'red',
@@ -2073,7 +2112,7 @@ test(`mergeNested( &{parent-all-deep-deep} )`, () => {
     const rule9 = Symbol();
     const rule10 = Symbol();
     const rule11 = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&', {
             color: 'red',
             opacity: 0.5,
@@ -2112,9 +2151,9 @@ test(`mergeNested( &{parent-all-deep-deep} )`, () => {
                 }],
             }],
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&', {
             color: 'red',
@@ -2159,7 +2198,7 @@ test(`mergeNested( &{parent unique} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -2180,9 +2219,9 @@ test(`mergeNested( &{parent unique} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&:hover', {
             color: 'red',
@@ -2214,7 +2253,7 @@ test(`mergeNested( &{parent-some unique-partial} )`, () => {
     const rule4 = Symbol();
     const rule5 = Symbol();
     const root  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -2235,9 +2274,9 @@ test(`mergeNested( &{parent-some unique-partial} )`, () => {
                 background: 'white',
             }],
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&:hover', {
             color: 'red',
@@ -2271,7 +2310,7 @@ test(`mergeNested( &{parent-some nested-rule preserve-order} )`, () => {
     const rule6 = Symbol();
     const rule7  = Symbol();
     const rule8  = Symbol();
-    const mainStyle: CssStyle = {
+    const mainStyle = cssStyleToMap({
         [rule1]: ['&:hover', {
             color: 'red',
             opacity: 0.5,
@@ -2301,9 +2340,9 @@ test(`mergeNested( &{parent-some nested-rule preserve-order} )`, () => {
             width: '10px',
             height: '50vh',
         }],
-    };
+    })!;
     mergeNested(mainStyle);
-    expect(mainStyle)
+    expect(cssMapToStyle(mainStyle))
     .toExactEqual({
         [rule1]: ['&:hover', {
             color: 'red',
@@ -2430,9 +2469,9 @@ test(`mergeStyles({some})`, () => {
         ],
         paddingInline: '2rem',
     };
-    expect(mergeStyles(mainStyle))
+    expect(cssMapToStyle(mergeStyles(mainStyle)))
     .toExactEqual(mainStyle);
-    expect(mergeStyles([mainStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle])))
     .toExactEqual(mainStyle);
 });
 
@@ -2462,9 +2501,9 @@ test(`mergeStyles({some+symbols})`, () => {
         }],
         paddingInline: '2rem',
     };
-    expect(mergeStyles(mainStyle))
+    expect(cssMapToStyle(mergeStyles(mainStyle)))
     .toExactEqual(mainStyle);
-    expect(mergeStyles([mainStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle])))
     .toExactEqual(mainStyle);
 });
 //#endregion test with single style
@@ -2490,7 +2529,7 @@ test(`mergeStyles({some}, {empty})`, () => {
     const addStyle: CssStyle = {
         /* empty */
     };
-    expect(mergeStyles([mainStyle, addStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle, addStyle])))
     .toExactEqual({
         background: 'red',
         color: 'blue',
@@ -2525,7 +2564,7 @@ test(`mergeStyles({empty}, {some})`, () => {
         ],
         paddingInline: '2rem',
     };
-    expect(mergeStyles([mainStyle, addStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle, addStyle])))
     .toExactEqual({
         background: 'red',
         color: 'blue',
@@ -2571,7 +2610,7 @@ test(`mergeStyles({some+symbols}, {empty})`, () => {
     const addStyle: CssStyle = {
         /* empty */
     };
-    expect(mergeStyles([mainStyle, addStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle, addStyle])))
     .toExactEqual({
         background: 'red',
         color: 'blue',
@@ -2626,7 +2665,7 @@ test(`mergeStyles({empty}, {some+symbols})`, () => {
         }],
         paddingInline: '2rem',
     };
-    expect(mergeStyles([mainStyle, addStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle, addStyle])))
     .toExactEqual({
         background: 'red',
         color: 'blue',
@@ -2669,7 +2708,7 @@ test(`mergeStyles({some}, {some})`, () => {
         ],
         paddingInline: '2rem',
     };
-    expect(mergeStyles([mainStyle, addStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle, addStyle])))
     .toExactEqual({
         color: 'blue',
         opacity: 0.5,
@@ -2724,7 +2763,7 @@ test(`mergeStyles({some+symbols}, {some+symbols})`, () => {
         }],
         paddingInline: '2rem',
     };
-    expect(mergeStyles([mainStyle, addStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle, addStyle])))
     .toExactEqual({
         color: 'blue',
         opacity: 0.5,
@@ -2783,7 +2822,7 @@ test(`mergeStyles({conflict}, {conflict})`, () => {
         ],
         background: 'black',
     };
-    expect(mergeStyles([mainStyle, addStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle, addStyle])))
     .toExactEqual({
         color: 'blue',
         border: [['solid', '2px', 'dashed']],
@@ -2846,7 +2885,7 @@ test(`mergeStyles({conflict+symbols}, {conflict+symbols})`, () => {
         }],
         background: 'black',
     };
-    expect(mergeStyles([mainStyle, addStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle, addStyle])))
     .toExactEqual({
         color: 'blue',
         border: [['solid', '2px', 'dashed']],
@@ -2912,7 +2951,7 @@ test(`mergeStyles([ &{parent-all}... ])`, () => {
         [rule5]: ['&', {
         }],
     };
-    expect(mergeStyles([mainStyle, addStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle, addStyle])))
     .toExactEqual({
         color: 'red',
         opacity: 0.5,
@@ -2958,7 +2997,7 @@ test(`mergeStyles([ &{parent-all}... ])`, () => {
             }],
         }],
     };
-    expect(mergeStyles([mainStyle, addStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle, addStyle])))
     .toExactEqual({
         color: 'red',
         opacity: 0.5,
@@ -3008,7 +3047,7 @@ test(`mergeStyles([ &{parent-all-deep}... ])`, () => {
             }],
         }],
     };
-    expect(mergeStyles([mainStyle, addStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle, addStyle])))
     .toExactEqual({
         color: 'red',
         opacity: 0.5,
@@ -3056,7 +3095,7 @@ test(`mergeStyles([ &{parent-all-deep}... ])`, () => {
             }],
         }],
     };
-    expect(mergeStyles([mainStyle, addStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle, addStyle])))
     .toExactEqual({
         color: 'red',
         opacity: 0.5,
@@ -3120,7 +3159,7 @@ test(`mergeStyles([ &{parent-all-deep-deep}... ])`, () => {
         }],
     };
     
-    expect(mergeStyles([mainStyle, addStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle, addStyle])))
     .toExactEqual({
         color: 'red',
         opacity: 0.5,
@@ -3198,7 +3237,7 @@ test(`mergeStyles([ &{parent-all-deep-deep}... ])`, () => {
         }],
     };
     
-    expect(mergeStyles([mainStyle, addStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle, addStyle])))
     .toExactEqual({
         // color: 'red',
         opacity: 0.5,
@@ -3261,7 +3300,7 @@ test(`mergeStyles([ &{parent-preserve-order}... ])`, () => {
             }],
         }],
     };
-    expect(mergeStyles([mainStyle, addStyle]))
+    expect(cssMapToStyle(mergeStyles([mainStyle, addStyle])))
     .toExactEqual({
         aspectRatio: '2/3',
         boxShadow: 'inherit',

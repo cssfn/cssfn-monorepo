@@ -482,16 +482,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             //#region handle nested style (recursive) 
             if (typeof(srcPropName) === 'symbol') {
                 const [selector, styles] = srcPropValue as CssRuleData; // assumes the value of symbol prop always be `CssRuleData`
-                const mergedStyles = mergeStyles(styles); // render the `CssStyleCollection` to `CssStyle`, so the contents are easily to compare
-                if (mergedStyles) {
-                    // convert the style to Map:
-                    const srcNestedStyle = new Map<keyof CssStyle, ValueOf<CssStyle>>([
-                        ...Object.entries(mergedStyles) as [keyof CssStyle, ValueOf<CssStyle>][],
-                        ...Object.getOwnPropertySymbols(mergedStyles).map((symbolProp) => [ symbolProp, mergedStyles[symbolProp] ]) as [keyof CssStyle, ValueOf<CssStyle>][],
-                    ]) as CssStyleMap;
-                    
-                    
-                    
+                const srcNestedStyle = mergeStyles(styles); // render the `CssStyleCollection` to `CssStyleMap`, so the contents are easily to compare
+                if (srcNestedStyle) {
                     const equalNestedStyle = (new TransformCssStyleDuplicatesBuilder<TRefPropName, TRefPropValue>(srcNestedStyle, refProps, genKeyframes, options)).style;
                     if (equalNestedStyle) {
                         // store the modified `srcNestedStyle`:
