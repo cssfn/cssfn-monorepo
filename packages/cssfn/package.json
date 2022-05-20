@@ -10,7 +10,7 @@
     "css-in-js"
   ],
   "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
-  "homepage": "https://nodestrap.org",
+  "homepage": "https://cssfn.org",
   "license": "ISC",
   "main": "dist/cssfn.js",
   "types": "dist/cssfn.d.ts",

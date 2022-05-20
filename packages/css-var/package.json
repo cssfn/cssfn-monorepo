@@ -11,7 +11,7 @@
     "typescript"
   ],
   "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
-  "homepage": "https://nodestrap.org",
+  "homepage": "https://cssfn.org",
   "license": "ISC",
   "main": "dist/css-var.js",
   "types": "dist/css-var.d.ts",

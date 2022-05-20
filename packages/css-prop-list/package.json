@@ -8,7 +8,7 @@
     "list"
   ],
   "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
-  "homepage": "https://nodestrap.org",
+  "homepage": "https://cssfn.org",
   "license": "ISC",
   "main": "dist/css-prop-list.js",
   "types": "dist/css-prop-list.d.ts",

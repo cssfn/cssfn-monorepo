@@ -10,7 +10,7 @@
     "attributes"
   ],
   "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
-  "homepage": "https://nodestrap.org",
+  "homepage": "https://cssfn.org",
   "license": "ISC",
   "main": "dist/css-selectors.js",
   "types": "dist/css-selectors.d.ts",

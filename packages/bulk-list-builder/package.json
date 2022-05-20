@@ -9,7 +9,7 @@
     "table"
   ],
   "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
-  "homepage": "https://nodestrap.org",
+  "homepage": "https://cssfn.org",
   "license": "ISC",
   "main": "dist/bulk-list-builder.js",
   "types": "dist/bulk-list-builder.d.ts",

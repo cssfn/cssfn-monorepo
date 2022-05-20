@@ -8,7 +8,7 @@
     "common"
   ],
   "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
-  "homepage": "https://nodestrap.org",
+  "homepage": "https://cssfn.org",
   "license": "ISC",
   "main": "dist/types.js",
   "types": "dist/types.d.ts",

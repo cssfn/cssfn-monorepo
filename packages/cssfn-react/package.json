@@ -10,7 +10,7 @@
     "client-side"
   ],
   "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
-  "homepage": "https://nodestrap.org",
+  "homepage": "https://cssfn.org",
   "license": "ISC",
   "main": "dist/cssfn-react.js",
   "types": "dist/cssfn-react.d.ts",

@@ -13,7 +13,7 @@
     "client-side"
   ],
   "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
-  "homepage": "https://nodestrap.org",
+  "homepage": "https://cssfn.org",
   "license": "ISC",
   "main": "dist/cssfn-dom.js",
   "types": "dist/cssfn-dom.d.ts",
