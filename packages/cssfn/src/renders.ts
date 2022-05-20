@@ -18,11 +18,11 @@ import type {
     CssProps,
     CssPropsMap,
     
-    CssRuleData,
+    CssFinalRuleData,
     CssRule,
+    CssFinalRule,
     
-    CssStyle,
-    CssStyleMap,
+    CssFinalStyleMap,
     
     CssFinalSelector,
     
@@ -71,7 +71,6 @@ import {
     filterOnlyPropKeys,
     hasPropKeys,
     mergeStyles,
-    cssStyleToMap,
 }                           from './mergeStyles.js'
 import {
     // rules:
@@ -254,16 +253,15 @@ class RenderRule {
         this.rendered += ';';
     }
     
-    #hasPropRule(finalStyle: CssStyleMap): boolean {
+    #hasPropRule(finalStyle: CssFinalStyleMap): boolean {
         for (const symbolProp of filterOnlyRuleKeys(finalStyle.keys())) {
             const ruleData = finalStyle.get(symbolProp)!;
             const [finalSelector] = ruleData;
-            if (typeof(finalSelector) !== 'string') continue;
             if (finalSelector[0] === ' ') return true; // found a PropRule
         } // for
         return false; // not found any PropRule
     }
-    #renderSelector(finalSelector: CssFinalSelector|null, finalStyle: CssStyleMap|null): void {
+    #renderSelector(finalSelector: CssFinalSelector|null, finalStyle: CssFinalStyleMap|null): void {
         if (
             !finalStyle // no style defined
             ||
@@ -303,7 +301,7 @@ class RenderRule {
         this.rendered += '\n}\n';
         //#endregion render complete .selector { style }
     }
-    #renderNestedSelector(finalSelector: CssFinalSelector, nestedRules: CssStyleMap|null): void {
+    #renderNestedSelector(finalSelector: CssFinalSelector, nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
         
         
@@ -318,7 +316,7 @@ class RenderRule {
         this.rendered += '\n}\n';
         //#endregion render complete .selector { style }
     }
-    #renderStyle(finalStyle: CssStyleMap|null): void {
+    #renderStyle(finalStyle: CssFinalStyleMap|null): void {
         this.#renderFallbacksRules(finalStyle);
         
         
@@ -336,50 +334,45 @@ class RenderRule {
         this.#renderPropRules(finalStyle);
     }
     
-    #renderFallbacksRules(nestedRules: CssStyleMap|null): void {
+    #renderFallbacksRules(nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
         for (const symbolProp of Array.from(filterOnlyRuleKeys(nestedRules.keys())).reverse()) { // reverse the @fallbacks order
             const ruleData = nestedRules.get(symbolProp)!;
             const [finalSelector, finalStyle] = ruleData;
             if (finalSelector !== '@fallbacks') continue; // only interested in @fallbacks
-            if ((finalStyle === null) || (typeof(finalStyle) !== 'object') || Array.isArray(finalStyle)) continue;
             
             
             
-            this.#renderStyle(cssStyleToMap(finalStyle)); // TODO: `finalStyle` should be `CssStyleMap`
+            this.#renderStyle(finalStyle);
         } // for
     }
-    #renderPropRules(nestedRules: CssStyleMap|null): void {
+    #renderPropRules(nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
         for (const symbolProp of filterOnlyRuleKeys(nestedRules.keys())) {
             const ruleData = nestedRules.get(symbolProp)!;
             const [finalSelector, finalStyle] = ruleData;
-            if (typeof(finalSelector) !== 'string') continue;
             if (finalSelector[0] !== ' ') continue; // only interested in PropRule
-            if ((finalStyle === null) || (typeof(finalStyle) !== 'object') || Array.isArray(finalStyle)) continue;
             
             
             
             this.rendered += (new RenderRule(
                 finalSelector.slice(1), // remove PropRule token (single prefix space)
-                cssStyleToMap(finalStyle) // TODO: `finalStyle` should be `CssStyleMap`
+                finalStyle
             )).rendered;
         } // for
     }
-    #renderNestedRules(finalParentSelector: CssFinalSelector|null, nestedRules: CssStyleMap|null): void {
+    #renderNestedRules(finalParentSelector: CssFinalSelector|null, nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
         for (const symbolProp of filterOnlyRuleKeys(nestedRules.keys())) {
             const ruleData = nestedRules.get(symbolProp)!;
             const [finalSelector, finalStyle] = ruleData;
-            if (typeof(finalSelector) !== 'string') continue;
             if (finalSelector[0] === ' ') continue; // skip PropRule
             if (finalSelector === '@fallbacks') continue; // skip @fallbacks
-            if ((finalStyle === null) || (typeof(finalStyle) !== 'object') || Array.isArray(finalStyle)) continue;
             
             
             
             if (finalSelector === '@global') { // special @global rule
-                this.rendered += (new RenderRule(null, cssStyleToMap(finalStyle))).rendered; // TODO: `finalStyle` should be `CssStyleMap`
+                this.rendered += (new RenderRule(null, finalStyle)).rendered;
             }
             else if (isNestedAtRule(finalSelector)) {
                 /*
@@ -435,19 +428,19 @@ class RenderRule {
                     // top_level at rule with nestedRules
                     
                     // this.rendered += (new RenderRule(finalSelector, finalStyle)).rendered; doesn't work, the nested will automatically unnested
-                    this.#renderNestedSelector(finalSelector, cssStyleToMap(finalStyle)); // TODO: `finalStyle` should be `CssStyleMap`
+                    this.#renderNestedSelector(finalSelector, finalStyle);
                 }
                 else {
                     // top_level at rule with nestedRules
                     
                     this.#renderNestedSelector(finalSelector,
                         //#region wrap the style with a duplicated parentRule selector
-                        new Map<keyof CssStyle, ValueOf<CssStyle>>([
+                        new Map<keyof CssFinalRule, ValueOf<CssFinalRule>>([
                             [Symbol(), [
                                 finalParentSelector,
-                                finalStyle // TODO: `finalStyle` should be `CssStyleMap`
-                            ] as CssRuleData],
-                        ]) as CssStyleMap
+                                finalStyle
+                            ] as CssFinalRuleData],
+                        ]) as CssFinalStyleMap
                         //#endregion wrap the style with a duplicated parentRule selector
                     );
                 } // if
@@ -455,7 +448,7 @@ class RenderRule {
             else if (finalSelector[0] === '@') {
                 // top_level at rule  , eg: @keyframes, @font-face
                 
-                this.rendered += (new RenderRule(finalSelector, cssStyleToMap(finalStyle))).rendered; // TODO: `finalStyle` should be `CssStyleMap`
+                this.rendered += (new RenderRule(finalSelector, finalStyle)).rendered;
             }
             else {
                 // nested rule, eg: &.boo, &>:foo, .bleh>&>.feh
@@ -466,7 +459,7 @@ class RenderRule {
                     finalSelector
                 ) ?? finalSelector;
                 
-                this.rendered += (new RenderRule(combinedSelector, cssStyleToMap(finalStyle))).rendered; // TODO: `finalStyle` should be `CssStyleMap`
+                this.rendered += (new RenderRule(combinedSelector, finalStyle)).rendered;
             } // if
         } // for
     }
@@ -474,7 +467,7 @@ class RenderRule {
     
     
     
-    constructor(finalSelector: CssFinalSelector|null, finalStyle: CssStyleMap|null) {
+    constructor(finalSelector: CssFinalSelector|null, finalStyle: CssFinalStyleMap|null) {
         // reset:
         this.rendered = '';
         

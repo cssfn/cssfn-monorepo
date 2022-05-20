@@ -22,6 +22,7 @@ import type {
     CssProps,
     
     CssRuleData,
+    CssFinalRuleData,
     CssRuleMap,
     
     CssStyle,
@@ -55,6 +56,7 @@ import {
 }                           from '@cssfn/cssfn'
 import {
     isFinalSelector,
+    isFinalStyleMap,
 }                           from '@cssfn/cssfn/dist/utilities.js'
 import {
     mergeStyles,
@@ -182,7 +184,7 @@ const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomN
     return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
 }
 
-class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|CssRuleData|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|undefined|null> {
+class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|CssRuleData|CssFinalRuleData|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|CssFinalRuleData|undefined|null> {
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
@@ -433,11 +435,11 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         if (genKeyframes) {
-            for (const [srcPropName, srcPropValue] of this.#srcProps) {  // rename all @keyframes name
-                if (typeof(srcPropName) !== 'symbol')    continue;       // only interested of symbol props
-                const [selector] = srcPropValue          as CssRuleData; // assumes the value of symbol prop always be `CssRuleData`
-                if (!isFinalSelector(selector))          continue;       // only interested of rendered selector
-                if (!selector.startsWith('@keyframes ')) continue;       // only interested of @keyframes rule selector
+            for (const [srcPropName, srcPropValue] of this.#srcProps) {          // rename all @keyframes name
+                if (typeof(srcPropName) !== 'symbol')    continue;               // only interested of symbol props
+                const [selector] = srcPropValue as CssRuleData|CssFinalRuleData; // assumes the value of symbol prop always be `CssRuleData|CssFinalRuleData`
+                if (!isFinalSelector(selector))          continue;               // only interested of rendered selector
+                if (!selector.startsWith('@keyframes ')) continue;               // only interested of @keyframes rule selector
                 
                 
                 
@@ -481,8 +483,14 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             
             //#region handle nested style (recursive) 
             if (typeof(srcPropName) === 'symbol') {
-                const [selector, styles] = srcPropValue as CssRuleData; // assumes the value of symbol prop always be `CssRuleData`
-                const srcNestedStyle = mergeStyles(styles); // render the `CssStyleCollection` to `CssStyleMap`, so the contents are easily to compare
+                const [selector, styles] = srcPropValue as CssRuleData|CssFinalRuleData; // assumes the value of symbol prop always be `CssRuleData|CssFinalRuleData`
+                const srcNestedStyle = ( // render the `CssStyleCollection` to `CssStyleMap`, so the contents are easily to compare
+                    isFinalStyleMap(styles)
+                    ?
+                    styles
+                    :
+                    mergeStyles(styles)
+                );
                 if (srcNestedStyle) {
                     const equalNestedStyle = (new TransformCssStyleDuplicatesBuilder<TRefPropName, TRefPropValue>(srcNestedStyle, refProps, genKeyframes, options)).style;
                     if (equalNestedStyle) {
@@ -580,7 +588,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         } // if
     }
 }
-class TransformArrayDuplicatesBuilder<TArray extends Array<any>,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|undefined|null>
+class TransformArrayDuplicatesBuilder<TArray extends Array<any>,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|CssFinalRuleData|undefined|null>
     extends TransformDuplicatesBuilder<number, TArray[number],   TRefPropName, TRefPropValue>
 {
     get array() {
@@ -589,7 +597,7 @@ class TransformArrayDuplicatesBuilder<TArray extends Array<any>,   TRefPropName 
         return Array.from(result.values())
     }
 }
-class TransformCssStyleDuplicatesBuilder<TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|undefined|null>
+class TransformCssStyleDuplicatesBuilder<TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|CssFinalRuleData|undefined|null>
     extends TransformDuplicatesBuilder<keyof CssStyle, ValueOf<CssStyle>,   TRefPropName, TRefPropValue>
 {
     get style() {

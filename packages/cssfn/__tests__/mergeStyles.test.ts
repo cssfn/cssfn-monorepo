@@ -1,9 +1,18 @@
 import type {
+    ValueOf,
+} from '@cssfn/types'
+import type {
     OptionalOrBoolean,
 } from '@cssfn/types'
 import type {
+    CssProps,
+    CssRuleData,
+    CssFinalRuleData,
+    CssPropsMap,
+    CssRuleMap,
     CssStyle,
     CssStyleMap,
+    CssFinalStyleMap,
 } from '@cssfn/css-types'
 import {
     mergeLiteral,
@@ -11,6 +20,9 @@ import {
     mergeNested,
     mergeStyles,
 } from '../dist/mergeStyles.js'
+import {
+    isFinalStyleMap,
+} from '../dist/utilities.js'
 import './jest-custom'
 
 
@@ -25,12 +37,12 @@ const cssStyleToMap = (style: OptionalOrBoolean<CssStyle>): CssStyleMap|null => 
     const map = new Map() as CssStyleMap;
     for (const propName in style) { // faster!
         const propName2 = propName as keyof Omit<CssStyle, symbol>;
-        map.set(propName2 as any, style[propName2]);
+        (map as CssPropsMap).set(propName2 as any, style[propName2]);
     } //
     
     // fetch symbol props:
     for (const propName of Object.getOwnPropertySymbols(style)) {
-        map.set(propName, style[propName]);
+        (map as CssRuleMap).set(propName, style[propName]);
     } // for
     
     
@@ -38,13 +50,39 @@ const cssStyleToMap = (style: OptionalOrBoolean<CssStyle>): CssStyleMap|null => 
     // if (!map.size) return null; // allow empty CssStyleMap for testing purpose
     return map;
 }
-const cssMapToStyle = (style: CssStyleMap|null): CssStyle|null => {
+const cssMapToStyle = (style: CssStyleMap|CssFinalStyleMap|null): CssStyle|null => {
     if (!style || !style.size) return null;
     
     
     
-    const styleString = Object.fromEntries(Array.from(style).filter(([key]) => (typeof(key) !== 'symbol')));
-    const styleSymbol = Object.fromEntries(Array.from(style).filter(([key]) => (typeof(key) === 'symbol')));
+    const styleString = Object.fromEntries(
+        Array.from(style as Iterable<[string|symbol, ValueOf<CssProps>]>)
+        .filter(([key]) => (typeof(key) !== 'symbol'))
+    );
+    const styleSymbol = Object.fromEntries(
+        Array.from(style as Iterable<[string|symbol, CssRuleData|CssFinalRuleData]>)
+        .filter(([key]) => (typeof(key) === 'symbol'))
+        .map(([key, ruleData]) => {
+            if (ruleData[1] && (typeof(ruleData[1]) === 'object') && (Object.getPrototypeOf(ruleData[1]) === Map.prototype)) {
+                const styles = ruleData[1];
+                return [
+                    key,
+                    
+                    [
+                        ruleData[0],
+                        isFinalStyleMap(styles) ? cssMapToStyle(styles)! : styles
+                    ] as const
+                ] as const;
+            }
+            else {
+                return [
+                    key,
+                    
+                    ruleData
+                ] as const;
+            } // if
+        })
+    );
     return Object.assign({}, styleString, styleSymbol) as unknown as CssStyle;
 }
 

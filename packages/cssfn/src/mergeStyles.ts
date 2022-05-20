@@ -17,11 +17,15 @@ import type {
     
     
     // cssfn properties:
+    CssPropsMap,
+    
     CssRule,
     CssRuleMap,
+    CssFinalRuleMap,
     
     CssStyle,
     CssStyleMap,
+    CssFinalStyleMap,
     CssStyleCollection,
     
     CssSelector,
@@ -52,6 +56,7 @@ import {
 import {
     flat,
     isFinalSelector,
+    isFinalStyleMap,
 }                           from './utilities.js'
 import {
     mergeSelectors,
@@ -122,8 +127,8 @@ const groupByRuleType = (accum: Map<RuleType, CssSelector[]>, selector: CssSelec
     return accum;
 }
 
-const finalizeSelector = (style: CssRuleMap, symbolProp: symbol): CssFinalSelector|null => {
-    const ruleData = style.get(symbolProp); // get existing prop (if any)
+const finalizeSelector = (style: (CssRuleMap & CssFinalRuleMap), symbolProp: symbol): CssFinalSelector|null => {
+    const ruleData = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp); // get existing prop (if any)
     if (ruleData === undefined) return null;
     const [selector, styles] = ruleData;
     if (isFinalSelector(selector)) return selector;
@@ -168,7 +173,7 @@ const finalizeSelector = (style: CssRuleMap, symbolProp: symbol): CssFinalSelect
     if (finalSelector) {
         style.set(symbolProp, [
             finalSelector, // update CssRawSelector to CssFinalSelector
-            styles         // still the same styles
+            styles as any  // still the same styles
         ]);
     }
     else {
@@ -186,7 +191,7 @@ const finalizeSelector = (style: CssRuleMap, symbolProp: symbol): CssFinalSelect
     for (const additionalFinalProp of additionalFinalProps) {
         style.set(Symbol(), [
             additionalFinalProp, // update CssRawSelector to CssFinalSelector
-            styles               // still the same styles
+            styles as any        // still the same styles
         ]);
     } // for
     //#endregion update (additional) AtRule|PropRule
@@ -224,8 +229,8 @@ export const mergeParent  = (style: CssStyleMap): void => {
             
             
             
-            const [, styles]         = style.get(symbolProp)!;
-            const mergedParentStyles = mergeStyles(styles);
+            const [, styles]         = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp)!;
+            const mergedParentStyles = (isFinalStyleMap(styles) ? styles : mergeStyles(styles)) as (CssStyleMap|null);
             if (mergedParentStyles) {
                 if (!needToReorderOtherSymbolProps) {
                     /* if mergedParentStyles has any (nested) Rule => all (nested) Rule in current style need to rearrange to preserve the order */
@@ -243,9 +248,9 @@ export const mergeParent  = (style: CssStyleMap): void => {
             
             
             
-            const nestedRuleData = style.get(symbolProp)!; // backup
-            style.delete(symbolProp);                      // delete
-            style.set(symbolProp, nestedRuleData);         // restore (re-insert at the last order)
+            const nestedRuleData = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp)!; // backup
+            style.delete(symbolProp);                                                      // delete
+            style.set(symbolProp, nestedRuleData as any);                                  // restore (re-insert at the last order)
         } // if
     } // for
 }
@@ -307,19 +312,19 @@ export const mergeNested  = (style: CssStyleMap): void => {
         symbolPropGroupByFinalSelector.delete(null); // remove from the Map, so it wouldn't be grouped later
         
         for (const symbolProp of unmergeableSymbolGroup) {
-            const ruleData     = style.get(symbolProp)!;
-            const styles       = ruleData[1]; // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
-            const mergedStyles = mergeStyles(styles);
+            const ruleData     = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp)!;
+            const styles       = ruleData[1]; // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection|CssFinalStyleMap
+            const mergedStyles = isFinalStyleMap(styles) ? styles : mergeStyles(styles);
             
             
             
             if (mergedStyles) {
                 // update:
-                style.set(symbolProp, [
-                    ruleData[0], // still the same // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
+                (style as CssFinalRuleMap).set(symbolProp, [
+                    // already been finalizeSelector() => CssRawSelector|CssFinalSelector => CssFinalSelector
+                    ruleData[0] as CssFinalSelector, // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection|CssFinalStyleMap
                     
-                    // TODO: make more efficient by eliminating type conversion:
-                    Object.fromEntries(mergedStyles) as unknown as CssStyle // update CssStyleCollection to mergedStyles
+                    mergedStyles // update CssStyleCollection to CssFinalStyleMap
                 ]);
             }
             else {
@@ -334,21 +339,33 @@ export const mergeNested  = (style: CssStyleMap): void => {
     //#region merge duplicates (nested) mergeable Rule(s) to unique ones
     for (const mergeableSymbolGroup of symbolPropGroupByFinalSelector.values()) {
         // merge styles from mergeableSymbolGroup's members to single style:
-        const multipleStyles = mergeableSymbolGroup.map((symbolProp) => style.get(symbolProp)![1]); // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
-        const mergedStyles   = mergeStyles(multipleStyles);
+        const multipleStyles = (
+            mergeableSymbolGroup
+            .map((symbolProp) => {
+                const ruleData = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp)!;
+                return ruleData[1]; // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection|CssFinalStyleMap
+            })
+        );
+        const mergedStyles = (
+            ((multipleStyles.length === 1) && isFinalStyleMap(multipleStyles[0])) // a singular CssFinalStyleMap
+            ?
+            multipleStyles[0]           // a singular CssFinalStyleMap
+            :
+            mergeStyles(multipleStyles) // a multiple (CssStyleCollection|CssFinalStyleMap)
+        );
         
         
         
         const lastMember = mergeableSymbolGroup[mergeableSymbolGroup.length - 1];
         if (mergedStyles) {
-            const ruleData = style.get(lastMember)!;
+            const ruleData = (style as CssRuleMap|CssFinalRuleMap).get(lastMember)!;
             
-            // update last member
-            style.set(lastMember, [
-                ruleData[0], // still the same // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
+            // update last member:
+            (style as CssFinalRuleMap).set(lastMember, [
+                // already been finalizeSelector() => CssRawSelector|CssFinalSelector => CssFinalSelector
+                ruleData[0] as CssFinalSelector, // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection|CssFinalStyleMap
                 
-                // TODO: make more efficient by eliminating type conversion:
-                Object.fromEntries(mergedStyles) as unknown as CssStyle // update CssStyleCollection to mergedStyles
+                mergedStyles // update CssStyleCollection to CssFinalStyleMap
             ]);
         }
         else {
@@ -364,8 +381,7 @@ export const mergeNested  = (style: CssStyleMap): void => {
 
 
 
-// TODO: not for export soon:
-export const cssStyleToMap = (style: OptionalOrBoolean<CssStyle>): CssStyleMap|null => {
+const cssStyleToMap = (style: OptionalOrBoolean<CssStyle>): CssStyleMap|null => {
     if (!style || (style === true)) return null;
     
     
@@ -375,12 +391,12 @@ export const cssStyleToMap = (style: OptionalOrBoolean<CssStyle>): CssStyleMap|n
     const map = new Map() as CssStyleMap;
     for (const propName in style) { // faster!
         const propName2 = propName as keyof Omit<CssStyle, symbol>;
-        map.set(propName2 as any, style[propName2]);
+        (map as CssPropsMap).set(propName2 as any, style[propName2]);
     } //
     
     // fetch symbol props:
     for (const propName of Object.getOwnPropertySymbols(style)) {
-        map.set(propName, style[propName]);
+        (map as CssRuleMap).set(propName, style[propName]);
     } // for
     
     
@@ -397,15 +413,7 @@ export const cssStyleToMap = (style: OptionalOrBoolean<CssStyle>): CssStyleMap|n
  * -or-  
  * `null` represents an empty `CssStyle`.
  */
-export const mergeStyles = (styles: CssStyleCollection): CssStyleMap|null => {
-    /*
-        CssStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssStyle>>
-        CssStyleCollection = ProductOrFactory<OptionalOrBoolean<CssStyle>> | ProductOrFactoryDeepArray<OptionalOrBoolean<CssStyle>>
-        typeof             = -------- nullable_object or function -------- | ---------------------- an array ----------------------
-    */
-    
-    
-    
+export const mergeStyles = (styles: CssStyleCollection | (CssStyleCollection|CssFinalStyleMap)[]): CssFinalStyleMap|null => {
     if (!Array.isArray(styles)) {
         // nullable_object or function => ProductOrFactory<OptionalOrBoolean<CssStyle>>
         
@@ -431,7 +439,7 @@ export const mergeStyles = (styles: CssStyleCollection): CssStyleMap|null => {
         if (!mergedStyles?.size) return null; // an empty style => return `null`
         
         // return non empty style:
-        return mergedStyles;
+        return mergedStyles as CssFinalStyleMap;
     } // if
     
     
@@ -442,15 +450,21 @@ export const mergeStyles = (styles: CssStyleCollection): CssStyleMap|null => {
             Array.isArray(subStyles)
             ?
             // deep iterating array
-            mergeStyles(subStyles) // an array => ProductOrFactoryDeepArray<OptionalOrBoolean<CssStyle>> => recursively `mergeStyles()`
+            (mergeStyles(subStyles) as (CssStyleMap|null)) // an array of CssFinalStyleMap|ProductOrFactoryDeepArray<OptionalOrBoolean<CssStyle>> => recursively `mergeStyles()`
             :
-            // not an array => nullable_object or function => ProductOrFactory<OptionalOrBoolean<CssStyle>>
-            cssStyleToMap(
-                (typeof(subStyles) === 'function')
+            // not an array => CssFinalStyleMap or nullable_object or function => CssFinalStyleMap|ProductOrFactory<OptionalOrBoolean<CssStyle>>
+            (
+                isFinalStyleMap(subStyles)
                 ?
-                subStyles() // a function => Factory<OptionalOrBoolean<CssStyle>>
+                (subStyles as CssStyleMap)
                 :
-                subStyles   // a product  => OptionalOrBoolean<CssStyle>
+                cssStyleToMap(
+                    (typeof(subStyles) === 'function')
+                    ?
+                    subStyles() // a function => Factory<OptionalOrBoolean<CssStyle>>
+                    :
+                    subStyles   // a product  => OptionalOrBoolean<CssStyle>
+                )
             )
         );
         if (!subStyleValue?.size) continue; // empty style => skip
@@ -475,5 +489,5 @@ export const mergeStyles = (styles: CssStyleCollection): CssStyleMap|null => {
     if (!mergedStyles?.size) return null; // an empty style => return `null`
     
     // return non empty style:
-    return mergedStyles;
+    return mergedStyles as CssFinalStyleMap;
 }

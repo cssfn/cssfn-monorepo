@@ -1,7 +1,14 @@
 import type {
+    ValueOf,
+} from '@cssfn/types'
+import type {
+    CssProps,
+    CssRuleData,
+    CssFinalRuleData,
     CssRule,
     CssStyle,
     CssStyleMap,
+    CssFinalStyleMap,
     CssStyleCollection,
     
     CssSelectorCollection,
@@ -65,36 +72,63 @@ import {
 } from '../dist/cssfn.js'
 import {
     isFinalSelector,
+    isFinalStyleMap,
 } from '../dist/utilities.js'
 import './jest-custom'
 
 
 
-const cssMapToStyle = (style: CssStyleMap|null): CssStyle|null => {
+const cssMapToStyle = (style: CssStyleMap|CssFinalStyleMap|null): CssStyle|null => {
     if (!style || !style.size) return null;
     
     
     
-    const styleString = Object.fromEntries(Array.from(style).filter(([key]) => (typeof(key) !== 'symbol')));
-    const styleSymbol = Object.fromEntries(Array.from(style).filter(([key]) => (typeof(key) === 'symbol')));
+    const styleString = Object.fromEntries(
+        Array.from(style as Iterable<[string|symbol, ValueOf<CssProps>]>)
+        .filter(([key]) => (typeof(key) !== 'symbol'))
+    );
+    const styleSymbol = Object.fromEntries(
+        Array.from(style as Iterable<[string|symbol, CssRuleData|CssFinalRuleData]>)
+        .filter(([key]) => (typeof(key) === 'symbol'))
+        .map(([key, ruleData]) => {
+            if (ruleData[1] && (typeof(ruleData[1]) === 'object') && (Object.getPrototypeOf(ruleData[1]) === Map.prototype)) {
+                const styles = ruleData[1];
+                return [
+                    key,
+                    
+                    [
+                        ruleData[0],
+                        isFinalStyleMap(styles) ? cssMapToStyle(styles)! : styles
+                    ] as const
+                ] as const;
+            }
+            else {
+                return [
+                    key,
+                    
+                    ruleData
+                ] as const;
+            } // if
+        })
+    );
     return Object.assign({}, styleString, styleSymbol) as unknown as CssStyle;
 }
 
 
 
-const firstSelectorOf = (style: CssStyleMap|null): string|null => {
+const firstSelectorOf = (style: CssFinalStyleMap|null): string|null => {
     if (!style) return null;
     const symbolProp = Array.from(filterOnlyRuleKeys(style.keys()))[0];
     if (symbolProp === undefined) return null;
     const [selector] = style.get(symbolProp)!;
     return isFinalSelector(selector) ? selector : null;
 }
-const firstStylesOf = (style: CssStyleMap|null): CssStyle|null => {
+const firstStylesOf = (style: CssFinalStyleMap|null): CssStyle|null => {
     if (!style) return null;
     const symbolProp = Array.from(filterOnlyRuleKeys(style.keys()))[0];
     if (symbolProp === undefined) return null;
     const [, styles] = style.get(symbolProp)!;
-    return styles as CssStyle;
+    return cssMapToStyle(styles);
 }
 
 
