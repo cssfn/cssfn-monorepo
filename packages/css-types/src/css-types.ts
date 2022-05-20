@@ -406,7 +406,7 @@ export type CssFinalRuleMap            = MapOf<CssFinalRule>
 export type CssRuleCollection          = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssRule>>
 
 export type CssStyle                   = CssProps    & CssRule
-export type CssStyleMap                = CssPropsMap & (CssRuleMap|CssFinalRuleMap)
+export type CssStyleMap                = CssPropsMap & CssRuleMap & CssFinalRuleMap
 export type CssFinalStyleMap           = CssPropsMap & CssFinalRuleMap
 export type CssStyleCollection         = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssStyle>>
 export type CssFontFaceStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssFontFaceProps>>
