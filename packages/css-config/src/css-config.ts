@@ -1064,7 +1064,7 @@ const cssConfig = <TConfigProps extends CssConfigProps>(initialProps: ProductOrF
         cssConfig.options,
     ];
 }
-export { cssConfig, cssConfig as default }
+export { cssConfig, cssConfig as default, cssConfig as createCssConfig }
 
 
 
