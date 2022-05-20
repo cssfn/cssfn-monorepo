@@ -152,7 +152,7 @@ export const cssVar = <TCssCustomProps extends {}>(options: CssVarOptions = defa
         liveOptions,
     ];
 }
-export { cssVar as default }
+export { cssVar as default, cssVar as createCssVar }
 
 
 
