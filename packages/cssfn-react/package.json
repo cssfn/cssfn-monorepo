@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/cssfn-react",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Automatically renders the registered css(fn) for React app.",
   "keywords": [
     "css",
@@ -29,9 +29,9 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
-    "@cssfn/css-types": "^2.0.0",
-    "@cssfn/cssfn": "^2.0.0",
-    "@cssfn/types": "^2.0.0",
+    "@cssfn/css-types": "^2.0.1",
+    "@cssfn/cssfn": "^2.0.1",
+    "@cssfn/types": "^2.0.1",
     "@types/react": "^18.0.9",
     "rxjs": "^7.5.5"
   },
