@@ -13,6 +13,10 @@
   "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
   "homepage": "https://cssfn.org",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cssfn/cssfn-monorepo.git"
+  },
   "main": "dist/css-var.js",
   "types": "dist/css-var.d.ts",
   "type": "module",

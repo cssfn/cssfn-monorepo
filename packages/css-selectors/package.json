@@ -12,6 +12,10 @@
   "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
   "homepage": "https://cssfn.org",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cssfn/cssfn-monorepo.git"
+  },
   "main": "dist/css-selectors.js",
   "types": "dist/css-selectors.d.ts",
   "type": "module",
