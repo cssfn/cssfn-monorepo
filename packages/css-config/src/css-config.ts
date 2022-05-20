@@ -166,6 +166,7 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
     }
     //#endregion public methods
 }
+export type { LiveCssConfigOptions }
 
 export type CssConfig<TConfigProps extends CssConfigProps> = readonly [Refs<TConfigProps>, Vals<TConfigProps>, LiveCssConfigOptions]
 
