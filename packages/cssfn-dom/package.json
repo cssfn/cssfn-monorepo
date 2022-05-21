@@ -32,7 +32,6 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
-    "@cssfn/cssfn": "^2.0.1",
     "is-in-browser": "^2.0.0"
   },
   "devDependencies": {
@@ -40,5 +39,8 @@
     "@types/jsdom": "^16.2.14",
     "jsdom": "^19.0.0",
     "rxjs": "^7.5.5"
+  },
+  "peerDependencies": {
+    "@cssfn/cssfn": "^2.0.1"
   }
 }

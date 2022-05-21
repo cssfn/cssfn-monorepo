@@ -30,12 +30,12 @@
   },
   "dependencies": {
     "@cssfn/css-types": "^2.0.1",
-    "@cssfn/cssfn": "^2.0.1",
     "@cssfn/types": "^2.0.1",
     "@types/react": "^18.0.9",
     "rxjs": "^7.5.5"
   },
   "peerDependencies": {
+    "@cssfn/cssfn": "^2.0.1",
     "react": "^18.1.0"
   }
 }
