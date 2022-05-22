@@ -96,7 +96,12 @@ class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements R
         this.#updateScopes(scopes);
         
         this.#classes         = new Proxy<CssScopeMap<TCssScopeName>>(({} as CssScopeMap<TCssScopeName>), {
-            get(scopeMap: object, scopeName: TCssScopeName): CssClassName {
+            get(scopeMap: object, scopeName: TCssScopeName|symbol): CssClassName|undefined {
+                // ignores symbol & number props:
+                if (typeof(scopeName) !== 'string') return undefined;
+                
+                
+                
                 // if already cached => return immediately:
                 if (scopeName in scopeMap) return (scopeMap as any)[scopeName];
                 

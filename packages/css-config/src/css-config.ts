@@ -871,11 +871,13 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param propName The prop name to retrieve.
      * @returns A `CssCustomName` represents the declaration name of the specified `propName` -or- `undefined` if it doesn't exist.
      */
-    #getDecl(propName: string): CssCustomName|undefined {
+    #getDecl(propName: string|symbol): CssCustomName|undefined {
         // ignores react runtime type check:
         if (propName === '$$typeof') {
             return undefined;
         } // if
+        // ignores symbol & number props:
+        if (typeof(propName) !== 'string') return undefined;
         
         
         
@@ -892,7 +894,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param propName The prop name to retrieve.
      * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName` -or- `undefined` if it doesn't exist.
      */
-    #getRef(propName: string): CssCustomSimpleRef|undefined {
+    #getRef(propName: string|symbol): CssCustomSimpleRef|undefined {
         const propDecl = this.#getDecl(propName);
         if (!propDecl) return undefined; // not found
         
@@ -904,7 +906,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param propName The prop name to retrieve.
      * @returns A `CssCustomValue` represents the value of the specified `propName` -or- `undefined` if it doesn't exist.
      */
-    #getVal(propName: string): CssCustomValue|undefined {
+    #getVal(propName: string|symbol): CssCustomValue|undefined {
         const propDecl = this.#getDecl(propName);
         if (!propDecl) return undefined; // not found
         
@@ -922,7 +924,12 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param newValue The new value.
      * @returns Always return `true`.
      */
-    #setDirect(propName: string, newValue: CssCustomValue|undefined|null) {
+    #setVal(propName: string|symbol, newValue: CssCustomValue|undefined|null): boolean {
+        // ignores symbol & number props:
+        if (typeof(propName) !== 'string') return false;
+        
+        
+        
         const propDecl = this.#createDecl(propName);
         
         
@@ -955,7 +962,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param propName The prop name to check.
      * @returns `true` indicates the specified `propName` exists -or- `false` if it doesn't exist.
      */
-    #hasProp(propName: string): boolean {
+    #hasProp(propName: string|symbol): boolean {
         const propDecl = this.#getDecl(propName);
         return !!propDecl;
     }
@@ -983,7 +990,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param propName The prop name to retrieve.
      * @returns A `PropertyDescriptor` represents the behavior of the specified `propName` -or- `undefined` if it doesn't exist.
      */
-    #getPropDescRef(propName: string): PropertyDescriptor|undefined {
+    #getPropDescRef(propName: string|symbol): PropertyDescriptor|undefined {
         if (!this.#hasProp(propName)) return undefined;
         
         return defaultPropDescriptor;
@@ -993,7 +1000,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param propName The prop name to retrieve.
      * @returns A `PropertyDescriptor` represents the behavior of the specified `propName` -or- `undefined` if it doesn't exist.
      */
-    #getPropDescVal(propName: string): PropertyDescriptor|undefined {
+    #getPropDescVal(propName: string|symbol): PropertyDescriptor|undefined {
         if (!this.#hasProp(propName)) return undefined;
         
         return defaultPropDescriptor;
@@ -1023,22 +1030,22 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         // proxies - representing data in various formats:
         this.#refs = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */CssCustomSimpleRef | /*setter: */CssCustomValue|undefined|null }>(unusedObj as any, {
-            get                      : (_unusedObj, propName: string)                                          => this.#getRef(propName),
-            set                      : (_unusedObj, propName: string, newValue: CssCustomValue|undefined|null) => this.#setDirect(propName, newValue),
-            deleteProperty           : (_unusedObj, propName: string)                                          => this.#setDirect(propName, undefined),
+            get                      : (_unusedObj, propName: string|symbol)                                          => this.#getRef(propName),
+            set                      : (_unusedObj, propName: string|symbol, newValue: CssCustomValue|undefined|null) => this.#setVal(propName, newValue),
+            deleteProperty           : (_unusedObj, propName: string|symbol)                                          => this.#setVal(propName, undefined),
             
-            has                      : (_unusedObj, propName: string)                                          => this.#hasProp(propName),
-            ownKeys                  : (_unusedObj)                                                            => this.#getPropList(),
-            getOwnPropertyDescriptor : (_unusedObj, propName: string)                                          => this.#getPropDescRef(propName),
+            has                      : (_unusedObj, propName: string|symbol)                                          => this.#hasProp(propName),
+            ownKeys                  : (_unusedObj)                                                                   => this.#getPropList(),
+            getOwnPropertyDescriptor : (_unusedObj, propName: string|symbol)                                          => this.#getPropDescRef(propName),
         }) as Refs<TConfigProps>;
         this.#vals = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */    CssCustomValue | /*setter: */CssCustomValue|undefined|null }>(unusedObj as any, {
-            get                      : (_unusedObj, propName: string)                                          => this.#getVal(propName),
-            set                      : (_unusedObj, propName: string, newValue: CssCustomValue|undefined|null) => this.#setDirect(propName, newValue),
-            deleteProperty           : (_unusedObj, propName: string)                                          => this.#setDirect(propName, undefined),
+            get                      : (_unusedObj, propName: string|symbol)                                          => this.#getVal(propName),
+            set                      : (_unusedObj, propName: string|symbol, newValue: CssCustomValue|undefined|null) => this.#setVal(propName, newValue),
+            deleteProperty           : (_unusedObj, propName: string|symbol)                                          => this.#setVal(propName, undefined),
             
-            has                      : (_unusedObj, propName: string)                                          => this.#hasProp(propName),
-            ownKeys                  : (_unusedObj)                                                            => this.#getPropList(),
-            getOwnPropertyDescriptor : (_unusedObj, propName: string)                                          => this.#getPropDescVal(propName),
+            has                      : (_unusedObj, propName: string|symbol)                                          => this.#hasProp(propName),
+            ownKeys                  : (_unusedObj)                                                                   => this.#getPropList(),
+            getOwnPropertyDescriptor : (_unusedObj, propName: string|symbol)                                          => this.#getPropDescVal(propName),
         }) as Vals<TConfigProps>;
     }
     //#endregion constructors
