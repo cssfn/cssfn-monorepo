@@ -1,10 +1,10 @@
 {
   "name": "test-cssfn-react",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "dependencies": {
     "@cssfn/css-types": "^2.0.1",
-    "@cssfn/cssfn": "^2.0.1",
+    "@cssfn/cssfn": "^2.0.2",
     "@cssfn/cssfn-react": "^2.0.2",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.2.0",
