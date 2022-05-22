@@ -174,6 +174,12 @@ export type CssConfig<TConfigProps extends CssConfigProps> = readonly [Refs<TCon
 
 // utilities:
 const unusedObj = {};
+const defaultPropDescriptor : PropertyDescriptor = {
+    writable     : true, // make sure the propName is assignable
+    enumerable   : true, // make sure the propName always listed by `for (const i in refs)`
+    configurable : true, // make sure the propName can be deleted
+};
+Object.freeze(defaultPropDescriptor);
 
 /**
  * Creates the *declaration name* of the specified `propName`, eg: `--my-favColor`.
@@ -873,15 +879,10 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         
-        // ensures the `#genProps` was fully generated:
-        this.#ensureGenerated();
-        
-        
-        
         const propDecl = this.#createDecl(propName);
         
-        // check if the `#genProps` has `propDecl`:
-        if (!this.#genProps.has(propDecl)) return undefined; // not found
+        // check if the `#props` has `propDecl`:
+        if (!this.#props.has(propDecl)) return undefined; // not found
         
         return propDecl;
     }
@@ -906,6 +907,11 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     #getVal(propName: string): CssCustomValue|undefined {
         const propDecl = this.#getDecl(propName);
         if (!propDecl) return undefined; // not found
+        
+        
+        
+        // ensures the `#genProps` was fully generated:
+        this.#ensureGenerated();
         
         return this.#genProps.get(propDecl);
     }
@@ -978,16 +984,9 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @returns A `PropertyDescriptor` represents the behavior of the specified `propName` -or- `undefined` if it doesn't exist.
      */
     #getPropDescRef(propName: string): PropertyDescriptor|undefined {
-        const propRef = this.#getRef(propName);
-        if (!propRef) return undefined; // not found
+        if (!this.#hasProp(propName)) return undefined;
         
-        return {
-            value        : propRef,
-            
-            writable     : true, // make sure the propName is assignable
-            enumerable   : true, // make sure the propName always listed by `for (const i in refs)`
-            configurable : true, // make sure the propName can be deleted
-        };
+        return defaultPropDescriptor;
     }
     /**
      * Gets the behavior of the specified `propName`.
@@ -995,16 +994,9 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @returns A `PropertyDescriptor` represents the behavior of the specified `propName` -or- `undefined` if it doesn't exist.
      */
     #getPropDescVal(propName: string): PropertyDescriptor|undefined {
-        const propVal = this.#getVal(propName);
-        if (!propVal) return undefined; // not found
+        if (!this.#hasProp(propName)) return undefined;
         
-        return {
-            value        : propVal,
-            
-            writable     : true, // make sure the propName is assignable
-            enumerable   : true, // make sure the propName always listed by `for (const i in refs)`
-            configurable : true, // make sure the propName can be deleted
-        };
+        return defaultPropDescriptor;
     }
     //#endregion proxy getters & setters
     
