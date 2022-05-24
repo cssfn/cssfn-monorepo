@@ -85,7 +85,7 @@ const asyncExecute = (
 
 
 
-// general types:
+// types:
 export type CssConfigProps =
     & PartialNullish<{
         [name: string] : CssCustomValue
