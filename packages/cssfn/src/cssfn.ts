@@ -291,15 +291,15 @@ export const fontFace          = (styles: CssFontFaceStyleCollection            
 export const atGlobal          = (rules :          CssRuleCollection                              ) => atRule('@global'           , rules          );
 
 export const atRoot            = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':root'               , styles, options);
-export const isFirstChild      = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(     ':first-child'   , styles, options);
-export const isNotFirstChild   = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':not(:first-child)'  , styles, options);
-export const isLastChild       = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(     ':last-child'    , styles, options);
-export const isNotLastChild    = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':not(:last-child)'   , styles, options);
-export const isNthChild        = (step: number, offset: number, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
+export const ifFirstChild      = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(     ':first-child'   , styles, options);
+export const ifNotFirstChild   = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':not(:first-child)'  , styles, options);
+export const ifLastChild       = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(     ':last-child'    , styles, options);
+export const ifNotLastChild    = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':not(:last-child)'   , styles, options);
+export const ifNthChild        = (step: number, offset: number, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
     if (step === 0) { // no step
         if (offset === 0) return emptyRule();                                    // 0th => never match => return empty rule
         
-        if (offset === 1) return isFirstChild(styles, options);                  // 1st
+        if (offset === 1) return ifFirstChild(styles, options);                  // 1st
         
         return rule(`:nth-child(${offset})`, styles, options);                   // 2nd, 3rd, 4th, ...
     }
@@ -314,11 +314,11 @@ export const isNthChild        = (step: number, offset: number, styles: CssStyle
         return rule(`:nth-child(${step}n+${offset})`, styles, options);
     } // if
 };
-export const isNotNthChild     = (step: number, offset: number, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
+export const ifNotNthChild     = (step: number, offset: number, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
     if (step === 0) { // no step
-        if (offset === 0) return isNthChild(1, 0, styles, options);              // not 0th => not never match => always match
+        if (offset === 0) return ifNthChild(1, 0, styles, options);              // not 0th => not never match => always match
         
-        if (offset === 1) return isNotFirstChild(styles, options);               // not 1st
+        if (offset === 1) return ifNotFirstChild(styles, options);               // not 1st
         
         return rule(`:not(:nth-child(${offset}))`, styles, options);             // not 2nd, not 3rd, not 4th, not ...
     }
@@ -333,16 +333,16 @@ export const isNotNthChild     = (step: number, offset: number, styles: CssStyle
         return rule(`:not(:nth-child(${step}n+${offset}))`, styles, options);
     } // if
 };
-export const isNthLastChild    = (step: number, offset: number, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
+export const ifNthLastChild    = (step: number, offset: number, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
     if (step === 0) { // no step
         if (offset === 0) return emptyRule();                                    // 0th => never match => return empty rule
         
-        if (offset === 1) return isLastChild(styles, options);                   // 1st
+        if (offset === 1) return ifLastChild(styles, options);                   // 1st
         
         return rule(`:nth-last-child(${offset})`, styles, options);              // 2nd, 3rd, 4th, ...
     }
     else if (step === 1) { // 1 step
-        if (offset === 0) return isNthChild(1, 0, styles, options);              // always match
+        if (offset === 0) return ifNthChild(1, 0, styles, options);              // always match
         
         return rule(`:nth-last-child(n+${offset})`, styles, options);
     }
@@ -352,11 +352,11 @@ export const isNthLastChild    = (step: number, offset: number, styles: CssStyle
         return rule(`:nth-last-child(${step}n+${offset})`, styles, options);
     } // if
 };
-export const isNotNthLastChild = (step: number, offset: number, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
+export const ifNotNthLastChild = (step: number, offset: number, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
     if (step === 0) { // no step
-        if (offset === 0) return isNthChild(1, 0, styles, options);              // not 0th last => not never match => always match
+        if (offset === 0) return ifNthChild(1, 0, styles, options);              // not 0th last => not never match => always match
         
-        if (offset === 1) return isNotLastChild(styles, options);                // not 1st last
+        if (offset === 1) return ifNotLastChild(styles, options);                // not 1st last
         
         return rule(`:not(:nth-last-child(${offset}))`, styles, options);        // not 2nd last, not 3rd last, not 4th last, not ... last
     }
@@ -371,16 +371,16 @@ export const isNotNthLastChild = (step: number, offset: number, styles: CssStyle
         return rule(`:not(:nth-last-child(${step}n+${offset}))`, styles, options);
     } // if
 };
-export const isActive          = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(     ':active'        , styles, options);
-export const isNotActive       = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':not(:active)'       , styles, options);
-export const isFocus           = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(     ':focus'         , styles, options);
-export const isNotFocus        = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':not(:focus)'        , styles, options);
-export const isFocusVisible    = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(     ':focus-visible' , styles, options);
-export const isNotFocusVisible = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':not(:focus-visible)', styles, options);
-export const isHover           = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(     ':hover'         , styles, options);
-export const isNotHover        = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':not(:hover)'        , styles, options);
-export const isEmpty           = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(     ':empty'         , styles, options);
-export const isNotEmpty        = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':not(:empty)'        , styles, options);
+export const ifActive          = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(     ':active'        , styles, options);
+export const ifNotActive       = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':not(:active)'       , styles, options);
+export const ifFocus           = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(     ':focus'         , styles, options);
+export const ifNotFocus        = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':not(:focus)'        , styles, options);
+export const ifFocusVisible    = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(     ':focus-visible' , styles, options);
+export const ifNotFocusVisible = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':not(:focus-visible)', styles, options);
+export const ifHover           = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(     ':hover'         , styles, options);
+export const ifNotHover        = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':not(:hover)'        , styles, options);
+export const ifEmpty           = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(     ':empty'         , styles, options);
+export const ifNotEmpty        = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':not(:empty)'        , styles, options);
 
 
 

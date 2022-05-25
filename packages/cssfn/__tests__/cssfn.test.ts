@@ -35,24 +35,24 @@ import {
     fontFace,
     atGlobal,
     atRoot,
-    isFirstChild,
-    isNotFirstChild,
-    isLastChild,
-    isNotLastChild,
-    isNthChild,
-    isNotNthChild,
-    isNthLastChild,
-    isNotNthLastChild,
-    isActive,
-    isNotActive,
-    isFocus,
-    isNotFocus,
-    isFocusVisible,
-    isNotFocusVisible,
-    isHover,
-    isNotHover,
-    isEmpty,
-    isNotEmpty,
+    ifFirstChild,
+    ifNotFirstChild,
+    ifLastChild,
+    ifNotLastChild,
+    ifNthChild,
+    ifNotNthChild,
+    ifNthLastChild,
+    ifNotNthLastChild,
+    ifActive,
+    ifNotActive,
+    ifFocus,
+    ifNotFocus,
+    ifFocusVisible,
+    ifNotFocusVisible,
+    ifHover,
+    ifNotHover,
+    ifEmpty,
+    ifNotEmpty,
     
     descendants,
     children,
@@ -1918,20 +1918,20 @@ test(`global()`, () => {
 
 const unparameterizedRules : (readonly [(styles: CssStyleCollection) => CssRule, string ])[] = [
     [ atRoot           , '&:root'                ],
-    [ isFirstChild     , '&:first-child'         ],
-    [ isNotFirstChild  , '&:not(:first-child)'   ],
-    [ isLastChild      , '&:last-child'          ],
-    [ isNotLastChild   , '&:not(:last-child)'    ],
-    [ isActive         , '&:active'              ],
-    [ isNotActive      , '&:not(:active)'        ],
-    [ isFocus          , '&:focus'               ],
-    [ isNotFocus       , '&:not(:focus)'         ],
-    [ isFocusVisible   , '&:focus-visible'       ],
-    [ isNotFocusVisible, '&:not(:focus-visible)' ],
-    [ isHover          , '&:hover'               ],
-    [ isNotHover       , '&:not(:hover)'         ],
-    [ isEmpty          , '&:empty'               ],
-    [ isNotEmpty       , '&:not(:empty)'         ],
+    [ ifFirstChild     , '&:first-child'         ],
+    [ ifNotFirstChild  , '&:not(:first-child)'   ],
+    [ ifLastChild      , '&:last-child'          ],
+    [ ifNotLastChild   , '&:not(:last-child)'    ],
+    [ ifActive         , '&:active'              ],
+    [ ifNotActive      , '&:not(:active)'        ],
+    [ ifFocus          , '&:focus'               ],
+    [ ifNotFocus       , '&:not(:focus)'         ],
+    [ ifFocusVisible   , '&:focus-visible'       ],
+    [ ifNotFocusVisible, '&:not(:focus-visible)' ],
+    [ ifHover          , '&:hover'               ],
+    [ ifNotHover       , '&:not(:hover)'         ],
+    [ ifEmpty          , '&:empty'               ],
+    [ ifNotEmpty       , '&:not(:empty)'         ],
 ];
 unparameterizedRules.forEach(([func, expected]) => {
     test(`func()`, () => {
@@ -1975,10 +1975,10 @@ unparameterizedRules.forEach(([func, expected]) => {
 
 
 
-//#region test isNthChild()
-test(`isNthChild(0, 0)`, () => {
+//#region test ifNthChild()
+test(`ifNthChild(0, 0)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthChild(0, 0, {
+        ifNthChild(0, 0, {
             color: 'red',
         })
     )))
@@ -1986,9 +1986,9 @@ test(`isNthChild(0, 0)`, () => {
         null
     );
 });
-test(`isNthChild(0, 1)`, () => {
+test(`ifNthChild(0, 1)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthChild(0, 1, {
+        ifNthChild(0, 1, {
             color: 'red',
         })
     )))
@@ -1996,9 +1996,9 @@ test(`isNthChild(0, 1)`, () => {
         '&:first-child'
     );
 });
-test(`isNthChild(0, 2)`, () => {
+test(`ifNthChild(0, 2)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthChild(0, 2, {
+        ifNthChild(0, 2, {
             color: 'red',
         })
     )))
@@ -2006,9 +2006,9 @@ test(`isNthChild(0, 2)`, () => {
         '&:nth-child(2)'
     );
 });
-test(`isNthChild(1, 0)`, () => {
+test(`ifNthChild(1, 0)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthChild(1, 0, {
+        ifNthChild(1, 0, {
             color: 'red',
         })
     )))
@@ -2016,9 +2016,9 @@ test(`isNthChild(1, 0)`, () => {
         '&:nth-child(n)'
     );
 });
-test(`isNthChild(1, 1)`, () => {
+test(`ifNthChild(1, 1)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthChild(1, 1, {
+        ifNthChild(1, 1, {
             color: 'red',
         })
     )))
@@ -2026,9 +2026,9 @@ test(`isNthChild(1, 1)`, () => {
         '&:nth-child(n+1)'
     );
 });
-test(`isNthChild(1, 2)`, () => {
+test(`ifNthChild(1, 2)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthChild(1, 2, {
+        ifNthChild(1, 2, {
             color: 'red',
         })
     )))
@@ -2036,9 +2036,9 @@ test(`isNthChild(1, 2)`, () => {
         '&:nth-child(n+2)'
     );
 });
-test(`isNthChild(2, 0)`, () => {
+test(`ifNthChild(2, 0)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthChild(2, 0, {
+        ifNthChild(2, 0, {
             color: 'red',
         })
     )))
@@ -2046,9 +2046,9 @@ test(`isNthChild(2, 0)`, () => {
         '&:nth-child(2n)'
     );
 });
-test(`isNthChild(2, 1)`, () => {
+test(`ifNthChild(2, 1)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthChild(2, 1, {
+        ifNthChild(2, 1, {
             color: 'red',
         })
     )))
@@ -2056,9 +2056,9 @@ test(`isNthChild(2, 1)`, () => {
         '&:nth-child(2n+1)'
     );
 });
-test(`isNthChild(2, 2)`, () => {
+test(`ifNthChild(2, 2)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthChild(2, 2, {
+        ifNthChild(2, 2, {
             color: 'red',
         })
     )))
@@ -2066,12 +2066,12 @@ test(`isNthChild(2, 2)`, () => {
         '&:nth-child(2n+2)'
     );
 });
-//#endregion test isNthChild()
+//#endregion test ifNthChild()
 
-//#region test isNotNthChild()
-test(`isNotNthChild(0, 0)`, () => {
+//#region test ifNotNthChild()
+test(`ifNotNthChild(0, 0)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthChild(0, 0, {
+        ifNotNthChild(0, 0, {
             color: 'red',
         })
     )))
@@ -2079,9 +2079,9 @@ test(`isNotNthChild(0, 0)`, () => {
         '&:nth-child(n)'
     );
 });
-test(`isNotNthChild(0, 1)`, () => {
+test(`ifNotNthChild(0, 1)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthChild(0, 1, {
+        ifNotNthChild(0, 1, {
             color: 'red',
         })
     )))
@@ -2089,9 +2089,9 @@ test(`isNotNthChild(0, 1)`, () => {
         '&:not(:first-child)'
     );
 });
-test(`isNotNthChild(0, 2)`, () => {
+test(`ifNotNthChild(0, 2)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthChild(0, 2, {
+        ifNotNthChild(0, 2, {
             color: 'red',
         })
     )))
@@ -2099,9 +2099,9 @@ test(`isNotNthChild(0, 2)`, () => {
         '&:not(:nth-child(2))'
     );
 });
-test(`isNotNthChild(1, 0)`, () => {
+test(`ifNotNthChild(1, 0)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthChild(1, 0, {
+        ifNotNthChild(1, 0, {
             color: 'red',
         })
     )))
@@ -2109,9 +2109,9 @@ test(`isNotNthChild(1, 0)`, () => {
         null
     );
 });
-test(`isNotNthChild(1, 1)`, () => {
+test(`ifNotNthChild(1, 1)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthChild(1, 1, {
+        ifNotNthChild(1, 1, {
             color: 'red',
         })
     )))
@@ -2119,9 +2119,9 @@ test(`isNotNthChild(1, 1)`, () => {
         '&:not(:nth-child(n+1))'
     );
 });
-test(`isNotNthChild(1, 2)`, () => {
+test(`ifNotNthChild(1, 2)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthChild(1, 2, {
+        ifNotNthChild(1, 2, {
             color: 'red',
         })
     )))
@@ -2129,9 +2129,9 @@ test(`isNotNthChild(1, 2)`, () => {
         '&:not(:nth-child(n+2))'
     );
 });
-test(`isNotNthChild(2, 0)`, () => {
+test(`ifNotNthChild(2, 0)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthChild(2, 0, {
+        ifNotNthChild(2, 0, {
             color: 'red',
         })
     )))
@@ -2139,9 +2139,9 @@ test(`isNotNthChild(2, 0)`, () => {
         '&:not(:nth-child(2n))'
     );
 });
-test(`isNotNthChild(2, 1)`, () => {
+test(`ifNotNthChild(2, 1)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthChild(2, 1, {
+        ifNotNthChild(2, 1, {
             color: 'red',
         })
     )))
@@ -2149,9 +2149,9 @@ test(`isNotNthChild(2, 1)`, () => {
         '&:not(:nth-child(2n+1))'
     );
 });
-test(`isNotNthChild(2, 2)`, () => {
+test(`ifNotNthChild(2, 2)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthChild(2, 2, {
+        ifNotNthChild(2, 2, {
             color: 'red',
         })
     )))
@@ -2159,14 +2159,14 @@ test(`isNotNthChild(2, 2)`, () => {
         '&:not(:nth-child(2n+2))'
     );
 });
-//#endregion test isNotNthChild()
+//#endregion test ifNotNthChild()
 
 
 
-//#region test isNthLastChild()
-test(`isNthLastChild(0, 0)`, () => {
+//#region test ifNthLastChild()
+test(`ifNthLastChild(0, 0)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthLastChild(0, 0, {
+        ifNthLastChild(0, 0, {
             color: 'red',
         })
     )))
@@ -2174,9 +2174,9 @@ test(`isNthLastChild(0, 0)`, () => {
         null
     );
 });
-test(`isNthLastChild(0, 1)`, () => {
+test(`ifNthLastChild(0, 1)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthLastChild(0, 1, {
+        ifNthLastChild(0, 1, {
             color: 'red',
         })
     )))
@@ -2184,9 +2184,9 @@ test(`isNthLastChild(0, 1)`, () => {
         '&:last-child'
     );
 });
-test(`isNthLastChild(0, 2)`, () => {
+test(`ifNthLastChild(0, 2)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthLastChild(0, 2, {
+        ifNthLastChild(0, 2, {
             color: 'red',
         })
     )))
@@ -2194,9 +2194,9 @@ test(`isNthLastChild(0, 2)`, () => {
         '&:nth-last-child(2)'
     );
 });
-test(`isNthLastChild(1, 0)`, () => {
+test(`ifNthLastChild(1, 0)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthLastChild(1, 0, {
+        ifNthLastChild(1, 0, {
             color: 'red',
         })
     )))
@@ -2204,9 +2204,9 @@ test(`isNthLastChild(1, 0)`, () => {
         '&:nth-child(n)'
     );
 });
-test(`isNthLastChild(1, 1)`, () => {
+test(`ifNthLastChild(1, 1)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthLastChild(1, 1, {
+        ifNthLastChild(1, 1, {
             color: 'red',
         })
     )))
@@ -2214,9 +2214,9 @@ test(`isNthLastChild(1, 1)`, () => {
         '&:nth-last-child(n+1)'
     );
 });
-test(`isNthLastChild(1, 2)`, () => {
+test(`ifNthLastChild(1, 2)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthLastChild(1, 2, {
+        ifNthLastChild(1, 2, {
             color: 'red',
         })
     )))
@@ -2224,9 +2224,9 @@ test(`isNthLastChild(1, 2)`, () => {
         '&:nth-last-child(n+2)'
     );
 });
-test(`isNthLastChild(2, 0)`, () => {
+test(`ifNthLastChild(2, 0)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthLastChild(2, 0, {
+        ifNthLastChild(2, 0, {
             color: 'red',
         })
     )))
@@ -2234,9 +2234,9 @@ test(`isNthLastChild(2, 0)`, () => {
         '&:nth-last-child(2n)'
     );
 });
-test(`isNthLastChild(2, 1)`, () => {
+test(`ifNthLastChild(2, 1)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthLastChild(2, 1, {
+        ifNthLastChild(2, 1, {
             color: 'red',
         })
     )))
@@ -2244,9 +2244,9 @@ test(`isNthLastChild(2, 1)`, () => {
         '&:nth-last-child(2n+1)'
     );
 });
-test(`isNthLastChild(2, 2)`, () => {
+test(`ifNthLastChild(2, 2)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNthLastChild(2, 2, {
+        ifNthLastChild(2, 2, {
             color: 'red',
         })
     )))
@@ -2254,12 +2254,12 @@ test(`isNthLastChild(2, 2)`, () => {
         '&:nth-last-child(2n+2)'
     );
 });
-//#endregion test isNthLastChild()
+//#endregion test ifNthLastChild()
 
-//#region test isNotNthLastChild()
-test(`isNotNthLastChild(0, 0)`, () => {
+//#region test ifNotNthLastChild()
+test(`ifNotNthLastChild(0, 0)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthLastChild(0, 0, {
+        ifNotNthLastChild(0, 0, {
             color: 'red',
         })
     )))
@@ -2267,9 +2267,9 @@ test(`isNotNthLastChild(0, 0)`, () => {
         '&:nth-child(n)'
     );
 });
-test(`isNotNthLastChild(0, 1)`, () => {
+test(`ifNotNthLastChild(0, 1)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthLastChild(0, 1, {
+        ifNotNthLastChild(0, 1, {
             color: 'red',
         })
     )))
@@ -2277,9 +2277,9 @@ test(`isNotNthLastChild(0, 1)`, () => {
         '&:not(:last-child)'
     );
 });
-test(`isNotNthLastChild(0, 2)`, () => {
+test(`ifNotNthLastChild(0, 2)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthLastChild(0, 2, {
+        ifNotNthLastChild(0, 2, {
             color: 'red',
         })
     )))
@@ -2287,9 +2287,9 @@ test(`isNotNthLastChild(0, 2)`, () => {
         '&:not(:nth-last-child(2))'
     );
 });
-test(`isNotNthLastChild(1, 0)`, () => {
+test(`ifNotNthLastChild(1, 0)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthLastChild(1, 0, {
+        ifNotNthLastChild(1, 0, {
             color: 'red',
         })
     )))
@@ -2297,9 +2297,9 @@ test(`isNotNthLastChild(1, 0)`, () => {
         null
     );
 });
-test(`isNotNthLastChild(1, 1)`, () => {
+test(`ifNotNthLastChild(1, 1)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthLastChild(1, 1, {
+        ifNotNthLastChild(1, 1, {
             color: 'red',
         })
     )))
@@ -2307,9 +2307,9 @@ test(`isNotNthLastChild(1, 1)`, () => {
         '&:not(:nth-last-child(n+1))'
     );
 });
-test(`isNotNthLastChild(1, 2)`, () => {
+test(`ifNotNthLastChild(1, 2)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthLastChild(1, 2, {
+        ifNotNthLastChild(1, 2, {
             color: 'red',
         })
     )))
@@ -2317,9 +2317,9 @@ test(`isNotNthLastChild(1, 2)`, () => {
         '&:not(:nth-last-child(n+2))'
     );
 });
-test(`isNotNthLastChild(2, 0)`, () => {
+test(`ifNotNthLastChild(2, 0)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthLastChild(2, 0, {
+        ifNotNthLastChild(2, 0, {
             color: 'red',
         })
     )))
@@ -2327,9 +2327,9 @@ test(`isNotNthLastChild(2, 0)`, () => {
         '&:not(:nth-last-child(2n))'
     );
 });
-test(`isNotNthLastChild(2, 1)`, () => {
+test(`ifNotNthLastChild(2, 1)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthLastChild(2, 1, {
+        ifNotNthLastChild(2, 1, {
             color: 'red',
         })
     )))
@@ -2337,9 +2337,9 @@ test(`isNotNthLastChild(2, 1)`, () => {
         '&:not(:nth-last-child(2n+1))'
     );
 });
-test(`isNotNthLastChild(2, 2)`, () => {
+test(`ifNotNthLastChild(2, 2)`, () => {
     expect(firstSelectorOf(mergeStyles(
-        isNotNthLastChild(2, 2, {
+        ifNotNthLastChild(2, 2, {
             color: 'red',
         })
     )))
@@ -2347,7 +2347,7 @@ test(`isNotNthLastChild(2, 2)`, () => {
         '&:not(:nth-last-child(2n+2))'
     );
 });
-//#endregion test isNotNthLastChild()
+//#endregion test ifNotNthLastChild()
 
 
 
@@ -2515,9 +2515,9 @@ test(`iif()`, () => {
     });
 });
 
-test(`iif(false, isFirstChild())`, () => {
+test(`iif(false, ifFirstChild())`, () => {
     expect(firstSelectorOf(mergeStyles(
-        iif(false, isFirstChild({
+        iif(false, ifFirstChild({
             color: 'red',
         }))
     )))
@@ -2525,9 +2525,9 @@ test(`iif(false, isFirstChild())`, () => {
         null
     );
 });
-test(`iif(false, isFirstChild())`, () => {
+test(`iif(false, ifFirstChild())`, () => {
     expect(firstStylesOf(mergeStyles(
-        iif(false, isFirstChild([
+        iif(false, ifFirstChild([
             {
                 background: 'pink',
                 color: 'red',
@@ -2546,9 +2546,9 @@ test(`iif(false, isFirstChild())`, () => {
         null
     );
 });
-test(`iif(true, isFirstChild())`, () => {
+test(`iif(true, ifFirstChild())`, () => {
     expect(firstSelectorOf(mergeStyles(
-        iif(true, isFirstChild({
+        iif(true, ifFirstChild({
             color: 'red',
         }))
     )))
@@ -2556,9 +2556,9 @@ test(`iif(true, isFirstChild())`, () => {
         '&:first-child'
     );
 });
-test(`iif(true, isFirstChild())`, () => {
+test(`iif(true, ifFirstChild())`, () => {
     expect(firstStylesOf(mergeStyles(
-        iif(true, isFirstChild([
+        iif(true, ifFirstChild([
             {
                 background: 'pink',
                 color: 'red',
