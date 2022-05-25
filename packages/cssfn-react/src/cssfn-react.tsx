@@ -23,6 +23,10 @@ import {
     // hocs:
     memo,
 }                           from 'react'
+import {
+    // react dom:
+    default as ReactDOM,
+}                           from 'react-dom'
 
 // cssfn:
 import type {
@@ -177,6 +181,16 @@ export const Styles : FC = () => {
         );
     }, [generation]); // re-create the `JSX.Element` if `generation` changed
 }
+
+export const HeadPortal : FC<React.PropsWithChildren<{}>> = ({ children }) => {
+    // jsx:
+    const headElm = (typeof(window) !== 'undefined') ? window?.document?.head : undefined;
+    if (!headElm) return null;
+    return ReactDOM.createPortal(
+        children,
+        headElm
+    );
+};
 
 
 
