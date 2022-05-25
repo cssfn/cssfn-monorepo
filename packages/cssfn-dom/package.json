@@ -34,13 +34,13 @@
   "dependencies": {
     "is-in-browser": "^2.0.0"
   },
+  "peerDependencies": {
+    "@cssfn/cssfn": "^2.0.3"
+  },
   "devDependencies": {
     "@cssfn/css-types": "^2.0.1",
     "@types/jsdom": "^16.2.14",
     "jsdom": "^19.0.0",
     "rxjs": "^7.5.5"
-  },
-  "peerDependencies": {
-    "@cssfn/cssfn": "^2.0.1"
   }
 }
