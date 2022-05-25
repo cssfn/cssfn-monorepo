@@ -29,8 +29,8 @@ import {
     
     keyframes,
     
-    noRule,
-    emptyRule,
+    alwaysRule,
+    neverRule,
     fallbacks,
     fontFace,
     atGlobal,
@@ -1777,10 +1777,10 @@ test(`keyframes()`, () => {
 
 
 //#region rule shortcuts
-test(`noRule()`, () => {
+test(`alwaysRule()`, () => {
     expect(cssMapToStyle(mergeStyles({
         background: 'pink',
-        ...noRule({
+        ...alwaysRule({
             color: 'red',
         })
     })))
@@ -1790,10 +1790,10 @@ test(`noRule()`, () => {
     });
 });
 
-test(`emptyRule()`, () => {
+test(`neverRule()`, () => {
     expect(cssMapToStyle(mergeStyles({
         background: 'pink',
-        ...emptyRule(),
+        ...neverRule(),
     })))
     .toExactEqual({
         background: 'pink',

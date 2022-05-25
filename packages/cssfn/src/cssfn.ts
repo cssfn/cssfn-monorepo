@@ -284,8 +284,8 @@ const createKeyframesRules = (items: CssKeyframes): CssRuleCollection => Object.
 
 
 // rule shortcuts:
-export const noRule            = (styles:         CssStyleCollection                              ) => rule('&'                   , styles         );
-export const emptyRule         = (                                                                ) => rule(null                  , null           );
+export const alwaysRule        = (styles:         CssStyleCollection                              ) => rule('&'                   , styles         );
+export const neverRule         = (                                                                ) => rule(null                  , null           );
 export const fallbacks         = (styles:         CssStyleCollection                              ) => atRule('@fallbacks'        , styles         );
 export const fontFace          = (styles: CssFontFaceStyleCollection                              ) => atRule('@font-face'        , styles         );
 export const atGlobal          = (rules :          CssRuleCollection                              ) => atRule('@global'           , rules          );
@@ -297,7 +297,7 @@ export const ifLastChild       = (styles:         CssStyleCollection, options?: 
 export const ifNotLastChild    = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':not(:last-child)'   , styles, options);
 export const ifNthChild        = (step: number, offset: number, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
     if (step === 0) { // no step
-        if (offset === 0) return emptyRule();                                    // 0th => never match => return empty rule
+        if (offset === 0) return neverRule();                                    // 0th => never match => return empty rule
         
         if (offset === 1) return ifFirstChild(styles, options);                  // 1st
         
@@ -323,7 +323,7 @@ export const ifNotNthChild     = (step: number, offset: number, styles: CssStyle
         return rule(`:not(:nth-child(${offset}))`, styles, options);             // not 2nd, not 3rd, not 4th, not ...
     }
     else if (step === 1) { // 1 step
-        if (offset === 0) return emptyRule();                                    // never match => return empty rule
+        if (offset === 0) return neverRule();                                    // never match => return empty rule
         
         return rule(`:not(:nth-child(n+${offset}))`, styles, options);
     }
@@ -335,7 +335,7 @@ export const ifNotNthChild     = (step: number, offset: number, styles: CssStyle
 };
 export const ifNthLastChild    = (step: number, offset: number, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
     if (step === 0) { // no step
-        if (offset === 0) return emptyRule();                                    // 0th => never match => return empty rule
+        if (offset === 0) return neverRule();                                    // 0th => never match => return empty rule
         
         if (offset === 1) return ifLastChild(styles, options);                   // 1st
         
@@ -361,7 +361,7 @@ export const ifNotNthLastChild = (step: number, offset: number, styles: CssStyle
         return rule(`:not(:nth-last-child(${offset}))`, styles, options);        // not 2nd last, not 3rd last, not 4th last, not ... last
     }
     else if (step === 1) { // 1 step
-        if (offset === 0) return emptyRule();                                    // never match => return empty rule
+        if (offset === 0) return neverRule();                                    // never match => return empty rule
         
         return rule(`:not(:nth-last-child(n+${offset}))`, styles, options);
     }
@@ -393,7 +393,7 @@ export const combinators  = (combinator: Combinator, selectors: CssSelectorColle
         
         return `&${combinator}${selector}`;
     });
-    if (!combiSelectors.length) return emptyRule(); // no selector => return empty
+    if (!combiSelectors.length) return neverRule(); // no selector => return empty
     
     
     
@@ -411,13 +411,13 @@ export const nextSiblings = (selectors: CssSelectorCollection, styles: CssStyleC
  * Defines css properties.
  * @returns A `CssRule` represents the css properties.
  */
-export const style   = (style: CssStyle)              => noRule(style);
+export const style   = (style: CssStyle)              => alwaysRule(style);
 /**
  * Defines css variables.
  * @returns A `CssRule` represents the css variables.
  */
-export const vars    = (items: CssCustomProps)        => noRule(items);
-export const imports = (styles: CssStyleCollection[]) => noRule(styles); // force to use an array bracket [] for syntax consistency
+export const vars    = (items: CssCustomProps)        => alwaysRule(items);
+export const imports = (styles: CssStyleCollection[]) => alwaysRule(styles); // force to use an array bracket [] for syntax consistency
 
 
 
