@@ -2,6 +2,9 @@ import type {
     JSDOM as _JSDOM,
 } from 'jsdom'
 import type {
+    CssKnownProps,
+} from '@cssfn/css-types'
+import type {
     render      as _render,
 } from '@cssfn/cssfn/dist/renders.js'
 import {
@@ -89,12 +92,12 @@ jest.isolateModules(() => {
     test(`cssConfig() # test props`, async () => {
         const [cssProps, cssVals] = cssConfig(() => {
             return {
-                display     : 'grid',
-                colRed      : '#ff0000',
-                colBlue     : '#0000ff',
-                bdWidth     : '1px',
-                padding     : [['10px', 0, '5px', '3%'], '!important'],
-                fontFamily  : ['Arial', 'sans-serif', '!important'],
+                display     : 'grid'    as CssKnownProps['display'],
+                colRed      : '#ff0000' as CssKnownProps['color'],
+                colBlue     : '#0000ff' as CssKnownProps['color'],
+                bdWidth     : '1px'     as CssKnownProps['borderWidth'],
+                padding     : [['10px', 0, '5px', '3%'], '!important'] as CssKnownProps['padding'],
+                fontFamily  : ['Arial', 'sans-serif', '!important']    as CssKnownProps['fontFamily'],
             };
         });
         
@@ -135,12 +138,12 @@ jest.isolateModules(() => {
     test(`cssConfig() # test options`, async () => {
         const [cssProps, cssVals] = cssConfig(() => {
             return {
-                display     : 'grid',
-                colRed      : '#ff0000',
-                colBlue     : '#0000ff',
-                bdWidth     : '1px',
-                padding     : [['10px', 0, '5px', '3%'], '!important'],
-                fontFamily  : ['Arial', 'sans-serif', '!important'],
+                display     : 'grid'    as CssKnownProps['display'],
+                colRed      : '#ff0000' as CssKnownProps['color'],
+                colBlue     : '#0000ff' as CssKnownProps['color'],
+                bdWidth     : '1px'     as CssKnownProps['borderWidth'],
+                padding     : [['10px', 0, '5px', '3%'], '!important'] as CssKnownProps['padding'],
+                fontFamily  : ['Arial', 'sans-serif', '!important']    as CssKnownProps['fontFamily'],
             };
         }, { prefix: 'navb', selector: '.navbar' });
         
@@ -181,17 +184,17 @@ jest.isolateModules(() => {
     test(`cssConfig() # test linking props`, async () => {
         const [cssProps, cssVals] = cssConfig(() => {
             return {
-                display     : 'grid',
-                colRed      : '#ff0000',
-                colBlue     : '#0000ff',
-                bdWidth     : '1px',
-                theTrap     : '!important',
-                myFavFont   : 'sans-serif',
-                padding     : [['10px', 0, '5px', '3%'], '!important'],
-                fontFamily  : ['Arial', 'sans-serif', '!important'],
+                display     : 'grid'       as CssKnownProps['display'],
+                colRed      : '#ff0000'    as CssKnownProps['color'],
+                colBlue     : '#0000ff'    as CssKnownProps['color'],
+                bdWidth     : '1px'        as CssKnownProps['borderWidth'],
+                theTrap     : '!important' as string,
+                myFavFont   : 'sans-serif' as CssKnownProps['fontFamily'],
+                padding     : [['10px', 0, '5px', '3%'], '!important'] as CssKnownProps['padding'],
+                fontFamily  : ['Arial', 'sans-serif', '!important']    as CssKnownProps['fontFamily'],
                 
-                colFavorite : '#ff0000',
-                theBorder   : [[ 'solid', '1px', '#0000ff' ]],
+                colFavorite : '#ff0000'    as CssKnownProps['color'],
+                theBorder   : [[ 'solid', '1px', '#0000ff' ]]          as CssKnownProps['border'],
             };
         }, { prefix: 'navb' });
         
@@ -244,17 +247,17 @@ jest.isolateModules(() => {
     test(`cssConfig() # test linking props`, async () => {
         const [cssProps, cssVals] = cssConfig(() => {
             return {
-                display     : 'grid',
-                colRed      : '#ff0000',
-                colBlue     : '#0000ff',
-                bdWidth     : '1px',
-                theTrap     : '!important',
-                myFavFont   : 'sans-serif',
-                padding     : [['10px', 0, '5px', '3%'], '!important'],
-                fontFamily  : ['Arial', 'sans-serif', '!important'],
+                display     : 'grid'    as CssKnownProps['display'],
+                colRed      : '#ff0000' as CssKnownProps['color'],
+                colBlue     : '#0000ff' as CssKnownProps['color'],
+                bdWidth     : '1px'     as CssKnownProps['borderWidth'],
+                theTrap     : '!important' as string,
+                myFavFont   : 'sans-serif' as CssKnownProps['fontFamily'],
+                padding     : [['10px', 0, '5px', '3%'], '!important'] as CssKnownProps['padding'],
+                fontFamily  : ['Arial', 'sans-serif', '!important']    as CssKnownProps['fontFamily'],
                 
-                colFavorite : '#ff0000',
-                theBorder   : [[ 'solid', '1px', '#0000ff' ]],
+                colFavorite : '#ff0000'    as CssKnownProps['color'],
+                theBorder   : [[ 'solid', '1px', '#0000ff' ]]          as CssKnownProps['border'],
             };
         }, { prefix: 'navb' });
         
@@ -418,15 +421,15 @@ jest.isolateModules(() => {
             flyAwayRefObj = flyAwayRef;
             
             return {
-                display     : 'grid',
-                colRed      : '#ff0000',
-                colBlue     : '#0000ff',
-                bdWidth     : '1px',
-                padding     : [['10px', 0, '5px', '3%'], '!important'],
-                fontFamily  : ['Arial', 'sans-serif', '!important'],
+                display     : 'grid'    as CssKnownProps['display'],
+                colRed      : '#ff0000' as CssKnownProps['color'],
+                colBlue     : '#0000ff' as CssKnownProps['color'],
+                bdWidth     : '1px'     as CssKnownProps['borderWidth'],
+                padding     : [['10px', 0, '5px', '3%'], '!important'] as CssKnownProps['padding'],
+                fontFamily  : ['Arial', 'sans-serif', '!important']    as CssKnownProps['fontFamily'],
                 
                 ...flyAwayRole,
-                animation   : [[ '100ms', 'ease', flyAwayRef ]],
+                animation   : [[ '100ms', 'ease', flyAwayRef ]]        as CssKnownProps['animation'],
             };
         });
         
@@ -509,17 +512,17 @@ background: url(image1b.png), url(image2b.png);
             bounchingRefObj = bounchingRef;
             
             return {
-                display     : 'grid',
-                colRed      : '#ff0000',
-                colBlue     : '#0000ff',
-                bdWidth     : '1px',
-                padding     : [['10px', 0, '5px', '3%'], '!important'],
-                fontFamily  : ['Arial', 'sans-serif', '!important'],
+                display     : 'grid'    as CssKnownProps['display'],
+                colRed      : '#ff0000' as CssKnownProps['color'],
+                colBlue     : '#0000ff' as CssKnownProps['color'],
+                bdWidth     : '1px'     as CssKnownProps['borderWidth'],
+                padding     : [['10px', 0, '5px', '3%'], '!important'] as CssKnownProps['padding'],
+                fontFamily  : ['Arial', 'sans-serif', '!important']    as CssKnownProps['fontFamily'],
                 
                 ...flyAwayRole,
                 ...bounchingRole,
-                animation   : [[ '100ms', 'ease', flyAwayRef ]],
-                animation2  : [[ '100ms', 'ease', bounchingRef ]],
+                animation   : [[ '100ms', 'ease', flyAwayRef ]]        as CssKnownProps['animation'],
+                animation2  : [[ '100ms', 'ease', bounchingRef ]]      as CssKnownProps['animation'],
             };
         }, { prefix: 'navb' });
         
@@ -620,17 +623,17 @@ padding: var(--navb-bdWidth) 0 5px 3%;
             bounchingRefObj = bounchingRef;
             
             return {
-                display     : 'grid',
-                colRed      : '#ff0000',
-                colBlue     : '#0000ff',
-                bdWidth     : '1px',
-                padding     : [['10px', 0, '5px', '3%'], '!important'],
-                fontFamily  : ['Arial', 'sans-serif', '!important'],
+                display     : 'grid'    as CssKnownProps['display'],
+                colRed      : '#ff0000' as CssKnownProps['color'],
+                colBlue     : '#0000ff' as CssKnownProps['color'],
+                bdWidth     : '1px'     as CssKnownProps['borderWidth'],
+                padding     : [['10px', 0, '5px', '3%'], '!important'] as CssKnownProps['padding'],
+                fontFamily  : ['Arial', 'sans-serif', '!important']    as CssKnownProps['fontFamily'],
                 
                 ...flyAwayRole,
                 ...bounchingRole,
-                animation   : [[ '100ms', 'ease', flyAwayRef ]],
-                animation2  : [[ '100ms', 'ease', bounchingRef ]],
+                animation   : [[ '100ms', 'ease', flyAwayRef ]]        as CssKnownProps['animation'],
+                animation2  : [[ '100ms', 'ease', bounchingRef ]]      as CssKnownProps['animation'],
             };
         }, { prefix: 'navb' });
         
