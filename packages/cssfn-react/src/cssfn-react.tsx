@@ -13,10 +13,11 @@ import {
     
     // hooks:
     useState,
-    useEffect,
     useReducer,
     useRef,
     useMemo,
+    useEffect,
+    useInsertionEffect,
     
     
     
@@ -102,7 +103,12 @@ const Style : FC<StyleProps> = memo(({ content }: StyleProps) => {
 
 export const Styles : FC = () => {
     // states:
-    const loaded                      = useRef(false);
+    /**
+     * `null`  : never loaded  
+     * `true`  : loaded (live)  
+     * `false` : unloaded (dead)  
+     */
+    const loaded                      = useRef<boolean|null>(null);
     const [styles                   ] = useState<Map<StyleSheet, ReactElement<StyleProps, typeof Style>|null>>(() => new Map());
     const [triggerRender, generation] = useTriggerRender();
     
@@ -137,24 +143,36 @@ export const Styles : FC = () => {
         
         
         
-        if (loaded.current) {
+        if (loaded.current) { // prevents double render of <Styles> component at startup by *async* of `Promise.resolve().then`
             /**
              * prevents re-rendering the <Style> while another <Component> is currently rendering
              * => the solution is async execution => executes after the another <Component> has finished rendering
              */
             Promise.resolve().then(() => {
-                triggerRender(); // re-render the <Styles>
+                if (!loaded.current) return; // prevents executing a dead <Styles> component
+                
+                triggerRender(); // data changed => (re)schedule to (re)render the <Styles>
             });
         } // if
     }));
-    useEffect(() => {
+    
+    /**
+     * We use `useInsertionEffect` because we need the `loaded.current = true` to be executed sooner than `useLayoutEffect`.
+     * The cssfn author may setup the `styleSheet(s)` at `useLayoutEffect` => triggering the `styleSheetRegistry.subscribe`.
+     */
+    useInsertionEffect(() => {
         // setups:
-        loaded.current = true; // mark <Styles> component as loaded
+        // mark <Styles> component as live:
+        loaded.current = true;
         
         
         
         // cleanups:
         return () => {
+            // mark <Styles> component as dead:
+            loaded.current = false;
+            
+            // unsubscribe to styleSheetRegistry:
             unsubscribe?.unsubscribe();
         };
     }, []); // runs once on startup
