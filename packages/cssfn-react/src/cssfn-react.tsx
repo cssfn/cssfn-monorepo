@@ -5,11 +5,6 @@ import {
     
     
     
-    // types:
-    ReactElement,
-    
-    
-    
     // hooks:
     useState,
     useReducer,
@@ -108,7 +103,7 @@ export const Styles = (): JSX.Element|null => {
      * `false` : unloaded (dead)  
      */
     const loaded                      = useRef<boolean|null>(null);
-    const [styles                   ] = useState<Map<StyleSheet, ReactElement<StyleProps, typeof Style>|null>>(() => new Map());
+    const [styles                   ] = useState<Map<StyleSheet, React.ReactElement<StyleProps, typeof Style>|null>>(() => new Map());
     const [triggerRender, generation] = useTriggerRender();
     
     
