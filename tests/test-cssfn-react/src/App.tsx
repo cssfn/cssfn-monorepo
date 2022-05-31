@@ -1,6 +1,5 @@
 import {
     default as React,
-    FC,
     ReactElement,
     useReducer,
     useRef,
@@ -148,7 +147,7 @@ interface ToDoItemProps {
     name      : string
     onRemove ?: () => void
 }
-const ToDoItemA : FC<ToDoItemProps> = (props) => {
+const ToDoItemA  = (props: ToDoItemProps): JSX.Element|null => {
     const classes = useStyleSheet6();
     return (
         <li className={classes.main}>
@@ -159,7 +158,7 @@ const ToDoItemA : FC<ToDoItemProps> = (props) => {
         </li>
     )
 }
-const ToDoItemB : FC<ToDoItemProps> = (props) => {
+const ToDoItemB  = (props: ToDoItemProps): JSX.Element|null => {
     const classes = useStyleSheet7();
     return (
         <li className={classes.main}>
@@ -170,7 +169,7 @@ const ToDoItemB : FC<ToDoItemProps> = (props) => {
         </li>
     )
 }
-const ToDoItemC : FC<ToDoItemProps> = (props) => {
+const ToDoItemC  = (props: ToDoItemProps): JSX.Element|null => {
     const classes = useStyleSheet7();
     return (
         <li className={classes.main}>
@@ -179,7 +178,7 @@ const ToDoItemC : FC<ToDoItemProps> = (props) => {
         </li>
     )
 }
-const ToDoItemCC : FC<ToDoItemProps> = (props) => {
+const ToDoItemCC = (props: ToDoItemProps): JSX.Element|null => {
     const classes = useStyleSheet8();
     return (
         <span className={classes.main}>
