@@ -6,7 +6,6 @@ import {
     
     
     // types:
-    FC,
     ReactElement,
     
     
@@ -87,7 +86,7 @@ interface StyleContent {
 interface StyleProps {
     content : StyleContent
 }
-const Style : FC<StyleProps> = memo(({ content }: StyleProps) => {
+const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ content }: StyleProps): JSX.Element|null => {
     // because the `renderedCss` may be a_huge_string, we need to *unreference* it:
     const localRenderedCss = content.renderedCss; // copy         the `renderedCss` to local variable
     content.renderedCss    = null;                // de-reference the `renderedCss` from `props`
@@ -101,7 +100,7 @@ const Style : FC<StyleProps> = memo(({ content }: StyleProps) => {
     );
 });
 
-export const Styles : FC = () => {
+export const Styles = (): JSX.Element|null => {
     // states:
     /**
      * `null`  : never loaded  
@@ -180,7 +179,7 @@ export const Styles : FC = () => {
     
     
     // jsx:
-    return useMemo<JSX.Element>(() => {
+    return useMemo((): JSX.Element|null => {
         // console.log('');
         // console.log(`<Styles> render!`);
         return (
@@ -200,7 +199,7 @@ export const Styles : FC = () => {
     }, [generation]); // re-create the `JSX.Element` if `generation` changed
 }
 
-export const HeadPortal : FC<React.PropsWithChildren<{}>> = ({ children }) => {
+export const HeadPortal = ({ children }: React.PropsWithChildren<{}>): JSX.Element|null => {
     // jsx:
     const headElm = (typeof(window) !== 'undefined') ? window?.document?.head : undefined;
     if (!headElm) return null;
