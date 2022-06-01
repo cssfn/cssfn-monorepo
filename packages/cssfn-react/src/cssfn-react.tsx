@@ -196,7 +196,7 @@ export const Styles = (): JSX.Element|null => {
             </>
         );
     }, [generation]); // re-create the `JSX.Element` if `generation` changed
-}
+};
 
 export const HeadPortal = ({ children }: React.PropsWithChildren<{}>): JSX.Element|null => {
     // jsx:
@@ -338,7 +338,7 @@ export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes:
         builder
         .createStyleSheetsHook()
     );
-}
+};
 export const createUseStyleSheet  = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>, options?: StyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
     if (!styles || (styles === true)) {
         return createUseStyleSheets<'main'>(
@@ -378,4 +378,4 @@ export const createUseStyleSheet  = (styles: CssStyleCollection | Observable<Css
             options                      // styleSheet options
         );
     } // if
-}
+};
