@@ -97,6 +97,7 @@ const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ content }: Sty
 
 export const Styles = (): JSX.Element|null => {
     // states:
+    //#region local storages without causing to (re)render
     /**
      * `null`  : never loaded  
      * `true`  : loaded (live)  
@@ -104,6 +105,9 @@ export const Styles = (): JSX.Element|null => {
      */
     const loaded                      = useRef<boolean|null>(null);
     const [styles                   ] = useState<Map<StyleSheet, React.ReactElement<StyleProps, typeof Style>|null>>(() => new Map());
+    //#endregion local storages without causing to (re)render
+    
+    // manually controls the (re)render event:
     const [triggerRender, generation] = useTriggerRender();
     
     
