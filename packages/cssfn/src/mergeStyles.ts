@@ -207,6 +207,12 @@ const finalizeSelector = (style: (CssRuleMap & CssFinalRuleMap), symbolProp: sym
 
 export const mergeLiteral = (style: CssStyleMap, newStyle: CssStyleMap): void => {
     for (const [propName, propValue] of (newStyle as Map<keyof CssStyle, ValueOf<CssStyle>>)) {
+        // `undefined` => preserves existing prop (if any)
+        // `null`      => delete    existing prop (if any)
+        if (propValue === undefined) continue;
+        
+        
+        
         style.delete(propName as any);                // delete the old prop (if any), so the new prop always placed at the end of LiteralObject
         style.set(propName as any, propValue as any); // add/overwrite
     } // for
