@@ -35,7 +35,7 @@
     "is-in-browser": "^2.0.0"
   },
   "peerDependencies": {
-    "@cssfn/cssfn": "^2.0.4"
+    "@cssfn/cssfn": "^2.0.5"
   },
   "devDependencies": {
     "@cssfn/css-types": "^2.0.2",
