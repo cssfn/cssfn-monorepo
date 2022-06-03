@@ -38,7 +38,7 @@
     "rxjs": "^7.5.5"
   },
   "peerDependencies": {
-    "@cssfn/cssfn": "^2.0.3"
+    "@cssfn/cssfn": "^2.0.4"
   },
   "devDependencies": {
     "@types/jsdom": "^16.2.14",
