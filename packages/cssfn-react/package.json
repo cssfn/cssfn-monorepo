@@ -31,7 +31,7 @@
   "dependencies": {
     "@cssfn/css-types": "^2.0.3",
     "@cssfn/types": "^2.0.1",
-    "@types/react": "^18.0.9",
+    "@types/react": "^18.0.10",
     "@types/react-dom": "^18.0.5",
     "rxjs": "^7.5.5"
   },
