@@ -44,7 +44,7 @@ export const flat = <T,>(collection: SingleOrDeepArray<T>): T[] => {
     
     
     
-    return collection.flat(Infinity);
+    return ((collection as any).flat(Infinity) as T[]);
 };
 
 export const isFinalSelector = (selector: CssRawSelector|CssFinalSelector): selector is CssFinalSelector => (typeof(selector) === 'string');
