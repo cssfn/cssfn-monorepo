@@ -11,7 +11,6 @@ import {
     useRef,
     useMemo,
     useEffect,
-    useInsertionEffect,
     
     
     
@@ -154,17 +153,7 @@ export const Styles = (): JSX.Element|null => {
         } // if
     }));
     
-    /**
-     * We use `useInsertionEffect` because we need the `loaded.current = true` to be executed sooner than `useLayoutEffect`.
-     * The cssfn author may setup the `styleSheet(s)` at `useLayoutEffect` => triggering the `styleSheetRegistry.subscribe`.
-     */
-    useInsertionEffect(() => {
-        // setups:
-        // mark <Styles> component as live:
-        loaded.current = true;
-        
-        
-        
+    useEffect(() => {
         // cleanups:
         return () => {
             // mark <Styles> component as dead:
@@ -179,6 +168,11 @@ export const Styles = (): JSX.Element|null => {
     
     // jsx:
     return useMemo((): JSX.Element|null => {
+        // mark <Styles> component as live:
+        loaded.current = true;
+        
+        
+        
         // console.log('');
         // console.log(`<Styles> render!`);
         return (
