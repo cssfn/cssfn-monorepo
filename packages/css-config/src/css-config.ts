@@ -404,9 +404,9 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     protected _onCreatePropName<TTSrcPropName extends TSrcPropName|symbol>(srcPropName: TTSrcPropName): TTSrcPropName {
         return srcPropName; // the default behavior is preserve the original prop name
     }
-    protected _onCombineModified(modified: (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap)): (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap) {
+    protected _onCombineModified(srcProps: Map<TSrcPropName, TSrcPropValue>, modified: (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap)): (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap) {
         // clone the entire #srcProps:
-        const combined = new Map(this.#srcProps) as (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap);
+        const combined = new Map(srcProps) as (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap);
         
         // then update the changes:
         for (const [propName, propValue] of modified) {
@@ -588,7 +588,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         if (modified.size) {
             // if the `modified` is not empty (has any modifications) => return the (original + modified):
-            this.#result = this._onCombineModified(modified);
+            this.#result = this._onCombineModified(this.#srcProps, modified);
         }
         else {
             this.#result = null; // `null` means no modification was performed
@@ -621,8 +621,21 @@ class TransformCssConfigFactoryDuplicatesBuilder<TConfigProps extends CssConfigP
         if (typeof(srcPropName) !== 'string') return srcPropName; // no change for symbol props
         return this._createDecl(srcPropName) as CssCustomName as TTSrcPropName;
     }
-    protected _onCombineModified(modified: (Map<keyof TConfigProps, Exclude<ValueOf<TConfigProps>, undefined|null>|CssCustomValue> & CssRuleMap)) {
-        return modified;
+    protected _onCombineModified(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, modified: (Map<keyof TConfigProps, Exclude<ValueOf<TConfigProps>, undefined|null>|CssCustomValue> & CssRuleMap)) {
+        // clone all symbol props from #srcProps:
+        const combined = new Map() as (Map<keyof TConfigProps, Exclude<ValueOf<TConfigProps>, undefined|null>|CssCustomValue> & CssRuleMap);
+        for (const propName of srcProps.keys()) {
+            if (typeof(propName) !== 'symbol') continue; // ignores non symbol props
+            combined.set(propName, srcProps.get(propName)!);
+        } // for
+        
+        // then update the changes:
+        for (const [propName, propValue] of modified) {
+            combined.set(propName, propValue);
+        } // for
+        
+        // here the original + modified:
+        return combined;
     }
     //#endregion overrides
     
