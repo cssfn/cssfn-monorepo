@@ -1090,7 +1090,7 @@ const isUppercase  = (test: string) => (test >= 'A') && (test <= 'Z');
  * @param cssProps The css vars to be filtered.
  * @returns A new `CssProps` object which is the copy of the specified `cssProps` that only having *valid* css props.
  */
-export const usesCssProps = <TConfigProps extends CssConfigProps>(cssProps: Refs<TConfigProps>): CssProps => {
+export const usesCssProps      = (cssProps: Refs<CssConfigProps>): CssProps => {
     const result: CssProps = {};
     for (const propName in cssProps) {
         if (!isKnownCssProp(propName)) continue; // unknown css prop => ignore
@@ -1106,10 +1106,10 @@ export const usesCssProps = <TConfigProps extends CssConfigProps>(cssProps: Refs
  * @param cssProps The css vars to be filtered.
  * @param prefix The prefix name of the props to be *included*.
  * @param remove Removes the prefix of the returning result. The default is `true`.
- * @returns A new `CssProps` object which is the copy of the specified `cssProps` that only having matching `prefix` name.  
+ * @returns A new `Refs<CssConfigProps>` object which is the copy of the specified `cssProps` that only having matching `prefix` name.  
  * If `remove === true`, the returning props will be normalized (renamed), so they don't start with `prefix`.
  */
-export const usesPrefixedProps = <TConfigProps extends CssConfigProps>(cssProps: Refs<TConfigProps>, prefix: string, remove = true): Refs<CssConfigProps> => {
+export const usesPrefixedProps = (cssProps: Refs<CssConfigProps>, prefix: string, remove = true): Refs<CssConfigProps> => {
     const result: Refs<CssConfigProps> = {};
     for (const propName in cssProps) {
         // excludes the entries if the `propName` is not starting with the specified `prefix`:
@@ -1135,10 +1135,10 @@ export const usesPrefixedProps = <TConfigProps extends CssConfigProps>(cssProps:
  * @param cssProps The css vars to be filtered.
  * @param suffix The suffix name of the props to be *included*.
  * @param remove Removes the suffix of the returning result. The default is `true`.
- * @returns A new `CssProps` object which is the copy of the specified `cssProps` that only having matching `suffix` name.  
+ * @returns A new `Refs<CssConfigProps>` object which is the copy of the specified `cssProps` that only having matching `suffix` name.  
  * If `remove === true`, the returning props will be normalized (renamed), so they don't end with `suffix`.
  */
-export const usesSuffixedProps = <TConfigProps extends CssConfigProps>(cssProps: Refs<TConfigProps>, suffix: string, remove = true): Refs<CssConfigProps> => {
+export const usesSuffixedProps = (cssProps: Refs<CssConfigProps>, suffix: string, remove = true): Refs<CssConfigProps> => {
     suffix = pascalCase(suffix);
     const result: Refs<CssConfigProps> = {};
     for (const propName in cssProps) {
@@ -1163,14 +1163,14 @@ export const usesSuffixedProps = <TConfigProps extends CssConfigProps>(cssProps:
  * Overwrites props declarations from the specified `cssSourceProps` (source) to the specified `cssTargetProps` (target).
  * @param cssTargetProps The css vars to be overwritten (target).
  * @param cssSourceProps The css vars for overwritting (source).
- * @returns A new `CssProps` object which is the copy of the specified `cssSourceProps` which overwrites the specified `cssTargetProps`.
+ * @returns A new `Refs<CssConfigProps>` object which is the copy of the specified `cssSourceProps` which overwrites the specified `cssTargetProps`.
  */
-export const overwriteProps = <TConfigProps extends CssConfigProps>(cssTargetProps: Refs<TConfigProps>, cssSourceProps: CssProps): Refs<CssConfigProps> => {
+export const overwriteProps    = (cssTargetProps: Refs<CssConfigProps>, cssSourceProps: Refs<CssConfigProps>): Refs<CssConfigProps> => {
     const result: Refs<CssConfigProps> = {};
     for (const srcPropName in cssSourceProps) {
         if (!(srcPropName in cssTargetProps)) continue; // only in source but not found in target => useless => ignore
         
-        result[srcPropName] = cssSourceProps[srcPropName as any] as any;
+        result[srcPropName] = cssSourceProps[srcPropName];
     } // for
     return result;
 }
