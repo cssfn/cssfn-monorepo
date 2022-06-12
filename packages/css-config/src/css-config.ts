@@ -18,6 +18,11 @@ import type {
     
     
     
+    // css known (standard) properties:
+    CssKnownProps,
+    
+    
+    
     // cssfn properties:
     CssProps,
     
@@ -1088,15 +1093,17 @@ const isUppercase  = (test: string) => (test >= 'A') && (test <= 'Z');
 /**
  * Includes a *valid* css props from the specified `cssProps`.
  * @param cssProps The css vars to be filtered.
- * @returns A new `CssProps` object which is the copy of the specified `cssProps` that only having *valid* css props.
+ * @returns A new `CssKnownProps` object which is the copy of the specified `cssProps` that only having *valid* css props.
  */
-export const usesCssProps      = (cssProps: Refs<CssConfigProps>): CssProps => {
-    const result: CssProps = {};
+export const usesCssProps      = (cssProps: Refs<CssConfigProps>): CssKnownProps => {
+    const result: CssKnownProps = {};
     for (const propName in cssProps) {
         if (!isKnownCssProp(propName)) continue; // unknown css prop => ignore
         
         // if passed => include it:
-        result[propName as any] = cssProps[propName];
+        // @ts-ignore
+        result[propName as any] =
+            cssProps[propName];
     } // for
     return result;
 }
@@ -1163,14 +1170,16 @@ export const usesSuffixedProps = (cssProps: Refs<CssConfigProps>, suffix: string
  * Overwrites props declarations from the specified `cssSourceProps` (source) to the specified `cssTargetProps` (target).
  * @param cssTargetProps The css vars to be overwritten (target).
  * @param cssSourceProps The css vars for overwritting (source).
- * @returns A new `Refs<CssConfigProps>` object which is the copy of the specified `cssSourceProps` which overwrites the specified `cssTargetProps`.
+ * @returns A new `CssCustomProps` object which is the copy of the specified `cssSourceProps` which overwrites the specified `cssTargetProps`.
  */
-export const overwriteProps    = (cssTargetProps: Refs<CssConfigProps>, cssSourceProps: Refs<CssConfigProps>): Refs<CssConfigProps> => {
-    const result: Refs<CssConfigProps> = {};
+export const overwriteProps    = (cssTargetProps: Refs<CssConfigProps>, cssSourceProps: Refs<CssConfigProps>): CssCustomProps => {
+    const result: CssCustomProps = {};
     for (const srcPropName in cssSourceProps) {
         if (!(srcPropName in cssTargetProps)) continue; // only in source but not found in target => useless => ignore
         
-        result[srcPropName] = cssSourceProps[srcPropName];
+        const targetCustomProp   = cssTargetProps[srcPropName];
+        const replaceCustomProp  = cssSourceProps[srcPropName];
+        result[targetCustomProp] = replaceCustomProp;
     } // for
     return result;
 }

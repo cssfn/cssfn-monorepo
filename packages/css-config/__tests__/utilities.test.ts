@@ -587,8 +587,8 @@ test(`test overwriteProps(usesSuffixedProps())`, () => {
         overwriteProps(cssProps, usesSuffixedProps(cssProps, 'sm'))
     )
     .toEqual({
-        borderRadius    : `var(--borderRadiusSm)`,
-        fontSize        : `var(--fontSizeSm)`,
+        'var(--borderRadius)'    : `var(--borderRadiusSm)`,
+        'var(--fontSize)'        : `var(--fontSizeSm)`,
     });
 });
 test(`test overwriteProps(usesSuffixedProps())`, () => {
@@ -607,8 +607,8 @@ test(`test overwriteProps(usesSuffixedProps())`, () => {
         overwriteProps(cssProps, usesSuffixedProps(cssProps, 'lg'))
     )
     .toEqual({
-        borderRadius    : `var(--borderRadiusLg)`,
-        fontSize        : `var(--fontSizeLg)`,
+        'var(--borderRadius)'    : `var(--borderRadiusLg)`,
+        'var(--fontSize)'        : `var(--fontSizeLg)`,
     });
 });
 test(`test overwriteProps(usesSuffixedProps())`, () => {
@@ -647,8 +647,8 @@ test(`test overwriteProps(usesSuffixedProps(prefix: 'boo'))`, () => {
         overwriteProps(cssProps, usesSuffixedProps(cssProps, 'sm'))
     )
     .toEqual({
-        borderRadius    : `var(--boo-borderRadiusSm)`,
-        fontSize        : `var(--boo-fontSizeSm)`,
+        'var(--boo-borderRadius)'    : `var(--boo-borderRadiusSm)`,
+        'var(--boo-fontSize)'        : `var(--boo-fontSizeSm)`,
     });
 });
 test(`test overwriteProps(usesSuffixedProps(prefix: 'boo'))`, () => {
@@ -667,8 +667,8 @@ test(`test overwriteProps(usesSuffixedProps(prefix: 'boo'))`, () => {
         overwriteProps(cssProps, usesSuffixedProps(cssProps, 'lg'))
     )
     .toEqual({
-        borderRadius    : `var(--boo-borderRadiusLg)`,
-        fontSize        : `var(--boo-fontSizeLg)`,
+        'var(--boo-borderRadius)'    : `var(--boo-borderRadiusLg)`,
+        'var(--boo-fontSize)'        : `var(--boo-fontSizeLg)`,
     });
 });
 test(`test overwriteProps(usesSuffixedProps(prefix: 'boo'))`, () => {
@@ -707,8 +707,8 @@ test(`test overwriteProps(usesSuffixedProps(remove: false))`, () => {
         overwriteProps(cssProps, usesSuffixedProps(cssProps, 'sm', false))
     )
     .toEqual({
-        borderRadiusSm  : `var(--borderRadiusSm)`,
-        fontSizeSm      : `var(--fontSizeSm)`,
+        'var(--borderRadiusSm)'  : `var(--borderRadiusSm)`,
+        'var(--fontSizeSm)'      : `var(--fontSizeSm)`,
     });
 });
 test(`test overwriteProps(usesSuffixedProps(remove: false))`, () => {
@@ -727,9 +727,9 @@ test(`test overwriteProps(usesSuffixedProps(remove: false))`, () => {
         overwriteProps(cssProps, usesSuffixedProps(cssProps, 'lg', false))
     )
     .toEqual({
-        borderRadiusLg  : `var(--borderRadiusLg)`,
-        fontSizeLg      : `var(--fontSizeLg)`,
-        boxShadowLg     : `var(--boxShadowLg)`,
+        'var(--borderRadiusLg)'  : `var(--borderRadiusLg)`,
+        'var(--fontSizeLg)'      : `var(--fontSizeLg)`,
+        'var(--boxShadowLg)'     : `var(--boxShadowLg)`,
     });
 });
 test(`test overwriteProps(usesSuffixedProps(remove: false))`, () => {
@@ -768,8 +768,8 @@ test(`test usesSuffixedProps(prefix: 'boo', remove: false)`, () => {
         overwriteProps(cssProps, usesSuffixedProps(cssProps, 'sm', false))
     )
     .toEqual({
-        borderRadiusSm  : `var(--boo-borderRadiusSm)`,
-        fontSizeSm      : `var(--boo-fontSizeSm)`,
+        'var(--boo-borderRadiusSm)'  : `var(--boo-borderRadiusSm)`,
+        'var(--boo-fontSizeSm)'      : `var(--boo-fontSizeSm)`,
     });
 });
 test(`test usesSuffixedProps(prefix: 'boo', remove: false)`, () => {
@@ -788,9 +788,9 @@ test(`test usesSuffixedProps(prefix: 'boo', remove: false)`, () => {
         overwriteProps(cssProps, usesSuffixedProps(cssProps, 'lg', false))
     )
     .toEqual({
-        borderRadiusLg  : `var(--boo-borderRadiusLg)`,
-        fontSizeLg      : `var(--boo-fontSizeLg)`,
-        boxShadowLg     : `var(--boo-boxShadowLg)`,
+        'var(--boo-borderRadiusLg)'  : `var(--boo-borderRadiusLg)`,
+        'var(--boo-fontSizeLg)'      : `var(--boo-fontSizeLg)`,
+        'var(--boo-boxShadowLg)'     : `var(--boo-boxShadowLg)`,
     });
 });
 test(`test usesSuffixedProps(prefix: 'boo', remove: false)`, () => {
