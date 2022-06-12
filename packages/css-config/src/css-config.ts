@@ -1109,8 +1109,8 @@ export const usesCssProps = <TConfigProps extends CssConfigProps>(cssProps: Refs
  * @returns A new `CssProps` object which is the copy of the specified `cssProps` that only having matching `prefix` name.  
  * If `remove === true`, the returning props will be normalized (renamed), so they don't start with `prefix`.
  */
-export const usesPrefixedProps = <TConfigProps extends CssConfigProps>(cssProps: Refs<TConfigProps>, prefix: string, remove = true): CssProps => {
-    const result: CssProps = {};
+export const usesPrefixedProps = <TConfigProps extends CssConfigProps>(cssProps: Refs<TConfigProps>, prefix: string, remove = true): Refs<CssConfigProps> => {
+    const result: Refs<CssConfigProps> = {};
     for (const propName in cssProps) {
         // excludes the entries if the `propName` is not starting with the specified `prefix`:
         if (!propName.startsWith(prefix)) continue; // exclude
@@ -1125,7 +1125,7 @@ export const usesPrefixedProps = <TConfigProps extends CssConfigProps>(cssProps:
         if (!isUppercase(propNameLeft[0])) continue; // workaround for [err] => the first character must be a capital
         
         // if passed => camelized the case => include it:
-        result[(remove ? camelCase(propNameLeft) : propName) as any] = cssProps[propName];
+        result[(remove ? camelCase(propNameLeft) : propName)] = cssProps[propName];
     } // for
     return result;
 }
@@ -1138,9 +1138,9 @@ export const usesPrefixedProps = <TConfigProps extends CssConfigProps>(cssProps:
  * @returns A new `CssProps` object which is the copy of the specified `cssProps` that only having matching `suffix` name.  
  * If `remove === true`, the returning props will be normalized (renamed), so they don't end with `suffix`.
  */
-export const usesSuffixedProps = <TConfigProps extends CssConfigProps>(cssProps: Refs<TConfigProps>, suffix: string, remove = true): CssProps => {
+export const usesSuffixedProps = <TConfigProps extends CssConfigProps>(cssProps: Refs<TConfigProps>, suffix: string, remove = true): Refs<CssConfigProps> => {
     suffix = pascalCase(suffix);
-    const result: CssProps = {};
+    const result: Refs<CssConfigProps> = {};
     for (const propName in cssProps) {
         // excludes the entries if the `propName` is not ending with the specified `suffix`:
         if (!propName.endsWith(suffix)) continue; // exclude
@@ -1154,7 +1154,7 @@ export const usesSuffixedProps = <TConfigProps extends CssConfigProps>(cssProps:
          */
         
         // if passed => include it:
-        result[(remove ? propNameLeft : propName) as any] = cssProps[propName];
+        result[(remove ? propNameLeft : propName)] = cssProps[propName];
     } // for
     return result;
 }
@@ -1165,12 +1165,12 @@ export const usesSuffixedProps = <TConfigProps extends CssConfigProps>(cssProps:
  * @param cssSourceProps The css vars for overwritting (source).
  * @returns A new `CssProps` object which is the copy of the specified `cssSourceProps` which overwrites the specified `cssTargetProps`.
  */
-export const overwriteProps = <TConfigProps extends CssConfigProps>(cssTargetProps: Refs<TConfigProps>, cssSourceProps: CssProps): CssProps => {
-    const result: CssProps = {};
+export const overwriteProps = <TConfigProps extends CssConfigProps>(cssTargetProps: Refs<TConfigProps>, cssSourceProps: CssProps): Refs<CssConfigProps> => {
+    const result: Refs<CssConfigProps> = {};
     for (const srcPropName in cssSourceProps) {
         if (!(srcPropName in cssTargetProps)) continue; // only in source but not found in target => useless => ignore
         
-        result[srcPropName as any] = cssSourceProps[srcPropName as any];
+        result[srcPropName] = cssSourceProps[srcPropName as any] as any;
     } // for
     return result;
 }
