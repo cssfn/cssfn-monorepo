@@ -1,7 +1,7 @@
 import {
-    cssVar,
+    cssVars,
     fallbacks,
-} from '../dist/css-var.js'
+} from '../dist/css-vars.js'
 
 
 
@@ -20,456 +20,456 @@ interface TestVars2 {
 
 let varCounter = 0;
 
-test(`cssVar<TestVars1>() with default options`, () => {
-    const [cssVars] = cssVar<TestVars1>();
+test(`cssVars<TestVars1>() with default options`, () => {
+    const [cssVars1] = cssVars<TestVars1>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--v${var1})`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--v${var2})`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--v${var3})`);
     } // for
 });
 
-test(`cssVar<TestVars2>() with default options`, () => {
-    const [cssVars] = cssVar<TestVars2>();
+test(`cssVars<TestVars2>() with default options`, () => {
+    const [cssVars1] = cssVars<TestVars2>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--v${var1})`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--v${var2})`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--v${var3})`);
     } // for
 });
 
 
 
-test(`cssVar<TestVars1>() with options { prefix: 'btn' }`, () => {
-    const [cssVars] = cssVar<TestVars1>({ prefix: 'btn' });
+test(`cssVars<TestVars1>() with options { prefix: 'btn' }`, () => {
+    const [cssVars1] = cssVars<TestVars1>({ prefix: 'btn' });
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--btn-v${var1})`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--btn-v${var2})`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--btn-v${var3})`);
     } // for
 });
 
-test(`cssVar<TestVars2>() with options { prefix: 'nav' }`, () => {
-    const [cssVars] = cssVar<TestVars2>({ prefix: 'nav' });
+test(`cssVars<TestVars2>() with options { prefix: 'nav' }`, () => {
+    const [cssVars1] = cssVars<TestVars2>({ prefix: 'nav' });
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--nav-v${var1})`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--nav-v${var2})`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--nav-v${var3})`);
     } // for
 });
 
 
 
-test(`cssVar<TestVars1>() with options { minify: false }`, () => {
-    const [cssVars] = cssVar<TestVars1>({ minify: false });
+test(`cssVars<TestVars1>() with options { minify: false }`, () => {
+    const [cssVars1] = cssVars<TestVars1>({ minify: false });
     
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--world)`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--hello)`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--booFoo)`);
     } // for
 });
 
-test(`cssVar<TestVars2>() with options { minify: false }`, () => {
-    const [cssVars] = cssVar<TestVars2>({ minify: false });
+test(`cssVars<TestVars2>() with options { minify: false }`, () => {
+    const [cssVars1] = cssVars<TestVars2>({ minify: false });
     
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--alice)`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--bob)`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--charlie)`);
     } // for
 });
 
 
 
-test(`cssVar<TestVars1>() with options { prefix: 'btn', minify: false }`, () => {
-    const [cssVars] = cssVar<TestVars1>({ prefix: 'btn', minify: false });
+test(`cssVars<TestVars1>() with options { prefix: 'btn', minify: false }`, () => {
+    const [cssVars1] = cssVars<TestVars1>({ prefix: 'btn', minify: false });
     
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--btn-world)`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--btn-hello)`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--btn-booFoo)`);
     } // for
 });
 
-test(`cssVar<TestVars2>() with options { prefix: 'nav', minify: false }`, () => {
-    const [cssVars] = cssVar<TestVars2>({ prefix: 'nav', minify: false });
+test(`cssVars<TestVars2>() with options { prefix: 'nav', minify: false }`, () => {
+    const [cssVars1] = cssVars<TestVars2>({ prefix: 'nav', minify: false });
     
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--nav-alice)`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--nav-bob)`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--nav-charlie)`);
     } // for
 });
 
 
 
-test(`cssVar<TestVars1>() with live options { prefix: 'btn' }`, () => {
-    const [cssVars, options] = cssVar<TestVars1>();
+test(`cssVars<TestVars1>() with live options { prefix: 'btn' }`, () => {
+    const [cssVars1, options] = cssVars<TestVars1>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--v${var1})`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--v${var2})`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--v${var3})`);
     } // for
     
     options.prefix = 'btn';
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--btn-v${var1})`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--btn-v${var2})`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--btn-v${var3})`);
     } // for
     
     options.prefix = '';
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--v${var1})`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--v${var2})`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--v${var3})`);
     } // for
     
     options.prefix = 'button';
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--button-v${var1})`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--button-v${var2})`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--button-v${var3})`);
     } // for
 });
 
-test(`cssVar<TestVars2>() with live options { prefix: 'nav' }`, () => {
-    const [cssVars, options] = cssVar<TestVars2>();
+test(`cssVars<TestVars2>() with live options { prefix: 'nav' }`, () => {
+    const [cssVars1, options] = cssVars<TestVars2>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--v${var1})`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--v${var2})`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--v${var3})`);
     } // for
     
     options.prefix = 'nav';
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--nav-v${var1})`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--nav-v${var2})`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--nav-v${var3})`);
     } // for
     
     options.prefix = '';
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--v${var1})`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--v${var2})`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--v${var3})`);
     } // for
     
     options.prefix = 'navigation';
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--navigation-v${var1})`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--navigation-v${var2})`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--navigation-v${var3})`);
     } // for
 });
 
 
 
-test(`cssVar<TestVars1>() with live options { minify: false }`, () => {
-    const [cssVars, options] = cssVar<TestVars1>();
+test(`cssVars<TestVars1>() with live options { minify: false }`, () => {
+    const [cssVars1, options] = cssVars<TestVars1>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--v${var1})`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--v${var2})`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--v${var3})`);
     } // for
     
     options.minify = false;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--world)`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--hello)`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--booFoo)`);
     } // for
     
     options.minify = true;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--v${var1})`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--v${var2})`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--v${var3})`);
     } // for
     
     options.minify = false;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--world)`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--hello)`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--booFoo)`);
     } // for
 });
 
-test(`cssVar<TestVars2>() with live options { minify: false }`, () => {
-    const [cssVars, options] = cssVar<TestVars2>();
+test(`cssVars<TestVars2>() with live options { minify: false }`, () => {
+    const [cssVars1, options] = cssVars<TestVars2>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--v${var1})`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--v${var2})`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--v${var3})`);
     } // for
     
     options.minify = false;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--alice)`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--bob)`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--charlie)`);
     } // for
     
     options.minify = true;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--v${var1})`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--v${var2})`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--v${var3})`);
     } // for
     
     options.minify = false;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--alice)`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--bob)`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--charlie)`);
     } // for
 });
 
 
 
-test(`cssVar<TestVars1>() with live options { prefix: 'btn', minify: false }`, () => {
-    const [cssVars, options] = cssVar<TestVars1>();
+test(`cssVars<TestVars1>() with live options { prefix: 'btn', minify: false }`, () => {
+    const [cssVars1, options] = cssVars<TestVars1>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--v${var1})`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--v${var2})`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--v${var3})`);
     } // for
     
     options.prefix = 'btn';
     options.minify = false;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--btn-world)`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--btn-hello)`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--btn-booFoo)`);
     } // for
     
     options.prefix = '';
     options.minify = true;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--v${var1})`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--v${var2})`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--v${var3})`);
     } // for
     
     options.prefix = 'btn';
     options.minify = false;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.world)
+        expect(cssVars1.world)
         .toBe(`var(--btn-world)`);
         
-        expect(cssVars.hello)
+        expect(cssVars1.hello)
         .toBe(`var(--btn-hello)`);
         
-        expect(cssVars.booFoo)
+        expect(cssVars1.booFoo)
         .toBe(`var(--btn-booFoo)`);
     } // for
 });
 
-test(`cssVar<TestVars2>() with live options { prefix: 'nav', minify: false }`, () => {
-    const [cssVars, options] = cssVar<TestVars2>();
+test(`cssVars<TestVars2>() with live options { prefix: 'nav', minify: false }`, () => {
+    const [cssVars1, options] = cssVars<TestVars2>();
     
     const var1 = ++varCounter, var2 = ++varCounter, var3 = ++varCounter;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--v${var1})`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--v${var2})`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--v${var3})`);
     } // for
     
     options.prefix = 'nav';
     options.minify = false;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--nav-alice)`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--nav-bob)`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--nav-charlie)`);
     } // for
     
     options.prefix = '';
     options.minify = true;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--v${var1})`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--v${var2})`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--v${var3})`);
     } // for
     
     options.prefix = 'nav';
     options.minify = false;
     for (let i = 0; i < 5; i++) {
-        expect(cssVars.alice)
+        expect(cssVars1.alice)
         .toBe(`var(--nav-alice)`);
         
-        expect(cssVars.bob)
+        expect(cssVars1.bob)
         .toBe(`var(--nav-bob)`);
         
-        expect(cssVars.charlie)
+        expect(cssVars1.charlie)
         .toBe(`var(--nav-charlie)`);
     } // for
 });
@@ -477,11 +477,11 @@ test(`cssVar<TestVars2>() with live options { prefix: 'nav', minify: false }`, (
 
 
 test(`fallbacks()`, () => {
-    const [cssVars] = cssVar<TestVars2>({ minify: false });
+    const [cssVars1] = cssVars<TestVars2>({ minify: false });
     
     expect(
         fallbacks(
-            cssVars.alice
+            cssVars1.alice
         )
     )
     .toBe(
@@ -490,8 +490,8 @@ test(`fallbacks()`, () => {
     
     expect(
         fallbacks(
-            cssVars.alice,
-            cssVars.bob
+            cssVars1.alice,
+            cssVars1.bob
         )
     )
     .toBe(
@@ -500,9 +500,9 @@ test(`fallbacks()`, () => {
     
     expect(
         fallbacks(
-            cssVars.alice,
-            cssVars.bob,
-            cssVars.charlie
+            cssVars1.alice,
+            cssVars1.bob,
+            cssVars1.charlie
         )
     )
     .toBe(
@@ -511,11 +511,11 @@ test(`fallbacks()`, () => {
     
     expect(
         fallbacks(
-            cssVars.alice,
+            cssVars1.alice,
             undefined,
-            cssVars.bob,
+            cssVars1.bob,
             null,
-            cssVars.charlie,
+            cssVars1.charlie,
             false,
             true,
         )
@@ -526,8 +526,8 @@ test(`fallbacks()`, () => {
 });
 
 test(`fallbacks(fallbacks())`, () => {
-    const [cssVars1] = cssVar<TestVars2>({ minify: false });
-    const [cssVars2] = cssVar<TestVars1>({ minify: false });
+    const [cssVars1] = cssVars<TestVars2>({ minify: false });
+    const [cssVars2] = cssVars<TestVars1>({ minify: false });
     
     expect(
         fallbacks(

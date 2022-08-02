@@ -1,6 +1,6 @@
 {
-  "name": "@cssfn/css-var",
-  "version": "2.0.5",
+  "name": "@cssfn/css-vars",
+  "version": "2.0.6",
   "description": "Reads/Writes CSS variables (CSS custom properties) in javascript property.",
   "keywords": [
     "css",
@@ -17,8 +17,8 @@
     "type": "git",
     "url": "git+https://github.com/cssfn/cssfn-monorepo.git"
   },
-  "main": "dist/css-var.js",
-  "types": "dist/css-var.d.ts",
+  "main": "dist/css-vars.js",
+  "types": "dist/css-vars.d.ts",
   "type": "module",
   "sideEffects": false,
   "publishConfig": {

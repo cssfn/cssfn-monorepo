@@ -29,13 +29,13 @@ const isClientSide : boolean = isBrowser || isJsDom;
 
 
 // types:
-export type ReadonlyCssCustomRefs<TCssCustomProps extends {}> = Readonly<{ [Key in keyof TCssCustomProps]: CssCustomSimpleRef  }>
-export type CssVar<TCssCustomProps extends {}>                = readonly [ReadonlyCssCustomRefs<TCssCustomProps>, LiveCssVarOptions]
+export type CssVars<TCssCustomProps extends {}>            = Readonly<{ [Key in keyof TCssCustomProps]: CssCustomSimpleRef  }>
+export type CssVarsWithOptions<TCssCustomProps extends {}> = readonly [CssVars<TCssCustomProps>, LiveCssVarsOptions]
 
 
 
 // options:
-export interface CssVarOptions {
+export interface CssVarsOptions {
     /**
      * The prefix name of the generated css vars.
      */
@@ -46,11 +46,11 @@ export interface CssVarOptions {
      */
     minify ?: boolean
 }
-const defaultOptions : Required<CssVarOptions> = {
+const defaultOptions : Required<CssVarsOptions> = {
     prefix : '',
     minify : true,
 }
-class LiveCssVarOptions implements Required<CssVarOptions> {
+class LiveCssVarsOptions implements Required<CssVarsOptions> {
     //#region public options
     prefix : string
     minify : boolean
@@ -59,7 +59,7 @@ class LiveCssVarOptions implements Required<CssVarOptions> {
     
     
     //#region constructors
-    constructor(options?: CssVarOptions) {
+    constructor(options?: CssVarsOptions) {
         this.prefix = options?.prefix ?? defaultOptions.prefix;
         this.minify = options?.minify ?? defaultOptions.minify;
     }
@@ -83,9 +83,9 @@ let globalIdCounter = 0; // should not be incremented on server side
 /**
  * Declares & retrieves *css variables* (css custom properties).
  */
-export const cssVar = <TCssCustomProps extends {}>(options: CssVarOptions = defaultOptions): CssVar<TCssCustomProps> => {
+export const cssVars = <TCssCustomProps extends {}>(options: CssVarsOptions = defaultOptions): CssVarsWithOptions<TCssCustomProps> => {
     // options:
-    const liveOptions = new LiveCssVarOptions(options);
+    const liveOptions = new LiveCssVarsOptions(options);
     
     
     
@@ -105,7 +105,7 @@ export const cssVar = <TCssCustomProps extends {}>(options: CssVarOptions = defa
                 ||                  // or
                 !liveOptions.minify // not minified
                 ,
-                '`css-var` with option `minify = true (default)` is not supported to be fetched on server side. Assign an option `{ minify: false }` to fix it.'
+                '`css-vars` with option `minify = true (default)` is not supported to be fetched on server side. Assign an option `{ minify: false }` to fix it.'
             )
         } // if
         
@@ -152,7 +152,7 @@ export const cssVar = <TCssCustomProps extends {}>(options: CssVarOptions = defa
                 return ref(propName);
             },
             set : setReadonlyHandler,
-        }) as ReadonlyCssCustomRefs<TCssCustomProps>,
+        }) as CssVars<TCssCustomProps>,
         
         
         
@@ -160,7 +160,10 @@ export const cssVar = <TCssCustomProps extends {}>(options: CssVarOptions = defa
         liveOptions,
     ];
 }
-export { cssVar as default, cssVar as createCssVar }
+export {
+    cssVars as default,
+    cssVars as createCssVars,
+}
 
 
 
