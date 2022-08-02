@@ -1,6 +1,7 @@
 // cssfn:
 import type {
     // types:
+    OptionalOrBoolean,
     Dictionary,
 }                           from '@cssfn/types'
 import type {
@@ -164,12 +165,16 @@ export { cssVar as default, cssVar as createCssVar }
 
 
 // utilities:
-export const fallbacks = (first: CssCustomRef, ...next: CssCustomRef[]): CssCustomRef => {
-    if (!next || !next.length) return first;
+const filterEmptyVars = (next: OptionalOrBoolean<CssCustomRef>): next is CssCustomRef => !!next && (next !== true)
+export const fallbacks = (first: CssCustomRef, ...nexts: OptionalOrBoolean<CssCustomRef>[]): CssCustomRef => {
+    // conditions:
+    if (!nexts || !nexts.length) return first;
+    const nextsAbs = nexts.filter(filterEmptyVars);
+    if (!nextsAbs.length) return first;
     
     
     
-    const refs = [first, ...next];
+    const refs : CssCustomRef[] = [first, ...nextsAbs];
     let totalClosingCount = 0;
     return (
         refs

@@ -508,6 +508,21 @@ test(`fallbacks()`, () => {
     .toBe(
         `var(--alice, var(--bob, var(--charlie)))`
     );
+    
+    expect(
+        fallbacks(
+            cssVars.alice,
+            undefined,
+            cssVars.bob,
+            null,
+            cssVars.charlie,
+            false,
+            true,
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie)))`
+    );
 });
 
 test(`fallbacks(fallbacks())`, () => {
@@ -554,6 +569,29 @@ test(`fallbacks(fallbacks())`, () => {
                 cssVars2.hello,
                 cssVars2.world,
                 cssVars2.booFoo,
+                cssVars1.bob
+            ),
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, var(--hello, var(--world, var(--booFoo, var(--bob)))))))`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            undefined,
+            cssVars1.bob,
+            null,
+            cssVars1.charlie,
+            true,
+            fallbacks(
+                cssVars2.hello,
+                false,
+                cssVars2.world,
+                undefined,
+                cssVars2.booFoo,
+                null,
                 cssVars1.bob
             ),
         )
