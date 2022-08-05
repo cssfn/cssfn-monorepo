@@ -147,18 +147,19 @@ const combineSelector = (parentSelector: CssFinalSelector|null, nestedSelector: 
 };
 
 const shortProps = new Map<keyof CssProps, CssKnownName>(Object.entries({
-    foreg       : 'color',
+    foreg      : 'color',
+    foreground : 'color',
     
-    backg       : 'background',
-    'backgClip' : 'backgroundClip',
+    backg      : 'background',
+    backgClip  : 'backgroundClip',
     
-    anim        : 'animation',
-    transf      : 'transform',
+    anim       : 'animation',
+    transf     : 'transform',
     
-    'gapX'      : 'columnGap',
-    'gapY'      : 'rowGap',
-    'gapInline' : 'columnGap',
-    'gapBlock'  : 'rowGap',
+    gapX       : 'columnGap',
+    gapY       : 'rowGap',
+    gapInline  : 'columnGap',
+    gapBlock   : 'rowGap',
 }) as [keyof CssProps, CssKnownName][]);
 
 
