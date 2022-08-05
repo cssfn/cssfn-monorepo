@@ -523,6 +523,54 @@ test(`fallbacks()`, () => {
     .toBe(
         `var(--alice, var(--bob, var(--charlie)))`
     );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            undefined,
+            cssVars1.bob,
+            null,
+            cssVars1.charlie,
+            false,
+            true,
+            123
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, 123)))`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            undefined,
+            cssVars1.bob,
+            null,
+            cssVars1.charlie,
+            false,
+            true,
+            'yeah'
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, yeah)))`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            undefined,
+            cssVars1.bob,
+            null,
+            cssVars1.charlie,
+            false,
+            true,
+            '"yeah"'
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, "yeah")))`
+    );
 });
 
 test(`fallbacks(fallbacks())`, () => {
@@ -598,5 +646,77 @@ test(`fallbacks(fallbacks())`, () => {
     )
     .toBe(
         `var(--alice, var(--bob, var(--charlie, var(--hello, var(--world, var(--booFoo, var(--bob)))))))`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            undefined,
+            cssVars1.bob,
+            null,
+            cssVars1.charlie,
+            true,
+            fallbacks(
+                cssVars2.hello,
+                false,
+                cssVars2.world,
+                undefined,
+                cssVars2.booFoo,
+                null,
+                cssVars1.bob,
+                123.45
+            ),
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, var(--hello, var(--world, var(--booFoo, var(--bob, 123.45)))))))`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            undefined,
+            cssVars1.bob,
+            null,
+            cssVars1.charlie,
+            true,
+            fallbacks(
+                cssVars2.hello,
+                false,
+                cssVars2.world,
+                undefined,
+                cssVars2.booFoo,
+                null,
+                cssVars1.bob,
+                'inherit'
+            ),
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, var(--hello, var(--world, var(--booFoo, var(--bob, inherit)))))))`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            undefined,
+            cssVars1.bob,
+            null,
+            cssVars1.charlie,
+            true,
+            fallbacks(
+                cssVars2.hello,
+                false,
+                cssVars2.world,
+                undefined,
+                cssVars2.booFoo,
+                null,
+                cssVars1.bob,
+                '"wow"'
+            ),
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, var(--hello, var(--world, var(--booFoo, var(--bob, "wow")))))))`
     );
 });

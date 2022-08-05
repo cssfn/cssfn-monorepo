@@ -5,6 +5,11 @@ import type {
     Dictionary,
 }                           from '@cssfn/types'
 import type {
+    // css values:
+    CssSimpleValue,
+    
+    
+    
     // css custom properties:
     CssCustomName,
     CssCustomSimpleRef,
@@ -168,20 +173,22 @@ export {
 
 
 // utilities:
-const filterEmptyVars = (next: OptionalOrBoolean<CssCustomRef>): next is CssCustomRef => !!next && (next !== true)
-export const fallbacks = (first: CssCustomRef, ...nexts: OptionalOrBoolean<CssCustomRef>[]): CssCustomRef => {
+const filterEmptyVars = (next: OptionalOrBoolean<CssCustomRef>|CssSimpleValue): next is CssCustomRef|CssSimpleValue => !!next && (next !== true)
+export const fallbacks = (first: CssCustomRef, ...nexts: [...OptionalOrBoolean<CssCustomRef>[], OptionalOrBoolean<CssCustomRef>|CssSimpleValue]|[]): CssCustomRef => {
     // conditions:
     if (!nexts || !nexts.length) return first;
-    const nextsAbs = nexts.filter(filterEmptyVars);
+    const nextsAbs = nexts.filter(filterEmptyVars) as (CssCustomRef|CssSimpleValue)[];
     if (!nextsAbs.length) return first;
     
     
     
-    const refs : CssCustomRef[] = [first, ...nextsAbs];
+    const refs : (CssCustomRef|CssSimpleValue)[] = [first, ...nextsAbs];
     let totalClosingCount = 0;
     return (
         refs
         .map((ref, index) => {
+            if ((typeof(ref) !== 'string') || !ref.startsWith('var(--')) return ref;
+            
             const closingCount = (ref.match(/\)+$/)?.[0]?.length ?? 0);
             totalClosingCount += closingCount;
             
