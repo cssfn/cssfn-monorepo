@@ -95,7 +95,7 @@ type ShorthandProperties = PartialNullish<{
      *
      * @see https://developer.mozilla.org/docs/Web/CSS/color
      */
-    foreg       : CssKnownBaseProps['color']
+    foreg      : CssKnownBaseProps['color']
     /**
      * Alias of **`color`**.  
      * The **`color`** CSS property sets the foreground color value of an element's text and text decorations, and sets the `<currentcolor>` value. `currentcolor` may be used as an indirect value on _other_ properties and is the default for other color properties, such as `border-color`.
@@ -110,7 +110,7 @@ type ShorthandProperties = PartialNullish<{
      *
      * @see https://developer.mozilla.org/docs/Web/CSS/color
      */
-    foreground  : CssKnownBaseProps['color']
+    foreground : CssKnownBaseProps['color']
     /**
      * Alias of **`background`**.  
      * The **`background`** shorthand CSS property sets all background style properties at once, such as color, image, origin and size, or repeat method.
@@ -123,7 +123,7 @@ type ShorthandProperties = PartialNullish<{
      *
      * @see https://developer.mozilla.org/docs/Web/CSS/background
      */
-    backg       : CssKnownBaseProps['background']
+    backg      : CssKnownBaseProps['background']
     /**
      * Alias of **`background-clip`**.  
      * The **`background-clip`** CSS property sets whether an element's background extends underneath its border box, padding box, or content box.
@@ -139,7 +139,7 @@ type ShorthandProperties = PartialNullish<{
      *
      * @see https://developer.mozilla.org/docs/Web/CSS/background-clip
      */
-    'backgClip' : CssKnownBaseProps['backgroundClip']
+    backgClip  : CssKnownBaseProps['backgroundClip']
     
     /**
      * Alias of **`animation`**.  
@@ -154,7 +154,7 @@ type ShorthandProperties = PartialNullish<{
      *
      * @see https://developer.mozilla.org/docs/Web/CSS/animation
      */
-    anim        : CssKnownBaseProps['animation']
+    anim       : CssKnownBaseProps['animation']
     /**
      * Alias of **`transform`**.  
      * The **`transform`** CSS property lets you rotate, scale, skew, or translate an element. It modifies the coordinate space of the CSS visual formatting model.
@@ -170,7 +170,7 @@ type ShorthandProperties = PartialNullish<{
      *
      * @see https://developer.mozilla.org/docs/Web/CSS/transform
      */
-    transf      : CssKnownBaseProps['transform']
+    transf     : CssKnownBaseProps['transform']
     
     /**
      * Alias of **`column-gap`**.  
@@ -210,7 +210,7 @@ type ShorthandProperties = PartialNullish<{
      *
      * @see https://developer.mozilla.org/docs/Web/CSS/column-gap
      */
-    'gapX'      : CssKnownBaseProps['columnGap']
+    gapX       : CssKnownBaseProps['columnGap']
     /**
      * Alias of **`row-gap`**.  
      * The **`row-gap`** CSS property sets the size of the gap (gutter) between an element's grid rows.
@@ -240,7 +240,7 @@ type ShorthandProperties = PartialNullish<{
      *
      * @see https://developer.mozilla.org/docs/Web/CSS/row-gap
      */
-    'gapY'      : CssKnownBaseProps['rowGap']
+    gapY       : CssKnownBaseProps['rowGap']
     /**
      * Alias of **`column-gap`**.  
      * The **`column-gap`** CSS property sets the size of the gap (gutter) between an element's columns.
@@ -279,7 +279,7 @@ type ShorthandProperties = PartialNullish<{
      *
      * @see https://developer.mozilla.org/docs/Web/CSS/column-gap
      */
-    'gapInline' : CssKnownBaseProps['columnGap']
+    gapInline  : CssKnownBaseProps['columnGap']
     /**
      * Alias of **`row-gap`**.  
      * The **`row-gap`** CSS property sets the size of the gap (gutter) between an element's grid rows.
@@ -309,7 +309,7 @@ type ShorthandProperties = PartialNullish<{
      *
      * @see https://developer.mozilla.org/docs/Web/CSS/row-gap
      */
-    'gapBlock'  : CssKnownBaseProps['rowGap']
+    gapBlock   : CssKnownBaseProps['rowGap']
 }>
 export type CssKnownBaseExProps  = CssKnownBaseProps & ShorthandProperties
 
