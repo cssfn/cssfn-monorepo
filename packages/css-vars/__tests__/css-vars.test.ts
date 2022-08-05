@@ -571,6 +571,70 @@ test(`fallbacks()`, () => {
     .toBe(
         `var(--alice, var(--bob, var(--charlie, "yeah")))`
     );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            undefined,
+            cssVars1.bob,
+            null,
+            cssVars1.charlie,
+            false,
+            true,
+            [['solid', '1px', 'black']]
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, solid 1px black)))`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            undefined,
+            cssVars1.bob,
+            null,
+            cssVars1.charlie,
+            false,
+            true,
+            [['solid', '1px', 'black'], '!important']
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, solid 1px black))) !important`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            undefined,
+            cssVars1.bob,
+            null,
+            cssVars1.charlie,
+            false,
+            true,
+            ['"Arial Black"', '"Georgia"', 'serif']
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, "Arial Black", "Georgia", serif)))`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            undefined,
+            cssVars1.bob,
+            null,
+            cssVars1.charlie,
+            false,
+            true,
+            ['"Arial Black"', '"Georgia"', 'serif', '!important']
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, "Arial Black", "Georgia", serif))) !important`
+    );
 });
 
 test(`fallbacks(fallbacks())`, () => {
@@ -718,5 +782,101 @@ test(`fallbacks(fallbacks())`, () => {
     )
     .toBe(
         `var(--alice, var(--bob, var(--charlie, var(--hello, var(--world, var(--booFoo, var(--bob, "wow")))))))`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            undefined,
+            cssVars1.bob,
+            null,
+            cssVars1.charlie,
+            true,
+            fallbacks(
+                cssVars2.hello,
+                false,
+                cssVars2.world,
+                undefined,
+                cssVars2.booFoo,
+                null,
+                cssVars1.bob,
+                [['solid', '1px', 'black']]
+            ),
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, var(--hello, var(--world, var(--booFoo, var(--bob, solid 1px black)))))))`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            undefined,
+            cssVars1.bob,
+            null,
+            cssVars1.charlie,
+            true,
+            fallbacks(
+                cssVars2.hello,
+                false,
+                cssVars2.world,
+                undefined,
+                cssVars2.booFoo,
+                null,
+                cssVars1.bob,
+                [['solid', '1px', 'black'], '!important']
+            ),
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, var(--hello, var(--world, var(--booFoo, var(--bob, solid 1px black))))))) !important`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            undefined,
+            cssVars1.bob,
+            null,
+            cssVars1.charlie,
+            true,
+            fallbacks(
+                cssVars2.hello,
+                false,
+                cssVars2.world,
+                undefined,
+                cssVars2.booFoo,
+                null,
+                cssVars1.bob,
+                ['"Arial Black"', '"Georgia"', 'serif']
+            ),
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, var(--hello, var(--world, var(--booFoo, var(--bob, "Arial Black", "Georgia", serif)))))))`
+    );
+    
+    expect(
+        fallbacks(
+            cssVars1.alice,
+            undefined,
+            cssVars1.bob,
+            null,
+            cssVars1.charlie,
+            true,
+            fallbacks(
+                cssVars2.hello,
+                false,
+                cssVars2.world,
+                undefined,
+                cssVars2.booFoo,
+                null,
+                cssVars1.bob,
+                ['"Arial Black"', '"Georgia"', 'serif', '!important']
+            ),
+        )
+    )
+    .toBe(
+        `var(--alice, var(--bob, var(--charlie, var(--hello, var(--world, var(--booFoo, var(--bob, "Arial Black", "Georgia", serif))))))) !important`
     );
 });

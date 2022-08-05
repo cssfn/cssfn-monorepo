@@ -5,15 +5,11 @@ import type {
     Dictionary,
 }                           from '@cssfn/types'
 import type {
-    // css values:
-    CssSimpleValue,
-    
-    
-    
     // css custom properties:
     CssCustomName,
     CssCustomSimpleRef,
     CssCustomRef,
+    CssCustomValue,
 }                           from '@cssfn/css-types'
 
 // other libs:
@@ -173,21 +169,75 @@ export {
 
 
 // utilities:
-const filterEmptyVars = (next: OptionalOrBoolean<CssCustomRef>|CssSimpleValue): next is CssCustomRef|CssSimpleValue => !!next && (next !== true)
-export const fallbacks = (first: CssCustomRef, ...nexts: [...OptionalOrBoolean<CssCustomRef>[], OptionalOrBoolean<CssCustomRef>|CssSimpleValue]|[]): CssCustomRef => {
+const renderPropValue = (propValue: CssCustomValue): { rendered: string, hasImportant: boolean } => {
+    if (!Array.isArray(propValue)) {
+        if (typeof(propValue) === 'number') return { rendered: `${propValue}`, hasImportant: false }; // CssSimpleNumericValue => number => convert to string
+        if (typeof(propValue) === 'string') return { rendered:    propValue  , hasImportant: false }; // CssSimpleLiteralValue|CssCustomRef => string
+        return { rendered: propValue.toString(), hasImportant: false } // CssCustomKeyframesRef => toString();
+    } // if
+    
+    
+    
+    let hasImportant = false;
+    return {
+        rendered : (
+            propValue
+            .map((propSubValue, index, array): string|null => {
+                if (!Array.isArray(propSubValue)) {
+                    if (typeof(propSubValue) === 'number') return `${propSubValue}`; // CssSimpleNumericValue => number => convert to string
+                    if ((index === (array.length - 1)) && (propSubValue === '!important')) {
+                        hasImportant = true;
+                        return null; // do not comma_separated_!important
+                    }
+                    if (typeof(propSubValue) === 'string') return propSubValue; // CssSimpleLiteralValue|CssCustomRef => string
+                    return propSubValue.toString(); // CssCustomKeyframesRef => toString();
+                } // if
+                
+                
+                
+                return (
+                    propSubValue
+                    .map((propSubSubValue): string => {
+                        if (typeof(propSubSubValue) === 'number') return `${propSubSubValue}`; // CssSimpleNumericValue => number => convert to string
+                        if (typeof(propSubSubValue) === 'string') return propSubSubValue; // CssSimpleLiteralValue|CssCustomRef => string
+                        return propSubSubValue.toString(); // CssCustomKeyframesRef => toString();
+                    })
+                    .join(' ') // space_separated_values
+                );
+            })
+            .filter((propSubValue): propSubValue is string => (propSubValue !== null))
+            .join(', ') // comma_separated_values
+        ),
+        hasImportant
+    };
+};
+const filterEmptyVars = (next: OptionalOrBoolean<CssCustomRef|CssCustomValue>): next is CssCustomRef|CssCustomValue => !!next && (next !== true)
+export const fallbacks = (first: CssCustomRef, ...nexts: [...OptionalOrBoolean<CssCustomRef>[], OptionalOrBoolean<CssCustomRef|CssCustomValue>]|[]): CssCustomRef => {
     // conditions:
     if (!nexts || !nexts.length) return first;
-    const nextsAbs = nexts.filter(filterEmptyVars) as (CssCustomRef|CssSimpleValue)[];
+    const nextsAbs = nexts.filter(filterEmptyVars) as (CssCustomRef|CssCustomValue)[];
     if (!nextsAbs.length) return first;
     
     
     
-    const refs : (CssCustomRef|CssSimpleValue)[] = [first, ...nextsAbs];
+    const refs : (CssCustomRef|CssCustomValue)[] = [first, ...nextsAbs];
     let totalClosingCount = 0;
+    let hasImportantValue = false;
     return (
         refs
-        .map((ref, index) => {
-            if ((typeof(ref) !== 'string') || !ref.startsWith('var(--')) return ref;
+        .map((ref, index): string => {
+            if ((typeof(ref) !== 'string') || !ref.startsWith('var(--')) {
+                const {rendered, hasImportant} = renderPropValue(ref);
+                if (hasImportant) hasImportantValue = true;
+                return rendered;
+            } // if
+            
+            
+            
+            if (ref.endsWith('!important')) {
+                hasImportantValue = true;
+                ref = ref.replace(/\s*!important/, '');
+            } // if
             
             const closingCount = (ref.match(/\)+$/)?.[0]?.length ?? 0);
             totalClosingCount += closingCount;
@@ -201,5 +251,7 @@ export const fallbacks = (first: CssCustomRef, ...nexts: [...OptionalOrBoolean<C
         .join('')
         +
         (new Array(/*arrayLength: */totalClosingCount)).fill(')').join('')
+        +
+        (hasImportantValue ? ' !important' : '')
     ) as CssCustomRef;
 }
