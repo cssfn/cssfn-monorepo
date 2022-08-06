@@ -323,7 +323,7 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     }
     //#endregion public methods
 }
-export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
+export const dynamicStyleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
     // a single builder for creating many hooks:
     const builder = new StyleSheetsHookBuilder(scopes, options);
     
@@ -333,16 +333,17 @@ export const createUseStyleSheets = <TCssScopeName extends CssScopeName>(scopes:
         .createStyleSheetsHook()
     );
 };
-export const createUseStyleSheet  = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>, options?: StyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
+export { dynamicStyleSheets as createUseStyleSheets }
+export const dynamicStyleSheet  = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>, options?: StyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
     if (!styles || (styles === true)) {
-        return createUseStyleSheets<'main'>(
+        return dynamicStyleSheets<'main'>(
             null,   // empty scope
             options // styleSheet options
         );
     }
     else if (isObservableStyles(styles)) {
         const dynamicStyleSheet = new Subject<CssScopeList<'main'>|null|boolean>();
-        const scopeMapHook = createUseStyleSheets(
+        const scopeMapHook = dynamicStyleSheets(
             dynamicStyleSheet,
             options  // styleSheet options
         );
@@ -367,9 +368,10 @@ export const createUseStyleSheet  = (styles: CssStyleCollection | Observable<Css
         return scopeMapHook;
     }
     else {
-        return createUseStyleSheets(
+        return dynamicStyleSheets(
             [['main', styles, options]], // scopeOf('main', styles, options)
             options                      // styleSheet options
         );
     } // if
 };
+export { dynamicStyleSheet as createUseStyleSheet }

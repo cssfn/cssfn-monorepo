@@ -1,5 +1,5 @@
 import {
-    createUseStyleSheets,
+    dynamicStyleSheets,
 } from '@cssfn/cssfn-react'
 import {
     mainScope,
@@ -8,7 +8,7 @@ import {
 
 
 
-export const useStyleSheet7 = createUseStyleSheets(() => [
+export const useStyleSheet7 = dynamicStyleSheets(() => [
     mainScope({
         background    : 'pink',
         color         : 'darkred',

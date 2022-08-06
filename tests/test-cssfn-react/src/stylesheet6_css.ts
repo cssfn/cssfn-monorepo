@@ -1,10 +1,10 @@
 import {
-    createUseStyleSheet,
+    dynamicStyleSheet,
 } from '@cssfn/cssfn-react'
 
 
 
-export const useStyleSheet6 = createUseStyleSheet(() => ({
+export const useStyleSheet6 = dynamicStyleSheet(() => ({
     background    : 'lightblue',
     color         : 'darkblue',
     border        : [['solid', '1px', 'black']],
