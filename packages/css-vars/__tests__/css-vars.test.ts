@@ -1,6 +1,6 @@
 import {
     cssVars,
-    fallbacks,
+    switchOf,
 } from '../dist/css-vars.js'
 
 
@@ -476,11 +476,11 @@ test(`cssVars<TestVars2>() with live options { prefix: 'nav', minify: false }`, 
 
 
 
-test(`fallbacks()`, () => {
+test(`switchOf()`, () => {
     const [cssVars1] = cssVars<TestVars2>({ minify: false });
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice
         )
     )
@@ -489,7 +489,7 @@ test(`fallbacks()`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             cssVars1.bob
         )
@@ -499,7 +499,7 @@ test(`fallbacks()`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             cssVars1.bob,
             cssVars1.charlie
@@ -510,7 +510,7 @@ test(`fallbacks()`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
@@ -525,7 +525,7 @@ test(`fallbacks()`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
@@ -541,7 +541,7 @@ test(`fallbacks()`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
@@ -557,7 +557,7 @@ test(`fallbacks()`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
@@ -573,7 +573,7 @@ test(`fallbacks()`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
@@ -589,7 +589,7 @@ test(`fallbacks()`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
@@ -605,7 +605,7 @@ test(`fallbacks()`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
@@ -621,7 +621,7 @@ test(`fallbacks()`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
@@ -637,14 +637,14 @@ test(`fallbacks()`, () => {
     );
 });
 
-test(`fallbacks(fallbacks())`, () => {
+test(`switchOf(switchOf())`, () => {
     const [cssVars1] = cssVars<TestVars2>({ minify: false });
     const [cssVars2] = cssVars<TestVars1>({ minify: false });
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
-            fallbacks(
+            switchOf(
                 cssVars2.hello,
                 cssVars2.world,
                 cssVars2.booFoo,
@@ -657,9 +657,9 @@ test(`fallbacks(fallbacks())`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
-            fallbacks(
+            switchOf(
                 cssVars2.hello,
                 cssVars2.world,
                 cssVars2.booFoo,
@@ -673,11 +673,11 @@ test(`fallbacks(fallbacks())`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             cssVars1.bob,
             cssVars1.charlie,
-            fallbacks(
+            switchOf(
                 cssVars2.hello,
                 cssVars2.world,
                 cssVars2.booFoo,
@@ -690,14 +690,14 @@ test(`fallbacks(fallbacks())`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
             null,
             cssVars1.charlie,
             true,
-            fallbacks(
+            switchOf(
                 cssVars2.hello,
                 false,
                 cssVars2.world,
@@ -713,14 +713,14 @@ test(`fallbacks(fallbacks())`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
             null,
             cssVars1.charlie,
             true,
-            fallbacks(
+            switchOf(
                 cssVars2.hello,
                 false,
                 cssVars2.world,
@@ -737,14 +737,14 @@ test(`fallbacks(fallbacks())`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
             null,
             cssVars1.charlie,
             true,
-            fallbacks(
+            switchOf(
                 cssVars2.hello,
                 false,
                 cssVars2.world,
@@ -761,14 +761,14 @@ test(`fallbacks(fallbacks())`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
             null,
             cssVars1.charlie,
             true,
-            fallbacks(
+            switchOf(
                 cssVars2.hello,
                 false,
                 cssVars2.world,
@@ -785,14 +785,14 @@ test(`fallbacks(fallbacks())`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
             null,
             cssVars1.charlie,
             true,
-            fallbacks(
+            switchOf(
                 cssVars2.hello,
                 false,
                 cssVars2.world,
@@ -809,14 +809,14 @@ test(`fallbacks(fallbacks())`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
             null,
             cssVars1.charlie,
             true,
-            fallbacks(
+            switchOf(
                 cssVars2.hello,
                 false,
                 cssVars2.world,
@@ -833,14 +833,14 @@ test(`fallbacks(fallbacks())`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
             null,
             cssVars1.charlie,
             true,
-            fallbacks(
+            switchOf(
                 cssVars2.hello,
                 false,
                 cssVars2.world,
@@ -857,14 +857,14 @@ test(`fallbacks(fallbacks())`, () => {
     );
     
     expect(
-        fallbacks(
+        switchOf(
             cssVars1.alice,
             undefined,
             cssVars1.bob,
             null,
             cssVars1.charlie,
             true,
-            fallbacks(
+            switchOf(
                 cssVars2.hello,
                 false,
                 cssVars2.world,
