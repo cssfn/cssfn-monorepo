@@ -704,6 +704,43 @@ border: solid 4px blue;
 `
         );
     });
+    
+    
+    
+    test(`render() # test empty @keyframes`, () => {
+        styleSheet(() => ({
+            ...keyframes('emptyAnimation', {
+            }),
+        }), { id: '#sheet#empty#anim#1' });
+        expect(render(lastStyleSheet!))
+        .toBe(
+`
+@keyframes emptyAnimation {
+}
+`
+        );
+    });
+    test(`render() # test empty @keyframes`, () => {
+        styleSheet(() => ({
+            ...keyframes('emptyAnimation2', {
+                from: {
+                    ...style({
+                    }),
+                },
+                to: {
+                    ...style({
+                    }),
+                },
+            }),
+        }), { id: '#sheet#empty#anim#2' });
+        expect(render(lastStyleSheet!))
+        .toBe(
+`
+@keyframes emptyAnimation2 {
+}
+`
+        );
+    });
     //#endregion test @keyframes
     
     

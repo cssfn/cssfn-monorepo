@@ -264,19 +264,23 @@ class RenderRule {
     }
     #renderSelector(finalSelector: CssFinalSelector|null, finalStyle: CssFinalStyleMap|null): void {
         if (
-            !finalStyle // no style defined
-            ||
-            // a style defined, but:
+            !finalSelector?.startsWith('@keyframes ') // an empty `@keyframes noAnimation {}` is allowed
+            &&
             (
-                // there is no any prop:
-                // in case of the parentRule is only containing nestedRule(s)
-                !hasPropKeys(finalStyle.keys())
-                
-                &&
-                
-                // there is no any PropRule:
-                // in case of the @keyframes rule is always contains PropRule(s) but not contains nestedRule(s)
-                !this.#hasPropRule(finalStyle)
+                !finalStyle // no style defined
+                ||
+                // a style defined, but doesn't have any property:
+                (
+                    // there is no any prop:
+                    // in case of the parentRule is only containing nestedRule(s)
+                    !hasPropKeys(finalStyle.keys())
+                    
+                    &&
+                    
+                    // there is no any PropRule:
+                    // in case of a something like @keyframes rule, that is always contains PropRule(s) but not contains nestedRule(s)
+                    !this.#hasPropRule(finalStyle)
+                )
             )
         )
         {

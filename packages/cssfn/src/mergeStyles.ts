@@ -333,6 +333,16 @@ export const mergeNested  = (style: CssStyleMap): void => {
                     mergedStyles // update CssStyleCollection to CssFinalStyleMap
                 ]);
             }
+            else if ((ruleData[0] as CssFinalSelector).startsWith('@keyframes ')) {
+                // the @keyframes is allowed to have an empty style
+                // update:
+                (style as CssFinalRuleMap).set(symbolProp, [
+                    // already been finalizeSelector() => CssRawSelector|CssFinalSelector => CssFinalSelector
+                    ruleData[0] as CssFinalSelector, // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection|CssFinalStyleMap
+                    
+                    new Map() as CssFinalStyleMap    // an empty style
+                ]);
+            }
             else {
                 // delete:
                 style.delete(symbolProp);
