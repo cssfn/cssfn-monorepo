@@ -34,11 +34,11 @@
   "dependencies": {
     "@cssfn/css-prop-list": "^2.0.4",
     "@cssfn/css-types": "^2.0.4",
-    "@cssfn/types": "^2.0.1",
-    "rxjs": "^7.5.5"
+    "@cssfn/types": "^2.0.1"
   },
   "peerDependencies": {
-    "@cssfn/cssfn": "^2.0.6"
+    "@cssfn/cssfn": "^2.0.6",
+    "rxjs": "^7.5.5"
   },
   "devDependencies": {
     "@types/jsdom": "^16.2.14",
