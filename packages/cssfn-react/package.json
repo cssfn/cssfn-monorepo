@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/cssfn-react",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "description": "Automatically renders the registered css(fn) for React app.",
   "keywords": [
     "css",
