@@ -1,6 +1,13 @@
 node_modules/
+
 packages/*/src/
 packages/*/__tests__/
+
+barrels/*/src/
+barrels/*/__tests__/
+
+
+package-lock.json
 
 lerna-debug.log
 npm-debug.log

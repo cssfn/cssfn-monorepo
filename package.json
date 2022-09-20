@@ -12,6 +12,9 @@
   "type": "module",
   "workspaces": [
     "packages/*",
+    
+    "barrels/*",
+    
     "tests/*"
   ]
 }
