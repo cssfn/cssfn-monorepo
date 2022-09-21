@@ -1,0 +1,44 @@
+{
+  "name": "@cssfn/core",
+  "version": "2.0.0",
+  "description": "A set of common cssfn packages.",
+  "keywords": [
+    "core",
+    "css",
+    "stylesheet",
+    "javascript",
+    "module",
+    "css-in-js"
+  ],
+  "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
+  "homepage": "https://cssfn.org",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cssfn/cssfn-monorepo.git"
+  },
+  "main": "dist/core.js",
+  "types": "dist/core.d.ts",
+  "type": "module",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "tsc:watch": "tsc --watch",
+    "ncu": "ncu --peer",
+    "ncu:upgrade": "ncu --peer --upgrade",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
+  },
+  "dependencies": {
+  "@cssfn/types": "^2.0.1",
+  "@cssfn/css-types": "^2.0.4",
+  "@cssfn/css-config": "^2.0.15",
+  "@cssfn/css-selectors": "^2.0.2"
+  },
+  "peerDependencies": {
+    "@cssfn/cssfn": "^2.0.9",
+    "@cssfn/css-vars": "^2.0.10"
+  }
+}
