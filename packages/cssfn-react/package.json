@@ -1,7 +1,7 @@
 {
   "name": "@cssfn/cssfn-react",
   "version": "2.0.11",
-  "description": "Automatically renders the registered css(fn) for React app.",
+  "description": "Declares, loads, and unloads css stylesheets in React hooks way.",
   "keywords": [
     "css",
     "stylesheet",
