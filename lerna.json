@@ -1,10 +1,4 @@
 {
-  "packages": [
-    "packages/*",
-    
-    "barrels/*",
-    
-    "tests/*"
-  ],
+  "useWorkspaces": true,
   "version": "independent"
 }
