@@ -631,7 +631,7 @@ class TransformCssConfigFactoryDuplicatesBuilder<TConfigProps extends CssConfigP
         const combined = new Map() as (Map<keyof TConfigProps, Exclude<ValueOf<TConfigProps>, undefined|null>|CssCustomValue> & CssRuleMap);
         for (const propName of srcProps.keys()) {
             if (typeof(propName) !== 'symbol') continue; // ignores non symbol props
-            combined.set(propName, srcProps.get(propName)!);
+            combined.set(propName, srcProps.get(propName)! as any);
         } // for
         
         // then update the changes:
