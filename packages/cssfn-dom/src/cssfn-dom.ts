@@ -1,13 +1,14 @@
 // cssfn:
-import type {
+import {
+    // style sheets:
     StyleSheet,
-}                           from '@cssfn/cssfn'
-import {
     styleSheetRegistry,
-}                           from '@cssfn/cssfn/dist/styleSheets.js'
-import {
+    
+    
+    
+    // processors:
     render,
-}                           from '@cssfn/cssfn/dist/renders.js'
+}                           from '@cssfn/cssfn'
 
 // other libs:
 import {
