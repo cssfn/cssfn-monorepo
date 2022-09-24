@@ -50,20 +50,8 @@ import {
     isFinalSelector,
     normalizeSelectorOptions,
 }                           from './utilities.js'
-export {
-    StyleSheetOptions,
-    StyleSheet,
-    styleSheets,
-    styleSheet,
-}                           from './styleSheets.js'
 
 // other libs:
-export {
-    camelCase,
-}                           from 'camel-case'
-export {
-    pascalCase,
-}                           from 'pascal-case'
 import {
     // tests:
     isBrowser,

@@ -20,6 +20,12 @@ import {
     // tests:
     default as warning,
 }                           from 'tiny-warning'
+export {
+    camelCase,
+}                           from 'camel-case'
+export {
+    pascalCase,
+}                           from 'pascal-case'
 
 
 
