@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/css-config",
-  "version": "2.0.16",
+  "version": "2.0.17",
   "description": "Reads/Writes CSS configuration of HTML components using centralized CSS variables.",
   "keywords": [
     "css",
