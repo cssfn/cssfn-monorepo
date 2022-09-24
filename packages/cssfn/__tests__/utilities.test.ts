@@ -1,6 +1,6 @@
 import {
     generateId,
-} from '../dist/utilities.js'
+} from '../dist/index.js'
 
 
 

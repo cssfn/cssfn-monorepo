@@ -10,6 +10,7 @@ import type {
     StyleSheet,
     styleSheets  as _styleSheets,
     styleSheet   as _styleSheet,
+    styleSheetRegistry as _styleSheetRegistry,
     
     
     
@@ -17,10 +18,7 @@ import type {
     scopeOf     as _scopeOf,
     mainScope   as _mainScope,
     globalScope as _globalScope,
-} from '../dist/cssfn.js'
-import type {
-    styleSheetRegistry as _styleSheetRegistry,
-} from '../dist/styleSheets.js'
+} from '../dist/index.js'
 import type {
     Subject as _Subject,
 } from 'rxjs'
@@ -71,8 +69,7 @@ jest.isolateModules(() => {
     beforeAll(async () => {
         simulateServerSide();
         
-        const cssfnModule      = await import('../dist/cssfn.js')
-        const styleSheetModule = await import('../dist/styleSheets.js')
+        const cssfnModule      = await import('../dist/index.js')
         const rxjsModule       = await import('rxjs')
         
         styleSheets        = cssfnModule.styleSheets
@@ -80,7 +77,7 @@ jest.isolateModules(() => {
         scopeOf            = cssfnModule.scopeOf
         mainScope          = cssfnModule.mainScope
         globalScope        = cssfnModule.globalScope
-        styleSheetRegistry = styleSheetModule.styleSheetRegistry
+        styleSheetRegistry = cssfnModule.styleSheetRegistry
         
         Subject            = rxjsModule.Subject
     });
@@ -372,8 +369,7 @@ jest.isolateModules(() => {
         );
         simulateBrowserSide(dom);
         
-        const cssfnModule      = await import('../dist/cssfn.js')
-        const styleSheetModule = await import('../dist/styleSheets.js')
+        const cssfnModule      = await import('../dist/index.js')
         const rxjsModule       = await import('rxjs')
         
         styleSheets        = cssfnModule.styleSheets
@@ -381,7 +377,7 @@ jest.isolateModules(() => {
         scopeOf            = cssfnModule.scopeOf
         mainScope          = cssfnModule.mainScope
         globalScope        = cssfnModule.globalScope
-        styleSheetRegistry = styleSheetModule.styleSheetRegistry
+        styleSheetRegistry = cssfnModule.styleSheetRegistry
         
         Subject            = rxjsModule.Subject
     });

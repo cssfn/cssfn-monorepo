@@ -1,14 +1,12 @@
 import type {
     JSDOM as _JSDOM,
 } from 'jsdom'
-import type {
-    render      as _render,
-} from '../dist/renders.js'
 import {
     // style sheets:
     StyleSheet,
     styleSheets as _styleSheets,
     styleSheet  as _styleSheet,
+    styleSheetRegistry as _styleSheetRegistry,
     
     
     
@@ -33,10 +31,12 @@ import {
     // scopes:
     mainScope   as _mainScope,
     globalScope as _globalScope,
-} from '../dist/cssfn.js'
-import type {
-    styleSheetRegistry as _styleSheetRegistry,
-} from '../dist/styleSheets.js'
+    
+    
+    
+    // processors:
+    render      as _render,
+} from '../dist/index.js'
 import {
     jest,
 } from '@jest/globals'
@@ -96,9 +96,7 @@ jest.isolateModules(() => {
         );
         simulateBrowserSide(dom);
         
-        const cssfnModule      = await import('../dist/cssfn.js')
-        const styleSheetModule = await import('../dist/styleSheets.js')
-        const renderModule     = await import('../dist/renders.js')
+        const cssfnModule  = await import('../dist/index.js')
         
         fallbacks          = cssfnModule.fallbacks
         fontFace           = cssfnModule.fontFace
@@ -114,8 +112,8 @@ jest.isolateModules(() => {
         styleSheet         = cssfnModule.styleSheet
         mainScope          = cssfnModule.mainScope
         globalScope        = cssfnModule.globalScope
-        styleSheetRegistry = styleSheetModule.styleSheetRegistry
-        render             = renderModule.render
+        styleSheetRegistry = cssfnModule.styleSheetRegistry
+        render             = cssfnModule.render
         
         
         

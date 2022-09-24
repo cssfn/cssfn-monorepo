@@ -18,10 +18,6 @@ import type {
     Combinator,
 } from '@cssfn/css-selectors'
 import {
-    filterOnlyRuleKeys,
-    mergeStyles,
-} from '../dist/mergeStyles.js'
-import {
     rule,
     rules,
     variants,
@@ -69,11 +65,13 @@ import {
     
     camelCase,
     pascalCase,
-} from '../dist/cssfn.js'
-import {
+    
+    filterOnlyRuleKeys,
+    mergeStyles,
+    
     isFinalSelector,
     isFinalStyleMap,
-} from '../dist/utilities.js'
+} from '../dist/index.js'
 import './jest-custom'
 
 

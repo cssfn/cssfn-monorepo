@@ -19,10 +19,9 @@ import {
     mergeParent,
     mergeNested,
     mergeStyles,
-} from '../dist/mergeStyles.js'
-import {
+    
     isFinalStyleMap,
-} from '../dist/utilities.js'
+} from '../dist/index.js'
 import './jest-custom'
 
 
