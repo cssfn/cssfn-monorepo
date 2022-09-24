@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/cssfn-dom",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "Automatically attaches the registered css(fn) to DOM.",
   "keywords": [
     "css",
