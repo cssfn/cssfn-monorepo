@@ -39,20 +39,23 @@ import type {
     CssScopeMap,
 }                           from '@cssfn/css-types'
 import {
-    isObservableScopes,
-    isObservableStyles,
-    
-    
-    
     // style sheets:
     StyleSheetOptions,
     StyleSheet,
     styleSheetRegistry,
     styleSheets,
-}                           from '@cssfn/cssfn/dist/styleSheets.js'
-import {
+    
+    
+    
+    // processors:
     render,
-}                           from '@cssfn/cssfn/dist/renders.js'
+    
+    
+    
+    // utilities:
+    isObservableScopes,
+    isObservableStyles,
+}                           from '@cssfn/cssfn'
 
 // other libs:
 import {
