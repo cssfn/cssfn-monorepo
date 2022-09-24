@@ -4,12 +4,12 @@ import type {
 import type {
     CssKnownProps,
 } from '@cssfn/css-types'
-import type {
-    render      as _render,
-} from '@cssfn/cssfn/dist/renders.js'
 import {
+    render      as _render,
+    
     // style sheets:
     StyleSheet,
+    styleSheetRegistry as _styleSheetRegistry,
     
     
     
@@ -19,9 +19,6 @@ import {
 import type {
     cssConfig as _cssConfig,
 } from '../dist/css-config.js'
-import type {
-    styleSheetRegistry as _styleSheetRegistry,
-} from '@cssfn/cssfn/dist/styleSheets.js'
 import {
     jest,
 } from '@jest/globals'
@@ -71,13 +68,11 @@ jest.isolateModules(() => {
         
         const cssfnModule      = await import('@cssfn/cssfn')
         const cssConfigModule  = await import('../dist/css-config.js')
-        const styleSheetModule = await import('@cssfn/cssfn/dist/styleSheets.js')
-        const renderModule     = await import('@cssfn/cssfn/dist/renders.js')
         
         keyframes          = cssfnModule.keyframes
+        styleSheetRegistry = cssfnModule.styleSheetRegistry
+        render             = cssfnModule.render
         cssConfig          = cssConfigModule.cssConfig
-        styleSheetRegistry = styleSheetModule.styleSheetRegistry
-        render             = renderModule.render
         
         
         
