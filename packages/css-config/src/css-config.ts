@@ -55,17 +55,17 @@ import {
     
     
     
+    // processors:
+    mergeStyles,
+    
+    
+    
     // utilities:
     camelCase,
     pascalCase,
-}                           from '@cssfn/cssfn'
-import {
     isFinalSelector,
     isFinalStyleMap,
-}                           from '@cssfn/cssfn/dist/utilities.js'
-import {
-    mergeStyles,
-}                           from '@cssfn/cssfn/dist/mergeStyles.js'
+}                           from '@cssfn/cssfn'
 import {
     isKnownCssProp,
 }                           from '@cssfn/css-prop-list'
