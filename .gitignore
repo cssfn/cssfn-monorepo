@@ -5,7 +5,7 @@ packages/*/dist/
 barrels/*/dist/
 
 
-
+package-lock.json
 
 lerna-debug.log
 npm-debug.log

@@ -7,7 +7,7 @@ barrels/*/src/
 barrels/*/__tests__/
 
 
-
+package-lock.json
 
 lerna-debug.log
 npm-debug.log
