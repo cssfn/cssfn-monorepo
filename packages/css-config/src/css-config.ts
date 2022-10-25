@@ -828,7 +828,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             // now the data is guaranteed regenerated.
         }
         else {
-            // promise to regenerate the data in the future as soon as possible, before browser repaint:
+            // promise to regenerate the data in the future as soon as possible, BEFORE browser repaint:
             
             this.#valid = false;         // mark the `#genProps` as invalid
             requestAnimationFrame(() => {
@@ -947,13 +947,13 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         if ((newValue === undefined) || (newValue === null)) {
             props.delete(propDecl);
             
-            this.#update(); // setting changed => the `#genProps` needs to `update()`
+            this.#update();     // property DELETED => the `#genProps` needs to `update()`
         }
         else {
             if (props.get(propDecl) !== newValue) {
                 props.set(propDecl, newValue);
                 
-                this.#update(); // setting changed => the `#genProps` needs to `update()`
+                this.#update(); // property MODIFIED => the `#genProps` needs to `update()`
             } // if
         } // if
         
@@ -1018,7 +1018,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     constructor(initialProps: ProductOrFactory<TConfigProps>, options?: CssConfigOptions) {
         this.#propsFactory = initialProps;
         this.#options = new LiveCssConfigOptions(() => {
-            this.#update();
+            this.#update(); // when the config MODIFIED => the `#genProps` needs to `update()`
         }, options);
         
         
@@ -1028,8 +1028,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         
-        // regenerate the `#genProps` for the first time:
-        this.#update();
+        this.#update(); // generate the `#genProps` BEFORE browser repaint
         
         
         
