@@ -20,6 +20,23 @@ import {
 
 
 // utilities:
+/**
+ * A regular `requestAnimationFrame` with SSR support.
+ */
+const isomorphicRequestAnimationFrame = (
+    (typeof(requestAnimationFrame) !== 'undefined')
+    ?
+    requestAnimationFrame
+    :
+    (callback: () => void): ReturnType<typeof requestAnimationFrame>|undefined => {
+        Promise.resolve().then(callback);
+        return undefined;
+    }
+);
+
+
+
+// utilities:
 const isClientSide : boolean = isBrowser || isJsDom;
 
 
@@ -123,7 +140,7 @@ const handleUpdate = (styleSheet: StyleSheet): void => {
     }
     else {
         // async update:
-        cancelRequestBatchUpdate = requestAnimationFrame(() => { // `promise to batchUpdate()` in the future as soon as possible, BEFORE browser repaint
+        cancelRequestBatchUpdate = isomorphicRequestAnimationFrame(() => { // `promise to batchUpdate()` in the future as soon as possible, BEFORE browser repaint
             // marks:
             cancelRequestBatchUpdate = undefined; // performing => uncancellable
             
