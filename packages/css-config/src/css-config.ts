@@ -830,7 +830,10 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         }
         else {
             // cancel out previously `request #rebuild()` (if any):
-            if (this.#cancelRequestRebuild) cancelAnimationFrame(this.#cancelRequestRebuild);
+            if (this.#cancelRequestRebuild) {
+                cancelAnimationFrame(this.#cancelRequestRebuild);
+                this.#cancelRequestRebuild = undefined; // mark as canceled
+            } // if
             
             
             
