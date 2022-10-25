@@ -22,16 +22,6 @@ import {
 // utilities:
 const isClientSide : boolean = isBrowser || isJsDom;
 
-const asyncExecute = (
-    (typeof(requestAnimationFrame) === 'function')
-    ?
-    requestAnimationFrame
-    :
-    (callback: () => void): void => {
-        Promise.resolve().then(callback);
-    }
-);
-
 
 
 // config:
@@ -89,11 +79,13 @@ const batchUpdate = () => {
                     styleGroupElm.dataset.cssfnDomStyles = '';
                     
                     if (updates.length >= 2) {
+                        // insert the <div> next after the `for` loop completed:
                         Promise.resolve(styleGroupElm).then((styleGroupElm) => {
                             document.head.appendChild(styleGroupElm);
                         });
                     }
                     else {
+                        // insert the <div> immediately:
                         document.head.appendChild(styleGroupElm);
                     } // if
                 } // if
@@ -108,17 +100,37 @@ const batchUpdate = () => {
         } // if
     } // for
 }
+
+let cancelRequestBatchUpdate : ReturnType<typeof requestAnimationFrame>|undefined = undefined;
 const handleUpdate = (styleSheet: StyleSheet): void => {
+    // marks:
+    pendingUpdates.add(styleSheet);
+    
+    
+    
+    // cancel out previously `request batchUpdate()` (if any):
+    if (cancelRequestBatchUpdate) {
+        cancelAnimationFrame(cancelRequestBatchUpdate);
+        cancelRequestBatchUpdate = undefined; // mark as canceled
+    } // if
+    
+    
+    
+    // actions:
     if (!config.async) {
         // sync update:
-        pendingUpdates.add(styleSheet);
         batchUpdate();
     }
     else {
         // async update:
-        pendingUpdates.add(styleSheet);
-        asyncExecute(() => {
-            batchUpdate();
+        cancelRequestBatchUpdate = requestAnimationFrame(() => { // `promise to batchUpdate()` in the future as soon as possible, BEFORE browser repaint
+            // marks:
+            cancelRequestBatchUpdate = undefined; // performing => uncancellable
+            
+            
+            
+            // actions:
+            batchUpdate(); // promised!
         });
     } //
 }
