@@ -77,6 +77,23 @@ import {
 
 
 
+// utilities:
+/**
+ * A regular `requestAnimationFrame` with SSR support.
+ */
+const isomorphicRequestAnimationFrame = (
+    (typeof(requestAnimationFrame) !== 'undefined')
+    ?
+    requestAnimationFrame
+    :
+    (callback: () => void): ReturnType<typeof requestAnimationFrame>|undefined => {
+        Promise.resolve().then(callback);
+        return undefined;
+    }
+);
+
+
+
 // types:
 export type CssConfigProps =
     & PartialNullish<{
@@ -838,7 +855,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             
             
             this.#valid = false;         // mark the `#genProps` as invalid
-            this.#cancelRequestRebuild = requestAnimationFrame(() => { // `promise to #rebuild()` in the future as soon as possible, BEFORE browser repaint
+            this.#cancelRequestRebuild = isomorphicRequestAnimationFrame(() => { // `promise to #rebuild()` in the future as soon as possible, BEFORE browser repaint
                 // marks:
                 this.#cancelRequestRebuild = undefined; // performing => uncancellable
                 
