@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/cssfn-react",
-  "version": "2.0.13",
+  "version": "2.0.14",
   "description": "Declares, loads, and unloads css stylesheets in React hooks way.",
   "keywords": [
     "css",

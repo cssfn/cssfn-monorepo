@@ -10,7 +10,7 @@ import {
     useReducer,
     useRef,
     useMemo,
-    useEffect,
+    useInsertionEffect,
     
     
     
@@ -156,7 +156,7 @@ export const Styles = (): JSX.Element|null => {
         } // if
     }));
     
-    useEffect(() => {
+    useInsertionEffect(() => {
         // cleanups:
         return () => {
             // mark <Styles> component as dead:
@@ -283,10 +283,11 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     createStyleSheetsHook(): CssScopeMap<TCssScopeName> {
         // dom effects:
         const isStyleSheetInUse = useRef(false);
-        useEffect(() => {
+        useInsertionEffect(() => {
             // cleanups:
             return () => {
                 if (isStyleSheetInUse.current) {
+                    isStyleSheetInUse.current = false; // mark the styleSheet as not_in_use
                     this.#unregisterUsingStyleSheet();
                 } // if
             }
@@ -313,7 +314,7 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
                     
                     
                     if (!isStyleSheetInUse.current) {
-                        isStyleSheetInUse.current = true; // mark the styleSheet as in use
+                        isStyleSheetInUse.current = true; // mark the styleSheet as in_use
                         this.#registerUsingStyleSheet();
                     } // if
                     
