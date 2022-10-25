@@ -837,10 +837,8 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             
             
             
-            // promise to regenerate the data in the future as soon as possible, BEFORE browser repaint:
-            
             this.#valid = false;         // mark the `#genProps` as invalid
-            this.#cancelRequestRebuild = requestAnimationFrame(() => {
+            this.#cancelRequestRebuild = requestAnimationFrame(() => { // `promise to #rebuild()` in the future as soon as possible, BEFORE browser repaint
                 // marks:
                 this.#cancelRequestRebuild = undefined; // performing => uncancellable
                 
