@@ -155,7 +155,7 @@ const finalizeSelector = (style: (CssRuleMap & CssFinalRuleMap), symbolProp: sym
     // parse selectors:
     const selectorGroup : SelectorGroup = (
         (selectorGroupByRuleType.get(RuleType.SelectorRule) ?? []) // take only the SelectorRule(s)
-        .flatMap((selectorString) => {
+        .flatMap((selectorString) => { // TODO: tweak up the performance
             const selectorGroup = parseSelectors(selectorString);
             if (!selectorGroup) throw Error(`parse selector error: ${selectorString}`);
             return selectorGroup;
@@ -233,7 +233,7 @@ export const mergeParent  = (style: CssStyleMap): void => {
         if (finalSelector === '&') { // found only_parentSelector
             /* move the CssProps and (nested)Rules from only_parentSelector to current style */
             
-            
+            // TODO: make a more efficient way dealing with deep nested only_parentSelector
             
             const [, styles]         = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp)!;
             const mergedParentStyles = (isFinalStyleMap(styles) ? styles : mergeStyles(styles)) as (CssStyleMap|null);
