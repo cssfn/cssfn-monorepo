@@ -512,7 +512,7 @@ class ParseSelectors {
     
     
     constructor(expressions: SingleOrDeepArray<OptionalOrBoolean<string>>) {
-        this.#expression       = (([expressions] as any).flat(Infinity) as OptionalOrBoolean<string>[]).filter((exp) => (typeof(exp) === 'string') && (exp !== '')).join(',');
+        this.#expression       = (([expressions] as any).flat(Infinity) as OptionalOrBoolean<string>[]).filter((exp) => (typeof(exp) === 'string') && (exp !== '')).join(','); // TODO: tweak up the performance
         this.#expressionLength = this.#expression.length;
         this.#pos              = 0;
         
