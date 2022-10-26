@@ -118,18 +118,39 @@ const batchUpdate = () => {
     } // for
 }
 
-let cancelRequestBatchUpdate : ReturnType<typeof requestAnimationFrame>|undefined = undefined;
+
+
+let cancelScheduledBatchUpdate : ReturnType<typeof requestAnimationFrame>|undefined = undefined;
+const scheduledBatchUpdate = () => {
+    // marks:
+    cancelScheduledBatchUpdate = undefined; // performing => uncancellable
+    
+    
+    
+    // actions:
+    batchUpdate();
+}
+const scheduleBatchUpdate = () => {
+    // `promise to batchUpdate()` in the future as soon as possible, BEFORE browser repaint:
+    cancelScheduledBatchUpdate = isomorphicRequestAnimationFrame(scheduledBatchUpdate);
+}
+const cancelBatchUpdate = () => {
+    if (cancelScheduledBatchUpdate) {
+        cancelAnimationFrame(cancelScheduledBatchUpdate);
+        cancelScheduledBatchUpdate = undefined; // mark as canceled
+    } // if
+}
+
+
+
 const handleUpdate = (styleSheet: StyleSheet): void => {
     // marks:
     pendingUpdates.add(styleSheet);
     
     
     
-    // cancel out previously `request batchUpdate()` (if any):
-    if (cancelRequestBatchUpdate) {
-        cancelAnimationFrame(cancelRequestBatchUpdate);
-        cancelRequestBatchUpdate = undefined; // mark as canceled
-    } // if
+    // cancel out previously async update (if was):
+    cancelBatchUpdate();
     
     
     
@@ -140,15 +161,7 @@ const handleUpdate = (styleSheet: StyleSheet): void => {
     }
     else {
         // async update:
-        cancelRequestBatchUpdate = isomorphicRequestAnimationFrame(() => { // `promise to batchUpdate()` in the future as soon as possible, BEFORE browser repaint
-            // marks:
-            cancelRequestBatchUpdate = undefined; // performing => uncancellable
-            
-            
-            
-            // actions:
-            batchUpdate(); // promised!
-        });
+        scheduleBatchUpdate();
     } //
 }
 if (isClientSide) styleSheetRegistry.subscribe(handleUpdate);
