@@ -22,6 +22,7 @@ import { mutateSheet5 } from './stylesheet5_css'
 import { useStyleSheet6 } from './stylesheet6_css'
 import { useStyleSheet7 } from './stylesheet7_css'
 import { useStyleSheet8 } from './stylesheet8_css'
+import { TestComponent1 } from './TestComponent1';
 // styleSheet(() => ({
 //     display: 'flex',
 //     flexDirection: 'row',
@@ -135,6 +136,9 @@ function App() {
                     <button onClick={handleAddListItemB}>Add new B</button>
                     <button onClick={handleAddListItemC}>Add new C</button>
                 </ul>
+            </article>
+            <article>
+                <TestComponent1 />
             </article>
         </div>
     );

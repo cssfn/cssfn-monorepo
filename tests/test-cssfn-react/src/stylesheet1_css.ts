@@ -4,8 +4,10 @@ import {
 
 
 
-styleSheet(() => ({
-    display       : 'flex',
-    flexDirection : 'row',
-    flexWrap      : 'nowrap',
-}), { id: 'styleSheet-1'});
+styleSheet(function styleSheet1() {
+    return ({
+        display       : 'flex',
+        flexDirection : 'row',
+        flexWrap      : 'nowrap',
+    });
+}, { id: 'styleSheet-1'});
