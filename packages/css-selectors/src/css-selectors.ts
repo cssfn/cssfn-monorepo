@@ -79,6 +79,26 @@ const combinatorList                   = [' ', '>', '~', '+'];
 
 
 // parses:
+const isNotEmptyExpression = (expression: OptionalOrBoolean<string>): expression is string => (
+    !!expression           // not `undefined`|`null`|`false`|emptyString
+    &&
+    (expression !== true)  // not `true`
+);
+const joinExpressions = (expressions: SingleOrDeepArray<OptionalOrBoolean<string>>): string => {
+    if (!Array.isArray(expressions)) {
+        if (isNotEmptyExpression(expressions)) return expressions;
+        return '';
+    } // if
+    
+    
+    
+    return (
+        ((expressions as any).flat(Infinity) as OptionalOrBoolean<string>[])
+        .filter(isNotEmptyExpression)
+        .join(',')
+    );
+};
+
 class ParseSelectors {
     //#region private fields
     readonly #expression       : string
@@ -512,7 +532,7 @@ class ParseSelectors {
     
     
     constructor(expressions: SingleOrDeepArray<OptionalOrBoolean<string>>) {
-        this.#expression       = (([expressions] as any).flat(Infinity) as OptionalOrBoolean<string>[]).filter((exp) => (typeof(exp) === 'string') && (exp !== '')).join(','); // TODO: tweak up the performance
+        this.#expression       = joinExpressions(expressions);
         this.#expressionLength = this.#expression.length;
         this.#pos              = 0;
         
