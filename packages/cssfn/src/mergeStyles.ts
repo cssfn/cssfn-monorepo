@@ -127,6 +127,11 @@ const groupByRuleType = (accum: Map<RuleType, CssSelector[]>, selector: CssSelec
     return accum;
 }
 
+const parseSelectorsFromString = (selectorString: CssSelector): SelectorGroup => {
+    const selectorGroup = parseSelectors(selectorString);
+    if (!selectorGroup) throw Error(`parse selector error: ${selectorString}`);
+    return selectorGroup;
+}
 const finalizeSelector = (style: (CssRuleMap & CssFinalRuleMap), symbolProp: symbol): CssFinalSelector|null => {
     const ruleData = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp); // get existing prop (if any)
     if (ruleData === undefined) return null;
@@ -155,11 +160,7 @@ const finalizeSelector = (style: (CssRuleMap & CssFinalRuleMap), symbolProp: sym
     // parse selectors:
     const selectorGroup : SelectorGroup = (
         (selectorGroupByRuleType.get(RuleType.SelectorRule) ?? []) // take only the SelectorRule(s)
-        .flatMap((selectorString) => { // TODO: tweak up the performance
-            const selectorGroup = parseSelectors(selectorString);
-            if (!selectorGroup) throw Error(`parse selector error: ${selectorString}`);
-            return selectorGroup;
-        })
+        .flatMap(parseSelectorsFromString)
     );
     // merge selectors:
     const mergedSelectors = mergeSelectors(selectorGroup, options);
