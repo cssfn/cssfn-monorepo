@@ -56,6 +56,7 @@ import {
 import {
     flat,
     isFinalSelector,
+    isStyle,
     isFinalStyleMap,
 }                           from './utilities.js'
 import {
@@ -227,6 +228,20 @@ const ensureSymbolPropsUpdated = (style: CssStyleMap): void => {
         finalizeSelector(style, symbolProp);
     } // for
 }
+const containsOnlyParentSelector = (styles: CssStyleCollection|CssFinalStyleMap): CssStyleCollection => {
+    // conditions:
+    if (!isStyle(styles))           return undefined; // not a CssStyle object => ignore
+    if (Object.keys(styles).length) return undefined; // has any props => ignore
+    const symbolProps = Object.getOwnPropertySymbols(styles);
+    if (symbolProps.length !== 1)   return undefined; // not exactly one nested_prop => ignore
+    
+    
+    
+    const symbolProp = symbolProps[0];
+    const [selector, nestedStyles] = styles[symbolProp];
+    if (selector !== '&')           return undefined; // not a parentSelector => ignore
+    return nestedStyles ?? null; // if `undefined` => convert to `null` to make different than *`undefined` means not_found*
+}
 export const mergeParent  = (style: CssStyleMap): void => {
     let needToReorderOtherSymbolProps = false;
     for (const symbolProp of Array.from(filterOnlyRuleKeys(style.keys()))) { // convert to Array to prevent infinite loop caused by `style.set()`
@@ -234,21 +249,33 @@ export const mergeParent  = (style: CssStyleMap): void => {
         if (finalSelector === '&') { // found only_parentSelector
             /* move the CssProps and (nested)Rules from only_parentSelector to current style */
             
-            // TODO: make a more efficient way dealing with deep nested only_parentSelector
             
-            const [, styles]         = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp)!;
-            const mergedParentStyles = (isFinalStyleMap(styles) ? styles : mergeStyles(styles)) as (CssStyleMap|null);
-            if (mergedParentStyles) {
-                if (!needToReorderOtherSymbolProps) {
-                    /* if mergedParentStyles has any (nested) Rule => all (nested) Rule in current style need to rearrange to preserve the order */
-                    if (hasRuleKeys(mergedParentStyles.keys())) needToReorderOtherSymbolProps = true;
+            
+            let [, styles]         = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp)!;
+            if (!!styles && (styles !== true)) {
+                // efficiently dealing with *deep nested* only_parentSelector:
+                let deepStyles : CssStyleCollection = undefined;
+                while((deepStyles = containsOnlyParentSelector(styles)) !== undefined) {
+                    styles = deepStyles;
+                } // while
+                
+                
+                
+                if (!!styles && (styles !== true)) {
+                    const mergedParentStyles = (isFinalStyleMap(styles) ? styles : mergeStyles(styles)) as (CssStyleMap|null);
+                    if (mergedParentStyles) {
+                        if (!needToReorderOtherSymbolProps) {
+                            /* if mergedParentStyles has any (nested) Rule => all (nested) Rule in current style need to rearrange to preserve the order */
+                            if (hasRuleKeys(mergedParentStyles.keys())) needToReorderOtherSymbolProps = true;
+                        } // if
+                        
+                        
+                        
+                        mergeLiteral(style, mergedParentStyles); // merge into current style
+                    } // if
                 } // if
-                
-                
-                
-                mergeLiteral(style, mergedParentStyles); // merge into current style
             } // if
-            style.delete(symbolProp);                    // merged => delete source
+            style.delete(symbolProp);                            // merged => delete source
         }
         else if (needToReorderOtherSymbolProps) {
             /* preserve the order of another (nested)Rules */
