@@ -4,6 +4,7 @@ import type {
     SingleOrDeepArray,
 }                           from '@cssfn/types'
 import type {
+    CssStyle,
     CssFinalStyleMap,
     CssStyleCollection,
     
@@ -55,10 +56,13 @@ export const flat = <T,>(collection: SingleOrDeepArray<T>): T[] => {
 
 export const isFinalSelector = (selector: CssRawSelector|CssFinalSelector): selector is CssFinalSelector => (typeof(selector) === 'string');
 
-export const isFinalStyleMap = (style: CssStyleCollection|CssFinalStyleMap): style is CssFinalStyleMap => (
+export const isStyle = (style: CssStyleCollection|CssFinalStyleMap): style is CssStyle => (
     (!!style && (style !== true))
     &&
-    (typeof(style) === 'object')
+    (Object.getPrototypeOf(style) === Object.prototype)
+);
+export const isFinalStyleMap = (style: CssStyleCollection|CssFinalStyleMap): style is CssFinalStyleMap => (
+    (!!style && (style !== true))
     &&
     (Object.getPrototypeOf(style) === Map.prototype)
 );
