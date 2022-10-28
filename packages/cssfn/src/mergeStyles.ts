@@ -243,7 +243,7 @@ const containsOnlyParentSelector = (styles: CssStyleCollection|CssFinalStyleMap)
     return nestedStyles ?? null; // if `undefined` => convert to `null` to make different than *`undefined` means not_found*
 }
 export const mergeParent  = (style: CssStyleMap): void => {
-    let needToReorderOtherSymbolProps = false;
+    let needToReorderTheRestSymbolProps = false;
     for (const symbolProp of Array.from(filterOnlyRuleKeys(style.keys()))) { // convert to Array to prevent infinite loop caused by `style.set()`
         const finalSelector = finalizeSelector(style, symbolProp);
         if (finalSelector === '&') { // found only_parentSelector
@@ -264,9 +264,9 @@ export const mergeParent  = (style: CssStyleMap): void => {
                 if (!!styles && (styles !== true)) {
                     const mergedParentStyles = (isFinalStyleMap(styles) ? styles : mergeStyles(styles)) as (CssStyleMap|null);
                     if (mergedParentStyles) {
-                        if (!needToReorderOtherSymbolProps) {
-                            /* if mergedParentStyles has any (nested) Rule => all (nested) Rule in current style need to rearrange to preserve the order */
-                            if (hasRuleKeys(mergedParentStyles.keys())) needToReorderOtherSymbolProps = true;
+                        if (!needToReorderTheRestSymbolProps) {
+                            /* if mergedParentStyles has any (nested) Rule => all the rest of (nested) Rule need to rearrange to preserve the order */
+                            if (hasRuleKeys(mergedParentStyles.keys())) needToReorderTheRestSymbolProps = true;
                         } // if
                         
                         
@@ -277,7 +277,7 @@ export const mergeParent  = (style: CssStyleMap): void => {
             } // if
             style.delete(symbolProp);                            // merged => delete source
         }
-        else if (needToReorderOtherSymbolProps) {
+        else if (needToReorderTheRestSymbolProps) {
             /* preserve the order of another (nested)Rules */
             
             
