@@ -39,8 +39,8 @@
   },
   "devDependencies": {
     "@cssfn/css-types": "^2.0.4",
-    "@types/jsdom": "^16.2.14",
-    "jsdom": "^19.0.0",
-    "rxjs": "^7.5.5"
+    "@types/jsdom": "^20.0.0",
+    "jsdom": "^20.0.1",
+    "rxjs": "^7.5.7"
   }
 }

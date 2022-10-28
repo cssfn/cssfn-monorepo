@@ -31,8 +31,8 @@
   "dependencies": {
     "@cssfn/css-types": "^2.0.4",
     "@cssfn/types": "^2.0.1",
-    "@types/react": "^18.0.10",
-    "@types/react-dom": "^18.0.5"
+    "@types/react": "^18.0.24",
+    "@types/react-dom": "^18.0.8"
   },
   "peerDependencies": {
     "@cssfn/cssfn": "^2.0.6",

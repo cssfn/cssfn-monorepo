@@ -29,7 +29,7 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
-    "@cssfn/css-selectors": "^2.0.2",
+    "@cssfn/css-selectors": "^2.0.3",
     "@cssfn/css-types": "^2.0.4",
     "@cssfn/types": "^2.0.1",
     "@types/hyphenate-style-name": "^1.0.0",
@@ -44,7 +44,7 @@
     "rxjs": "^7.5.5"
   },
   "devDependencies": {
-    "@types/jsdom": "^16.2.14",
-    "jsdom": "^19.0.0"
+    "@types/jsdom": "^20.0.0",
+    "jsdom": "^20.0.1"
   }
 }
