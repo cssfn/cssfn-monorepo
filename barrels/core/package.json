@@ -39,6 +39,6 @@
   },
   "peerDependencies": {
     "@cssfn/css-vars": "^2.0.10",
-    "@cssfn/cssfn": "^2.0.9"
+    "@cssfn/cssfn": "^2.0.11"
   }
 }
