@@ -150,3 +150,21 @@ export const encodeStyles = (styles: CssStyleCollection): EncodedCssStyleCollect
         .map(encodeStyle)
     );
 }
+
+
+
+export const decodeStyle = (styles: OptionalOrBoolean<EncodedCssStyle>): OptionalOrBoolean<CssStyle> => {
+    // TODO
+}
+export const decodeStyles = (styles: EncodedCssStyleCollection): CssStyleCollection => {
+    if (!Array.isArray(styles)) {
+        return decodeStyle(styles);
+    } // if
+    
+    
+    
+    return (
+        ((styles as any).flat(Infinity) as OptionalOrBoolean<EncodedCssStyle>[]) // no need to *exactly* match the deep_array structure, a simple_array is enough
+        .map(decodeStyle)
+    );
+}
