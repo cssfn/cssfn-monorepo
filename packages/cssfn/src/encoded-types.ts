@@ -56,7 +56,7 @@ export type EncodedCssProps           = EncodedCssCustomProps & EncodedCssKnownP
 
 export type EncodedCssRuleData        = readonly [CssRawSelector|CssFinalSelector, EncodedCssStyleCollection]
 export type EncodedCssRule            = {
-    '' : EncodedCssRuleData[]
+    '' ?: EncodedCssRuleData[]
 }
 
 export type EncodedCssStyle           = EncodedCssProps & EncodedCssRule

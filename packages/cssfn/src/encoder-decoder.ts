@@ -153,8 +153,48 @@ export const encodeStyles = (styles: CssStyleCollection): EncodedCssStyleCollect
 
 
 
+const decodeRuleData = (ruleData: EncodedCssRuleData): CssRuleData => {
+    const [selector, styles] = ruleData;
+    return [
+        selector,
+        decodeStyles(styles)
+    ];
+}
+const decodeNestedRule = (ruleData: CssRuleData): readonly [symbol, CssRuleData] => {
+    return [
+        Symbol(),
+        ruleData
+    ];
+}
 export const decodeStyle = (styles: OptionalOrBoolean<EncodedCssStyle>): OptionalOrBoolean<CssStyle> => {
-    // TODO
+    if (!styles || (styles === true)) return styles; // boolean|null|undefined => ignore
+    
+    
+    
+    const ruleDatas = styles['']; // an empty string key is a special property for storing (nested) rules
+    
+    
+    
+    delete styles[''];
+    const decodedStyle = styles as CssStyle; // no need to clone to improve performance
+    
+    
+    
+    if (ruleDatas && ruleDatas.length) {
+        const nestedRules = (
+            ruleDatas
+            .map(decodeRuleData)
+            .map(decodeNestedRule)
+        );
+        Object.assign(
+            decodedStyle,
+            Object.fromEntries(nestedRules)
+        );
+    } // if
+    
+    
+    
+    return decodedStyle;
 }
 export const decodeStyles = (styles: EncodedCssStyleCollection): CssStyleCollection => {
     if (!Array.isArray(styles)) {
