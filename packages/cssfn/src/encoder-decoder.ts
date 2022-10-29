@@ -78,8 +78,8 @@ const encodePropSimpleValue = (propValue: CssSimpleValue): EncodedCssSimpleValue
     if (typeof(propValue) === 'string') return propValue; // CssSimpleLiteralValue|CssCustomRef => string
     return propValue.toString();                          // CssCustomKeyframesRef              => .toString()
 }
-const encodePropValue = (propValue: CssProps[keyof CssProps]): EncodedCssProps[keyof EncodedCssProps] => {
-    if ((propValue === undefined) || (propValue === null)) return;
+const encodePropValue = (propValue: CssCustomValue|undefined|null): EncodedCssCustomValue|undefined|null => {
+    if ((propValue === undefined) || (propValue === null)) return propValue;
     
     
     
@@ -99,9 +99,9 @@ const encodePropValue = (propValue: CssProps[keyof CssProps]): EncodedCssProps[k
                 .map(encodePropSimpleValue)
             )
         })
-    );
+    ) as EncodedCssCustomValue;
 }
-const encodeProp = ([key, value] : [string, CssProps[keyof CssProps]]): readonly [keyof EncodedCssStyle, EncodedCssStyle[keyof EncodedCssStyle]] => {
+const encodeProp = ([key, value] : [string, CssCustomValue|undefined|null]): readonly [keyof EncodedCssStyle, EncodedCssCustomValue|undefined|null] => {
     return [key as keyof CssProps, encodePropValue(value)];
 }
 const encodeRuleData = (ruleData: CssRuleData): EncodedCssRuleData => {
@@ -120,7 +120,7 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
     const encodedStyle = Object.fromEntries(
         Object.entries(styleValue) // take all string keys (excluding symbol keys)
         .map(encodeProp)
-    ) as EncodedCssStyle;
+    ) as EncodedCssProps as EncodedCssStyle;
     
     
     
