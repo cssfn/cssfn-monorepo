@@ -103,7 +103,7 @@ const encodePropValue = (propValue: CssCustomValue|undefined|null): EncodedCssCu
         .map(encodePropSubValue)
     ) as EncodedCssCustomValue;
 }
-const encodeProp = ([key, value] : [string, CssCustomValue|undefined|null]): readonly [keyof EncodedCssStyle, EncodedCssCustomValue|undefined|null] => {
+const encodeProp = ([key, value] : readonly [string, CssCustomValue|undefined|null]): readonly [keyof EncodedCssProps, EncodedCssCustomValue|undefined|null] => {
     return [key as keyof CssProps, encodePropValue(value)];
 }
 const encodeRuleData = (ruleData: CssRuleData): EncodedCssRuleData => {
