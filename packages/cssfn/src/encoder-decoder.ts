@@ -12,6 +12,7 @@ import type {
 import type {
     // css values:
     CssSimpleValue,
+    CssComplexBaseValueOf,
     
     
     
@@ -73,7 +74,7 @@ import type {
 
 
 
-const encodePropSimpleValue = (propValue: CssSimpleValue): EncodedCssSimpleValue => {
+const encodePropSimpleValue = (propValue: CssComplexBaseValueOf<CssSimpleValue>): CssComplexBaseValueOf<EncodedCssSimpleValue> => {
     if (typeof(propValue) === 'number') return propValue; // CssSimpleNumericValue              => number
     if (typeof(propValue) === 'string') return propValue; // CssSimpleLiteralValue|CssCustomRef => string
     return propValue.toString();                          // CssCustomKeyframesRef              => .toString()
@@ -83,7 +84,7 @@ const encodePropValue = (propValue: CssCustomValue|undefined|null): EncodedCssCu
     
     
     
-    if (!Array.isArray(propValue)) return encodePropSimpleValue(propValue);
+    if (!Array.isArray(propValue)) return encodePropSimpleValue(propValue); // CssComplexBaseValueOf<CssSimpleValue>
     
     
     
