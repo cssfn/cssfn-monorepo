@@ -113,6 +113,9 @@ const encodeRuleData = (ruleData: CssRuleData): EncodedCssRuleData => {
         encodeStyles(styles)
     ];
 }
+export function encodeNestedRule(this: CssStyle, symbolProp: symbol): EncodedCssRuleData {
+    return encodeRuleData(this[symbolProp]);
+}
 export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>): OptionalOrBoolean<EncodedCssStyle> => {
     const styleValue = (typeof(style) === 'function') ? style() : style;
     if (!styleValue || (styleValue === true)) return styleValue; // boolean|null|undefined => ignore
@@ -130,7 +133,7 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
     if (symbolProps.length) {
         encodedStyle[''] = ( // an empty string key is a special property for storing (nested) rules
             symbolProps
-            .map((symbolProp) => encodeRuleData(styleValue[symbolProp]))
+            .map(encodeNestedRule.bind(styleValue))
         );
     } // if
     
