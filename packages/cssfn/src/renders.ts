@@ -6,6 +6,7 @@ import type {
 import type {
     // css values:
     CssSimpleValue,
+    CssComplexBaseValueOf,
     
     
     
@@ -194,13 +195,13 @@ class RenderRule {
             camelCasedPropName
         );
     }
-    #renderPropSimpleValue(propValue: CssSimpleValue): string {
+    #renderPropSimpleValue(propValue: CssComplexBaseValueOf<CssSimpleValue>): string {
         if (typeof(propValue) === 'number') return `${propValue}`; // CssSimpleNumericValue              => number => string
         if (typeof(propValue) === 'string') return propValue;      // CssSimpleLiteralValue|CssCustomRef => string
         return propValue.toString();                               // CssCustomKeyframesRef              => .toString()
     }
     #renderPropValue(renderedPropName: string, propValue: CssCustomValue): string {
-        if (!Array.isArray(propValue)) return this.#renderPropSimpleValue(propValue);
+        if (!Array.isArray(propValue)) return this.#renderPropSimpleValue(propValue); // CssComplexBaseValueOf<CssSimpleValue>
         
         
         
