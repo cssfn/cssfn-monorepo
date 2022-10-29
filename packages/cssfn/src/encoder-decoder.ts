@@ -79,6 +79,16 @@ const encodePropSimpleValue = (propValue: CssComplexBaseValueOf<CssSimpleValue>)
     if (typeof(propValue) === 'string') return propValue; // CssSimpleLiteralValue|CssCustomRef => string
     return propValue.toString();                          // CssCustomKeyframesRef              => .toString()
 }
+const encodePropSubValue = (propSubValue: Extract<CssCustomValue, any[]>[number]): Extract<EncodedCssCustomValue, any[]>[number] => {
+    if (!Array.isArray(propSubValue)) return encodePropSimpleValue(propSubValue);
+    
+    
+    
+    return (
+        propSubValue
+        .map(encodePropSimpleValue)
+    );
+}
 const encodePropValue = (propValue: CssCustomValue|undefined|null): EncodedCssCustomValue|undefined|null => {
     if ((propValue === undefined) || (propValue === null)) return propValue;
     
@@ -90,16 +100,7 @@ const encodePropValue = (propValue: CssCustomValue|undefined|null): EncodedCssCu
     
     return (
         propValue
-        .map((propSubValue) => {
-            if (!Array.isArray(propSubValue)) return encodePropSimpleValue(propSubValue);
-            
-            
-            
-            return (
-                propSubValue
-                .map(encodePropSimpleValue)
-            )
-        })
+        .map(encodePropSubValue)
     ) as EncodedCssCustomValue;
 }
 const encodeProp = ([key, value] : [string, CssCustomValue|undefined|null]): readonly [keyof EncodedCssStyle, EncodedCssCustomValue|undefined|null] => {
