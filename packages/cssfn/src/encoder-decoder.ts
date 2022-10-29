@@ -126,9 +126,9 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
     
     
     
-    const symbolProps = Object.getOwnPropertySymbols(styleValue);
+    const symbolProps = Object.getOwnPropertySymbols(styleValue); // take all symbol keys
     if (symbolProps.length) {
-        encodedStyle[''] = (
+        encodedStyle[''] = ( // an empty string key is a special property for storing (nested) rules
             symbolProps
             .map((symbolProp) => encodeRuleData(styleValue[symbolProp]))
         );
@@ -146,7 +146,7 @@ export const encodeStyles = (styles: CssStyleCollection): EncodedCssStyleCollect
     
     
     return (
-        ((styles as any).flat(Infinity) as ProductOrFactory<OptionalOrBoolean<CssStyle>>[])
+        ((styles as any).flat(Infinity) as ProductOrFactory<OptionalOrBoolean<CssStyle>>[]) // no need to *exactly* match the deep_array structure, a simple_array is enough
         .map(encodeStyle)
     );
 }
