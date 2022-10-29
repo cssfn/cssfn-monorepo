@@ -10,7 +10,13 @@ import type {
     MapOf,
 }                           from '@cssfn/types'
 import type {
+    // css values:
+    CssSimpleValue,
+    
+    
+    
     // css custom properties:
+    CssCustomValue,
     CssCustomProps,
     
     
@@ -67,9 +73,36 @@ import type {
 
 
 
-const encodeValue = ([key, value] : [string, CssProps[keyof CssProps]]): readonly [keyof EncodedCssStyle, EncodedCssStyle[keyof EncodedCssStyle]] => {
-    if (typeof(value) === 'object') return [key as keyof CssProps, `${value}`];
-    return [key as keyof CssProps, value];
+const encodePropSimpleValue = (propValue: CssSimpleValue): EncodedCssSimpleValue => {
+    if (typeof(propValue) === 'number') return propValue; // CssSimpleNumericValue              => number
+    if (typeof(propValue) === 'string') return propValue; // CssSimpleLiteralValue|CssCustomRef => string
+    return propValue.toString();                          // CssCustomKeyframesRef              => .toString()
+}
+const encodePropValue = (propValue: CssProps[keyof CssProps]): EncodedCssProps[keyof EncodedCssProps] => {
+    if ((propValue === undefined) || (propValue === null)) return;
+    
+    
+    
+    if (!Array.isArray(propValue)) return encodePropSimpleValue(propValue);
+    
+    
+    
+    return (
+        propValue
+        .map((propSubValue) => {
+            if (!Array.isArray(propSubValue)) return encodePropSimpleValue(propSubValue);
+            
+            
+            
+            return (
+                propSubValue
+                .map(encodePropSimpleValue)
+            )
+        })
+    );
+}
+const encodeProp = ([key, value] : [string, CssProps[keyof CssProps]]): readonly [keyof EncodedCssStyle, EncodedCssStyle[keyof EncodedCssStyle]] => {
+    return [key as keyof CssProps, encodePropValue(value)];
 }
 const encodeRuleData = (ruleData: CssRuleData): EncodedCssRuleData => {
     const [selector, styles] = ruleData;
@@ -86,7 +119,7 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
     
     const encodedStyle = Object.fromEntries(
         Object.entries(styleValue) // take all string keys (excluding symbol keys)
-        .map(encodeValue)
+        .map(encodeProp)
     ) as EncodedCssStyle;
     
     
@@ -104,14 +137,14 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
     return encodedStyle;
 }
 export const encodeStyles = (styles: CssStyleCollection): EncodedCssStyleCollection => {
-    if (Array.isArray(styles)) {
-        return (
-            ((styles as any).flat(Infinity) as ProductOrFactory<OptionalOrBoolean<CssStyle>>[])
-            .map(encodeStyle)
-        );
+    if (!Array.isArray(styles)) {
+        return encodeStyle(styles);
     } // if
     
     
     
-    return encodeStyle(styles);
+    return (
+        ((styles as any).flat(Infinity) as ProductOrFactory<OptionalOrBoolean<CssStyle>>[])
+        .map(encodeStyle)
+    );
 }
