@@ -20,40 +20,39 @@ import {
 
 
 // workers:
-type WorkerEntry = { worker: Worker, busyLevel: number }
-const workerList : WorkerEntry[] = [];
-const maxParallelWorks = (
-    (typeof(window) !== 'undefined')
-    ?
-    (window?.navigator?.hardwareConcurrency ?? 1)
-    :
-    1
-);
+type WorkerEntry = {
+    worker    : Worker // holds web worker instance
+    busyLevel : number // the busy level: 0 = free, 1 = a bit busy, 99 = very busy
+}
+const workerList : WorkerEntry[] = []; // holds the workers
+const maxParallelWorks = (globalThis.navigator?.hardwareConcurrency ?? 1); // determines the number of logical processors, fallback to 1 processor
 
 const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
     // conditions:
-    if (typeof(Worker) === 'undefined')        return null;
-    if (workerList.length >= maxParallelWorks) return null;
+    if (typeof(Worker) === 'undefined')        return null; // the environment doesn't support web worker => single threading only
+    if (workerList.length >= maxParallelWorks) return null; // the maximum of workers has been reached    => no more workers
     
     
     
     try {
-        const workerInstance = new Worker(new URL('./renderStyleSheetsWorker.js', import.meta.url), { type: 'module' });
+        // try to create a new worker with esm module:
+        const newWorkerInstance = new Worker(new URL('./renderStyleSheetsWorker.js', import.meta.url), { type: 'module' });
+        
         const newWorkerEntry = {
-            worker    : workerInstance,
+            worker    : newWorkerInstance,
             busyLevel : 0,
         };
-        workerList.push(newWorkerEntry);
+        workerList.push(newWorkerEntry); // store the worker to re-use later
         return newWorkerEntry;
     }
     catch {
-        return null;
+        return null; // the worker doesn't support esm module => no worker can be created
     } // try
 }
 
 const isNotBusyWorker   = (workerEntry: WorkerEntry) => (workerEntry.busyLevel === 0);
 const sortBusiestWorker = (a: WorkerEntry, b: WorkerEntry): number => {
-    return b.busyLevel - a.busyLevel;
+    return a.busyLevel - b.busyLevel; // sort from the least busy to the most busy
 }
 const bookingWorker     = (): WorkerEntry|null => {
     return (
