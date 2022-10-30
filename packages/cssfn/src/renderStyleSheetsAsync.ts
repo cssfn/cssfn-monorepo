@@ -38,17 +38,23 @@ const sortBusiestWorker = (a: WorkerEntry, b: WorkerEntry): number => {
 }
 const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
     // conditions:
+    if (typeof(Worker) === 'undefined')           return null;
     if (renderWorkers.length >= maxParallelWorks) return null;
     
     
     
-    const workerInstance = new Worker(new URL('./renderStyleSheetsWorker.js', import.meta.url), { type: 'module' });
-    const newWorkerEntry = {
-        worker    : workerInstance,
-        busyLevel : 0,
-    };
-    renderWorkers.push(newWorkerEntry);
-    return newWorkerEntry;
+    try {
+        const workerInstance = new Worker(new URL('./renderStyleSheetsWorker.js', import.meta.url), { type: 'module' });
+        const newWorkerEntry = {
+            worker    : workerInstance,
+            busyLevel : 0,
+        };
+        renderWorkers.push(newWorkerEntry);
+        return newWorkerEntry;
+    }
+    catch {
+        return null;
+    } // try
 }
 
 
