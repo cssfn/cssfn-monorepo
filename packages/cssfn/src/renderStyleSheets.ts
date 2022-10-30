@@ -121,13 +121,13 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
     
     
     // finally, render the structures:
-    return new Promise<string|null>((resolve) => {
+    return new Promise<string|null>((resolve, reject) => {
         // handlers:
         const handleProcessed = (event: MessageEvent<string|null>) => {
             resolve(event.data);
         };
         const handleError = (event: Event) => {
-            throw event;
+            reject(event);
         };
         
         
