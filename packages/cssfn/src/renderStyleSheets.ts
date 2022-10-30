@@ -88,14 +88,23 @@ export const renderStyleSheet = <TCssScopeName extends CssScopeName = CssScopeNa
 
 type WorkerEntry = { worker: Worker, busyLevel: number }
 const renderWorkers : WorkerEntry[] = [];
-const maxHardwareConcurrency = (typeof(window) !== 'undefined') ? (window?.navigator?.hardwareConcurrency ?? 1) : 1;
+const maxParallelWorks = Math.max(1,
+    (
+        (typeof(window) !== 'undefined')
+        ?
+        (window?.navigator?.hardwareConcurrency ?? 1)
+        :
+        1
+    )
+    - 1
+);
 const isNotBusyWorker = (workerEntry: WorkerEntry) => (workerEntry.busyLevel === 0);
 const sortBusiest = (a: WorkerEntry, b: WorkerEntry): number => {
     return b.busyLevel - a.busyLevel;
 }
 const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
     // conditions:
-    if (renderWorkers.length >= maxHardwareConcurrency) return null;
+    if (renderWorkers.length >= maxParallelWorks) return null;
     
     
     
@@ -105,8 +114,11 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
         busyLevel : 0,
     };
     renderWorkers.push(newWorkerEntry);
+    console.log('create worker #', renderWorkers.length);
     return newWorkerEntry;
 }
+while(!!createWorkerEntryIfNeeded()); // pre-load the worker
+
 export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): Promise<string|null> => {
     if (!styleSheet.enabled) return null;
     
@@ -120,8 +132,8 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
     // prepare the worker:
     const currentWorkerEntry = (
         renderWorkers.find(isNotBusyWorker)   // take the non_busy worker (if any)
-        ??
-        createWorkerEntryIfNeeded()           // add a new worker (if still available)
+        // ??
+        // createWorkerEntryIfNeeded()           // add a new worker (if still available)
         ??
         renderWorkers.sort(sortBusiest).at(0) // take the least busy worker
     );
