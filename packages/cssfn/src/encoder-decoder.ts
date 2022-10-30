@@ -1,13 +1,7 @@
 // cssfn:
 import type {
     OptionalOrBoolean,
-    SingleOrDeepArray,
     ProductOrFactory,
-    ProductOrFactoryOrDeepArray,
-    
-    PartialNullish,
-    
-    MapOf,
 }                           from '@cssfn/types'
 import type {
     // css values:
@@ -18,32 +12,16 @@ import type {
     
     // css custom properties:
     CssCustomValue,
-    CssCustomProps,
-    
-    
-    
-    // css known (standard) properties:
-    CssKnownProps,
     
     
     
     // cssfn properties:
     CssProps,
-    CssPropsMap,
     
     CssRuleData,
-    CssRule,
-    CssRuleMap,
-    CssFinalRuleMap,
     
     CssStyle,
-    CssStyleMap,
-    CssFinalStyleMap,
     CssStyleCollection,
-    
-    CssSelector,
-    
-    CssFinalSelector,
 }                           from '@cssfn/css-types'
 
 // internals:
@@ -55,19 +33,12 @@ import type {
     
     // css custom properties:
     EncodedCssCustomValue,
-    EncodedCssCustomProps,
-    
-    
-    
-    // css known (standard) properties:
-    EncodedCssKnownProps,
     
     
     
     // cssfn properties:
     EncodedCssProps,
     EncodedCssRuleData,
-    EncodedCssRule,
     EncodedCssStyle,
     EncodedCssStyleCollection,
 }                           from './encoded-types.js'
