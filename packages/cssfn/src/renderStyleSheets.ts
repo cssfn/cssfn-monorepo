@@ -86,8 +86,27 @@ export const renderStyleSheet = <TCssScopeName extends CssScopeName = CssScopeNa
 
 
 
-const renderWorkers : { worker: Worker, isBusy: boolean }[] = [];
+type WorkerEntry = { worker: Worker, busyLevel: number }
+const renderWorkers : WorkerEntry[] = [];
 const maxHardwareConcurrency = (typeof(window) !== 'undefined') ? (window?.navigator?.hardwareConcurrency ?? 1) : 1;
+const isNotBusyWorker = (workerEntry: WorkerEntry) => (workerEntry.busyLevel === 0);
+const sortBusiest = (a: WorkerEntry, b: WorkerEntry): number => {
+    return b.busyLevel - a.busyLevel;
+}
+const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
+    // conditions:
+    if (renderWorkers.length >= maxHardwareConcurrency) return null;
+    
+    
+    
+    const workerInstance = new Worker(new URL('./worker-renderStyleSheets.js', import.meta.url), { type: 'module' });
+    const newWorkerEntry = {
+        worker    : workerInstance,
+        busyLevel : 0,
+    };
+    renderWorkers.push(newWorkerEntry);
+    return newWorkerEntry;
+}
 export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): Promise<string|null> => {
     if (!styleSheet.enabled) return null;
     
@@ -99,52 +118,44 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
     
     
     // prepare the worker:
-    let workerEntry = renderWorkers.find((workerEntry) => !workerEntry.isBusy);
-    if (!workerEntry && (renderWorkers.length < maxHardwareConcurrency)) {
-        const workerInstance = new Worker(new URL('./worker-renderStyleSheets.js', import.meta.url), { type: 'module' });
-        const newWorkerEntry = {
-            worker : workerInstance,
-            isBusy : false,
-        };
-        const handleDone = () => {
-            newWorkerEntry.isBusy = false;
-        }
-        workerInstance.addEventListener('message', handleDone);
-        workerInstance.addEventListener('error'  , handleDone);
-        renderWorkers.push(newWorkerEntry);
-    } // if
-    if (!workerEntry) workerEntry = renderWorkers[0];
-    
-    const currentWorkerEntry = workerEntry;
-    const currentWorker      = currentWorkerEntry.worker;
+    const currentWorkerEntry = (
+        renderWorkers.find(isNotBusyWorker)   // take the non_busy worker (if any)
+        ??
+        createWorkerEntryIfNeeded()           // add a new worker (if still available)
+        ??
+        renderWorkers.sort(sortBusiest).at(0) // take the least busy worker
+    );
+    if (!currentWorkerEntry) return renderStyleSheet(styleSheet); // fallback to sync mode
+    const currentWorker = currentWorkerEntry.worker;
     
     
     
     // finally, render the structures:
     return new Promise<string|null>((resolve, reject) => {
         // handlers:
+        const handleDone      = () => {
+            currentWorker.removeEventListener('message', handleProcessed);
+            currentWorker.removeEventListener('error'  , handleError);
+            
+            currentWorkerEntry.busyLevel--;
+        };
         const handleProcessed = (event: MessageEvent<string|null>) => {
+            handleDone();
             resolve(event.data);
         };
-        const handleError = (event: Event) => {
+        const handleError     = (event: Event) => {
+            handleDone();
             reject(event);
         };
         
         
         
         // actions:
-        try {
-            currentWorkerEntry.isBusy = true;
-            
-            currentWorker.addEventListener('message', handleProcessed);
-            currentWorker.addEventListener('error'  , handleError);
-            
-            currentWorker.postMessage(encodeStyles(scopeRules));
-        }
-        finally {
-            currentWorker.removeEventListener('message', handleProcessed);
-            currentWorker.removeEventListener('error'  , handleError);
-        } // try
+        currentWorkerEntry.busyLevel++;
+        
+        currentWorker.addEventListener('message', handleProcessed);
+        currentWorker.addEventListener('error'  , handleError);
+        
+        currentWorker.postMessage(encodeStyles(scopeRules));
     });
-    // return renderRule(scopeRules);
 }
