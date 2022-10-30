@@ -5,7 +5,7 @@ import type {
     CssKnownProps,
 } from '@cssfn/css-types'
 import {
-    render      as _render,
+    renderStyleSheet   as _renderStyleSheet,
     
     // style sheets:
     StyleSheet,
@@ -14,7 +14,7 @@ import {
     
     
     // rule shortcuts:
-    keyframes   as _keyframes,
+    keyframes          as _keyframes,
 } from '@cssfn/cssfn'
 import type {
     cssConfig as _cssConfig,
@@ -43,13 +43,13 @@ const simulateBrowserSide = (dom: _JSDOM) => {
 
 
 jest.isolateModules(() => {
-    let JSDOM              : typeof _JSDOM       = undefined as any;
-    let dom                : _JSDOM              = undefined as any;
-    let keyframes          : typeof _keyframes   = undefined as any;
-    let cssConfig          : typeof _cssConfig   = undefined as any;
+    let JSDOM              : typeof _JSDOM              = undefined as any;
+    let dom                : _JSDOM                     = undefined as any;
+    let keyframes          : typeof _keyframes          = undefined as any;
+    let cssConfig          : typeof _cssConfig          = undefined as any;
     let styleSheetRegistry : typeof _styleSheetRegistry = undefined as any;
-    let render             : typeof _render      = undefined as any;
-    let lastStyleSheet     : StyleSheet|null     = null;
+    let renderStyleSheet   : typeof _renderStyleSheet   = undefined as any;
+    let lastStyleSheet     : StyleSheet|null            = null;
     beforeAll(async () => {
         const jsdomModule    = await import('jsdom')
         
@@ -71,7 +71,7 @@ jest.isolateModules(() => {
         
         keyframes          = cssfnModule.keyframes
         styleSheetRegistry = cssfnModule.styleSheetRegistry
-        render             = cssfnModule.render
+        renderStyleSheet   = cssfnModule.renderStyleSheet
         cssConfig          = cssConfigModule.cssConfig
         
         
@@ -97,7 +97,7 @@ jest.isolateModules(() => {
         });
         
         await new Promise<void>((resolve) => { setTimeout(() => {
-            expect(render(lastStyleSheet!))
+            expect(renderStyleSheet(lastStyleSheet!))
             .toBe(
 `
 :root {
@@ -143,7 +143,7 @@ jest.isolateModules(() => {
         }, { prefix: 'navb', selector: '.navbar' });
         
         await new Promise<void>((resolve) => { setTimeout(() => {
-            expect(render(lastStyleSheet!))
+            expect(renderStyleSheet(lastStyleSheet!))
             .toBe(
 `
 .navbar {
@@ -194,7 +194,7 @@ jest.isolateModules(() => {
         }, { prefix: 'navb' });
         
         await new Promise<void>((resolve) => { setTimeout(() => {
-            expect(render(lastStyleSheet!))
+            expect(renderStyleSheet(lastStyleSheet!))
             .toBe(
 `
 :root {
@@ -257,7 +257,7 @@ jest.isolateModules(() => {
         }, { prefix: 'navb' });
         
         await new Promise<void>((resolve) => { setTimeout(() => {
-            expect(render(lastStyleSheet!))
+            expect(renderStyleSheet(lastStyleSheet!))
             .toBe(
 `
 :root {
@@ -303,7 +303,7 @@ jest.isolateModules(() => {
             cssVals.colFavorite = '#0000ff';
             cssVals.theBorder   = [['solid', '4px', '#ff0000']];
             setTimeout(() => {
-                expect(render(lastStyleSheet!))
+                expect(renderStyleSheet(lastStyleSheet!))
                 .toBe(
 `
 :root {
@@ -346,7 +346,7 @@ jest.isolateModules(() => {
                 
                 (cssVals as any).thickBorder = '4px';
                 setTimeout(() => {
-                    expect(render(lastStyleSheet!))
+                    expect(renderStyleSheet(lastStyleSheet!))
                     .toBe(
 `
 :root {
@@ -429,7 +429,7 @@ jest.isolateModules(() => {
         });
         
         await new Promise<void>((resolve) => { setTimeout(() => {
-            expect(render(lastStyleSheet!))
+            expect(renderStyleSheet(lastStyleSheet!))
             .toBe(
 `
 :root {
@@ -522,7 +522,7 @@ background: url(image1b.png), url(image2b.png);
         }, { prefix: 'navb' });
         
         await new Promise<void>((resolve) => { setTimeout(() => {
-            expect(render(lastStyleSheet!))
+            expect(renderStyleSheet(lastStyleSheet!))
             .toBe(
 `
 :root {
@@ -633,7 +633,7 @@ padding: var(--navb-bdWidth) 0 5px 3%;
         }, { prefix: 'navb' });
         
         await new Promise<void>((resolve) => { setTimeout(() => {
-            expect(render(lastStyleSheet!))
+            expect(renderStyleSheet(lastStyleSheet!))
             .toBe(
 `
 :root {
@@ -697,7 +697,7 @@ padding: var(--navb-bdWidth) 0 5px 3%;
             (cssVals as any).animDuration = '100ms';
             (cssVals as any).thickBorder  = '5px';
             setTimeout(() => {
-                expect(render(lastStyleSheet!))
+                expect(renderStyleSheet(lastStyleSheet!))
                 .toBe(
 `
 :root {
