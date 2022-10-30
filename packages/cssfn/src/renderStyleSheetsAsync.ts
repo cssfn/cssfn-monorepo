@@ -58,8 +58,8 @@ const sortBusiestWorker = (a: WorkerEntry, b: WorkerEntry): number => {
 const bookingWorker     = (): WorkerEntry|null => {
     return (
         workerList.find(isNotBusyWorker)         // take the non_busy worker (if any)
-        // ??
-        // createWorkerEntryIfNeeded()           // add a new worker (if still available)
+        ??
+        createWorkerEntryIfNeeded()              // add a new worker (if still available)
         ??
         workerList.sort(sortBusiestWorker).at(0) // take the least busy worker
         ??
