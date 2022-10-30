@@ -68,8 +68,8 @@ const bookingWorker     = (): WorkerEntry|null => {
 
 
 
-// pre-load the workers:
-const maxPreloadWorkers = 4;
+// pre-load some workers, so the first page render is served quickly:
+const maxPreloadWorkers = 8;
 for (let addWorker = 0; addWorker < maxPreloadWorkers; addWorker++) {
     if (!createWorkerEntryIfNeeded()) break; // max parallel workers reached => stop adding new worker
 } // for
@@ -82,15 +82,15 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
     
     
     
-    // generate Rule(s) from factory:
-    const scopeRules = generateRulesFromFactory(styleSheet);
-    
-    
-    
     // prepare the worker:
     const currentWorkerEntry = bookingWorker();
     if (!currentWorkerEntry) return renderStyleSheet(styleSheet); // fallback to sync mode
     const currentWorker = currentWorkerEntry.worker;
+    
+    
+    
+    // generate Rule(s) from factory:
+    const scopeRules = generateRulesFromFactory(styleSheet);
     
     
     
