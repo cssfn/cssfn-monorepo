@@ -7,7 +7,7 @@ import {
     
     
     // processors:
-    render,
+    renderStyleSheet,
 }                           from '@cssfn/cssfn'
 
 // other libs:
@@ -68,7 +68,7 @@ const batchUpdate = () => {
     // render all:
     const updates = styleSheets.map((styleSheet): readonly [StyleSheet, string|null] => [
         styleSheet,
-        (styleSheet.enabled || null) && render(styleSheet)
+        (styleSheet.enabled || null) && renderStyleSheet(styleSheet)
     ]);
     
     
