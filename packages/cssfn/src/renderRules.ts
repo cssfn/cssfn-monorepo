@@ -471,10 +471,11 @@ class RenderRule {
 
 
 export const renderRule = (rules: CssRuleCollection): string|null => {
-    const mergedStyleSheetRule   = mergeStyles(rules);
+    // merge the rules to styleMap:
+    const finalStyleMap   = mergeStyles(rules);
     
     
     
     // finally, render the structures:
-    return (new RenderRule(null, mergedStyleSheetRule)).rendered || null;
+    return (new RenderRule(null, finalStyleMap)).rendered || null;
 }
