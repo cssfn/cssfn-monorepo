@@ -1,3 +1,4 @@
+// internals:
 import type {
     EncodedCssStyleCollection,
 }                           from './cssfn-encoded-types.js'
@@ -10,6 +11,7 @@ import {
 
 
 
+// processors:
 self.onmessage = (event: MessageEvent<EncodedCssStyleCollection>) => {
     const scopeRules = decodeStyles(event.data);
     self.postMessage(renderRule(scopeRules));

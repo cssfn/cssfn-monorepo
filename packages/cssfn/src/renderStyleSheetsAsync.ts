@@ -42,7 +42,7 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
     
     
     
-    const workerInstance = new Worker(new URL('./worker-renderStyleSheets.js', import.meta.url), { type: 'module' });
+    const workerInstance = new Worker(new URL('./renderStyleSheetsWorker.js', import.meta.url), { type: 'module' });
     const newWorkerEntry = {
         worker    : workerInstance,
         busyLevel : 0,
