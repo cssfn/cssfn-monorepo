@@ -25,16 +25,13 @@ import type {
     CssPropsMap,
     
     CssFinalRuleData,
-    CssRule,
     CssFinalRule,
+    
+    CssRuleCollection,
     
     CssFinalStyleMap,
     
     CssFinalSelector,
-    
-    CssClassName,
-    
-    CssScopeName,
 }                           from '@cssfn/css-types'
 import {
     // types:
@@ -68,25 +65,12 @@ import {
 }                           from '@cssfn/css-selectors'
 
 // internals:
-import type {
-    // types:
-    StyleSheet,
-}                           from './styleSheets.js'
 import {
     filterOnlyRuleKeys,
     filterOnlyPropKeys,
     hasPropKeys,
     mergeStyles,
 }                           from './mergeStyles.js'
-import {
-    // rules:
-    rule,
-    
-    
-    
-    // rule shortcuts:
-    atGlobal,
-}                           from './cssfn.js'
 
 // other libs:
 import {
@@ -486,40 +470,8 @@ class RenderRule {
 
 
 
-export const render = <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): string|null => {
-    if (!styleSheet.enabled) return null;
-    
-    
-    
-    const scopesFactory = styleSheet.scopes;
-    const scopeList = (typeof(scopesFactory) === 'function') ? scopesFactory() : scopesFactory;
-    if (!scopeList || !scopeList.length) return null;
-    
-    const scopeMap     = styleSheet.classes;
-    
-    const scopeRules : CssRule[] = scopeList.map(([scopeName, styles, options]): CssRule|null => {
-        if (scopeName === '') { // globalScope => aliased to @global rule
-            return atGlobal(
-                styles
-            );
-        } // if
-        
-        
-        
-        // calculate unique class:
-        const uniqueClass    : CssClassName     = scopeMap[scopeName];
-        const uniqueSelector : CssFinalSelector = `.${uniqueClass}`;
-        
-        
-        
-        // the top level rule (scope rule):
-        return rule(
-            uniqueSelector,
-            styles,
-            { ...options, performGrouping: false }
-        );
-    }).filter((rule): rule is CssRule => !!rule);
-    const mergedStyleSheetRule   = mergeStyles(scopeRules);
+export const renderRule = (rules: CssRuleCollection): string|null => {
+    const mergedStyleSheetRule   = mergeStyles(rules);
     
     
     
