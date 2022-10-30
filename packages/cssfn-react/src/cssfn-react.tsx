@@ -48,7 +48,7 @@ import {
     
     
     // processors:
-    render,
+    renderStyleSheet,
     
     
     
@@ -116,7 +116,7 @@ export const Styles = (): JSX.Element|null => {
     
     // dom effects:
     const [unsubscribe] = useState(() => styleSheetRegistry.subscribe((styleSheet: StyleSheet): void => {
-        const renderedCss = (styleSheet.enabled || null) && render(styleSheet);
+        const renderedCss = (styleSheet.enabled || null) && renderStyleSheet(styleSheet);
         if (!renderedCss) {
             // remove the <Style>:
             // console.log('');
