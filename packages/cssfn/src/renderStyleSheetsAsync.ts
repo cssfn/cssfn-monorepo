@@ -21,7 +21,7 @@ import {
 
 // workers:
 type WorkerEntry = { worker: Worker, busyLevel: number }
-const renderWorkers : WorkerEntry[] = [];
+const workerList : WorkerEntry[] = [];
 const maxParallelWorks = (
     (typeof(window) !== 'undefined')
     ?
@@ -29,14 +29,11 @@ const maxParallelWorks = (
     :
     1
 );
-const isNotBusyWorker = (workerEntry: WorkerEntry) => (workerEntry.busyLevel === 0);
-const sortBusiestWorker = (a: WorkerEntry, b: WorkerEntry): number => {
-    return b.busyLevel - a.busyLevel;
-}
+
 const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
     // conditions:
-    if (typeof(Worker) === 'undefined')           return null;
-    if (renderWorkers.length >= maxParallelWorks) return null;
+    if (typeof(Worker) === 'undefined')        return null;
+    if (workerList.length >= maxParallelWorks) return null;
     
     
     
@@ -46,12 +43,28 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
             worker    : workerInstance,
             busyLevel : 0,
         };
-        renderWorkers.push(newWorkerEntry);
+        workerList.push(newWorkerEntry);
         return newWorkerEntry;
     }
     catch {
         return null;
     } // try
+}
+
+const isNotBusyWorker   = (workerEntry: WorkerEntry) => (workerEntry.busyLevel === 0);
+const sortBusiestWorker = (a: WorkerEntry, b: WorkerEntry): number => {
+    return b.busyLevel - a.busyLevel;
+}
+const bookingWorker     = (): WorkerEntry|null => {
+    return (
+        workerList.find(isNotBusyWorker)         // take the non_busy worker (if any)
+        // ??
+        // createWorkerEntryIfNeeded()           // add a new worker (if still available)
+        ??
+        workerList.sort(sortBusiestWorker).at(0) // take the least busy worker
+        ??
+        null                                     // no worker available
+    );
 }
 
 
@@ -76,13 +89,7 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
     
     
     // prepare the worker:
-    const currentWorkerEntry = (
-        renderWorkers.find(isNotBusyWorker)         // take the non_busy worker (if any)
-        // ??
-        // createWorkerEntryIfNeeded()              // add a new worker (if still available)
-        ??
-        renderWorkers.sort(sortBusiestWorker).at(0) // take the least busy worker
-    );
+    const currentWorkerEntry = bookingWorker();
     if (!currentWorkerEntry) return renderStyleSheet(styleSheet); // fallback to sync mode
     const currentWorker = currentWorkerEntry.worker;
     
