@@ -131,10 +131,11 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
     
     const symbolProps = Object.getOwnPropertySymbols(styleValue); // take all symbol keys
     if (symbolProps.length) {
-        encodedStyle[''] = ( // an empty string key is a special property for storing (nested) rules
+        const nestedRules = (
             symbolProps
             .map(encodeNestedRule.bind(styleValue))
         );
+        encodedStyle[''] = nestedRules; // an empty string key is a special property for storing (nested) rules
     } // if
     
     
@@ -163,10 +164,10 @@ const decodeRuleData = (ruleData: EncodedCssRuleData): CssRuleData => {
         decodeStyles(styles)
     ];
 }
-const decodeNestedRule = (ruleData: CssRuleData): readonly [symbol, CssRuleData] => {
+const decodeNestedRule = (ruleData: EncodedCssRuleData): readonly [symbol, CssRuleData] => {
     return [
         Symbol(),
-        ruleData
+        decodeRuleData(ruleData)
     ];
 }
 export const decodeStyle = (styles: OptionalOrBoolean<EncodedCssStyle>): OptionalOrBoolean<CssStyle> => {
@@ -186,7 +187,6 @@ export const decodeStyle = (styles: OptionalOrBoolean<EncodedCssStyle>): Optiona
     if (ruleDatas && ruleDatas.length) {
         const nestedRules = (
             ruleDatas
-            .map(decodeRuleData)
             .map(decodeNestedRule)
         );
         Object.assign(
