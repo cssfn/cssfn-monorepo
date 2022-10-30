@@ -84,11 +84,6 @@ import {
     
     
     
-    // rule groups:
-    rules,
-    
-    
-    
     // rule shortcuts:
     atGlobal,
 }                           from './cssfn.js'
@@ -524,8 +519,7 @@ export const render = <TCssScopeName extends CssScopeName = CssScopeName>(styleS
             { ...options, performGrouping: false }
         );
     }).filter((rule): rule is CssRule => !!rule);
-    const styleSheetRule       = rules(scopeRules);
-    const mergedStyleSheetRule = mergeStyles(styleSheetRule);
+    const mergedStyleSheetRule   = mergeStyles(scopeRules);
     
     
     
