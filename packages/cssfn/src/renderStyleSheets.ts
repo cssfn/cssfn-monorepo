@@ -32,6 +32,7 @@ import {
 
 
 
+// processors:
 function convertScopeEntryToCssRule<TCssScopeName extends CssScopeName = CssScopeName>(this: CssScopeMap<TCssScopeName>, [scopeName, styles, options]: CssScopeEntry<TCssScopeName>): CssRule|null {
     if (scopeName === '') { // globalScope => aliased to @global rule
         return atGlobal(

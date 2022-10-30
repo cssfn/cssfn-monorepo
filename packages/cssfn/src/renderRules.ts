@@ -470,6 +470,7 @@ class RenderRule {
 
 
 
+// processors:
 export const renderRule = (rules: CssRuleCollection): string|null => {
     // merge the rules to styleMap:
     const finalStyleMap   = mergeStyles(rules);
