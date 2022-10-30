@@ -22,15 +22,12 @@ import {
 // workers:
 type WorkerEntry = { worker: Worker, busyLevel: number }
 const renderWorkers : WorkerEntry[] = [];
-const maxParallelWorks = Math.max(0,
-    (
-        (typeof(window) !== 'undefined')
-        ?
-        (window?.navigator?.hardwareConcurrency ?? 1)
-        :
-        1
-    )
-    - 1 // the first cpu core was reserved by JavaScript's main thread loop
+const maxParallelWorks = (
+    (typeof(window) !== 'undefined')
+    ?
+    (window?.navigator?.hardwareConcurrency ?? 1)
+    :
+    1
 );
 const isNotBusyWorker = (workerEntry: WorkerEntry) => (workerEntry.busyLevel === 0);
 const sortBusiestWorker = (a: WorkerEntry, b: WorkerEntry): number => {
