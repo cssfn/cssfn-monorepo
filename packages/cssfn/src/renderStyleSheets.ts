@@ -2,6 +2,7 @@
 import type {
     // cssfn properties:
     CssRule,
+    CssRuleCollection,
     
     CssFinalSelector,
     
@@ -55,19 +56,24 @@ function convertScopeEntryToCssRule<TCssScopeName extends CssScopeName = CssScop
         { ...options, performGrouping: false }
     );
 }
+const generateRulesFromFactory = <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): CssRuleCollection => {
+    const scopesFactory = styleSheet.scopes;
+    const scopeList = (typeof(scopesFactory) === 'function') ? scopesFactory() : scopesFactory;
+    if (!scopeList || !scopeList.length) return null;
+    
+    
+    
+    const scopeMap   = styleSheet.classes;
+    const scopeRules = scopeList.map(convertScopeEntryToCssRule.bind(scopeMap));
+    return scopeRules;
+}
 export const renderStyleSheet = <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): string|null => {
     if (!styleSheet.enabled) return null;
     
     
     
-    //#region generate Rule(s) from factory
-    const scopesFactory = styleSheet.scopes;
-    const scopeList = (typeof(scopesFactory) === 'function') ? scopesFactory() : scopesFactory;
-    if (!scopeList || !scopeList.length) return null;
-    
-    const scopeMap   = styleSheet.classes;
-    const scopeRules = scopeList.map(convertScopeEntryToCssRule.bind(scopeMap));
-    //#endregion generate Rule(s) from factory
+    // generate Rule(s) from factory:
+    const scopeRules = generateRulesFromFactory(styleSheet);
     
     
     
