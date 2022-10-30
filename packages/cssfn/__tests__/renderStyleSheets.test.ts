@@ -4,38 +4,38 @@ import type {
 import {
     // style sheets:
     StyleSheet,
-    styleSheets as _styleSheets,
-    styleSheet  as _styleSheet,
+    styleSheets        as _styleSheets,
+    styleSheet         as _styleSheet,
     styleSheetRegistry as _styleSheetRegistry,
     
     
     
     // rule shortcuts:
-    fallbacks   as _fallbacks,
-    fontFace    as _fontFace,
-    keyframes   as _keyframes,
-    rule        as _rule,
-    atRule      as _atRule,
-    rules       as _rules,
-    atGlobal    as _atGlobal,
-    children    as _children,
-    vars        as _vars,
+    fallbacks          as _fallbacks,
+    fontFace           as _fontFace,
+    keyframes          as _keyframes,
+    rule               as _rule,
+    atRule             as _atRule,
+    rules              as _rules,
+    atGlobal           as _atGlobal,
+    children           as _children,
+    vars               as _vars,
     
     
     
     // styles:
-    style       as _style,
+    style              as _style,
     
     
     
     // scopes:
-    mainScope   as _mainScope,
-    globalScope as _globalScope,
+    mainScope          as _mainScope,
+    globalScope        as _globalScope,
     
     
     
     // processors:
-    render      as _render,
+    renderStyleSheet   as _renderStyleSheet,
 } from '../dist/index.js'
 import {
     jest,
@@ -61,25 +61,25 @@ const simulateBrowserSide = (dom: _JSDOM) => {
 
 
 jest.isolateModules(() => {
-    let JSDOM              : typeof _JSDOM       = undefined as any;
-    let dom                : _JSDOM              = undefined as any;
-    let fallbacks          : typeof _fallbacks   = undefined as any;
-    let fontFace           : typeof _fontFace    = undefined as any;
-    let keyframes          : typeof _keyframes   = undefined as any;
-    let rule               : typeof _rule        = undefined as any;
-    let atRule             : typeof _atRule      = undefined as any;
-    let rules              : typeof _rules       = undefined as any;
-    let atGlobal           : typeof _atGlobal    = undefined as any;
-    let children           : typeof _children    = undefined as any;
-    let vars               : typeof _vars        = undefined as any;
-    let style              : typeof _style       = undefined as any;
-    let styleSheets        : typeof _styleSheets = undefined as any;
-    let styleSheet         : typeof _styleSheet  = undefined as any;
-    let mainScope          : typeof _mainScope   = undefined as any;
-    let globalScope        : typeof _globalScope = undefined as any;
+    let JSDOM              : typeof _JSDOM              = undefined as any;
+    let dom                : _JSDOM                     = undefined as any;
+    let fallbacks          : typeof _fallbacks          = undefined as any;
+    let fontFace           : typeof _fontFace           = undefined as any;
+    let keyframes          : typeof _keyframes          = undefined as any;
+    let rule               : typeof _rule               = undefined as any;
+    let atRule             : typeof _atRule             = undefined as any;
+    let rules              : typeof _rules              = undefined as any;
+    let atGlobal           : typeof _atGlobal           = undefined as any;
+    let children           : typeof _children           = undefined as any;
+    let vars               : typeof _vars               = undefined as any;
+    let style              : typeof _style              = undefined as any;
+    let styleSheets        : typeof _styleSheets        = undefined as any;
+    let styleSheet         : typeof _styleSheet         = undefined as any;
+    let mainScope          : typeof _mainScope          = undefined as any;
+    let globalScope        : typeof _globalScope        = undefined as any;
     let styleSheetRegistry : typeof _styleSheetRegistry = undefined as any;
-    let render             : typeof _render      = undefined as any;
-    let lastStyleSheet     : StyleSheet|null     = null;
+    let renderStyleSheet   : typeof _renderStyleSheet   = undefined as any;
+    let lastStyleSheet     : StyleSheet|null            = null;
     beforeAll(async () => {
         const jsdomModule    = await import('jsdom')
         
@@ -113,7 +113,7 @@ jest.isolateModules(() => {
         mainScope          = cssfnModule.mainScope
         globalScope        = cssfnModule.globalScope
         styleSheetRegistry = cssfnModule.styleSheetRegistry
-        render             = cssfnModule.render
+        renderStyleSheet   = cssfnModule.renderStyleSheet
         
         
         
@@ -125,7 +125,7 @@ jest.isolateModules(() => {
     
     
     //#region test properties
-    test(`render() # test standard propName`, () => {
+    test(`renderStyleSheet() # test standard propName`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -135,7 +135,7 @@ jest.isolateModules(() => {
                 })
             )
         ], { id: '#sheet#1' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .z7qv1 {
@@ -146,7 +146,7 @@ border-start-end-radius: 0.5px;
 `
         );
     });
-    test(`render() # test vendor propName`, () => {
+    test(`renderStyleSheet() # test vendor propName`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -157,7 +157,7 @@ border-start-end-radius: 0.5px;
                 })
             )
         ], { id: '#sheet#2' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .yny9o {
@@ -169,7 +169,7 @@ border-start-end-radius: 0.5px;
 `
         );
     });
-    test(`render() # test custom propName`, () => {
+    test(`renderStyleSheet() # test custom propName`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -180,7 +180,7 @@ border-start-end-radius: 0.5px;
                 })
             )
         ], { id: '#sheet#3' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .y45ob {
@@ -192,7 +192,7 @@ border-start-end-radius: 0.5px;
 `
         );
     });
-    test(`render() # test propValue`, () => {
+    test(`renderStyleSheet() # test propValue`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -211,7 +211,7 @@ border-start-end-radius: 0.5px;
                 })
             )
         ], { id: '#sheet#4' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .xkd2y {
@@ -231,13 +231,13 @@ background-position: 0 0, 1cm 2cm, center !important;
     
     
     
-    test(`render() # test standard propName`, () => {
+    test(`renderStyleSheet() # test standard propName`, () => {
         styleSheet(() => ({
             background: 'pink',
             paddingInline: '1rem',
             borderStartEndRadius: '0.5px',
         }), { id: '#sheet#1' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .z7qv1 {
@@ -248,14 +248,14 @@ border-start-end-radius: 0.5px;
 `
         );
     });
-    test(`render() # test vendor propName`, () => {
+    test(`renderStyleSheet() # test vendor propName`, () => {
         styleSheet(() => ({
             WebkitAnimationDelay: '500ms',
             MozAnimationDelay: '500ms',
             OAnimationDelay: '500ms',
             msFlexDirection: 'column',
         }), { id: '#sheet#2' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .yny9o {
@@ -267,14 +267,14 @@ border-start-end-radius: 0.5px;
 `
         );
     });
-    test(`render() # test custom propName`, () => {
+    test(`renderStyleSheet() # test custom propName`, () => {
         styleSheet(() => ({
             '--custProp1': '"yeah"',
             'var(--custProp2)': '"cool"',
             '--my-custProp1': '"okay"',
             'var(--my-custProp2)': '"good"',
         }), { id: '#sheet#3' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .y45ob {
@@ -286,7 +286,7 @@ border-start-end-radius: 0.5px;
 `
         );
     });
-    test(`render() # test propValue`, () => {
+    test(`renderStyleSheet() # test propValue`, () => {
         styleSheet(() => ({
             color: 'pink',
             opacity: 0.5,
@@ -301,7 +301,7 @@ border-start-end-radius: 0.5px;
             boxShadow: [['10px', '5px', '5px', 'black'], ['inset', '5em', '1em', 'gold']],
             backgroundPosition: [[0, 0], ['1cm', '2cm'], ['center'], '!important'],
         }), { id: '#sheet#4' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .xkd2y {
@@ -323,7 +323,7 @@ background-position: 0 0, 1cm 2cm, center !important;
     
     
     //#region test @fallbacks
-    test(`render() # test @fallbacks`, () => {
+    test(`renderStyleSheet() # test @fallbacks`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -334,7 +334,7 @@ background-position: 0 0, 1cm 2cm, center !important;
                 })
             )
         ], { id: '#sheet#5' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .x0khl {
@@ -344,7 +344,7 @@ background: linear-gradient(to right, red 0%, green 100%);
 `
         );
     });
-    test(`render() # test @fallbacks`, () => {
+    test(`renderStyleSheet() # test @fallbacks`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -364,7 +364,7 @@ background: linear-gradient(to right, red 0%, green 100%);
                 })
             )
         ], { id: '#sheet#6' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .wgrw8 {
@@ -380,14 +380,14 @@ display: grid;
     
     
     
-    test(`render() # test @fallbacks`, () => {
+    test(`renderStyleSheet() # test @fallbacks`, () => {
         styleSheet(() => ({
             background: 'linear-gradient(to right, red 0%, green 100%)',
             ...fallbacks({
                 background: 'red',
             }),
         }), { id: '#sheet#5' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .x0khl {
@@ -397,7 +397,7 @@ background: linear-gradient(to right, red 0%, green 100%);
 `
         );
     });
-    test(`render() # test @fallbacks`, () => {
+    test(`renderStyleSheet() # test @fallbacks`, () => {
         styleSheet(() => ({
             display: 'grid',
             ...fallbacks({
@@ -413,7 +413,7 @@ background: linear-gradient(to right, red 0%, green 100%);
                 display: 'none',
             }),
         }), { id: '#sheet#6' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .wgrw8 {
@@ -431,7 +431,7 @@ display: grid;
     
     
     //#region test @font-face
-    test(`render() # test @font-face`, () => {
+    test(`renderStyleSheet() # test @font-face`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -444,7 +444,7 @@ display: grid;
                 })
             )
         ], { id: '#sheet#7' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 @font-face {
@@ -456,7 +456,7 @@ font-style: oblique 40deg;
 `
         );
     });
-    test(`render() # test @font-face`, () => {
+    test(`renderStyleSheet() # test @font-face`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -471,7 +471,7 @@ font-style: oblique 40deg;
                 })
             )
         ], { id: '#sheet#8' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 @font-face {
@@ -486,7 +486,7 @@ font-style: oblique 40deg;
     
     
     
-    test(`render() # test @font-face`, () => {
+    test(`renderStyleSheet() # test @font-face`, () => {
         styleSheet(() => ({
             ...fontFace({
                 fontFamily: 'Open Sans',
@@ -495,7 +495,7 @@ font-style: oblique 40deg;
                 fontStyle: [['oblique', '40deg']],
             }),
         }), { id: '#sheet#7' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 @font-face {
@@ -507,7 +507,7 @@ font-style: oblique 40deg;
 `
         );
     });
-    test(`render() # test @font-face`, () => {
+    test(`renderStyleSheet() # test @font-face`, () => {
         styleSheet(() => ({
             ...fontFace({
                 fontFamily: 'Open Sans',
@@ -518,7 +518,7 @@ font-style: oblique 40deg;
                 }),
             }),
         }), { id: '#sheet#8' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 @font-face {
@@ -535,7 +535,7 @@ font-style: oblique 40deg;
     
     
     //#region test @keyframes
-    test(`render() # test @keyframes`, () => {
+    test(`renderStyleSheet() # test @keyframes`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -554,7 +554,7 @@ font-style: oblique 40deg;
                 })
             )
         ], { id: '#sheet#7' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 @keyframes awesome {
@@ -574,7 +574,7 @@ opacity: 0.9;
 `
         );
     });
-    test(`render() # test @keyframes`, () => {
+    test(`renderStyleSheet() # test @keyframes`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -599,7 +599,7 @@ opacity: 0.9;
                 })
             )
         ], { id: '#sheet#8' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 @keyframes awesome {
@@ -624,7 +624,7 @@ border: solid 4px blue;
     
     
     
-    test(`render() # test @keyframes`, () => {
+    test(`renderStyleSheet() # test @keyframes`, () => {
         styleSheet(() => ({
             ...keyframes('awesome', {
                 from: {
@@ -639,7 +639,7 @@ border: solid 4px blue;
                 },
             }),
         }), { id: '#sheet#7' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 @keyframes awesome {
@@ -659,7 +659,7 @@ opacity: 0.9;
 `
         );
     });
-    test(`render() # test @keyframes`, () => {
+    test(`renderStyleSheet() # test @keyframes`, () => {
         styleSheet(() => ({
             ...keyframes('awesome', {
                 from: {
@@ -680,7 +680,7 @@ opacity: 0.9;
                 },
             }),
         }), { id: '#sheet#8' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 @keyframes awesome {
@@ -705,12 +705,12 @@ border: solid 4px blue;
     
     
     
-    test(`render() # test empty @keyframes`, () => {
+    test(`renderStyleSheet() # test empty @keyframes`, () => {
         styleSheet(() => ({
             ...keyframes('emptyAnimation', {
             }),
         }), { id: '#sheet#empty#anim#1' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 @keyframes emptyAnimation {
@@ -718,7 +718,7 @@ border: solid 4px blue;
 `
         );
     });
-    test(`render() # test empty @keyframes`, () => {
+    test(`renderStyleSheet() # test empty @keyframes`, () => {
         styleSheet(() => ({
             ...keyframes('emptyAnimation2', {
                 from: {
@@ -731,7 +731,7 @@ border: solid 4px blue;
                 },
             }),
         }), { id: '#sheet#empty#anim#2' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 @keyframes emptyAnimation2 {
@@ -744,7 +744,7 @@ border: solid 4px blue;
     
     
     //#region test .rule
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -768,7 +768,7 @@ border: solid 4px blue;
                 })
             )
         ], { id: '#sheet#9' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .ute45 {
@@ -797,7 +797,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -820,7 +820,7 @@ overflow: auto;
                 })
             )
         ], { id: '#sheet#10' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .vg4v3.rule.rule.rule {
@@ -845,7 +845,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -871,7 +871,7 @@ overflow: auto;
                 })
             )
         ], { id: '#sheet#11' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .vzxgg {
@@ -901,7 +901,7 @@ overflow: auto;
         );
     });
     
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -926,7 +926,7 @@ overflow: auto;
                 { specificityWeight: 3 }
             )
         ], { id: '#sheet#12' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .wjq1t.wjq1t.wjq1t {
@@ -955,7 +955,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -979,7 +979,7 @@ overflow: auto;
                 { specificityWeight: 2 }
             ),
         ], { id: '#sheet#13' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .x3in6.x3in6.rule.rule.rule {
@@ -1004,7 +1004,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -1031,7 +1031,7 @@ overflow: auto;
                 { specificityWeight: 2 }
             )
         ], { id: '#sheet#14' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .xnb8j.xnb8j {
@@ -1061,7 +1061,7 @@ overflow: auto;
         );
     });
     
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -1086,7 +1086,7 @@ overflow: auto;
                 { specificityWeight: 0 }
             )
         ], { id: '#sheet#15' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 :where(.y73tw) {
@@ -1115,7 +1115,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -1139,7 +1139,7 @@ overflow: auto;
                 { specificityWeight: 0 }
             ),
         ], { id: '#sheet#16' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 :where(.yqwf9).rule.rule.rule {
@@ -1164,7 +1164,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -1191,7 +1191,7 @@ overflow: auto;
                 { specificityWeight: 0 }
             )
         ], { id: '#sheet#17' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 :where(.zap0m) {
@@ -1223,7 +1223,7 @@ overflow: auto;
     
     
     
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             background: 'pink',
             ...rule('.rule', {
@@ -1243,7 +1243,7 @@ overflow: auto;
                 overflow: 'auto',
             }),
         }), { id: '#sheet#9' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .ute45 {
@@ -1272,7 +1272,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             ...rule('.rule', {
                 paddingInline: '1rem',
@@ -1291,7 +1291,7 @@ overflow: auto;
                 overflow: 'auto',
             }, { specificityWeight: 2 }),
         }), { id: '#sheet#10' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .vg4v3.rule.rule.rule {
@@ -1316,7 +1316,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             background: 'pink',
             ...rules([
@@ -1338,7 +1338,7 @@ overflow: auto;
                 }),
             ], { specificityWeight: 3 }),
         }), { id: '#sheet#11' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .vzxgg {
@@ -1368,7 +1368,7 @@ overflow: auto;
         );
     });
     
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             background: 'pink',
             ...rule('.rule', {
@@ -1388,7 +1388,7 @@ overflow: auto;
                 overflow: 'auto',
             }),
         }), { id: '#sheet#12', specificityWeight: 3 });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .wjq1t.wjq1t.wjq1t {
@@ -1417,7 +1417,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             ...rule('.rule', {
                 paddingInline: '1rem',
@@ -1436,7 +1436,7 @@ overflow: auto;
                 overflow: 'auto',
             }, { specificityWeight: 2 }),
         }), { id: '#sheet#13', specificityWeight: 2 });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .x3in6.x3in6.rule.rule.rule {
@@ -1461,7 +1461,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             background: 'pink',
             ...rules([
@@ -1483,7 +1483,7 @@ overflow: auto;
                 }),
             ], { specificityWeight: 3 }),
         }), { id: '#sheet#14', specificityWeight: 2 });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .xnb8j.xnb8j {
@@ -1513,7 +1513,7 @@ overflow: auto;
         );
     });
     
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             background: 'pink',
             ...rule('.rule', {
@@ -1533,7 +1533,7 @@ overflow: auto;
                 overflow: 'auto',
             }),
         }), { id: '#sheet#15', specificityWeight: 0 });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 :where(.y73tw) {
@@ -1562,7 +1562,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             ...rule('.rule', {
                 paddingInline: '1rem',
@@ -1581,7 +1581,7 @@ overflow: auto;
                 overflow: 'auto',
             }, { specificityWeight: 2 }),
         }), { id: '#sheet#16', specificityWeight: 0 });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 :where(.yqwf9).rule.rule.rule {
@@ -1606,7 +1606,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             background: 'pink',
             ...rules([
@@ -1628,7 +1628,7 @@ overflow: auto;
                 }),
             ], { specificityWeight: 3 }),
         }), { id: '#sheet#17', specificityWeight: 0 });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 :where(.zap0m) {
@@ -1660,7 +1660,7 @@ overflow: auto;
     //#endregion test .rule
     
     //#region test .rule1 x .rule2
-    test(`render() # test .rule1 x .rule2`, () => {
+    test(`renderStyleSheet() # test .rule1 x .rule2`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -1686,7 +1686,7 @@ overflow: auto;
                 })
             )
         ], { id: '#sheet#18' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .zuhlz {
@@ -1715,7 +1715,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -1741,7 +1741,7 @@ overflow: auto;
                 { specificityWeight: 0 }
             ),
         ], { id: '#sheet#19' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 :where(.wea7c).rule.rule.rule {
@@ -1766,7 +1766,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -1795,7 +1795,7 @@ overflow: auto;
                 { specificityWeight: 0 }
             )
         ], { id: '#sheet#20' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 :where(.chr9a) {
@@ -1825,7 +1825,7 @@ overflow: auto;
         );
     });
     
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -1841,7 +1841,7 @@ overflow: auto;
                 })
             )
         ], { id: '#sheet#bleh' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .rmnfx:hover, .rmnfx::backdrop {
@@ -1859,7 +1859,7 @@ overflow: auto;
     
     
     
-    test(`render() # test .rule1 x .rule2`, () => {
+    test(`renderStyleSheet() # test .rule1 x .rule2`, () => {
         styleSheet(() => ({
             background: 'pink',
             ...rule('.rule', {
@@ -1881,7 +1881,7 @@ overflow: auto;
                 }),
             }),
         }), { id: '#sheet#18' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .zuhlz {
@@ -1910,7 +1910,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             ...rule('.rule', {
                 paddingInline: '1rem',
@@ -1931,7 +1931,7 @@ overflow: auto;
                 }, { specificityWeight: 2 }),
             }, { specificityWeight: 2 }),
         }), { id: '#sheet#19', specificityWeight: 0 });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 :where(.wea7c).rule.rule.rule {
@@ -1956,7 +1956,7 @@ overflow: auto;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             background: 'pink',
             ...rules([
@@ -1980,7 +1980,7 @@ overflow: auto;
                 }),
             ], { specificityWeight: 3 }),
         }), { id: '#sheet#20', specificityWeight: 0 });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 :where(.chr9a) {
@@ -2010,7 +2010,7 @@ overflow: auto;
         );
     });
     
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             ...rule([':hover', '::backdrop'], {
                 color: 'red',
@@ -2022,7 +2022,7 @@ overflow: auto;
                 }),
             }),
         }), { id: '#sheet#bleh' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .rmnfx:hover, .rmnfx::backdrop {
@@ -2042,7 +2042,7 @@ overflow: auto;
     
     
     //#region test @global
-    test(`render() # test @global`, () => {
+    test(`renderStyleSheet() # test @global`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -2081,7 +2081,7 @@ overflow: auto;
                 })
             )
         ], { id: '#sheet#22' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .btn {
@@ -2116,7 +2116,7 @@ justify-content: center;
 `
         );
     });
-    test(`render() # test globalScope`, () => {
+    test(`renderStyleSheet() # test globalScope`, () => {
         styleSheets(() => [
             globalScope({
                 ...rule('.navbar', {
@@ -2164,7 +2164,7 @@ justify-content: center;
                 }),
             }),
         ], { id: '#sheet#23' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .navbar {
@@ -2215,7 +2215,7 @@ flex: 0 0 auto !important;
     
     
     
-    test(`render() # test @global`, () => {
+    test(`renderStyleSheet() # test @global`, () => {
         styleSheet(() => ({
             ...atGlobal({
                 ...rule('.btn', {
@@ -2250,7 +2250,7 @@ flex: 0 0 auto !important;
                 }),
             }),
         }), { id: '#sheet#22' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .btn {
@@ -2291,7 +2291,7 @@ justify-content: center;
     
     //#region test @conditionalRule
     //#region @global
-    test(`render() # test @global`, () => {
+    test(`renderStyleSheet() # test @global`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -2333,7 +2333,7 @@ justify-content: center;
                 })
             )
         ], { id: '#sheet#24' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .btn {
@@ -2371,7 +2371,7 @@ justify-content: center;
 `
         );
     });
-    test(`render() # test globalScope`, () => {
+    test(`renderStyleSheet() # test globalScope`, () => {
         styleSheets(() => [
             globalScope({
                 ...rule('.btn', {
@@ -2409,7 +2409,7 @@ justify-content: center;
                 }),
             }),
         ], { id: '#sheet#25' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .btn {
@@ -2447,7 +2447,7 @@ justify-content: center;
 `
         );
     });
-    test(`render() # test @global`, () => {
+    test(`renderStyleSheet() # test @global`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -2489,7 +2489,7 @@ justify-content: center;
                 })
             )
         ], { id: '#sheet#26' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 @media (min-width: 1024px) {
@@ -2527,7 +2527,7 @@ justify-content: center;
 `
         );
     });
-    test(`render() # test globalScope`, () => {
+    test(`renderStyleSheet() # test globalScope`, () => {
         styleSheets(() => [
             globalScope({
                 ...atRule('@media (min-width: 1024px)', {
@@ -2565,7 +2565,7 @@ justify-content: center;
                 }),
             }),
         ], { id: '#sheet#27' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 @media (min-width: 1024px) {
@@ -2606,7 +2606,7 @@ justify-content: center;
     
     
     
-    test(`render() # test @global`, () => {
+    test(`renderStyleSheet() # test @global`, () => {
         styleSheet(() => ({
             ...atGlobal({
                 ...rule('.btn', {
@@ -2644,7 +2644,7 @@ justify-content: center;
                 }),
             }),
         }), { id: '#sheet#24' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .btn {
@@ -2682,7 +2682,7 @@ justify-content: center;
 `
         );
     });
-    test(`render() # test @global`, () => {
+    test(`renderStyleSheet() # test @global`, () => {
         styleSheet(() => ({
             ...atGlobal({
                 ...atRule('@media (min-width: 1024px)', {
@@ -2720,7 +2720,7 @@ justify-content: center;
                 }),
             }),
         }), { id: '#sheet#26' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 @media (min-width: 1024px) {
@@ -2763,7 +2763,7 @@ justify-content: center;
     
     
     //#region .rule
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -2806,7 +2806,7 @@ justify-content: center;
                 })
             )
         ], { id: '#sheet#28' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .gw406.btn {
@@ -2849,7 +2849,7 @@ justify-content: center;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -2894,7 +2894,7 @@ justify-content: center;
                 })
             )
         ], { id: '#sheet#29' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .hfwlj.menu.btn {
@@ -2937,7 +2937,7 @@ justify-content: center;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -2958,7 +2958,7 @@ justify-content: center;
                 })
             )
         ], { id: '#sheet#30' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .tjdnh.menu.sub-menu {
@@ -2977,7 +2977,7 @@ display: block;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -2994,7 +2994,7 @@ display: block;
                 })
             )
         ], { id: '#sheet#31' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 @media (min-width: 1024px) {
@@ -3008,7 +3008,7 @@ display: block;
         );
     });
     
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -3045,7 +3045,7 @@ display: block;
                 })
             )
         ], { id: '#sheet#32' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .umyu7.btn {
@@ -3084,7 +3084,7 @@ justify-content: center;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -3109,7 +3109,7 @@ justify-content: center;
                 })
             )
         ], { id: '#sheet#33' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .v6rfk.btn {
@@ -3136,7 +3136,7 @@ display: block;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -3161,7 +3161,7 @@ display: block;
                 })
             )
         ], { id: '#sheet#34' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .vqk0x.btn {
@@ -3188,7 +3188,7 @@ display: block;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -3213,7 +3213,7 @@ display: block;
                 })
             )
         ], { id: '#sheet#35' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .wacma.btn {
@@ -3240,7 +3240,7 @@ display: block;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheets(() => [
             mainScope(
                 style({
@@ -3261,7 +3261,7 @@ display: block;
                 })
             )
         ], { id: '#sheet#36' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .wu57n.btn {
@@ -3285,7 +3285,7 @@ display: block;
     
     
     
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             ...rule('.btn', {
                 background: 'pink',
@@ -3324,7 +3324,7 @@ display: block;
                 })
             }),
         }), { id: '#sheet#28' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .gw406.btn {
@@ -3367,7 +3367,7 @@ justify-content: center;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             ...rule('.menu', {
                 ...rule('.btn', {
@@ -3408,7 +3408,7 @@ justify-content: center;
                 }),
             }),
         }), { id: '#sheet#29' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .hfwlj.menu.btn {
@@ -3451,7 +3451,7 @@ justify-content: center;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             ...rule('.menu', {
                 ...rule('.sub-menu', {
@@ -3468,7 +3468,7 @@ justify-content: center;
                 }),
             }),
         }), { id: '#sheet#30' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .tjdnh.menu.sub-menu {
@@ -3487,7 +3487,7 @@ display: block;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             ...rule('.menu', {
                 ...rule('.sub-menu', {
@@ -3500,7 +3500,7 @@ display: block;
                 }),
             }),
         }), { id: '#sheet#31' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 @media (min-width: 1024px) {
@@ -3514,7 +3514,7 @@ display: block;
         );
     });
     
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             ...rule('.btn', {
                 background: 'pink',
@@ -3547,7 +3547,7 @@ display: block;
                 }),
             }),
         }), { id: '#sheet#32' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .umyu7.btn {
@@ -3586,7 +3586,7 @@ justify-content: center;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             ...rule('.btn', {
                 background: 'pink',
@@ -3607,7 +3607,7 @@ justify-content: center;
                 }),
             }),
         }), { id: '#sheet#33' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .v6rfk.btn {
@@ -3634,7 +3634,7 @@ display: block;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             ...rule('.btn', {
                 background: 'pink',
@@ -3655,7 +3655,7 @@ display: block;
                 }),
             }),
         }), { id: '#sheet#34' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .vqk0x.btn {
@@ -3682,7 +3682,7 @@ display: block;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             ...rule('.btn', {
                 background: 'pink',
@@ -3703,7 +3703,7 @@ display: block;
                 }),
             }),
         }), { id: '#sheet#35' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .wacma.btn {
@@ -3730,7 +3730,7 @@ display: block;
 `
         );
     });
-    test(`render() # test .rule`, () => {
+    test(`renderStyleSheet() # test .rule`, () => {
         styleSheet(() => ({
             ...rule('.btn', {
                 background: 'pink',
@@ -3747,7 +3747,7 @@ display: block;
                 }),
             }),
         }), { id: '#sheet#36' });
-        expect(render(lastStyleSheet!))
+        expect(renderStyleSheet(lastStyleSheet!))
         .toBe(
 `
 .wu57n.btn {
