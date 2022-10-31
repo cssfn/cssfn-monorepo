@@ -53,29 +53,22 @@ const styleElms = new WeakMap<StyleSheet, HTMLStyleElement>();
 
 
 
-// event handlers:
-const pendingUpdates = new Set<StyleSheet>();
-const batchUpdate = () => {
-    if (!pendingUpdates.size) return; // no queued updates
+// commits:
+const pendingCommit = new Map<StyleSheet, string|null>();
+const batchCommit = () => {
+    // conditions:
+    if (!pendingCommit.size) return; // no queued updates => ignore
     
     
     
     // pop the queued:
-    const styleSheets = Array.from(pendingUpdates.values());
-    pendingUpdates.clear();
+    const changes = Array.from(pendingCommit.entries());
+    pendingCommit.clear();
     
     
     
-    // render all:
-    const updates = styleSheets.map((styleSheet): readonly [StyleSheet, string|null] => [
-        styleSheet,
-        (styleSheet.enabled || null) && renderStyleSheet(styleSheet)
-    ]);
-    
-    
-    
-    // apply all:
-    for (const [styleSheet, rendered] of updates) {
+    // apply the changes:
+    for (const [styleSheet, rendered] of changes) {
         if (!rendered) {
             // remove the styleSheet:
             const styleElm = styleElms.get(styleSheet);
@@ -96,7 +89,7 @@ const batchUpdate = () => {
                     styleGroupElm = document.createElement('div');
                     styleGroupElm.dataset.cssfnDomStyles = '';
                     
-                    if (updates.length >= 2) {
+                    if (changes.length >= 2) {
                         // insert the <div> next after the `for` loop completed:
                         Promise.resolve(styleGroupElm).then((styleGroupElm) => {
                             document.head.appendChild(styleGroupElm);
@@ -116,26 +109,6 @@ const batchUpdate = () => {
                 styleElm.textContent = rendered;
             } // if
         } // if
-    } // for
-}
-
-
-// commits:
-const pendingCommit = new Map<StyleSheet, string|null>();
-const batchCommit = () => {
-    // conditions:
-    if (!pendingCommit.size) return; // no queued updates => ignore
-    
-    
-    
-    // pop the queued:
-    const changes = Array.from(pendingCommit.entries());
-    pendingCommit.clear();
-    
-    
-    
-    // apply the changes:
-    for (const [styleSheet, rendered] of changes) {
     } // for
 }
 
