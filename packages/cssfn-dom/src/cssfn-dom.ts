@@ -43,13 +43,13 @@ const isClientSide : boolean = isBrowser || isJsDom;
 
 
 // config:
-export const config = { concurrent: true };
+export const config = { concurrentRender: true };
 
 
 
 // dom:
 let styleGroupElm : HTMLDivElement|null = null;
-const styleElms = new WeakMap<StyleSheet, HTMLStyleElement>();
+const styleElms = new WeakMap<StyleSheet, HTMLStyleElement>(); // uses WeakMap to indirectly append a related HTMLStyleElement into StyleSheet object, without preventing the StyleSheet object to garbage collected
 
 
 
@@ -84,25 +84,23 @@ const batchCommit = () => {
                 // add the styleSheet:
                 styleElm = document.createElement('style');
                 styleElm.textContent = rendered;
+                styleElms.set(styleSheet, styleElm); // make a relationship between StyleSheet object <==> HTMLStyleElement
+                
+                
                 
                 if (!styleGroupElm) {
                     styleGroupElm = document.createElement('div');
-                    styleGroupElm.dataset.cssfnDomStyles = '';
+                    styleGroupElm.dataset.cssfnDomStyles = ''; // an identifier this <div> is a special container for generated HTMLStyleElement(s)
                     
-                    if (changes.length >= 2) {
-                        // insert the <div> next after the `for` loop completed:
-                        Promise.resolve(styleGroupElm).then((styleGroupElm) => {
-                            document.head.appendChild(styleGroupElm);
-                        });
-                    }
-                    else {
-                        // insert the <div> immediately:
+                    /*
+                        insert the <div data-cssfn-dom-styles> after the `for` loop has completed,
+                        so insertion of bulk <style>(s) is efficient
+                    */
+                    Promise.resolve(styleGroupElm).then((styleGroupElm) => {
                         document.head.appendChild(styleGroupElm);
-                    } // if
+                    });
                 } // if
                 styleGroupElm.appendChild(styleElm);
-                
-                styleElms.set(styleSheet, styleElm);
             }
             else {
                 // update the styleSheet:
@@ -140,7 +138,7 @@ const scheduleBatchCommit = () => {
 // handlers:
 const handleUpdate = async (styleSheet: StyleSheet): Promise<void> => {
     const rendered = await (
-        !config.concurrent
+        !config.concurrentRender
         ?
         Promise.resolve(renderStyleSheet(styleSheet))
         :
@@ -149,7 +147,12 @@ const handleUpdate = async (styleSheet: StyleSheet): Promise<void> => {
     
     
     
-    // add/update/replace/delete the rendered css to the commit queue:
+    /*
+        add/update/replace/delete the rendered css to the commit queue.
+        
+        Note:
+        if there's a rendered_styleSheet that has not_been_applied, it will be canceled (lost) because a newer rendered_styleSheet is exist
+    */
     pendingCommit.set(styleSheet, rendered || null);
     
     // schedule to `batchCommit()` the rendered css in the future BEFORE browser repaint:
