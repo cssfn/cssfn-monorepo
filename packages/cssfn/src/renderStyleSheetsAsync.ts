@@ -111,6 +111,7 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
             // conditions:
             const currentQueueId = currentWorkerEntry.totalWorks - currentWorkerEntry.unfinishedWorks;
             if (queueId !== currentQueueId) return; // not my queue_id => ignore
+            event.stopImmediatePropagation(); // prevents other listeners to receive this event
             
             
             
@@ -121,6 +122,7 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
             // conditions:
             const currentQueueId = currentWorkerEntry.totalWorks - currentWorkerEntry.unfinishedWorks;
             if (queueId !== currentQueueId) return; // not my queue_id => ignore
+            event.stopImmediatePropagation(); // prevents other listeners to receive this event
             
             
             
