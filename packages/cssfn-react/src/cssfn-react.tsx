@@ -49,6 +49,7 @@ import {
     
     // processors:
     renderStyleSheet,
+    renderStyleSheetAsync,
     
     
     
@@ -97,7 +98,10 @@ const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ content }: Sty
     );
 });
 
-export const Styles = (): JSX.Element|null => {
+export interface StylesProps {
+    concurrentRender ?: boolean
+}
+export const Styles = ({ concurrentRender = true }: StylesProps): JSX.Element|null => {
     // states:
     //#region local storages without causing to (re)render
     /**
@@ -115,8 +119,12 @@ export const Styles = (): JSX.Element|null => {
     
     
     // dom effects:
-    const [unsubscribe] = useState(() => styleSheetRegistry.subscribe((styleSheet: StyleSheet): void => {
-        const renderedCss = (styleSheet.enabled || null) && renderStyleSheet(styleSheet);
+    const [unsubscribe] = useState(() => styleSheetRegistry.subscribe(async (styleSheet: StyleSheet): Promise<void> => {
+        const renderedCss = (
+            (styleSheet.enabled || null)
+            &&
+            (!concurrentRender ? renderStyleSheet(styleSheet) : await renderStyleSheetAsync(styleSheet))
+        );
         if (!renderedCss) {
             // remove the <Style>:
             // console.log('');
