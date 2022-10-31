@@ -25,12 +25,12 @@ type WorkerEntry = {
     busyLevel : number // the busy level: 0 = free, 1 = a bit busy, 99 = very busy
 }
 const workerList : WorkerEntry[] = []; // holds the workers
-const maxParallelWorks = (globalThis.navigator?.hardwareConcurrency ?? 1); // determines the number of logical processors, fallback to 1 processor
+const maxConcurrentWorks = (globalThis.navigator?.hardwareConcurrency ?? 1); // determines the number of logical processors, fallback to 1 processor
 
 const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
     // conditions:
-    if (typeof(Worker) === 'undefined')        return null; // the environment doesn't support web worker => single threading only
-    if (workerList.length >= maxParallelWorks) return null; // the maximum of workers has been reached    => no more workers
+    if (typeof(Worker) === 'undefined')          return null; // the environment doesn't support web worker => single threading only
+    if (workerList.length >= maxConcurrentWorks) return null; // the maximum of workers has been reached    => no more workers
     
     
     
@@ -71,7 +71,7 @@ const bookingWorker     = (): WorkerEntry|null => {
 // pre-load some workers, so the first page render is served quickly:
 const maxPreloadWorkers = 8;
 for (let addWorker = 0; addWorker < maxPreloadWorkers; addWorker++) {
-    if (!createWorkerEntryIfNeeded()) break; // max parallel workers reached => stop adding new worker
+    if (!createWorkerEntryIfNeeded()) break; // max concurrent workers reached => stop adding new worker
 } // for
 
 
