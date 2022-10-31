@@ -21,8 +21,9 @@ import {
 
 // workers:
 type WorkerEntry = {
-    worker    : Worker // holds web worker instance
-    busyLevel : number // the busy level: 0 = free, 1 = a bit busy, 99 = very busy
+    worker          : Worker // holds web worker instance
+    unfinishedWorks : number // the busy level: 0 = free, 1 = a bit busy, 99 = very busy
+    totalWorks      : number // the total works
 }
 const workerList : WorkerEntry[] = []; // holds the workers
 const maxConcurrentWorks = (globalThis.navigator?.hardwareConcurrency ?? 1); // determines the number of logical processors, fallback to 1 processor
@@ -38,9 +39,10 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
         // try to create a new worker with esm module:
         const newWorkerInstance = new Worker(new URL('./renderStyleSheetsWorker.js', import.meta.url), { type: 'module' });
         
-        const newWorkerEntry = {
-            worker    : newWorkerInstance,
-            busyLevel : 0,
+        const newWorkerEntry : WorkerEntry = {
+            worker          : newWorkerInstance,
+            unfinishedWorks : 0,
+            totalWorks      : 0,
         };
         workerList.push(newWorkerEntry); // store the worker to re-use later
         return newWorkerEntry;
@@ -50,9 +52,9 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
     } // try
 }
 
-const isNotBusyWorker   = (workerEntry: WorkerEntry) => (workerEntry.busyLevel === 0);
+const isNotBusyWorker   = (workerEntry: WorkerEntry) => (workerEntry.unfinishedWorks === 0);
 const sortBusiestWorker = (a: WorkerEntry, b: WorkerEntry): number => {
-    return a.busyLevel - b.busyLevel; // sort from the least busy to the most busy
+    return a.unfinishedWorks - b.unfinishedWorks; // sort from the least busy to the most busy
 }
 const bookingWorker     = (): WorkerEntry|null => {
     return (
@@ -101,11 +103,14 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
             currentWorker.removeEventListener('message', handleProcessed);
             currentWorker.removeEventListener('error'  , handleError);
             
-            currentWorkerEntry.busyLevel--;
+            if ((--currentWorkerEntry.unfinishedWorks) === 0) { // free
+                currentWorkerEntry.totalWorks = 0; // reset the counter
+            } // if
         };
         const handleProcessed = (event: MessageEvent<string|null>) => {
             // conditions:
-            if (sequenceId !== currentWorkerEntry.busyLevel) return; // previously/next posted data => ignore
+            const currentQueueId = currentWorkerEntry.totalWorks - currentWorkerEntry.unfinishedWorks;
+            if (queueId !== currentQueueId) return; // not my queue_id => ignore
             
             
             
@@ -114,7 +119,8 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
         };
         const handleError     = (event: Event) => {
             // conditions:
-            if (sequenceId !== currentWorkerEntry.busyLevel) return; // previously/next posted data => ignore
+            const currentQueueId = currentWorkerEntry.totalWorks - currentWorkerEntry.unfinishedWorks;
+            if (queueId !== currentQueueId) return; // not my queue_id => ignore
             
             
             
@@ -125,8 +131,8 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
         
         
         // actions:
-        // an id to distinguish between current data and previously/next posted data:
-        const sequenceId = ++currentWorkerEntry.busyLevel;
+        currentWorkerEntry.unfinishedWorks++;            // count how many work is in progress
+        const queueId = currentWorkerEntry.totalWorks++; // a queue_id to distinguish between current data and previously posted data
         
         currentWorker.addEventListener('message', handleProcessed);
         currentWorker.addEventListener('error'  , handleError);
