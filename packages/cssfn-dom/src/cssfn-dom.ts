@@ -8,6 +8,7 @@ import {
     
     // processors:
     renderStyleSheet,
+    renderStyleSheetAsync,
 }                           from '@cssfn/cssfn'
 
 // other libs:
@@ -42,7 +43,7 @@ const isClientSide : boolean = isBrowser || isJsDom;
 
 
 // config:
-export const config = { async: true };
+export const config = { concurrent: true };
 
 
 
@@ -119,49 +120,66 @@ const batchUpdate = () => {
 }
 
 
+// commits:
+const pendingCommit = new Map<StyleSheet, string|null>();
+const batchCommit = () => {
+    // conditions:
+    if (!pendingCommit.size) return; // no queued updates => ignore
+    
+    
+    
+    // pop the queued:
+    const changes = Array.from(pendingCommit.entries());
+    pendingCommit.clear();
+    
+    
+    
+    // apply the changes:
+    for (const [styleSheet, rendered] of changes) {
+    } // for
+}
 
-let cancelScheduledBatchUpdate : ReturnType<typeof requestAnimationFrame>|undefined = undefined;
-const scheduledBatchUpdate = () => {
+
+
+// schedules:
+let handleScheduledBatchCommit : ReturnType<typeof requestAnimationFrame>|undefined = undefined;
+const scheduledBatchCommit = () => {
     // marks:
-    cancelScheduledBatchUpdate = undefined; // performing => uncancellable
+    handleScheduledBatchCommit = undefined; // performing => uncancellable
     
     
     
     // actions:
-    batchUpdate();
+    batchCommit();
 }
-const scheduleBatchUpdate = () => {
-    // `promise to batchUpdate()` in the future as soon as possible, BEFORE browser repaint:
-    cancelScheduledBatchUpdate = isomorphicRequestAnimationFrame(scheduledBatchUpdate);
-}
-const cancelBatchUpdate = () => {
-    if (cancelScheduledBatchUpdate) {
-        cancelAnimationFrame(cancelScheduledBatchUpdate);
-        cancelScheduledBatchUpdate = undefined; // mark as canceled
-    } // if
+const scheduleBatchCommit = () => {
+    // conditions:
+    if (handleScheduledBatchCommit) return; // already scheduled => ignore
+    
+    
+    
+    // schedule to `batchCommit()` the rendered css in the future BEFORE browser repaint:
+    handleScheduledBatchCommit = isomorphicRequestAnimationFrame(scheduledBatchCommit);
 }
 
 
 
-const handleUpdate = (styleSheet: StyleSheet): void => {
-    // marks:
-    pendingUpdates.add(styleSheet);
+// handlers:
+const handleUpdate = async (styleSheet: StyleSheet): Promise<void> => {
+    const rendered = await (
+        !config.concurrent
+        ?
+        Promise.resolve(renderStyleSheet(styleSheet))
+        :
+        renderStyleSheetAsync(styleSheet)
+    );
     
     
     
-    // cancel out previously async update (if was):
-    cancelBatchUpdate();
+    // add/update/replace/delete the rendered css to the commit queue:
+    pendingCommit.set(styleSheet, rendered || null);
     
-    
-    
-    // actions:
-    if (!config.async) {
-        // sync update:
-        batchUpdate();
-    }
-    else {
-        // async update:
-        scheduleBatchUpdate();
-    } //
+    // schedule to `batchCommit()` the rendered css in the future BEFORE browser repaint:
+    scheduleBatchCommit();
 }
 if (isClientSide) styleSheetRegistry.subscribe(handleUpdate);
