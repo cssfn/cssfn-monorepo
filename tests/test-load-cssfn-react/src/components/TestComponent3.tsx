@@ -15,10 +15,9 @@ export function tadaa() {
 export function SSTestComponent3() {
     tadaa();
     return style({
-        appearance: 'none',
-        display: 'flex',
-        background: 'pink',
-        color: 'darkred',
+        display: 'grid',
+        background: 'blue',
+        color: 'lightblue',
     });
 }
 export const useStyleSheetTestComponent3 = dynamicStyleSheet(SSTestComponent3, { id: 'SS-TestComponent3'});
@@ -28,7 +27,7 @@ const TestComponent3 = () => {
     const sheet = useStyleSheetTestComponent3();
     return (
         <button className={sheet.main}>
-            test component 2
+            test component 3
         </button>
     )
 }
