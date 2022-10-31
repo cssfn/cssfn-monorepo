@@ -7,6 +7,7 @@ import {
 console.log('created: SSTestComponent1');
 styleSheet(function SSTestComponent1() {
     return ({
+        '--name': '"comp 1"',
         display       : 'flex',
         flexDirection : 'row',
         flexWrap      : 'nowrap',

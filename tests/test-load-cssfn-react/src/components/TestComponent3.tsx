@@ -15,6 +15,7 @@ export function tadaa() {
 export function SSTestComponent3() {
     tadaa();
     return style({
+        '--name': '"comp 3"',
         display: 'grid',
         background: 'blue',
         color: 'lightblue',
