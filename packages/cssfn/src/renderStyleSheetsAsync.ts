@@ -104,10 +104,20 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
             currentWorkerEntry.busyLevel--;
         };
         const handleProcessed = (event: MessageEvent<string|null>) => {
+            // conditions:
+            if (sequenceId !== currentWorkerEntry.busyLevel) return; // previously/next posted data => ignore
+            
+            
+            
             handleDone();
             resolve(event.data);
         };
         const handleError     = (event: Event) => {
+            // conditions:
+            if (sequenceId !== currentWorkerEntry.busyLevel) return; // previously/next posted data => ignore
+            
+            
+            
             handleDone();
             reject(event);
         };
@@ -115,7 +125,8 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
         
         
         // actions:
-        currentWorkerEntry.busyLevel++;
+        // an id to distinguish between current data and previously/next posted data:
+        const sequenceId = ++currentWorkerEntry.busyLevel;
         
         currentWorker.addEventListener('message', handleProcessed);
         currentWorker.addEventListener('error'  , handleError);
