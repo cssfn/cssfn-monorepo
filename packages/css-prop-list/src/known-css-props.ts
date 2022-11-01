@@ -887,7 +887,7 @@ export const cssKnownSvgProps : (keyof CssKnownSvgProps)[] = [
 'writingMode',
 ];
 
-export const knownProps : (keyof CssKnownProps)[] = [
+export const cssKnownProps : (keyof CssKnownProps)[] = [
     ...cssKnownStandardLonghandProps,
     ...cssKnownStandardShorthandProps,
     ...cssKnownShorthandProps,
