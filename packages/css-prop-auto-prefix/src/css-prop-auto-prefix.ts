@@ -18,12 +18,13 @@ import type {
 
 
 const getPrefixedPropList = ({prefix, browserType} : BrowserInfo) : PrefixedProp[] => [
-    { prop: 'colorAdjust' , prefix: `${prefix}Print` as any }, // WebkitPrintColorAdjust
-    { prop: 'mask'        , prefix: (prefix !== 'Moz') && (browserType !== 'safari') && 'Webkit' },
-    { prop: /^scrollSnap/ , prefix: (prefix === 'ms') },
-    { prop: 'transition'  , prefix: (prefix === 'Moz') && 'Webkit' },
-    { prop: 'userSelect'  , prefix: (browserType === 'safari') },
-    { prop: 'writingMode' , prefix: (prefix === 'Moz') },
+    { prop: 'colorAdjust'      , prefix: (prefix !== 'Moz') && (browserType !== 'safari') && `WebkitPrint` as any }, // WebkitPrintColorAdjust, all browser (excluding Firefox & Safari) uses Webkit even if on Opera
+    { prop: 'printColorAdjust' , prefix: (prefix !== 'Moz') && (browserType !== 'safari') && `WebkitPrint` as any }, // WebkitPrintColorAdjust, all browser (excluding Firefox & Safari) uses Webkit even if on Opera
+    
+    { prop: /^mask/            , prefix: (prefix !== 'Moz') && 'Webkit' }, // WebkitMaskXxx, all browser (excluding Firefox) uses Webkit even if on Opera
+    { prop: /^scrollSnap/      , prefix: (prefix === 'ms') },              // msScrollSnapXxx
+    { prop: /^transition/      , prefix: (prefix === 'Moz') && 'Webkit' }, // WebkitTransitionXxx, the latest Firefox remove full support and prefixed with Webkit
+    { prop: 'userSelect'       , prefix: (browserType === 'safari') },     // WebkitUserSelect, Safari is the only browser requires Webkit prefix
 ];
 
 
