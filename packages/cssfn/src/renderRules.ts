@@ -75,7 +75,7 @@ import {
 // other libs:
 import {
     default as hyphenate,
-}                           from 'hyphenate-style-name' // faster than camel-case
+}                           from 'hyphenate-style-name'
 import {
     supportedProperty,
     supportedValue,
