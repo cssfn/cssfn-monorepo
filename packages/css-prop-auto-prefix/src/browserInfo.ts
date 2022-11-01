@@ -24,13 +24,13 @@ import type {
 
 
 const isClientSide : boolean = isBrowser || isJsDom;
-let prefix      : Prefix    = '';
+let prefix      : Prefix      = '';
 let browserType : BrowserType = '';
 
 
 
 if (isClientSide) {
-    const {style} = document.createElement('p');
+    const {style}  = document.createElement('p');
     const testProp = 'Transform';
     
     
@@ -51,7 +51,7 @@ if (isClientSide) {
     if (
         (prefix === 'Webkit')
         &&
-        ('msHyphens' in style)
+        ('msHighContrastAdjust' in style)
     ) {
         prefix      = 'ms';
         browserType = 'edge';
@@ -80,4 +80,4 @@ if (isClientSide) {
 export const browserInfo : BrowserInfo = {
     prefix,
     browserType,
-}
+};
