@@ -38,25 +38,38 @@ export const createCssPropAutoPrefix = (browserInfo: BrowserInfo): ((propName: k
     
     
     return (propName: keyof CssProps): keyof CssProps => {
-        const found = cache.get(propName);
-        if (found) return found;
+        const cached = cache.get(propName);
+        if (cached) return cached;
         
         
         
         const needPrefix = prefixedPropList.find(isPropName.bind(propName))?.prefix;
-        if (!needPrefix) return propName;
+        if (!needPrefix) {
+            cache.set(propName, propName);
+            return propName;
+        } // if
         
         
         
         if (needPrefix === true) {
             const prefix = browserInfo.prefix;
-            if (!prefix) return propName;
-            return `${prefix}${pascalCase(propName)}` as keyof CssProps;
+            if (!prefix) {
+                cache.set(propName, propName);
+                return propName;
+            };
+            
+            
+            
+            const prefixedPropName = `${prefix}${pascalCase(propName)}` as keyof CssProps;
+            cache.set(propName, prefixedPropName);
+            return prefixedPropName;
         } // if
         
         
         
         const prefix = needPrefix;
-        return `${prefix}${pascalCase(propName)}` as keyof CssProps;
+        const prefixedPropName = `${prefix}${pascalCase(propName)}` as keyof CssProps;
+        cache.set(propName, prefixedPropName);
+        return prefixedPropName;
     };
 }
