@@ -30,7 +30,7 @@ const getPrefixedPropList = ({prefix, browserType} : BrowserInfo) : PrefixedProp
 function isPropName(this: keyof CssProps, prefixedProp: PrefixedProp) {
     return this.match(prefixedProp.prop);
 }
-export const createAutoPrefix = (browserInfo: BrowserInfo): ((propName: keyof CssProps) => keyof CssProps) => {
+export const createCssPropAutoPrefix = (browserInfo: BrowserInfo): ((propName: keyof CssProps) => keyof CssProps) => {
     const prefixedPropList = getPrefixedPropList(browserInfo);
     const cache = new Map<keyof CssProps, keyof CssProps>();
     
