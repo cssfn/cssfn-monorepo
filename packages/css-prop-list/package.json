@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/css-prop-list",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "Checks for valid css properties.",
   "keywords": [
     "css",

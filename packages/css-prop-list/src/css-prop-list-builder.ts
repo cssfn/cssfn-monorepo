@@ -16,27 +16,19 @@ import {
 }                           from '@cssfn/bulk-list-builder'
 // internals:
 import {
-    standardLonghandProps,
-    standardShorthandProps,
-    svgProps,
+    cssKnownStandardLonghandProps,
+    cssKnownStandardShorthandProps,
+    cssKnownShorthandProps,
+    cssKnownSvgProps,
 }                           from './known-css-props.js'
 
 
 
 const { encodedSortedWordList, encodedIndexedList } = createBulkList([
-    ...standardLonghandProps,
-    ...standardShorthandProps,
-    ...svgProps,
-
-    'foreg',
-    'backg',
-    'backgClip',
-    'anim',
-    'transf',
-    'gapX',
-    'gapY',
-    'gapInline',
-    'gapBlock',
+    ...cssKnownStandardLonghandProps,
+    ...cssKnownStandardShorthandProps,
+    ...cssKnownShorthandProps,
+    ...cssKnownSvgProps,
 ]);
 
 

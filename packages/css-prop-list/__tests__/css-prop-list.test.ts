@@ -3,17 +3,17 @@ import {
 } from '../dist/css-prop-list.js'
 
 import {
-    standardLonghandProps,
-    standardShorthandProps,
-    vendorLonghandProps,
-    vendorShorthandProps,
-    obsoleteProps,
-    svgProps,
+    cssKnownStandardLonghandProps,
+    cssKnownStandardShorthandProps,
+    cssKnownVendorLonghandProps,
+    cssKnownVendorShorthandProps,
+    cssKnownObsoleteProps,
+    cssKnownSvgProps,
 }                           from '../dist/known-css-props.js'
 
 
 
-standardLonghandProps.forEach((propName) => {
+cssKnownStandardLonghandProps.forEach((propName) => {
     test(`test isKnownCssProp(standardLonghandProps: ${propName})`, () => {
         expect(
             isKnownCssProp(propName)
@@ -21,7 +21,7 @@ standardLonghandProps.forEach((propName) => {
         .toBe(true);
     });
 });
-standardShorthandProps.forEach((propName) => {
+cssKnownStandardShorthandProps.forEach((propName) => {
     test(`test isKnownCssProp(standardShorthandProps: ${propName})`, () => {
         expect(
             isKnownCssProp(propName)
@@ -32,7 +32,7 @@ standardShorthandProps.forEach((propName) => {
 
 
 
-vendorLonghandProps.forEach((propName) => {
+cssKnownVendorLonghandProps.forEach((propName) => {
     test(`test isKnownCssProp(vendorLonghandProps: ${propName})`, () => {
         expect(
             isKnownCssProp(propName)
@@ -40,7 +40,7 @@ vendorLonghandProps.forEach((propName) => {
         .toBe(true);
     });
 });
-vendorShorthandProps.forEach((propName) => {
+cssKnownVendorShorthandProps.forEach((propName) => {
     test(`test isKnownCssProp(vendorShorthandProps: ${propName})`, () => {
         expect(
             isKnownCssProp(propName)
@@ -52,7 +52,7 @@ vendorShorthandProps.forEach((propName) => {
 
 
 const isUppercase  = (test: string) => (test >= 'A') && (test <= 'Z');
-obsoleteProps.forEach((propName) => {
+cssKnownObsoleteProps.forEach((propName) => {
     if (propName === 'clip') return;
     
     if (
@@ -81,7 +81,7 @@ obsoleteProps.forEach((propName) => {
 
 
 
-svgProps.forEach((propName) => {
+cssKnownSvgProps.forEach((propName) => {
     test(`test isKnownCssProp(svgProps: ${propName})`, () => {
         expect(
             isKnownCssProp(propName)
@@ -140,7 +140,6 @@ const strangeProps : string[] = [
     'backg2',
     'backg3',
     
-    'foreground',
     'foregrounds',
     
     'foregThin',
