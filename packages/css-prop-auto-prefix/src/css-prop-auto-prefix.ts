@@ -18,10 +18,10 @@ import type {
 
 
 const getPrefixedPropList = ({prefix, browserType} : BrowserInfo) : PrefixedProp[] => [
-    { prop: 'colorAdjust'      , prefix: (prefix !== 'Moz') && (browserType !== 'safari') && `WebkitPrint` as any }, // WebkitPrintColorAdjust, all browser (excluding Firefox & Safari) uses Webkit even if on Opera
-    { prop: 'printColorAdjust' , prefix: (prefix !== 'Moz') && (browserType !== 'safari') && 'Webkit'             }, // WebkitPrintColorAdjust, all browser (excluding Firefox & Safari) uses Webkit even if on Opera
+    { prop: 'colorAdjust'      , prefix: (((prefix === 'Webkit') && (browserType !== 'safari')) || (prefix === 'O')) && `WebkitPrint` as any }, // WebkitPrintColorAdjust, all Webkit browsers (excluding Safari) and Opera uses Webkit
+    { prop: 'printColorAdjust' , prefix: (((prefix === 'Webkit') && (browserType !== 'safari')) || (prefix === 'O')) && 'Webkit'             }, // WebkitPrintColorAdjust, all Webkit browsers (excluding Safari) and Opera uses Webkit
     
-    { prop: /^mask/            , prefix: (prefix !== 'Moz') && 'Webkit'   }, // WebkitMaskXxx, all browser (excluding Firefox) uses Webkit even if on Opera
+    { prop: /^mask/            , prefix: ((prefix === 'Webkit') || (prefix === 'O')) && 'Webkit' }, // WebkitMaskXxx, all Webkit browsers and Opera uses Webkit
     { prop: /^scrollSnap/      , prefix: (browserType === 'edge') && 'ms' }, // msScrollSnapXxx
     { prop: /^transition/      , prefix: (prefix === 'Moz') && 'Webkit'   }, // WebkitTransitionXxx, the latest Firefox remove full support and prefixed with Webkit
     { prop: 'userSelect'       , prefix: (browserType === 'safari')       }, // WebkitUserSelect, Safari is the only browser requires Webkit prefix
