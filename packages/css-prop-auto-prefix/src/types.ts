@@ -7,13 +7,7 @@ import type {
 
 
 
-export type CssPrefix =
-    |''
-    |'-moz-'
-    |'-ms-'
-    |'-o-'
-    |'-webkit-'
-export type JsPrefix =
+export type Prefix =
     |''
     |'Moz'
     |'ms'
@@ -24,14 +18,13 @@ export type BrowserType =
     |'edge'
     |'safari'
 export type BrowserInfo = {
-    cssPrefix   : CssPrefix
-    jsPrefix    : JsPrefix
+    prefix      : Prefix
     browserType : BrowserType
 }
 
 
 
 export type PrefixedProp = {
-    prop    : keyof CssKnownStandardProps | keyof CssKnownShorthandProps | (string & {}) // required
-    prefix ?: boolean | CssPrefix | (string & {}) // optional, default to browser's CssPrefix
+    prop    : keyof CssKnownStandardProps | keyof CssKnownShorthandProps | RegExp // required
+    prefix ?: boolean | Prefix // optional, default to browser's Prefix
 }

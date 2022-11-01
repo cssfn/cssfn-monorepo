@@ -16,8 +16,7 @@ import {
 
 // internals:
 import type {
-    CssPrefix,
-    JsPrefix,
+    Prefix,
     BrowserType,
     BrowserInfo,
 }                           from './types.js'
@@ -25,8 +24,7 @@ import type {
 
 
 const isClientSide : boolean = isBrowser || isJsDom;
-let jsPrefix    : JsPrefix    = '';
-let cssPrefix   : CssPrefix   = '';
+let prefix      : Prefix    = '';
 let browserType : BrowserType = '';
 
 
@@ -39,36 +37,29 @@ if (isClientSide) {
     
     // Order matters. We need to check Webkit the last one because
     // other vendors use to add Webkit prefixes to some properties
-    const jsCssMap : { [key: string] : CssPrefix } = {
-        Moz    : '-moz-',
-        ms     : '-ms-',
-        O      : '-o-',
-        Webkit : '-webkit-',
-    };
-    for (const testJsPrefix in jsCssMap) {
-        if (!(`${testJsPrefix}${testProp}` in style)) continue;
-        
-        jsPrefix  = testJsPrefix as JsPrefix;
-        cssPrefix = jsCssMap[testJsPrefix];
-        break;
-    } // for
+    const prefixes : Prefix[] = [
+        'Moz',
+        'ms',
+        'O',
+        'Webkit',
+    ];
+    prefix = prefixes.find((testPrefix) => (`${testPrefix}${testProp}` in style)) ?? '';
     
     
     
-    // Correctly detect the Edge browser:
+    // correctly detect the Edge browser:
     if (
-        (jsPrefix === 'Webkit')
+        (prefix === 'Webkit')
         &&
         ('msHyphens' in style)
     ) {
-        jsPrefix    = 'ms';
-        cssPrefix   = jsCssMap.ms;
+        prefix      = 'ms';
         browserType = 'edge';
     } // if
     
-    // Correctly detect the Safari browser:
+    // correctly detect the Safari browser:
     if (
-        (jsPrefix === 'Webkit')
+        (prefix === 'Webkit')
         &&
         (
             ('-apple-trailing-word' in style)
@@ -87,7 +78,6 @@ if (isClientSide) {
 
 
 export const browserInfo : BrowserInfo = {
-    jsPrefix,
-    cssPrefix,
+    prefix,
     browserType,
 }
