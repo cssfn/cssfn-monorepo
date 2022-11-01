@@ -3,10 +3,11 @@ import type {
     // cssfn properties:
     CssProps,
 }                           from '@cssfn/css-types'
+
+// other libs:
 import {
-    // utilities:
     pascalCase,
-}                           from '@cssfn/cssfn'
+}                           from 'pascal-case'
 
 // internals:
 import type {
