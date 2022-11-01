@@ -147,7 +147,7 @@ export interface RenderRuleOptions {
 }
 class RenderRule {
     //#region private fields
-    #cssPropAutoPrefix : ReturnType<typeof createCssPropAutoPrefix>|undefined
+    #options : RenderRuleOptions|undefined
     //#endregion private fields
     
     //#region public fields
@@ -164,7 +164,8 @@ class RenderRule {
         
         
         const unshortPropName    = shortProps.get(propName) ?? propName;
-        const prefixedPropName   = this.#cssPropAutoPrefix ? this.#cssPropAutoPrefix(unshortPropName) : unshortPropName;
+        const cssPropAutoPrefix = this.#options?.cssPropAutoPrefix;
+        const prefixedPropName   = cssPropAutoPrefix ? cssPropAutoPrefix(unshortPropName) : unshortPropName;
         const camelCasedPropName = hyphenate(prefixedPropName);
         return camelCasedPropName;
     }
@@ -327,7 +328,8 @@ class RenderRule {
             
             this.rendered += (new RenderRule(
                 finalSelector.slice(1), // remove PropRule token (single prefix space)
-                finalStyle
+                finalStyle,
+                this.#options
             )).rendered;
         } // for
     }
@@ -342,7 +344,7 @@ class RenderRule {
             
             
             if (finalSelector === '@global') { // special @global rule
-                this.rendered += (new RenderRule(null, finalStyle)).rendered;
+                this.rendered += (new RenderRule(null, finalStyle, this.#options)).rendered;
             }
             else if (isNestedAtRule(finalSelector)) {
                 /*
@@ -418,7 +420,7 @@ class RenderRule {
             else if (finalSelector[0] === '@') {
                 // top_level at rule  , eg: @keyframes, @font-face
                 
-                this.rendered += (new RenderRule(finalSelector, finalStyle)).rendered;
+                this.rendered += (new RenderRule(finalSelector, finalStyle, this.#options)).rendered;
             }
             else {
                 // nested rule, eg: &.boo, &>:foo, .bleh>&>.feh
@@ -429,7 +431,7 @@ class RenderRule {
                     finalSelector
                 ) ?? finalSelector;
                 
-                this.rendered += (new RenderRule(combinedSelector, finalStyle)).rendered;
+                this.rendered += (new RenderRule(combinedSelector, finalStyle, this.#options)).rendered;
             } // if
         } // for
     }
@@ -437,9 +439,9 @@ class RenderRule {
     
     
     
-    constructor(finalSelector: CssFinalSelector|null, finalStyle: CssFinalStyleMap|null, options?: RenderRuleOptions) {
+    constructor(finalSelector: CssFinalSelector|null, finalStyle: CssFinalStyleMap|null, options: RenderRuleOptions|undefined) {
         // configs:
-        this.#cssPropAutoPrefix = options?.cssPropAutoPrefix;
+        this.#options = options;
         
         
         
