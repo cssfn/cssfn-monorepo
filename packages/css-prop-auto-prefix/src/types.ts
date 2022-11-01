@@ -32,6 +32,6 @@ export type BrowserInfo = {
 
 
 export type PrefixedProp = {
-    prop    : keyof CssKnownStandardProps | keyof CssKnownShorthandProps // required
-    prefix ?: CssPrefix // optional, default to browser's CssPrefix
+    prop    : keyof CssKnownStandardProps | keyof CssKnownShorthandProps | (string & {}) // required
+    prefix ?: boolean | CssPrefix | (string & {}) // optional, default to browser's CssPrefix
 }
