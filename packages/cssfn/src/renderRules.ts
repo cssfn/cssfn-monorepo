@@ -164,7 +164,7 @@ class RenderRule {
         
         
         const unshortPropName    = shortProps.get(propName) ?? propName;
-        const cssPropAutoPrefix = this.#options?.cssPropAutoPrefix;
+        const cssPropAutoPrefix  = this.#options?.cssPropAutoPrefix;
         const prefixedPropName   = cssPropAutoPrefix ? cssPropAutoPrefix(unshortPropName) : unshortPropName;
         const camelCasedPropName = hyphenate(prefixedPropName);
         return camelCasedPropName;
