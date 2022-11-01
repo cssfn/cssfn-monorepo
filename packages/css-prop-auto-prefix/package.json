@@ -1,0 +1,33 @@
+{
+  "name": "@cssfn/css-prop-auto-prefix",
+  "version": "2.0.0",
+  "description": "Adds vendor prefixes in the browser.",
+  "keywords": [
+    "css",
+    "property",
+    "prefix",
+    "vendor"
+  ],
+  "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
+  "homepage": "https://cssfn.org",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cssfn/cssfn-monorepo.git"
+  },
+  "main": "dist/css-prop-auto-prefix.js",
+  "types": "dist/css-prop-auto-prefix.d.ts",
+  "type": "module",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "tsc:watch": "tsc --watch",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
+  },
+  "dependencies": {
+    "@cssfn/css-types": "^2.0.6"
+  }
+}
