@@ -269,7 +269,7 @@ const strangeProps : string[] = [
     'backg2',
     'backg3',
     
-    'foreground',
+    // 'foreground',
     'foregrounds',
     
     'foregThin',
