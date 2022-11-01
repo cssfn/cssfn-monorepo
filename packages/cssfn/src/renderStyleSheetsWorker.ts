@@ -1,3 +1,13 @@
+// cssfn:
+import {
+    // types:
+    BrowserInfo,
+    
+    
+    
+    // utilities:
+    createCssPropAutoPrefix,
+}                           from '@cssfn/css-prop-auto-prefix'
 // internals:
 import type {
     EncodedCssStyleCollection,
@@ -11,8 +21,35 @@ import {
 
 
 
+// utilities:
+let cssPropAutoPrefix : ReturnType<typeof createCssPropAutoPrefix>|undefined = undefined;
+
+
+
 // processors:
-self.onmessage = (event: MessageEvent<EncodedCssStyleCollection>) => {
-    const scopeRules = decodeStyles(event.data);
-    self.postMessage(renderRule(scopeRules));
+export interface ConfigOptions {
+    browserInfo ?: BrowserInfo
+}
+export type MessageData =
+    |readonly ['config', ConfigOptions]
+    |readonly ['render', EncodedCssStyleCollection]
+export type ResponseData =
+    |readonly ['ready']
+    |readonly ['rendered', string|null]
+self.onmessage = (event: MessageEvent<MessageData>) => {
+    const [type, payload] = event.data;
+    switch (type) {
+        case 'config':
+            {
+                const { browserInfo } = payload;
+                if (browserInfo) {
+                    cssPropAutoPrefix = createCssPropAutoPrefix(browserInfo);
+                } // if
+            }
+            break;
+        case 'render':
+            const scopeRules = decodeStyles(payload);
+            self.postMessage(renderRule(scopeRules, { cssPropAutoPrefix }));
+            break;
+    } // switch
 };

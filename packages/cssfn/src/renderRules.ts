@@ -15,11 +15,6 @@ import type {
     
     
     
-    // css known (standard) properties:
-    CssKnownName,
-    
-    
-    
     // cssfn properties:
     CssProps,
     CssPropsMap,
@@ -63,6 +58,10 @@ import {
     // transforms:
     replaceSelectors,
 }                           from '@cssfn/css-selectors'
+import type {
+    // types:
+    createCssPropAutoPrefix,
+}                           from '@cssfn/css-prop-auto-prefix'
 
 // internals:
 import {
@@ -76,12 +75,6 @@ import {
 import {
     default as hyphenate,
 }                           from 'hyphenate-style-name'
-import {
-    supportedProperty,
-    supportedValue,
-    
-    // @ts-ignore
-}                           from 'css-vendor'
 
 
 
@@ -131,7 +124,7 @@ const combineSelector = (parentSelector: CssFinalSelector|null, nestedSelector: 
     return selectorsToString(combinedSelectors);
 };
 
-const shortProps = new Map<keyof CssProps, CssKnownName>(Object.entries({
+const shortProps = new Map<keyof CssProps, keyof CssProps>(Object.entries({
     foreg      : 'color',
     foreground : 'color',
     
@@ -145,11 +138,18 @@ const shortProps = new Map<keyof CssProps, CssKnownName>(Object.entries({
     gapY       : 'rowGap',
     gapInline  : 'columnGap',
     gapBlock   : 'rowGap',
-}) as [keyof CssProps, CssKnownName][]);
+}) as [keyof CssProps, keyof CssProps][]);
 
 
 
+export interface RenderRuleOptions {
+    cssPropAutoPrefix ?: ReturnType<typeof createCssPropAutoPrefix>
+}
 class RenderRule {
+    //#region private fields
+    #cssPropAutoPrefix : ReturnType<typeof createCssPropAutoPrefix>|undefined
+    //#endregion private fields
+    
     //#region public fields
     rendered : string
     //#endregion public fields
@@ -163,29 +163,23 @@ class RenderRule {
         
         
         
-        const unshortPropName         : string       = shortProps.get(propName) ?? propName;
-        const camelCasedPropName      : string       = hyphenate(unshortPropName);
-        const browserSpecificPropName : string|false = supportedProperty(camelCasedPropName);
-        return (
-            browserSpecificPropName
-            ?
-            browserSpecificPropName
-            :
-            camelCasedPropName
-        );
+        const unshortPropName    = shortProps.get(propName) ?? propName;
+        const prefixedPropName   = this.#cssPropAutoPrefix ? this.#cssPropAutoPrefix(unshortPropName) : unshortPropName;
+        const camelCasedPropName = hyphenate(prefixedPropName);
+        return camelCasedPropName;
     }
     #renderPropSimpleValue(propValue: CssComplexBaseValueOf<CssSimpleValue>): string {
         if (typeof(propValue) === 'number') return `${propValue}`; // CssSimpleNumericValue              => number => string
         if (typeof(propValue) === 'string') return propValue;      // CssSimpleLiteralValue|CssCustomRef => string
         return propValue.toString();                               // CssCustomKeyframesRef              => .toString()
     }
-    #renderPropValue(renderedPropName: string, propValue: CssCustomValue): string {
+    #renderPropValue(propValue: CssCustomValue): string {
         if (!Array.isArray(propValue)) return this.#renderPropSimpleValue(propValue); // CssComplexBaseValueOf<CssSimpleValue>
         
         
         
         let hasImportant = false;
-        const renderedPropValue : string = (
+        return (
             propValue
             .map((propSubValue, index, array): string|null => {
                 if (!Array.isArray(propSubValue)) {
@@ -211,17 +205,6 @@ class RenderRule {
             +
             (hasImportant ? ' !important' : '')
         );
-        
-        
-        
-        const browserSpecificPropValue : string|false = supportedValue(renderedPropName, renderedPropValue);
-        return (
-            browserSpecificPropValue
-            ?
-            browserSpecificPropValue
-            :
-            renderedPropValue
-        );
     }
     #renderProp(propName: keyof CssProps, propValue: CssCustomValue|undefined|null): void {
         if ((propValue === undefined) || (propValue === null)) return;
@@ -232,7 +215,7 @@ class RenderRule {
         const renderedPropName = this.#renderPropName(propName);
         this.rendered += renderedPropName;
         this.rendered += ': ';
-        this.rendered += this.#renderPropValue(renderedPropName, propValue);
+        this.rendered += this.#renderPropValue(propValue);
         this.rendered += ';';
     }
     
@@ -454,7 +437,12 @@ class RenderRule {
     
     
     
-    constructor(finalSelector: CssFinalSelector|null, finalStyle: CssFinalStyleMap|null) {
+    constructor(finalSelector: CssFinalSelector|null, finalStyle: CssFinalStyleMap|null, options?: RenderRuleOptions) {
+        // configs:
+        this.#cssPropAutoPrefix = options?.cssPropAutoPrefix;
+        
+        
+        
         // reset:
         this.rendered = '';
         
@@ -471,12 +459,12 @@ class RenderRule {
 
 
 // processors:
-export const renderRule = (rules: CssRuleCollection): string|null => {
+export const renderRule = (rules: CssRuleCollection, options?: RenderRuleOptions): string|null => {
     // merge the rules to styleMap:
     const finalStyleMap   = mergeStyles(rules);
     
     
     
     // finally, render the structures:
-    return (new RenderRule(null, finalStyleMap)).rendered || null;
+    return (new RenderRule(null, finalStyleMap, options)).rendered || null;
 }

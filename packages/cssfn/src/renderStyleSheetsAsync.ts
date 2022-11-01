@@ -3,6 +3,10 @@ import type {
     // cssfn properties:
     CssScopeName,
 }                           from '@cssfn/css-types'
+import {
+    // utilities:
+    browserInfo,
+}                           from '@cssfn/css-prop-auto-prefix'
 
 // internals:
 import type {
@@ -16,6 +20,11 @@ import {
 import {
     encodeStyles,
 }                           from './cssfn-encoders.js'
+import type {
+    // types:
+    MessageData,
+    ResponseData,
+}                           from './renderStyleSheetsWorker.js'
 
 
 
@@ -38,6 +47,10 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
     try {
         // try to create a new worker with esm module:
         const newWorkerInstance = new Worker(new URL('./renderStyleSheetsWorker.js', import.meta.url), { type: 'module' });
+        const messageData : MessageData = ['config', {browserInfo}];
+        newWorkerInstance.postMessage(messageData);
+        
+        
         
         const newWorkerEntry : WorkerEntry = {
             worker          : newWorkerInstance,
@@ -45,6 +58,9 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
             totalWorks      : 0,
         };
         workerList.push(newWorkerEntry); // store the worker to re-use later
+        
+        
+        
         return newWorkerEntry;
     }
     catch {
@@ -107,8 +123,13 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
                 currentWorkerEntry.totalWorks = 0; // reset the counter
             } // if
         };
-        const handleProcessed = (event: MessageEvent<string|null>) => {
+        const handleProcessed = (event: MessageEvent<ResponseData>) => {
+            const [type, payload] = event.data;
+            
+            
+            
             // conditions:
+            if (type !== 'rendered') return;
             const currentQueueId = currentWorkerEntry.totalWorks - currentWorkerEntry.unfinishedWorks;
             if (queueId !== currentQueueId) return; // not my queue_id => ignore
             event.stopImmediatePropagation(); // prevents other listeners to receive this event
@@ -116,7 +137,7 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
             
             
             handleDone();
-            resolve(event.data);
+            resolve(payload);
         };
         const handleError     = (event: Event) => {
             // conditions:
@@ -139,6 +160,7 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
         currentWorker.addEventListener('message', handleProcessed);
         currentWorker.addEventListener('error'  , handleError);
         
-        currentWorker.postMessage(encodeStyles(scopeRules));
+        const messageData : MessageData = ['render', encodeStyles(scopeRules)];
+        currentWorker.postMessage(messageData);
     });
 }
