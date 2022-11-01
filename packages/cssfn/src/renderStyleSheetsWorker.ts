@@ -49,7 +49,8 @@ self.onmessage = (event: MessageEvent<MessageData>) => {
             break;
         case 'render':
             const scopeRules = decodeStyles(payload);
-            self.postMessage(renderRule(scopeRules, { cssPropAutoPrefix }));
+            const responseData : ResponseData = ['rendered', renderRule(scopeRules, { cssPropAutoPrefix })];
+            self.postMessage(responseData);
             break;
     } // switch
 };
