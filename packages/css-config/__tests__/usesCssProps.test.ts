@@ -4,17 +4,17 @@ import {
 } from '../dist/css-config.js'
 
 import {
-    standardLonghandProps,
-    standardShorthandProps,
-    vendorLonghandProps,
-    vendorShorthandProps,
-    obsoleteProps,
-    svgProps,
+    cssKnownStandardLonghandProps,
+    cssKnownStandardShorthandProps,
+    cssKnownVendorLonghandProps,
+    cssKnownVendorShorthandProps,
+    cssKnownObsoleteProps,
+    cssKnownSvgProps,
 }                           from '@cssfn/css-prop-list/dist/known-css-props.js'
 
 
 
-standardLonghandProps.forEach((propName) => {
+cssKnownStandardLonghandProps.forEach((propName) => {
     test(`test usesCssProps(standardLonghandProps: ${propName})`, () => {
         const [cssProps] = cssConfig({
             [propName]: 'unset',
@@ -38,7 +38,7 @@ standardLonghandProps.forEach((propName) => {
         });
     });
 });
-standardShorthandProps.forEach((propName) => {
+cssKnownStandardShorthandProps.forEach((propName) => {
     test(`test usesCssProps(standardShorthandProps: ${propName})`, () => {
         const [cssProps] = cssConfig({
             [propName]: 'unset',
@@ -65,7 +65,7 @@ standardShorthandProps.forEach((propName) => {
 
 
 
-vendorLonghandProps.forEach((propName) => {
+cssKnownVendorLonghandProps.forEach((propName) => {
     test(`test usesCssProps(vendorLonghandProps: ${propName})`, () => {
         const [cssProps] = cssConfig({
             [propName]: 'unset',
@@ -89,7 +89,7 @@ vendorLonghandProps.forEach((propName) => {
         });
     });
 });
-vendorShorthandProps.forEach((propName) => {
+cssKnownVendorShorthandProps.forEach((propName) => {
     test(`test usesCssProps(vendorShorthandProps: ${propName})`, () => {
         const [cssProps] = cssConfig({
             [propName]: 'unset',
@@ -117,7 +117,7 @@ vendorShorthandProps.forEach((propName) => {
 
 
 const isUppercase  = (test: string) => (test >= 'A') && (test <= 'Z');
-obsoleteProps.forEach((propName) => {
+cssKnownObsoleteProps.forEach((propName) => {
     if (propName === 'clip') return;
     
     if (
@@ -178,7 +178,7 @@ obsoleteProps.forEach((propName) => {
 
 
 
-svgProps.forEach((propName) => {
+cssKnownSvgProps.forEach((propName) => {
     test(`test usesCssProps(svgProps: ${propName})`, () => {
         const [cssProps] = cssConfig({
             [propName]: 'unset',
