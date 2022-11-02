@@ -1,6 +1,7 @@
 // cssfn:
 import type {
     // types:
+    DeepArray,
     SingleOrDeepArray,
 }                           from '@cssfn/types'
 import type {
@@ -30,6 +31,20 @@ export {
 
 
 
+function* unwrap<T>(collection: DeepArray<T>): Generator<T> {
+    for (const item of collection) {
+        if (!Array.isArray(item)) {
+            yield item;
+            continue;
+        } // if
+        
+        
+        
+        for (const subItem of unwrap(item)) {
+            yield subItem;
+        } // for
+    } // for
+}
 /**
  * Returns a new array with all sub-array elements concatenated into it recursively up to infinity depth.
  * @param collection An element -or- an array of element -or- a recursive array of element
@@ -44,14 +59,12 @@ export const flat = <T,>(collection: SingleOrDeepArray<T>): T[] => {
     
     
     if (!Array.isArray(collection)) {
-        // not an array => T
-        
         return [collection];
     } // if
     
     
     
-    return ((collection as any).flat(Infinity) as T[]);
+    return Array.from(unwrap(collection));
 };
 
 export const isFinalSelector = (selector: CssRawSelector|CssFinalSelector): selector is CssFinalSelector => (typeof(selector) === 'string');
