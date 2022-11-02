@@ -274,7 +274,8 @@ const createKeyframesRules = (items: CssKeyframes): CssRuleCollection => Object.
 // rule shortcuts:
 // export const alwaysRule       = (styles:         CssStyleCollection                              ) => rule('&'                   , styles         );
 export const alwaysRule        = (styles:         CssStyleCollection                              ) => ({ [Symbol()] : [['&', undefined], styles] }) as CssRule; // a bit faster
-export const neverRule         = (                                                                ) => rule(null                  , null           );
+// export const neverRule         = (                                                                ) => rule(null                  , null           );
+export const neverRule         = (                                                                ) => ({ /* empty object */ }) as CssRule; // a bit faster
 export const fallbacks         = (styles:         CssStyleCollection                              ) => atRule('@fallbacks'        , styles         );
 export const fontFace          = (styles: CssFontFaceStyleCollection                              ) => atRule('@font-face'        , styles         );
 export const atGlobal          = (rules :          CssRuleCollection                              ) => atRule('@global'           , rules          );
