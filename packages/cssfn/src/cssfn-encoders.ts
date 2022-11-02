@@ -89,7 +89,7 @@ export function encodeNestedRule(this: CssStyle, symbolProp: symbol): EncodedCss
 }
 export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>): OptionalOrBoolean<EncodedCssStyle> => {
     const styleValue = (typeof(style) === 'function') ? style() : style;
-    if (!styleValue || (styleValue === true)) return styleValue; // boolean|null|undefined => ignore
+    if (!styleValue || (styleValue === true)) return undefined; // boolean|null|undefined => ignore
     
     
     
@@ -113,6 +113,26 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
     
     return encodedStyle;
 }
+function* unwrapStyles(styles: Extract<CssStyleCollection, any[]>): Generator<EncodedCssStyle> {
+    for (const style of styles) {
+        if (!style || (style === true)) continue; // falsy style(s) => ignore
+        
+        
+        
+        if (!Array.isArray(style)) {
+            const encodedStyle = encodeStyle(style);
+            if (!encodedStyle || (encodedStyle === true)) continue; // falsy style(s) => ignore
+            yield encodedStyle;
+            continue;
+        } // if
+        
+        
+        
+        for (const subStyle of unwrapStyles(style)) {
+            yield subStyle;
+        } // for
+    } // for
+}
 export const encodeStyles = (styles: CssStyleCollection): EncodedCssStyleCollection => {
     if (!Array.isArray(styles)) {
         return encodeStyle(styles);
@@ -120,8 +140,5 @@ export const encodeStyles = (styles: CssStyleCollection): EncodedCssStyleCollect
     
     
     
-    return (
-        ((styles as any).flat(Infinity) as ProductOrFactory<OptionalOrBoolean<CssStyle>>[]) // no need to *exactly* match the deep_array structure, a simple_array is enough
-        .map(encodeStyle)
-    );
+    return Array.from(unwrapStyles(styles));
 }
