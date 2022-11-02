@@ -33,17 +33,17 @@ const decodeNestedRule = (ruleData: EncodedCssRuleData): readonly [symbol, CssRu
         decodeRuleData(ruleData)
     ];
 }
-export const decodeStyle = (styles: OptionalOrBoolean<EncodedCssStyle>): OptionalOrBoolean<CssStyle> => {
-    if (!styles || (styles === true)) return styles; // boolean|null|undefined => ignore
+export const decodeStyle = (style: OptionalOrBoolean<EncodedCssStyle>): OptionalOrBoolean<CssStyle> => {
+    if (!style || (style === true)) return undefined; // falsy style => ignore
     
     
     
-    const ruleDatas = styles['']; // an empty string key is a special property for storing (nested) rules
+    const ruleDatas = style['']; // an empty string key is a special property for storing (nested) rules
     
     
     
-    delete styles[''];
-    const decodedStyle = styles as CssStyle; // no need to clone to improve performance
+    delete style[''];
+    const decodedStyle = style as CssStyle; // no need to clone to improve performance
     
     
     
@@ -62,6 +62,26 @@ export const decodeStyle = (styles: OptionalOrBoolean<EncodedCssStyle>): Optiona
     
     return decodedStyle;
 }
+function* unwrapStyles(styles: Extract<EncodedCssStyleCollection, any[]>): Generator<CssStyle> {
+    for (const style of styles) {
+        if (!style || (style === true)) continue; // falsy style(s) => ignore
+        
+        
+        
+        if (!Array.isArray(style)) {
+            const decodedStyle = decodeStyle(style);
+            if (!decodedStyle || (decodedStyle === true)) continue; // falsy style(s) => ignore
+            yield decodedStyle;
+            continue;
+        } // if
+        
+        
+        
+        for (const subStyle of unwrapStyles(style)) {
+            yield subStyle;
+        } // for
+    } // for
+}
 export const decodeStyles = (styles: EncodedCssStyleCollection): CssStyleCollection => {
     if (!Array.isArray(styles)) {
         return decodeStyle(styles);
@@ -69,8 +89,5 @@ export const decodeStyles = (styles: EncodedCssStyleCollection): CssStyleCollect
     
     
     
-    return (
-        ((styles as any).flat(Infinity) as OptionalOrBoolean<EncodedCssStyle>[]) // no need to *exactly* match the deep_array structure, a simple_array is enough
-        .map(decodeStyle)
-    );
+    return Array.from(unwrapStyles(styles));
 }

@@ -88,8 +88,9 @@ export function encodeNestedRule(this: CssStyle, symbolProp: symbol): EncodedCss
     return encodeRuleData(this[symbolProp]);
 }
 export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>): OptionalOrBoolean<EncodedCssStyle> => {
+    if (!style || (style === true))           return undefined; // falsy style => ignore
     const styleValue = (typeof(style) === 'function') ? style() : style;
-    if (!styleValue || (styleValue === true)) return undefined; // boolean|null|undefined => ignore
+    if (!styleValue || (styleValue === true)) return undefined; // falsy style => ignore
     
     
     
