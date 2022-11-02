@@ -64,8 +64,8 @@ const defaultStyleSheetOptions : Required<StyleSheetOptions> = {
     id       : '',
 }
 
-type StyleSheetUpdatedCallback<TCssScopeName extends CssScopeName> = (styleSheet: StyleSheet<TCssScopeName>) => void;
-class StyleSheet<TCssScopeName extends CssScopeName = CssScopeName> implements Required<StyleSheetOptions> {
+type StyleSheetUpdatedCallback<in TCssScopeName extends CssScopeName> = (styleSheet: StyleSheet<TCssScopeName>) => void;
+class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implements Required<StyleSheetOptions> {
     //#region private properties
     readonly #options         : Required<StyleSheetOptions>
     readonly #updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>|null
@@ -244,15 +244,15 @@ class StyleSheetRegistry {
         
         const newStyleSheet = new StyleSheet<TCssScopeName>(
             scopes,
-            this.#styleSheetUpdated as any,               // listen for future updates
+            this.#styleSheetUpdated,               // listen for future updates
             options
         );
-        this.#styleSheets.push(newStyleSheet as any);     // register to collection
+        this.#styleSheets.push(newStyleSheet);     // register to collection
         
         
         
-        if (newStyleSheet.enabled) {                      // skip disabled styleSheet
-            this.#subscribers.next(newStyleSheet as any); // notify a StyleSheet added
+        if (newStyleSheet.enabled) {               // skip disabled styleSheet
+            this.#subscribers.next(newStyleSheet); // notify a StyleSheet added
         } // if
         
         
