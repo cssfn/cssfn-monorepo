@@ -95,15 +95,16 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
         this.#loaded = false; // initial
         this.#updateScopes(scopes);
         
-        this.#classes         = new Proxy<CssScopeMap<TCssScopeName>>(({} as CssScopeMap<TCssScopeName>), {
-            get(scopeMap: object, scopeName: TCssScopeName|symbol): CssClassName|undefined {
+        const scopeMap = {} as CssScopeMap<TCssScopeName>;
+        this.#classes  = new Proxy<CssScopeMap<TCssScopeName>>(scopeMap, {
+            get(scopeMap: CssScopeMap<TCssScopeName>, scopeName: TCssScopeName|symbol): CssClassName|undefined {
                 // ignores symbol & number props:
                 if (typeof(scopeName) !== 'string') return undefined;
                 
                 
                 
                 // if already cached => return immediately:
-                if (scopeName in scopeMap) return (scopeMap as any)[scopeName];
+                if (scopeName in scopeMap) return scopeMap[scopeName];
                 
                 
                 
@@ -113,7 +114,7 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
                 
                 
                 // update the cache & return:
-                (scopeMap as any)[scopeName] = uniqueClass;
+                scopeMap[scopeName] = uniqueClass;
                 return uniqueClass;
             },
         });
