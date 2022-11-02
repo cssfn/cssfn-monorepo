@@ -2,6 +2,7 @@
 import type {
     OptionalOrBoolean,
     SingleOrArray,
+    DeepArray,
     SingleOrDeepArray,
 }                           from '@cssfn/types'
 
@@ -84,17 +85,31 @@ const isNotEmptyExpression = (expression: OptionalOrBoolean<string>): expression
     &&
     (expression !== true)  // not `true`
 );
+function* unwrapExpressions(expressions: DeepArray<OptionalOrBoolean<string>>): Generator<string> {
+    for (const expression of expressions) {
+        if (!Array.isArray(expression)) {
+            if (!isNotEmptyExpression(expression)) continue; // falsy or empty string => ignore
+            yield expression;
+            continue;
+        } // if
+        
+        
+        
+        for (const subExpression of unwrapExpressions(expression)) {
+            yield subExpression;
+        } // for
+    } // for
+}
 const joinExpressions = (expressions: SingleOrDeepArray<OptionalOrBoolean<string>>): string => {
     if (!Array.isArray(expressions)) {
-        if (isNotEmptyExpression(expressions)) return expressions;
-        return '';
+        if (!isNotEmptyExpression(expressions)) return ''; // falsy or empty string => empty result
+        return expressions;
     } // if
     
     
     
     return (
-        ((expressions as any).flat(Infinity) as OptionalOrBoolean<string>[])
-        .filter(isNotEmptyExpression)
+        Array.from(unwrapExpressions(expressions))
         .join(',')
     );
 };
