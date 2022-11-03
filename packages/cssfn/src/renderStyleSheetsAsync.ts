@@ -14,7 +14,7 @@ import type {
     StyleSheet,
 }                           from './styleSheets.js'
 import {
-    generateRulesFromFactory,
+    generateRulesFromStyleSheet,
     renderStyleSheet,
 }                           from './renderStyleSheets.js'
 import {
@@ -37,9 +37,10 @@ type WorkerEntry = {
 const workerList : WorkerEntry[] = []; // holds the workers
 const maxConcurrentWorks = (globalThis.navigator?.hardwareConcurrency ?? 1); // determines the number of logical processors, fallback to 1 processor
 
+const supportsWorker = (typeof(Worker) !== 'undefined');
 const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
     // conditions:
-    if (typeof(Worker) === 'undefined')          return null; // the environment doesn't support web worker => single threading only
+    if (!supportsWorker)                         return null; // the environment doesn't support web worker => single threading only
     if (workerList.length >= maxConcurrentWorks) return null; // the maximum of workers has been reached    => no more workers
     
     
@@ -68,19 +69,14 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
     } // try
 }
 
-const isNotBusyWorker   = (workerEntry: WorkerEntry) => (workerEntry.unfinishedWorks === 0);
-const sortBusiestWorker = (a: WorkerEntry, b: WorkerEntry): number => {
-    return a.unfinishedWorks - b.unfinishedWorks; // sort from the least busy to the most busy
-}
-const bookingWorker     = (): WorkerEntry|null => {
+const isNotBusyWorker = (workerEntry: WorkerEntry) => (workerEntry.unfinishedWorks === 0);
+const bookingWorker   = (): WorkerEntry|null => {
     return (
-        workerList.find(isNotBusyWorker)         // take the non_busy worker (if any)
+        workerList.find(isNotBusyWorker) // take the non_busy worker (if any)
         ??
-        createWorkerEntryIfNeeded()              // add a new worker (if still available)
+        createWorkerEntryIfNeeded()      // add a new worker (if the quota is still available)
         ??
-        workerList.sort(sortBusiestWorker).at(0) // take the least busy worker
-        ??
-        null                                     // no worker available
+        null                             // no worker available
     );
 }
 
@@ -95,72 +91,119 @@ for (let addWorker = 0; addWorker < maxPreloadWorkers; addWorker++) {
 
 
 // processors:
-export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): Promise<string|null> => {
-    if (!styleSheet.enabled) return null;
+type JobEntry = readonly [StyleSheet, (result: string|null) => void, (reason?: any) => void]
+const jobList : JobEntry[] = [];
+
+const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
+    // conditions:
+    const jobItem = jobList.shift(); // take the oldest job (if available)
+    if (!jobItem) return false;      // no job available => nothing to do => idle
+    
+    
+    
+    // prepare the job descriptions:
+    const [styleSheet, resolve, reject] = jobItem;
+    
+    
+    
+    // generate (scope) Rule(s) from styleSheet:
+    const scopeRules = generateRulesFromStyleSheet(styleSheet);
     
     
     
     // prepare the worker:
-    const currentWorkerEntry = bookingWorker();
-    if (!currentWorkerEntry) return renderStyleSheet(styleSheet); // fallback to sync mode
     const currentWorker = currentWorkerEntry.worker;
     
     
     
-    // generate Rule(s) from factory:
-    const scopeRules = generateRulesFromFactory(styleSheet);
+    // handlers:
+    const handleDone      = () => {
+        // cleanups:
+        currentWorker.removeEventListener('message', handleProcessed);
+        currentWorker.removeEventListener('error'  , handleError);
+        
+        if ((--currentWorkerEntry.unfinishedWorks) === 0) { // free
+            currentWorkerEntry.totalWorks = 0; // reset the counter
+        } // if
+        
+        
+        
+        // search for another job:
+        takeJob(currentWorkerEntry);
+    };
+    const handleProcessed = (event: MessageEvent<ResponseData>) => {
+        const [type, payload] = event.data;
+        
+        
+        
+        // conditions:
+        if (type !== 'rendered') return;
+        const currentQueueId = currentWorkerEntry.totalWorks - currentWorkerEntry.unfinishedWorks;
+        if (queueId !== currentQueueId) return; // not my queue_id => ignore
+        event.stopImmediatePropagation(); // prevents other listeners to receive this event
+        
+        
+        
+        handleDone();
+        resolve(payload);
+    };
+    const handleError     = (event: Event) => {
+        // conditions:
+        const currentQueueId = currentWorkerEntry.totalWorks - currentWorkerEntry.unfinishedWorks;
+        if (queueId !== currentQueueId) return; // not my queue_id => ignore
+        event.stopImmediatePropagation(); // prevents other listeners to receive this event
+        
+        
+        
+        handleDone();
+        reject(event);
+    };
     
     
     
-    // finally, render the structures:
-    return new Promise<string|null>((resolve, reject) => {
-        // handlers:
-        const handleDone      = () => {
-            currentWorker.removeEventListener('message', handleProcessed);
-            currentWorker.removeEventListener('error'  , handleError);
-            
-            if ((--currentWorkerEntry.unfinishedWorks) === 0) { // free
-                currentWorkerEntry.totalWorks = 0; // reset the counter
-            } // if
-        };
-        const handleProcessed = (event: MessageEvent<ResponseData>) => {
-            const [type, payload] = event.data;
-            
-            
-            
-            // conditions:
-            if (type !== 'rendered') return;
-            const currentQueueId = currentWorkerEntry.totalWorks - currentWorkerEntry.unfinishedWorks;
-            if (queueId !== currentQueueId) return; // not my queue_id => ignore
-            event.stopImmediatePropagation(); // prevents other listeners to receive this event
-            
-            
-            
-            handleDone();
-            resolve(payload);
-        };
-        const handleError     = (event: Event) => {
-            // conditions:
-            const currentQueueId = currentWorkerEntry.totalWorks - currentWorkerEntry.unfinishedWorks;
-            if (queueId !== currentQueueId) return; // not my queue_id => ignore
-            event.stopImmediatePropagation(); // prevents other listeners to receive this event
-            
-            
-            
-            handleDone();
-            reject(event);
-        };
-        
-        
-        
-        // actions:
-        currentWorkerEntry.unfinishedWorks++;            // count how many work is in progress
-        const queueId = currentWorkerEntry.totalWorks++; // a queue_id to distinguish between current data and previously posted data
-        
-        currentWorker.addEventListener('message', handleProcessed);
-        currentWorker.addEventListener('error'  , handleError);
-        
-        const messageData : MessageData = ['render', encodeStyles(scopeRules)];
-        currentWorker.postMessage(messageData);
+    // actions:
+    currentWorkerEntry.unfinishedWorks++;            // count how many work is in progress
+    const queueId = currentWorkerEntry.totalWorks++; // a queue_id to distinguish between current data and previously posted data
+    
+    currentWorker.addEventListener('message', handleProcessed);
+    currentWorker.addEventListener('error'  , handleError);
+    
+    const messageData : MessageData = ['render', encodeStyles(scopeRules)];
+    currentWorker.postMessage(messageData);
+    
+    
+    
+    // delegation is complete:
+    return true;
+}
+
+export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): Promise<string|null> => {
+    // conditions:
+    if (!styleSheet.enabled) return null;
+    if (!supportsWorker || !maxConcurrentWorks) return renderStyleSheet(styleSheet); // not_support_worker or concurrent_is_disabled => fallback to sync mode
+    
+    
+    
+    // prepare the worker:
+    const renderPromise = new Promise<string|null>((resolve, reject) => {
+        jobList.push([styleSheet, resolve, reject]);
     });
+    
+    
+    
+    // make sure all workers are running:
+    for (let jobs = 0; jobs < jobList.length; jobs++) {
+        const freeWorker = bookingWorker();
+        if (!freeWorker) break; // there is no more free worker => stop searching
+        
+        
+        
+        // do it:
+        takeJob(freeWorker);
+    } // for
+    
+    
+    
+    // the workers are currently working, we will notify you if it done:
+    return renderPromise;
 }

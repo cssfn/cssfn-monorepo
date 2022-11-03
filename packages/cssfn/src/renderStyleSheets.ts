@@ -56,7 +56,7 @@ function convertScopeEntryToCssRule<TCssScopeName extends CssScopeName = CssScop
         { ...options, performGrouping: false }
     );
 }
-export const generateRulesFromFactory = <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): CssRuleCollection => {
+export const generateRulesFromStyleSheet = <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): CssRuleCollection => {
     const scopesFactory = styleSheet.scopes;
     const scopeList = (typeof(scopesFactory) === 'function') ? scopesFactory() : scopesFactory;
     if (!scopeList || !scopeList.length) return null;
@@ -72,8 +72,8 @@ export const renderStyleSheet = <TCssScopeName extends CssScopeName = CssScopeNa
     
     
     
-    // generate Rule(s) from factory:
-    const scopeRules = generateRulesFromFactory(styleSheet);
+    // generate (scope) Rule(s) from styleSheet:
+    const scopeRules = generateRulesFromStyleSheet(styleSheet);
     
     
     
