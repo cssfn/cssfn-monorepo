@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/cssfn",
-  "version": "2.0.18",
+  "version": "2.0.19",
   "description": "Writes, imports, and exports css stylesheets as javascript modules.",
   "keywords": [
     "css",
@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@cssfn/css-prop-auto-prefix": "^2.0.0",
-    "@cssfn/css-selectors": "^2.0.4",
+    "@cssfn/css-selectors": "^2.0.5",
     "@cssfn/css-types": "^2.0.6",
     "@cssfn/types": "^2.0.1",
     "@types/hyphenate-style-name": "^1.0.0",
