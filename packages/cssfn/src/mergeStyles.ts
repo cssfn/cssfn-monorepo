@@ -149,7 +149,7 @@ const finalizeSelector = (style: (CssRuleMap & CssFinalRuleMap), symbolProp: sym
     // group selectors by rule type:
     const selectorsString = (
         flat(selectors)
-        .filter((selector): selector is CssSelector => (!!selector || (selector === '')) && (selector !== true))
+        .filter((selector): selector is CssSelector => !!selector && (selector !== true))
     );
     const selectorGroupByRuleType = selectorsString.reduce(
         groupByRuleType,
