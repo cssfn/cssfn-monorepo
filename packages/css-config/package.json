@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/css-config",
-  "version": "2.0.24",
+  "version": "2.0.25",
   "description": "Reads/Writes CSS configuration of HTML components using centralized CSS variables.",
   "keywords": [
     "css",
@@ -37,7 +37,7 @@
     "@cssfn/types": "^2.0.1"
   },
   "peerDependencies": {
-    "@cssfn/cssfn": "^2.0.12",
+    "@cssfn/cssfn": "^2.0.19",
     "rxjs": "^7.5.5"
   },
   "devDependencies": {
