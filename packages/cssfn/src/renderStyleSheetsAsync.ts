@@ -89,7 +89,9 @@ for (let addWorker = 0; addWorker < maxPreloadWorkers; addWorker++) {
 
 
 // processors:
-type JobEntry = readonly [StyleSheet, (result: string|null) => void, (reason?: any) => void]
+type ResolveCallback = (result: string|null) => void
+type RejectCallback  = (reason?: any) => void
+type JobEntry = readonly [StyleSheet, ResolveCallback, RejectCallback]
 const jobList : JobEntry[] = [];
 
 const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
@@ -167,7 +169,7 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
     
     
     // prepare the worker:
-    const renderPromise = new Promise<string|null>((resolve, reject) => {
+    const renderPromise = new Promise<string|null>((resolve: ResolveCallback, reject: RejectCallback) => {
         jobList.push([styleSheet, resolve, reject]);
     });
     
