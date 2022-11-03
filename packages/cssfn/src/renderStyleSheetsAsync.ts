@@ -51,11 +51,10 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
     try {
         // try to create a new worker with esm module:
         const newWorkerInstance = new Worker(new URL('./renderStyleSheetsWorker.js', import.meta.url), { type: 'module' });
-        const messageData : MessageData = ['config', {browserInfo}];
-        newWorkerInstance.postMessage(messageData);
         
         
         
+        // create a new worker entry:
         const newWorkerEntry : WorkerEntry = {
             worker     : newWorkerInstance,
             currentJob : null,
@@ -64,6 +63,62 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
         
         
         
+        // handlers:
+        newWorkerInstance.onmessage = (event: MessageEvent<ResponseData>) => {
+            // conditions:
+            const [type, payload] = event.data;
+            if (type !== 'rendered') return;
+            
+            
+            
+            const resolve = newWorkerEntry.currentJob?.resolve; // extract the callback before resetting `handleDone()`
+            handleDone(); // reset
+            
+            
+            
+            if (resolve) {
+                if (Array.isArray(resolve)) {
+                    for (const singleResolve of resolve) singleResolve(payload);
+                }
+                else {
+                    resolve(payload);
+                } // if
+            } // if
+        };
+        newWorkerInstance.onerror = (event) => {
+            const reject = newWorkerEntry.currentJob?.reject; // extract the callback before resetting `handleDone()`
+            handleDone(); // reset
+            
+            
+            
+            if (reject) {
+                if (Array.isArray(reject)) {
+                    for (const singleReject of reject) singleReject(event);
+                }
+                else {
+                    reject(event);
+                } // if
+            } // if
+        };
+        const handleDone = () => {
+            // cleanups:
+            newWorkerEntry.currentJob = null; // un-mark as busy
+            
+            
+            
+            // search for another job:
+            takeJob(newWorkerEntry);
+        };
+        
+        
+        
+        // configure:
+        const messageData : MessageData = ['config', {browserInfo}];
+        newWorkerInstance.postMessage(messageData);
+        
+        
+        
+        // ready:
         return newWorkerEntry;
     }
     catch {
@@ -121,55 +176,8 @@ const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
     
     
     
-    // handlers:
-    const handleDone      = () => {
-        // cleanups:
-        currentWorker.removeEventListener('message', handleProcessed);
-        currentWorker.removeEventListener('error'  , handleError);
-        
-        currentWorkerEntry.currentJob = null; // un-mark as busy
-        
-        
-        
-        // search for another job:
-        takeJob(currentWorkerEntry);
-    };
-    const handleProcessed = (event: MessageEvent<ResponseData>) => {
-        // conditions:
-        const [type, payload] = event.data;
-        if (type !== 'rendered') return;
-        
-        
-        
-        handleDone();
-        
-        const {resolve} = currentJob;
-        if (Array.isArray(resolve)) {
-            for (const singleResolve of resolve) singleResolve(payload);
-        }
-        else {
-            resolve(payload);
-        } // if
-    };
-    const handleError     = (event: Event) => {
-        handleDone();
-        
-        const {reject} = currentJob;
-        if (Array.isArray(reject)) {
-            for (const singleReject of reject) singleReject(event);
-        }
-        else {
-            reject(event);
-        } // if
-    };
-    
-    
-    
-    // actions:
+    // setups:
     currentWorkerEntry.currentJob = currentJob; // mark as busy
-    
-    currentWorker.addEventListener('message', handleProcessed);
-    currentWorker.addEventListener('error'  , handleError);
     
     const messageData : MessageData = ['render', encodeStyles(scopeRules)];
     currentWorker.postMessage(messageData);
