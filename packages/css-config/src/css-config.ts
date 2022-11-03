@@ -77,23 +77,6 @@ import {
 
 
 
-// utilities:
-/**
- * A regular `requestAnimationFrame` with SSR support.
- */
-const isomorphicRequestAnimationFrame = (
-    (typeof(requestAnimationFrame) !== 'undefined')
-    ?
-    requestAnimationFrame
-    :
-    (callback: () => void): ReturnType<typeof requestAnimationFrame>|undefined => {
-        Promise.resolve().then(callback);
-        return undefined;
-    }
-);
-
-
-
 // types:
 export type CssConfigProps =
     & PartialNullish<{
@@ -831,7 +814,6 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * `true`  is valid.
      */
     #valid = false;
-    #cancelRequestRebuild : ReturnType<typeof requestAnimationFrame>|undefined = undefined;
     /**
      * Regenerates the `#genProps`.
      * @param immediately `true` to update immediately (guaranteed has fully updated after `#update()` returned) -or- `false` to update shortly after current execution finished.
@@ -846,27 +828,22 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             // now the data is guaranteed regenerated.
         }
         else {
-            // cancel out previously `request #rebuild()` (if any):
-            if (this.#cancelRequestRebuild) {
-                cancelAnimationFrame(this.#cancelRequestRebuild);
-                this.#cancelRequestRebuild = undefined; // mark as canceled
-            } // if
-            
-            
-            
-            this.#valid = false;         // mark the `#genProps` as invalid
-            this.#cancelRequestRebuild = isomorphicRequestAnimationFrame(() => { // `promise to #rebuild()` in the future as soon as possible, BEFORE browser repaint
-                // marks:
-                this.#cancelRequestRebuild = undefined; // performing => uncancellable
-                
-                
-                
-                // actions:
-                if (this.#valid) return; // has been previously generated => abort
-                this.#rebuild();
-                this.#valid = true;      // mark the `#genProps` as valid
-            });
+            this.#scheduleUpdate();
         } // if
+    }
+    #scheduleUpdateToken : {}|null = null;
+    #scheduleUpdate() {
+        this.#valid = false;         // mark the `#genProps` as invalid
+        
+        const scheduleUpdateToken = {};
+        this.#scheduleUpdateToken = scheduleUpdateToken;
+        Promise.resolve().then(() => { // runs the `#rebuild()` to the microTasks
+            if (this.#scheduleUpdateToken !== scheduleUpdateToken) return; // token changed => a newer `#scheduleUpdate()` call was made
+            
+            if (this.#valid) return; // has been previously generated => abort
+            this.#rebuild();
+            this.#valid = true;      // mark the `#genProps` as valid
+        });
     }
     
     /**
