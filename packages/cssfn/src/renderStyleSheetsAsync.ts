@@ -230,7 +230,7 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
         
         
         // do it:
-        takeJob(freeWorker);
+        takeJob(freeWorker); // calling `takeJob()` may cause the `jobList.length` reduced
     } // for
     
     
