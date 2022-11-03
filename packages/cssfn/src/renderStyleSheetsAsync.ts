@@ -34,8 +34,8 @@ import type {
 
 // workers:
 type WorkerEntry = {
-    worker : Worker  // holds web worker instance
-    isBusy : boolean // the busy status
+    worker     : Worker        // holds web worker instance
+    currentJob : JobEntry|null // the busy status
 }
 const workerList : WorkerEntry[] = []; // holds the workers
 const maxConcurrentWorks = (globalThis.navigator?.hardwareConcurrency ?? 1); // determines the number of logical processors, fallback to 1 processor
@@ -57,8 +57,8 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
         
         
         const newWorkerEntry : WorkerEntry = {
-            worker : newWorkerInstance,
-            isBusy : false,
+            worker     : newWorkerInstance,
+            currentJob : null,
         };
         workerList.push(newWorkerEntry); // store the worker to re-use later
         
@@ -71,7 +71,7 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
     } // try
 }
 
-const isNotBusyWorker = (workerEntry: WorkerEntry) => !workerEntry.isBusy;
+const isNotBusyWorker = (workerEntry: WorkerEntry) => !workerEntry.currentJob;
 const bookingWorker   = (): WorkerEntry|null => {
     return (
         workerList.find(isNotBusyWorker) // take the non_busy worker (if any)
@@ -106,7 +106,7 @@ const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
     const styleSheet = jobList.keys().next().value as (StyleSheet|undefined); // take the oldest job (if available)
     if (!styleSheet) return false; // no job available => nothing to do => idle
     
-    const {resolve, reject} = jobList.get(styleSheet)!;
+    const currentJob = jobList.get(styleSheet)!;
     jobList.delete(styleSheet); // taken => remove from the list
     
     
@@ -127,7 +127,7 @@ const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
         currentWorker.removeEventListener('message', handleProcessed);
         currentWorker.removeEventListener('error'  , handleError);
         
-        currentWorkerEntry.isBusy = false; // un-mark as busy
+        currentWorkerEntry.currentJob = null; // un-mark as busy
         
         
         
@@ -143,6 +143,7 @@ const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
         
         handleDone();
         
+        const {resolve} = currentJob;
         if (Array.isArray(resolve)) {
             for (const singleResolve of resolve) singleResolve(payload);
         }
@@ -153,6 +154,7 @@ const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
     const handleError     = (event: Event) => {
         handleDone();
         
+        const {reject} = currentJob;
         if (Array.isArray(reject)) {
             for (const singleReject of reject) singleReject(event);
         }
@@ -164,7 +166,7 @@ const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
     
     
     // actions:
-    currentWorkerEntry.isBusy = true; // mark as busy
+    currentWorkerEntry.currentJob = currentJob; // mark as busy
     
     currentWorker.addEventListener('message', handleProcessed);
     currentWorker.addEventListener('error'  , handleError);
