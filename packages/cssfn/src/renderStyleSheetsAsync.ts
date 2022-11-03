@@ -30,9 +30,8 @@ import type {
 
 // workers:
 type WorkerEntry = {
-    worker          : Worker // holds web worker instance
-    unfinishedWorks : number // the busy level: 0 = free, 1 = a bit busy, 99 = very busy
-    totalWorks      : number // the total works
+    worker : Worker  // holds web worker instance
+    isBusy : boolean // the busy status
 }
 const workerList : WorkerEntry[] = []; // holds the workers
 const maxConcurrentWorks = (globalThis.navigator?.hardwareConcurrency ?? 1); // determines the number of logical processors, fallback to 1 processor
@@ -54,9 +53,8 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
         
         
         const newWorkerEntry : WorkerEntry = {
-            worker          : newWorkerInstance,
-            unfinishedWorks : 0,
-            totalWorks      : 0,
+            worker : newWorkerInstance,
+            isBusy : false,
         };
         workerList.push(newWorkerEntry); // store the worker to re-use later
         
@@ -69,14 +67,14 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
     } // try
 }
 
-const isNotBusyWorker = (workerEntry: WorkerEntry) => (workerEntry.unfinishedWorks === 0);
+const isNotBusyWorker = (workerEntry: WorkerEntry) => !workerEntry.isBusy;
 const bookingWorker   = (): WorkerEntry|null => {
     return (
         workerList.find(isNotBusyWorker) // take the non_busy worker (if any)
         ??
         createWorkerEntryIfNeeded()      // add a new worker (if the quota is still available)
         ??
-        null                             // no worker available
+        null                             // no new worker available
     );
 }
 
@@ -122,9 +120,7 @@ const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
         currentWorker.removeEventListener('message', handleProcessed);
         currentWorker.removeEventListener('error'  , handleError);
         
-        if ((--currentWorkerEntry.unfinishedWorks) === 0) { // free
-            currentWorkerEntry.totalWorks = 0; // reset the counter
-        } // if
+        currentWorkerEntry.isBusy = false; // un-mark as busy
         
         
         
@@ -132,15 +128,9 @@ const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
         takeJob(currentWorkerEntry);
     };
     const handleProcessed = (event: MessageEvent<ResponseData>) => {
-        const [type, payload] = event.data;
-        
-        
-        
         // conditions:
+        const [type, payload] = event.data;
         if (type !== 'rendered') return;
-        const currentQueueId = currentWorkerEntry.totalWorks - currentWorkerEntry.unfinishedWorks;
-        if (queueId !== currentQueueId) return; // not my queue_id => ignore
-        event.stopImmediatePropagation(); // prevents other listeners to receive this event
         
         
         
@@ -148,13 +138,6 @@ const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
         resolve(payload);
     };
     const handleError     = (event: Event) => {
-        // conditions:
-        const currentQueueId = currentWorkerEntry.totalWorks - currentWorkerEntry.unfinishedWorks;
-        if (queueId !== currentQueueId) return; // not my queue_id => ignore
-        event.stopImmediatePropagation(); // prevents other listeners to receive this event
-        
-        
-        
         handleDone();
         reject(event);
     };
@@ -162,8 +145,7 @@ const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
     
     
     // actions:
-    currentWorkerEntry.unfinishedWorks++;            // count how many work is in progress
-    const queueId = currentWorkerEntry.totalWorks++; // a queue_id to distinguish between current data and previously posted data
+    currentWorkerEntry.isBusy = true; // mark as busy
     
     currentWorker.addEventListener('message', handleProcessed);
     currentWorker.addEventListener('error'  , handleError);
