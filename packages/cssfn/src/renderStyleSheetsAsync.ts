@@ -96,21 +96,18 @@ for (let addWorker = 0; addWorker < maxPreloadWorkers; addWorker++) {
 type ResolveCallback = (result: string|null) => void
 type RejectCallback  = (reason?: any) => void
 type JobEntry = {
-    styleSheet : StyleSheet
-    resolve    : SingleOrArray<ResolveCallback>
-    reject     : SingleOrArray<RejectCallback>
+    resolve : SingleOrArray<ResolveCallback>
+    reject  : SingleOrArray<RejectCallback>
 }
-const jobList : JobEntry[] = [];
+const jobList = new Map<StyleSheet, JobEntry>();
 
 const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
     // conditions:
-    const jobItem = jobList.shift(); // take the oldest job (if available)
-    if (!jobItem) return false;      // no job available => nothing to do => idle
+    const styleSheet = jobList.keys().next().value as (StyleSheet|undefined); // take the oldest job (if available)
+    if (!styleSheet) return false; // no job available => nothing to do => idle
     
-    
-    
-    // prepare the job descriptions:
-    const {styleSheet, resolve, reject} = jobItem;
+    const {resolve, reject} = jobList.get(styleSheet)!;
+    jobList.delete(styleSheet); // taken => remove from the list
     
     
     
@@ -190,47 +187,53 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
     
     // prepare the worker:
     const renderPromise = new Promise<string|null>((resolve: ResolveCallback, reject: RejectCallback) => {
-        const existingJobItem = jobList.find((jobItem) => (jobItem.styleSheet === styleSheet));
-        if (!existingJobItem) {
-            const newJobItem : JobEntry = {styleSheet, resolve, reject};
-            jobList.push(newJobItem);
+        const existingJobEntry = jobList.get(styleSheet);
+        if (!existingJobEntry) {
+            const newJobEntry : JobEntry = {resolve, reject};
+            jobList.set(styleSheet, newJobEntry);
         }
         else {
-            if (Array.isArray(existingJobItem.resolve)) {
-                existingJobItem.resolve.push(resolve);
+            if (Array.isArray(existingJobEntry.resolve)) {
+                existingJobEntry.resolve.push(resolve);
             }
             else {
-                existingJobItem.resolve = [
-                    existingJobItem.resolve,
+                existingJobEntry.resolve = [
+                    existingJobEntry.resolve,
                     resolve,
                 ];
             } // if
             
             
             
-            if (Array.isArray(existingJobItem.reject)) {
-                existingJobItem.reject.push(reject);
+            if (Array.isArray(existingJobEntry.reject)) {
+                existingJobEntry.reject.push(reject);
             }
             else {
-                existingJobItem.reject = [
-                    existingJobItem.reject,
+                existingJobEntry.reject = [
+                    existingJobEntry.reject,
                     reject,
                 ];
             } // if
+            
+            
+            
+            // re-position the job entry to the last:
+            jobList.delete(styleSheet);
+            jobList.set(styleSheet, existingJobEntry);
         } // if
     });
     
     
     
     // make sure all workers are running:
-    for (let jobs = 0; jobs < jobList.length; jobs++) {
+    for (let jobs = 0; jobs < jobList.size; jobs++) {
         const freeWorker = bookingWorker();
         if (!freeWorker) break; // there is no more free worker => stop searching
         
         
         
         // do it:
-        takeJob(freeWorker); // calling `takeJob()` may cause the `jobList.length` reduced
+        takeJob(freeWorker); // calling `takeJob()` may cause the `jobList.size` reduced
     } // for
     
     
