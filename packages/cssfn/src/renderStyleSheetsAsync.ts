@@ -1,5 +1,9 @@
 // cssfn:
 import type {
+    // types:
+    SingleOrArray,
+}                           from '@cssfn/types'
+import type {
     // cssfn properties:
     CssScopeName,
 }                           from '@cssfn/css-types'
@@ -91,7 +95,11 @@ for (let addWorker = 0; addWorker < maxPreloadWorkers; addWorker++) {
 // processors:
 type ResolveCallback = (result: string|null) => void
 type RejectCallback  = (reason?: any) => void
-type JobEntry = readonly [StyleSheet, ResolveCallback, RejectCallback]
+type JobEntry = {
+    styleSheet : StyleSheet
+    resolve    : SingleOrArray<ResolveCallback>
+    reject     : SingleOrArray<RejectCallback>
+}
 const jobList : JobEntry[] = [];
 
 const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
@@ -102,7 +110,7 @@ const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
     
     
     // prepare the job descriptions:
-    const [styleSheet, resolve, reject] = jobItem;
+    const {styleSheet, resolve, reject} = jobItem;
     
     
     
@@ -137,11 +145,23 @@ const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
         
         
         handleDone();
-        resolve(payload);
+        
+        if (Array.isArray(resolve)) {
+            for (const singleResolve of resolve) singleResolve(payload);
+        }
+        else {
+            resolve(payload);
+        } // if
     };
     const handleError     = (event: Event) => {
         handleDone();
-        reject(event);
+        
+        if (Array.isArray(reject)) {
+            for (const singleReject of reject) singleReject(event);
+        }
+        else {
+            reject(event);
+        } // if
     };
     
     
@@ -170,7 +190,34 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
     
     // prepare the worker:
     const renderPromise = new Promise<string|null>((resolve: ResolveCallback, reject: RejectCallback) => {
-        jobList.push([styleSheet, resolve, reject]);
+        const existingJobItem = jobList.find((jobItem) => (jobItem.styleSheet === styleSheet));
+        if (!existingJobItem) {
+            const newJobItem : JobEntry = {styleSheet, resolve, reject};
+            jobList.push(newJobItem);
+        }
+        else {
+            if (Array.isArray(existingJobItem.resolve)) {
+                existingJobItem.resolve.push(resolve);
+            }
+            else {
+                existingJobItem.resolve = [
+                    existingJobItem.resolve,
+                    resolve,
+                ];
+            } // if
+            
+            
+            
+            if (Array.isArray(existingJobItem.reject)) {
+                existingJobItem.reject.push(reject);
+            }
+            else {
+                existingJobItem.reject = [
+                    existingJobItem.reject,
+                    reject,
+                ];
+            } // if
+        } // if
     });
     
     
