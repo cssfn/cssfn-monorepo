@@ -68,14 +68,21 @@ const handleRequestConfig = (options: RequestConfig[1]): void => {
 }
 const handleRequestRender = (rules: RequestRender[1]): void => {
     const scopeRules   = decodeStyles(rules);
+    
+    
+    
+    let rendered: string|null = null;
     try {
-        const rendered = renderRule(scopeRules, { cssPropAutoPrefix });
-        
-        const responseData : ResponseRendered = ['rendered', rendered];
-        self.postMessage(responseData);
+        rendered = renderRule(scopeRules, { cssPropAutoPrefix });
     }
     catch {
         const responseData : ResponseRenderedError = ['renderederr', undefined];
         self.postMessage(responseData);
-    }
+        return;
+    } // try
+    
+    
+    
+    const responseData : ResponseRendered = ['rendered', rendered];
+    self.postMessage(responseData);
 }
