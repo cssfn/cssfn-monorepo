@@ -8,6 +8,7 @@ import {
     // utilities:
     createCssPropAutoPrefix,
 }                           from '@cssfn/css-prop-auto-prefix'
+
 // internals:
 import type {
     EncodedCssStyleCollection,
@@ -21,36 +22,60 @@ import {
 
 
 
+// types:
+export interface ConfigOptions {
+    browserInfo ?: BrowserInfo
+}
+
+export type RequestConfig    = readonly ['config', ConfigOptions]
+export type RequestRender    = readonly ['render', EncodedCssStyleCollection]
+export type Request =
+    |RequestConfig
+    |RequestRender
+
+export type ResponseReady         = readonly ['ready']
+export type ResponseRendered      = readonly ['rendered'   , string|null]
+export type ResponseRenderedError = readonly ['renderederr', undefined  ]
+export type Response =
+    |ResponseReady
+    |ResponseRendered
+    |ResponseRenderedError
+
+
+
 // utilities:
 let cssPropAutoPrefix : ReturnType<typeof createCssPropAutoPrefix>|undefined = undefined;
 
 
 
-// processors:
-export interface ConfigOptions {
-    browserInfo ?: BrowserInfo
-}
-export type MessageData =
-    |readonly ['config', ConfigOptions]
-    |readonly ['render', EncodedCssStyleCollection]
-export type ResponseData =
-    |readonly ['ready']
-    |readonly ['rendered', string|null]
-self.onmessage = (event: MessageEvent<MessageData>) => {
+// handlers:
+self.onmessage = (event: MessageEvent<Request>) => {
     const [type, payload] = event.data;
     switch (type) {
         case 'config':
-            {
-                const { browserInfo } = payload;
-                if (browserInfo) {
-                    cssPropAutoPrefix = createCssPropAutoPrefix(browserInfo);
-                } // if
-            }
+            handleRequestConfig(payload);
             break;
         case 'render':
-            const scopeRules = decodeStyles(payload);
-            const responseData : ResponseData = ['rendered', renderRule(scopeRules, { cssPropAutoPrefix })];
-            self.postMessage(responseData);
+            handleRequestRender(payload);
             break;
     } // switch
 };
+const handleRequestConfig = (options: RequestConfig[1]): void => {
+    const { browserInfo } = options;
+    if (browserInfo) {
+        cssPropAutoPrefix = createCssPropAutoPrefix(browserInfo);
+    } // if
+}
+const handleRequestRender = (rules: RequestRender[1]): void => {
+    const scopeRules   = decodeStyles(rules);
+    try {
+        const rendered = renderRule(scopeRules, { cssPropAutoPrefix });
+        
+        const responseData : ResponseRendered = ['rendered', rendered];
+        self.postMessage(responseData);
+    }
+    catch {
+        const responseData : ResponseRenderedError = ['renderederr', undefined];
+        self.postMessage(responseData);
+    }
+}
