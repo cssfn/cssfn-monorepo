@@ -188,7 +188,17 @@ self.onmessage = (event: MessageEvent<Request>) => {
     } // switch
 };
 const handleRequestConfig        = (options: RequestConfig[1]): void => {
-    if ('browserInfo' in options) browserInfo = options.browserInfo;
+    if ('browserInfo' in options) {
+        browserInfo = options.browserInfo;
+        
+        
+        
+        // update running workers:
+        const messageData : RequestConfig = ['config', {browserInfo}];
+        for (const {worker} of workerList) {
+            worker.postMessage(messageData);
+        } // for
+    } // if
 }
 const handleRequestRender        = ([id, rules]: RequestRender[1]): void => {
     // push the new job:
