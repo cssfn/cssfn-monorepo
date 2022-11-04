@@ -58,6 +58,9 @@ const createWorkerPool = () : Worker|null => {
                     break;
             } // switch
         }
+        newWorkerInstance.onerror = (event: ErrorEvent) => {
+            handleWorkerError(event.error);
+        }
         
         
         
@@ -74,7 +77,7 @@ const createWorkerPool = () : Worker|null => {
         return null; // the worker doesn't support esm module => no worker can be created
     } // try
 }
-const workerPool = createWorkerPool();
+let workerPool = createWorkerPool();
 
 
 
@@ -148,4 +151,14 @@ const handleRequestRenderedError = ([id]: ResponseRenderedError[1]) => {
         
         currentJob.reject();
     } // if
+}
+const handleWorkerError = (error: any) => {
+    workerPool?.terminate(); // kill the worker
+    workerPool = null; // no worker available => fallback to sync mode
+    
+    
+    
+    // abort the unfinished jobs:
+    for (const {reject} of jobList.values()) reject(error);
+    jobList.clear();
 }

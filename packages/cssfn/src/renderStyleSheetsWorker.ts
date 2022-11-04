@@ -35,7 +35,7 @@ export type Request =
 
 export type ResponseReady         = readonly ['ready']
 export type ResponseRendered      = readonly ['rendered'   , string|null]
-export type ResponseRenderedError = readonly ['renderederr', undefined  ]
+export type ResponseRenderedError = readonly ['renderederr', string|null|undefined|Error]
 export type Response =
     |ResponseReady
     |ResponseRendered
@@ -75,8 +75,21 @@ const handleRequestRender = (rules: RequestRender[1]): void => {
     try {
         rendered = renderRule(scopeRules, { cssPropAutoPrefix });
     }
-    catch {
-        const responseData : ResponseRenderedError = ['renderederr', undefined];
+    catch (error: any) {
+        const errorParam = (
+            ((error === undefined) || (error == null))
+            ?
+            (error as undefined|null)
+            :
+            (
+                (error instanceof Error)
+                ?
+                error
+                :
+                `${error}`
+            )
+        );
+        const responseData : ResponseRenderedError = ['renderederr', errorParam];
         self.postMessage(responseData);
         return;
     } // try

@@ -81,33 +81,23 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
                 case 'rendered':
                     {
                         const id = newWorkerEntry.currentJob?.id; // extract the id before resetting `handleDone()`
-                        handleDone(); // reset
+                        handleDone(newWorkerEntry); // reset
                         if (id !== undefined) handleRequestRendered(id, payload);
                     }
                     break;
                 case 'renderederr':
                     {
                         const id = newWorkerEntry.currentJob?.id; // extract the id before resetting `handleDone()`
-                        handleDone(); // reset
-                        if (id !== undefined) handleRequestRenderedError(id);
+                        handleDone(newWorkerEntry); // reset
+                        if (id !== undefined) handleRequestRenderedError(id, payload);
                     }
                     break;
             } // switch
         }
-        newWorkerInstance.onerror = (_event: ErrorEvent) => {
-            const id = newWorkerEntry.currentJob?.id; // extract the id before resetting `handleDone()`
-            handleDone(); // reset
-            if (id !== undefined) handleRequestRenderedError(id);
+        newWorkerInstance.onerror = (event: ErrorEvent) => {
+            handleWorkerError(newWorkerEntry, event.error);
+            newWorkerInstance.terminate();
         }
-        const handleDone = () => {
-            // cleanups:
-            newWorkerEntry.currentJob = null; // un-mark as busy
-            
-            
-            
-            // search for another job:
-            takeJob(newWorkerEntry);
-        };
         
         
         
@@ -222,7 +212,44 @@ const handleRequestRendered      = (id: number, rendered: WorkerResponseRendered
     const responseData : ResponseRendered = ['rendered', [id, rendered]];
     self.postMessage(responseData);
 }
-const handleRequestRenderedError = (id: number) => {
-    const responseData : ResponseRenderedError = ['renderederr', [id, undefined]];
+const handleRequestRenderedError = (id: number, error: WorkerResponseRenderedError[1]) => {
+    const responseData : ResponseRenderedError = ['renderederr', [id, error]];
     self.postMessage(responseData);
+}
+const handleDone                 = (currentWorkerEntry : WorkerEntry) => {
+    // cleanups:
+    currentWorkerEntry.currentJob = null; // un-mark as busy
+    
+    
+    
+    // search for another job:
+    takeJob(currentWorkerEntry);
+};
+const handleWorkerError          = (currentWorkerEntry : WorkerEntry, error: any) => {
+    currentWorkerEntry.worker.terminate(); // kill the worker
+    
+    // remove the worker from the list:
+    const workerIndex = workerList.findIndex((searchWorkerEntry) => (searchWorkerEntry === currentWorkerEntry));
+    if (workerIndex >= 0) workerList.splice(workerIndex, 1);
+    
+    
+    
+    // abort the unfinished job:
+    const id = currentWorkerEntry.currentJob?.id;
+    if (id !== undefined) {
+        const errorParam = (
+            ((error === undefined) || (error == null))
+            ?
+            (error as undefined|null)
+            :
+            (
+                (error instanceof Error)
+                ?
+                error
+                :
+                `${error}`
+            )
+        );
+        handleRequestRenderedError(id, errorParam);
+    } // if
 }
