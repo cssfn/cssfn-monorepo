@@ -53,10 +53,10 @@ const createWorkerPool = () : Worker|null => {
             const [type, payload] = event.data;
             switch(type) {
                 case 'rendered':
-                    handleRequestRendered(payload);
+                    handleResponseRendered(payload);
                     break;
                 case 'renderederr':
-                    handleRequestRenderedError(payload);
+                    handleResponseRenderedError(payload);
                     break;
             } // switch
         }
@@ -134,7 +134,7 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
 
 
 // handlers:
-const handleRequestRendered = ([jobId, rendered]: ValueOf<ResponseRendered>) => {
+const handleResponseRendered      = ([jobId, rendered]: ValueOf<ResponseRendered>) => {
     const currentJob = jobList.get(jobId);
     if (currentJob) {
         jobList.delete(jobId);
@@ -144,7 +144,7 @@ const handleRequestRendered = ([jobId, rendered]: ValueOf<ResponseRendered>) => 
         currentJob.resolve(rendered);
     } // if
 }
-const handleRequestRenderedError = ([jobId, error]: ValueOf<ResponseRenderedError>) => {
+const handleResponseRenderedError = ([jobId, error]: ValueOf<ResponseRenderedError>) => {
     const currentJob = jobList.get(jobId);
     if (currentJob) {
         jobList.delete(jobId);
@@ -154,7 +154,7 @@ const handleRequestRenderedError = ([jobId, error]: ValueOf<ResponseRenderedErro
         currentJob.reject(error);
     } // if
 }
-const handleWorkerError = (error: any) => {
+const handleWorkerError           = (error: any) => {
     workerPool?.terminate(); // kill the worker
     workerPool = null; // no worker available => fallback to sync mode
     

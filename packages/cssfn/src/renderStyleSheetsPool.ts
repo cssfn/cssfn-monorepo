@@ -89,14 +89,14 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
                     {
                         const jobId = newWorkerEntry.currentJob?.jobId; // extract the jobId before resetting `handleDone()`
                         handleDone(newWorkerEntry); // reset
-                        if (jobId !== undefined) handleRequestRendered(jobId, payload);
+                        if (jobId !== undefined) handleResponseRendered(jobId, payload);
                     }
                     break;
                 case 'renderederr':
                     {
                         const jobId = newWorkerEntry.currentJob?.jobId; // extract the jobId before resetting `handleDone()`
                         handleDone(newWorkerEntry); // reset
-                        if (jobId !== undefined) handleRequestRenderedError(jobId, payload);
+                        if (jobId !== undefined) handleResponseRenderedError(jobId, payload);
                     }
                     break;
             } // switch
@@ -184,7 +184,7 @@ self.onmessage = (event: MessageEvent<Request>) => {
             break;
     } // switch
 }
-const handleRequestConfig        = (options: ValueOf<RequestConfig>): void => {
+const handleRequestConfig         = (options: ValueOf<RequestConfig>): void => {
     if ('browserInfo' in options) {
         browserInfo = options.browserInfo;
         
@@ -197,7 +197,7 @@ const handleRequestConfig        = (options: ValueOf<RequestConfig>): void => {
         } // for
     } // if
 }
-const handleRequestRender        = ([jobId, rules]: ValueOf<RequestRender>): void => {
+const handleRequestRender         = ([jobId, rules]: ValueOf<RequestRender>): void => {
     // push the new job:
     const newJobEntry : JobEntry = {jobId, rules};
     jobList.push(newJobEntry);
@@ -215,15 +215,15 @@ const handleRequestRender        = ([jobId, rules]: ValueOf<RequestRender>): voi
         takeJob(freeWorker); // calling `takeJob()` may cause the `jobList.size` reduced
     } // for
 }
-const handleRequestRendered      = (jobId: number, rendered: ValueOf<WorkerResponseRendered>) => {
-    const responseData : ResponseRendered = ['rendered', [jobId, rendered]];
-    self.postMessage(responseData);
+const handleResponseRendered      = (jobId: number, rendered: ValueOf<WorkerResponseRendered>) => {
+    const responseRendered : ResponseRendered = ['rendered', [jobId, rendered]];
+    self.postMessage(responseRendered);
 }
-const handleRequestRenderedError = (jobId: number, error: ValueOf<WorkerResponseRenderedError>) => {
-    const responseData : ResponseRenderedError = ['renderederr', [jobId, error]];
-    self.postMessage(responseData);
+const handleResponseRenderedError = (jobId: number, error: ValueOf<WorkerResponseRenderedError>) => {
+    const responseRenderedError : ResponseRenderedError = ['renderederr', [jobId, error]];
+    self.postMessage(responseRenderedError);
 }
-const handleDone                 = (currentWorkerEntry : WorkerEntry) => {
+const handleDone                  = (currentWorkerEntry : WorkerEntry) => {
     // cleanups:
     currentWorkerEntry.currentJob = null; // un-mark as busy
     
@@ -232,7 +232,7 @@ const handleDone                 = (currentWorkerEntry : WorkerEntry) => {
     // search for another job:
     takeJob(currentWorkerEntry);
 };
-const handleWorkerError          = (currentWorkerEntry : WorkerEntry, error: any) => {
+const handleWorkerError           = (currentWorkerEntry : WorkerEntry, error: any) => {
     currentWorkerEntry.worker.terminate(); // kill the worker
     
     // remove the worker from the list:
@@ -257,6 +257,6 @@ const handleWorkerError          = (currentWorkerEntry : WorkerEntry, error: any
                 `${error}`
             )
         );
-        handleRequestRenderedError(jobId, errorParam);
+        handleResponseRenderedError(jobId, errorParam);
     } // if
 }

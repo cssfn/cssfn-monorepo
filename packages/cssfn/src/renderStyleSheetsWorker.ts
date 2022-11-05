@@ -75,7 +75,7 @@ const handleRequestConfig = (options: ValueOf<RequestConfig>): void => {
     */
 }
 const handleRequestRender = (rules: ValueOf<RequestRender>): void => {
-    const scopeRules   = decodeStyles(rules);
+    const scopeRules = decodeStyles(rules);
     
     
     
@@ -97,13 +97,13 @@ const handleRequestRender = (rules: ValueOf<RequestRender>): void => {
                 `${error}`
             )
         );
-        const responseData : ResponseRenderedError = ['renderederr', errorParam];
-        self.postMessage(responseData);
+        const responseRenderedError : ResponseRenderedError = ['renderederr', errorParam];
+        self.postMessage(responseRenderedError);
         return;
     } // try
     
     
     
-    const responseData : ResponseRendered = ['rendered', rendered];
-    self.postMessage(responseData);
+    const responseRendered : ResponseRendered = ['rendered', rendered];
+    self.postMessage(responseRendered);
 }
