@@ -27,15 +27,19 @@ export interface ConfigOptions {
     browserInfo ?: BrowserInfo
 }
 
-export type RequestConfig    = readonly ['config', ConfigOptions]
-export type RequestRender    = readonly ['render', EncodedCssStyleCollection]
+export type Tuple<TName, TValue>  = readonly [TName, TValue]
+export type NameOf <TTuple extends Tuple<any, any>> = TTuple[0]
+export type ValueOf<TTuple extends Tuple<any, any>> = TTuple[1]
+
+export type RequestConfig         = Tuple<'config', ConfigOptions>
+export type RequestRender         = Tuple<'render', EncodedCssStyleCollection>
 export type Request =
     |RequestConfig
     |RequestRender
 
-export type ResponseReady         = readonly ['ready']
-export type ResponseRendered      = readonly ['rendered'   , string|null]
-export type ResponseRenderedError = readonly ['renderederr', string|null|undefined|Error]
+export type ResponseReady         = Tuple<'ready'      , undefined>
+export type ResponseRendered      = Tuple<'rendered'   , string|null>
+export type ResponseRenderedError = Tuple<'renderederr', string|null|undefined|Error>
 export type Response =
     |ResponseReady
     |ResponseRendered
@@ -60,13 +64,13 @@ self.onmessage = (event: MessageEvent<Request>) => {
             break;
     } // switch
 };
-const handleRequestConfig = (options: RequestConfig[1]): void => {
+const handleRequestConfig = (options: ValueOf<RequestConfig>): void => {
     const { browserInfo } = options;
     if (browserInfo) {
         cssPropAutoPrefix = createCssPropAutoPrefix(browserInfo);
     } // if
 }
-const handleRequestRender = (rules: RequestRender[1]): void => {
+const handleRequestRender = (rules: ValueOf<RequestRender>): void => {
     const scopeRules   = decodeStyles(rules);
     
     

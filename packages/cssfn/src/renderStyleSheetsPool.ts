@@ -10,6 +10,10 @@ import type {
 }                           from './cssfn-encoded-types.js'
 import type {
     // types:
+    Tuple,
+    NameOf,
+    ValueOf,
+    
     RequestConfig,
     RequestRender         as WorkerRequestRender,
     
@@ -22,9 +26,15 @@ import type {
 
 
 // types:
-export type DataWithId<TData extends readonly [any, any]> = readonly [TData[0], readonly[number, TData[1]]]
+export type DataWithId<TData extends Tuple<any, any>> = Tuple<NameOf<TData>, Tuple<number, ValueOf<TData>>>
 
-export type { RequestConfig }
+export type {
+    Tuple,
+    NameOf,
+    ValueOf,
+    
+    RequestConfig,
+}
 export type RequestRender         = DataWithId<WorkerRequestRender>
 export type Request =
     |RequestConfig
@@ -177,7 +187,7 @@ self.onmessage = (event: MessageEvent<Request>) => {
             break;
     } // switch
 };
-const handleRequestConfig        = (options: RequestConfig[1]): void => {
+const handleRequestConfig        = (options: ValueOf<RequestConfig>): void => {
     if ('browserInfo' in options) {
         browserInfo = options.browserInfo;
         
@@ -190,7 +200,7 @@ const handleRequestConfig        = (options: RequestConfig[1]): void => {
         } // for
     } // if
 }
-const handleRequestRender        = ([id, rules]: RequestRender[1]): void => {
+const handleRequestRender        = ([id, rules]: ValueOf<RequestRender>): void => {
     // push the new job:
     const newJobEntry : JobEntry = {id, rules};
     jobList.push(newJobEntry);
@@ -208,11 +218,11 @@ const handleRequestRender        = ([id, rules]: RequestRender[1]): void => {
         takeJob(freeWorker); // calling `takeJob()` may cause the `jobList.size` reduced
     } // for
 }
-const handleRequestRendered      = (id: number, rendered: WorkerResponseRendered[1]) => {
+const handleRequestRendered      = (id: number, rendered: ValueOf<WorkerResponseRendered>) => {
     const responseData : ResponseRendered = ['rendered', [id, rendered]];
     self.postMessage(responseData);
 }
-const handleRequestRenderedError = (id: number, error: WorkerResponseRenderedError[1]) => {
+const handleRequestRenderedError = (id: number, error: ValueOf<WorkerResponseRenderedError>) => {
     const responseData : ResponseRenderedError = ['renderederr', [id, error]];
     self.postMessage(responseData);
 }

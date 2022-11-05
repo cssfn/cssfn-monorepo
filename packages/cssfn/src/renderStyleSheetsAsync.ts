@@ -22,6 +22,8 @@ import {
 }                           from './cssfn-encoders.js'
 import type {
     // types:
+    ValueOf,
+    
     RequestConfig,
     RequestRender,
     
@@ -132,7 +134,7 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
 
 
 // handlers:
-const handleRequestRendered = ([id, rendered]: ResponseRendered[1]) => {
+const handleRequestRendered = ([id, rendered]: ValueOf<ResponseRendered>) => {
     const currentJob = jobList.get(id);
     if (currentJob) {
         jobList.delete(id);
@@ -142,7 +144,7 @@ const handleRequestRendered = ([id, rendered]: ResponseRendered[1]) => {
         currentJob.resolve(rendered);
     } // if
 }
-const handleRequestRenderedError = ([id]: ResponseRenderedError[1]) => {
+const handleRequestRenderedError = ([id]: ValueOf<ResponseRenderedError>) => {
     const currentJob = jobList.get(id);
     if (currentJob) {
         jobList.delete(id);
