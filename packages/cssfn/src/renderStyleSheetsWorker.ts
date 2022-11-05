@@ -84,26 +84,32 @@ const handleRequestRender = (rules: ValueOf<RequestRender>): void => {
         rendered = renderRule(scopeRules, { cssPropAutoPrefix });
     }
     catch (error: any) {
-        const errorParam = (
-            ((error == null) || (error === undefined))
-            ?
-            (error as null|undefined)
-            :
-            (
-                (error instanceof Error)
-                ?
-                error
-                :
-                `${error}`
-            )
-        );
-        const responseRenderedError : ResponseRenderedError = ['renderederr', errorParam];
-        self.postMessage(responseRenderedError);
+        handleResponseRenderedError(error);
         return;
     } // try
     
     
     
+    handleResponseRendered(rendered);
+}
+const handleResponseRendered      = (rendered : ValueOf<ResponseRendered>) => {
     const responseRendered : ResponseRendered = ['rendered', rendered];
     self.postMessage(responseRendered);
+}
+const handleResponseRenderedError = (error    : any) => {
+    const errorParam : ValueOf<ResponseRenderedError> = (
+        ((error == null) || (error === undefined))
+        ?
+        (error as null|undefined)
+        :
+        (
+            (error instanceof Error)
+            ?
+            error
+            :
+            `${error}`
+        )
+    );
+    const responseRenderedError : ResponseRenderedError = ['renderederr', errorParam];
+    self.postMessage(responseRenderedError);
 }

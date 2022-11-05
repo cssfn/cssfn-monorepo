@@ -61,7 +61,7 @@ const createWorkerPool = () : Worker|null => {
             } // switch
         }
         newWorkerInstance.onerror = (event: ErrorEvent) => {
-            handleWorkerError(event.error);
+            handleWorkerError(event);
         }
         
         
@@ -134,28 +134,28 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
 
 
 // handlers:
-const handleResponseRendered      = ([jobId, rendered]: ValueOf<ResponseRendered>) => {
+const handleResponseRendered      = ([jobId, rendered] : ValueOf<ResponseRendered>) => {
     const currentJob = jobList.get(jobId);
     if (currentJob) {
-        jobList.delete(jobId);
+        jobList.delete(jobId); // the job was finished as succeeded => remove from the list
         
         
         
-        currentJob.resolve(rendered);
+        currentJob.resolve(rendered); // the job was finished as succeeded => resolve
     } // if
 }
-const handleResponseRenderedError = ([jobId, error]: ValueOf<ResponseRenderedError>) => {
+const handleResponseRenderedError = ([jobId, error   ] : ValueOf<ResponseRenderedError>) => {
     const currentJob = jobList.get(jobId);
     if (currentJob) {
-        jobList.delete(jobId);
+        jobList.delete(jobId); // the job was finished as failed => remove from the list
         
         
         
-        currentJob.reject(error);
+        currentJob.reject(error); // the job was finished as failed => reject
     } // if
 }
-const handleWorkerError           = (error: any) => {
-    workerPool?.terminate(); // kill the worker
+const handleWorkerError           = (error : any) => {
+    workerPool?.terminate(); // kill the worker (suspected memory leak)
     workerPool = null; // no worker available => fallback to sync mode
     
     

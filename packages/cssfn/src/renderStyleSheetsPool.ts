@@ -102,8 +102,7 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
             } // switch
         }
         newWorkerInstance.onerror = (event: ErrorEvent) => {
-            handleWorkerError(newWorkerEntry, event.error);
-            newWorkerInstance.terminate();
+            handleWorkerError(newWorkerEntry, event);
         }
         
         
@@ -211,15 +210,17 @@ const handleRequestRender         = ([jobId, rules]: ValueOf<RequestRender>): vo
         
         
         
-        // do it:
-        takeJob(freeWorker); // calling `takeJob()` may cause the `jobList.size` reduced
+        // take a job and do it:
+        takeJob(freeWorker); // calling `takeJob()` may cause the `jobList.length` reduced
     } // for
 }
-const handleResponseRendered      = (jobId: number, rendered: ValueOf<WorkerResponseRendered>) => {
+const handleResponseRendered      = (jobId : number, rendered : ValueOf<WorkerResponseRendered>) => {
+    // forwards the responseRendered (with additional jobId) from worker to the main script:
     const responseRendered : ResponseRendered = ['rendered', [jobId, rendered]];
     self.postMessage(responseRendered);
 }
-const handleResponseRenderedError = (jobId: number, error: ValueOf<WorkerResponseRenderedError>) => {
+const handleResponseRenderedError = (jobId : number, error    : ValueOf<WorkerResponseRenderedError>) => {
+    // forwards the responseRenderedError (with additional jobId) from worker to the main script:
     const responseRenderedError : ResponseRenderedError = ['renderederr', [jobId, error]];
     self.postMessage(responseRenderedError);
 }
@@ -231,20 +232,20 @@ const handleDone                  = (currentWorkerEntry : WorkerEntry) => {
     
     // search for another job:
     takeJob(currentWorkerEntry);
-};
+}
 const handleWorkerError           = (currentWorkerEntry : WorkerEntry, error: any) => {
-    currentWorkerEntry.worker.terminate(); // kill the worker
+    currentWorkerEntry.worker.terminate(); // kill the worker (suspected memory leak)
     
-    // remove the worker from the list:
+    // remove the worker from the list (may be re-created at `createWorkerEntryIfNeeded()`):
     const workerIndex = workerList.findIndex((searchWorkerEntry) => (searchWorkerEntry === currentWorkerEntry));
-    if (workerIndex >= 0) workerList.splice(workerIndex, 1);
+    if (workerIndex >= 0) workerList.splice(workerIndex, 1); // removeAt(workerIndex)
     
     
     
     // abort the unfinished job:
     const jobId = currentWorkerEntry.currentJob?.jobId;
     if (jobId !== undefined) {
-        const errorParam = (
+        const errorParam : ValueOf<WorkerResponseRenderedError> = (
             ((error == null) || (error === undefined))
             ?
             (error as null|undefined)
