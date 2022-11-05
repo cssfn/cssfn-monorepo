@@ -68,6 +68,7 @@ const batchCommit = () => {
     
     
     // apply the changes:
+    const batchAppendChildren : HTMLStyleElement[] = [];
     for (const [styleSheet, rendered] of changes) {
         if (!rendered) {
             // remove the styleSheet:
@@ -88,19 +89,7 @@ const batchCommit = () => {
                 
                 
                 
-                if (!styleGroupElm) {
-                    styleGroupElm = document.createElement('div');
-                    styleGroupElm.dataset.cssfnDomStyles = ''; // an identifier this <div> is a special container for generated HTMLStyleElement(s)
-                    
-                    /*
-                        insert the <div data-cssfn-dom-styles> after the `for` loop has completed,
-                        so insertion of bulk <style>(s) is efficient
-                    */
-                    Promise.resolve(styleGroupElm).then((styleGroupElm) => {
-                        document.head.appendChild(styleGroupElm);
-                    });
-                } // if
-                styleGroupElm.appendChild(styleElm);
+                batchAppendChildren.push(styleElm);
             }
             else {
                 // update the styleSheet:
@@ -108,6 +97,36 @@ const batchCommit = () => {
             } // if
         } // if
     } // for
+    
+    
+    
+    //#region efficiently append bulk styleElms
+    if (batchAppendChildren.length) {
+        if (!styleGroupElm) {
+            styleGroupElm = document.createElement('div');
+            styleGroupElm.dataset.cssfnDomStyles = ''; // an identifier this <div> is a special container for generated HTMLStyleElement(s)
+            
+            /*
+                insert the <div data-cssfn-dom-styles> after the `batchCommit()` function has returned,
+                so insertion of bulk <style>(s) is efficient
+            */
+            Promise.resolve(styleGroupElm).then((styleGroupElm) => {
+                document.head.appendChild(styleGroupElm);
+            });
+        } // if
+        
+        
+        
+        if (batchAppendChildren.length === 1) {
+            styleGroupElm.appendChild(batchAppendChildren[0]);
+        }
+        else {
+            const childrenGroup = document.createDocumentFragment();
+            for (const styleElm of batchAppendChildren) childrenGroup.appendChild(styleElm);
+            styleGroupElm.appendChild(childrenGroup);
+        } // if
+    } // if
+    //#endregion efficiently append bulk styleElms
 }
 
 
