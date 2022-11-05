@@ -83,7 +83,6 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
         
         // handlers:
         newWorkerInstance.onmessage = (event: MessageEvent<WorkerResponse>) => {
-            // conditions:
             const [type, payload] = event.data;
             switch (type) {
                 case 'rendered':
@@ -111,8 +110,8 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
         
         // configure:
         if (browserInfo) {
-            const messageData : RequestConfig = ['config', {browserInfo}];
-            newWorkerInstance.postMessage(messageData);
+            const requestConfig : RequestConfig = ['config', {browserInfo}];
+            newWorkerInstance.postMessage(requestConfig);
         } // if
         
         
@@ -162,8 +161,8 @@ const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
     // setups:
     currentWorkerEntry.currentJob = currentJob; // mark as busy
     
-    const messageData : WorkerRequestRender = ['render', currentJob.rules];
-    currentWorkerEntry.worker.postMessage(messageData);
+    const requestRender : WorkerRequestRender = ['render', currentJob.rules];
+    currentWorkerEntry.worker.postMessage(requestRender);
     
     
     
@@ -184,17 +183,17 @@ self.onmessage = (event: MessageEvent<Request>) => {
             handleRequestRender(payload);
             break;
     } // switch
-};
+}
 const handleRequestConfig        = (options: ValueOf<RequestConfig>): void => {
     if ('browserInfo' in options) {
         browserInfo = options.browserInfo;
         
         
         
-        // update running workers:
-        const messageData : RequestConfig = ['config', {browserInfo}];
+        // update already running workers:
+        const requestConfig : RequestConfig = ['config', {browserInfo}];
         for (const {worker} of workerList) {
-            worker.postMessage(messageData);
+            worker.postMessage(requestConfig);
         } // for
     } // if
 }

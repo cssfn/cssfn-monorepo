@@ -67,8 +67,8 @@ const createWorkerPool = () : Worker|null => {
         
         
         // configure:
-        const messageData : RequestConfig = ['config', {browserInfo}];
-        newWorkerInstance.postMessage(messageData);
+        const requestConfig : RequestConfig = ['config', {browserInfo}];
+        newWorkerInstance.postMessage(requestConfig);
         
         
         
@@ -122,8 +122,8 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
     
     
     // delegate the render to the workerPool:
-    const messageData : RequestRender = ['render', [jobId, encodedStyles]];
-    workerPool.postMessage(messageData);
+    const requestRender : RequestRender = ['render', [jobId, encodedStyles]];
+    workerPool.postMessage(requestRender);
     
     
     

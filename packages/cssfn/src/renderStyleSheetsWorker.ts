@@ -63,12 +63,16 @@ self.onmessage = (event: MessageEvent<Request>) => {
             handleRequestRender(payload);
             break;
     } // switch
-};
+}
 const handleRequestConfig = (options: ValueOf<RequestConfig>): void => {
     const { browserInfo } = options;
     if (browserInfo) {
         cssPropAutoPrefix = createCssPropAutoPrefix(browserInfo);
     } // if
+    
+    /*
+        ... other options may be added in the future
+    */
 }
 const handleRequestRender = (rules: ValueOf<RequestRender>): void => {
     const scopeRules   = decodeStyles(rules);
