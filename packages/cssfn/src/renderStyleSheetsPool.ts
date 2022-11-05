@@ -68,7 +68,7 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
     
     try {
         // try to create a new worker with esm module:
-        const newWorkerInstance = new Worker(new URL(/* webpackChunkName: 'renderStyleSheetsWorker' */'./renderStyleSheetsWorker.js', import.meta.url), { type: 'module' });
+        const newWorkerInstance = new Worker(new URL(/* webpackChunkName: 'renderStyleSheetsWorker' */ /* webpackPreload: true */ './renderStyleSheetsWorker.js', import.meta.url), { type: 'module' });
         
         
         

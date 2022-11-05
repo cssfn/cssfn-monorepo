@@ -44,7 +44,7 @@ const createWorkerPool = () : Worker|null => {
     
     try {
         // try to create a new worker with esm module:
-        const newWorkerInstance = new Worker(new URL(/* webpackChunkName: 'renderStyleSheetsPool' */'./renderStyleSheetsPool.js', import.meta.url), { type: 'module' });
+        const newWorkerInstance = new Worker(new URL(/* webpackChunkName: 'renderStyleSheetsPool' */ /* webpackPreload: true */ './renderStyleSheetsPool.js', import.meta.url), { type: 'module' });
         
         
         
