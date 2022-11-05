@@ -84,7 +84,7 @@ let workerPool = createWorkerPool();
 
 
 // processors:
-type ResolveCallback = (result: string|null) => void
+type ResolveCallback = (result: ReturnType<typeof renderStyleSheet>) => void
 type RejectCallback  = (reason?: any) => void
 type JobEntry = {
     resolve : ResolveCallback
@@ -95,7 +95,7 @@ let jobCounter = 0;
 
 
 
-export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): Promise<string|null> => {
+export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): Promise<ReturnType<typeof renderStyleSheet>> => {
     // conditions:
     if (!styleSheet.enabled) return null;
     if (!workerPool) return renderStyleSheet(styleSheet); // not_support_worker => fallback to sync mode
@@ -114,7 +114,7 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
     jobCounter++; if (jobCounter >= Number.MAX_SAFE_INTEGER) jobCounter = 0;
     const jobId = jobCounter;
     
-    const renderPromise = new Promise<string|null>((resolve: ResolveCallback, reject: RejectCallback) => {
+    const renderPromise = new Promise<ReturnType<typeof renderStyleSheet>>((resolve: ResolveCallback, reject: RejectCallback) => {
         const newJobEntry : JobEntry = {resolve, reject};
         jobList.set(jobId, newJobEntry);
     });
@@ -144,14 +144,14 @@ const handleRequestRendered = ([id, rendered]: ValueOf<ResponseRendered>) => {
         currentJob.resolve(rendered);
     } // if
 }
-const handleRequestRenderedError = ([id]: ValueOf<ResponseRenderedError>) => {
+const handleRequestRenderedError = ([id, error]: ValueOf<ResponseRenderedError>) => {
     const currentJob = jobList.get(id);
     if (currentJob) {
         jobList.delete(id);
         
         
         
-        currentJob.reject();
+        currentJob.reject(error);
     } // if
 }
 const handleWorkerError = (error: any) => {

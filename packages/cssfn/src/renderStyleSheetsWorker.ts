@@ -38,8 +38,8 @@ export type Request =
     |RequestRender
 
 export type ResponseReady         = Tuple<'ready'      , undefined>
-export type ResponseRendered      = Tuple<'rendered'   , string|null>
-export type ResponseRenderedError = Tuple<'renderederr', string|null|undefined|Error>
+export type ResponseRendered      = Tuple<'rendered'   , ReturnType<typeof renderRule>>
+export type ResponseRenderedError = Tuple<'renderederr', Error|string|null|undefined>
 export type Response =
     |ResponseReady
     |ResponseRendered
@@ -75,15 +75,15 @@ const handleRequestRender = (rules: ValueOf<RequestRender>): void => {
     
     
     
-    let rendered: string|null = null;
+    let rendered: ReturnType<typeof renderRule> = null;
     try {
         rendered = renderRule(scopeRules, { cssPropAutoPrefix });
     }
     catch (error: any) {
         const errorParam = (
-            ((error === undefined) || (error == null))
+            ((error == null) || (error === undefined))
             ?
-            (error as undefined|null)
+            (error as null|undefined)
             :
             (
                 (error instanceof Error)

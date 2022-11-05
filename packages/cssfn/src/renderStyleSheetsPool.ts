@@ -6,9 +6,6 @@ import type {
 
 // internals:
 import type {
-    EncodedCssStyleCollection,
-}                           from './cssfn-encoded-types.js'
-import type {
     // types:
     Tuple,
     NameOf,
@@ -26,7 +23,7 @@ import type {
 
 
 // types:
-export type DataWithId<TData extends Tuple<any, any>> = Tuple<NameOf<TData>, Tuple<number, ValueOf<TData>>>
+export type TupleWithId<TData extends Tuple<any, any>> = Tuple<NameOf<TData>, Tuple<number, ValueOf<TData>>>
 
 export type {
     Tuple,
@@ -35,13 +32,14 @@ export type {
     
     RequestConfig,
 }
-export type RequestRender         = DataWithId<WorkerRequestRender>
+
+export type RequestRender         = TupleWithId<WorkerRequestRender>
 export type Request =
     |RequestConfig
     |RequestRender
 
-export type ResponseRendered      = DataWithId<WorkerResponseRendered>
-export type ResponseRenderedError = DataWithId<WorkerResponseRenderedError>
+export type ResponseRendered      = TupleWithId<WorkerResponseRendered>
+export type ResponseRenderedError = TupleWithId<WorkerResponseRenderedError>
 export type Response =
     |ResponseReady
     |ResponseRendered
@@ -151,7 +149,7 @@ for (let addWorker = 0; addWorker < maxPreloadWorkers; addWorker++) {
 // processors:
 type JobEntry = {
     id    : number
-    rules : EncodedCssStyleCollection,
+    rules : ValueOf<WorkerRequestRender>,
 }
 const jobList : JobEntry[] = [];
 
@@ -248,9 +246,9 @@ const handleWorkerError          = (currentWorkerEntry : WorkerEntry, error: any
     const id = currentWorkerEntry.currentJob?.id;
     if (id !== undefined) {
         const errorParam = (
-            ((error === undefined) || (error == null))
+            ((error == null) || (error === undefined))
             ?
-            (error as undefined|null)
+            (error as null|undefined)
             :
             (
                 (error instanceof Error)
