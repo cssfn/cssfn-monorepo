@@ -97,7 +97,7 @@ let jobCounter = 0;
 
 export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): Promise<ReturnType<typeof renderStyleSheet>> => {
     // conditions:
-    if (!styleSheet.enabled) return null;
+    if (!styleSheet.enabled) return null; // the styleSheet is disabled => no need to render
     if (!workerPool) return renderStyleSheet(styleSheet); // not_support_worker => fallback to sync mode
     
     

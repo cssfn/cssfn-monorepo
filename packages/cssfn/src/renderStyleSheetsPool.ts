@@ -62,7 +62,7 @@ const maxConcurrentWorks = (globalThis.navigator?.hardwareConcurrency ?? 1); // 
 
 const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
     // conditions:
-    if (workerList.length >= maxConcurrentWorks) return null; // the maximum of workers has been reached    => no more workers
+    if (workerList.length >= maxConcurrentWorks) return null; // the maximum of workers has been reached => no more workers
     
     
     
@@ -136,7 +136,7 @@ const bookingWorker   = (): WorkerEntry|null => {
 
 
 
-// pre-load some workers, so the first page render is served quickly:
+// pre-load some workers, so the first page render will served quickly:
 const maxPreloadWorkers = 8;
 for (let addWorker = 0; addWorker < maxPreloadWorkers; addWorker++) {
     if (!createWorkerEntryIfNeeded()) break; // max concurrent workers reached => stop adding new worker
@@ -152,7 +152,7 @@ type JobEntry = {
 const jobList : JobEntry[] = [];
 
 const takeJob = (currentWorkerEntry: WorkerEntry): boolean => {
-    const currentJob = jobList.shift();
+    const currentJob = jobList.shift(); // take the oldest queued job
     if (!currentJob) return false; // no job available => nothing to do => idle
     
     
