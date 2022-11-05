@@ -134,20 +134,20 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
 
 
 // handlers:
-const handleRequestRendered = ([id, rendered]: ValueOf<ResponseRendered>) => {
-    const currentJob = jobList.get(id);
+const handleRequestRendered = ([jobId, rendered]: ValueOf<ResponseRendered>) => {
+    const currentJob = jobList.get(jobId);
     if (currentJob) {
-        jobList.delete(id);
+        jobList.delete(jobId);
         
         
         
         currentJob.resolve(rendered);
     } // if
 }
-const handleRequestRenderedError = ([id, error]: ValueOf<ResponseRenderedError>) => {
-    const currentJob = jobList.get(id);
+const handleRequestRenderedError = ([jobId, error]: ValueOf<ResponseRenderedError>) => {
+    const currentJob = jobList.get(jobId);
     if (currentJob) {
-        jobList.delete(id);
+        jobList.delete(jobId);
         
         
         

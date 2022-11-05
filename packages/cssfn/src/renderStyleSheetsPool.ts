@@ -87,16 +87,16 @@ const createWorkerEntryIfNeeded = () : WorkerEntry|null => {
             switch (type) {
                 case 'rendered':
                     {
-                        const id = newWorkerEntry.currentJob?.id; // extract the id before resetting `handleDone()`
+                        const jobId = newWorkerEntry.currentJob?.jobId; // extract the jobId before resetting `handleDone()`
                         handleDone(newWorkerEntry); // reset
-                        if (id !== undefined) handleRequestRendered(id, payload);
+                        if (jobId !== undefined) handleRequestRendered(jobId, payload);
                     }
                     break;
                 case 'renderederr':
                     {
-                        const id = newWorkerEntry.currentJob?.id; // extract the id before resetting `handleDone()`
+                        const jobId = newWorkerEntry.currentJob?.jobId; // extract the jobId before resetting `handleDone()`
                         handleDone(newWorkerEntry); // reset
-                        if (id !== undefined) handleRequestRenderedError(id, payload);
+                        if (jobId !== undefined) handleRequestRenderedError(jobId, payload);
                     }
                     break;
             } // switch
@@ -147,7 +147,7 @@ for (let addWorker = 0; addWorker < maxPreloadWorkers; addWorker++) {
 
 // processors:
 type JobEntry = {
-    id    : number
+    jobId : number
     rules : ValueOf<WorkerRequestRender>,
 }
 const jobList : JobEntry[] = [];
@@ -197,9 +197,9 @@ const handleRequestConfig        = (options: ValueOf<RequestConfig>): void => {
         } // for
     } // if
 }
-const handleRequestRender        = ([id, rules]: ValueOf<RequestRender>): void => {
+const handleRequestRender        = ([jobId, rules]: ValueOf<RequestRender>): void => {
     // push the new job:
-    const newJobEntry : JobEntry = {id, rules};
+    const newJobEntry : JobEntry = {jobId, rules};
     jobList.push(newJobEntry);
     
     
@@ -215,12 +215,12 @@ const handleRequestRender        = ([id, rules]: ValueOf<RequestRender>): void =
         takeJob(freeWorker); // calling `takeJob()` may cause the `jobList.size` reduced
     } // for
 }
-const handleRequestRendered      = (id: number, rendered: ValueOf<WorkerResponseRendered>) => {
-    const responseData : ResponseRendered = ['rendered', [id, rendered]];
+const handleRequestRendered      = (jobId: number, rendered: ValueOf<WorkerResponseRendered>) => {
+    const responseData : ResponseRendered = ['rendered', [jobId, rendered]];
     self.postMessage(responseData);
 }
-const handleRequestRenderedError = (id: number, error: ValueOf<WorkerResponseRenderedError>) => {
-    const responseData : ResponseRenderedError = ['renderederr', [id, error]];
+const handleRequestRenderedError = (jobId: number, error: ValueOf<WorkerResponseRenderedError>) => {
+    const responseData : ResponseRenderedError = ['renderederr', [jobId, error]];
     self.postMessage(responseData);
 }
 const handleDone                 = (currentWorkerEntry : WorkerEntry) => {
@@ -242,8 +242,8 @@ const handleWorkerError          = (currentWorkerEntry : WorkerEntry, error: any
     
     
     // abort the unfinished job:
-    const id = currentWorkerEntry.currentJob?.id;
-    if (id !== undefined) {
+    const jobId = currentWorkerEntry.currentJob?.jobId;
+    if (jobId !== undefined) {
         const errorParam = (
             ((error == null) || (error === undefined))
             ?
@@ -257,6 +257,6 @@ const handleWorkerError          = (currentWorkerEntry : WorkerEntry, error: any
                 `${error}`
             )
         );
-        handleRequestRenderedError(id, errorParam);
+        handleRequestRenderedError(jobId, errorParam);
     } // if
 }
