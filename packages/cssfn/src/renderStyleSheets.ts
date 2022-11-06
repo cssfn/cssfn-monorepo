@@ -12,6 +12,11 @@ import type {
     CssScopeEntry,
     CssScopeMap,
 }                           from '@cssfn/css-types'
+import {
+    // utilities:
+    browserInfo,
+    createCssPropAutoPrefix,
+}                           from '@cssfn/css-prop-auto-prefix'
 
 // internals:
 import type {
@@ -30,6 +35,11 @@ import {
 import {
     renderRule,
 }                           from './renderRules.js'
+
+
+
+// utilities:
+const cssPropAutoPrefix = createCssPropAutoPrefix(browserInfo);
 
 
 
@@ -78,5 +88,5 @@ export const renderStyleSheet = <TCssScopeName extends CssScopeName = CssScopeNa
     
     
     // finally, render the structures:
-    return renderRule(scopeRules);
+    return renderRule(scopeRules, { cssPropAutoPrefix });
 }
