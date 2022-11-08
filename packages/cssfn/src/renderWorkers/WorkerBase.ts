@@ -15,7 +15,7 @@ export interface WorkerBaseConfigs {
     onReady ?: () => void
     onError ?: (error: string|Error|null) => void
 }
-export class WorkerBase<TRequest extends Tuple<string, any> & RequestPing, TResponse extends Tuple<string, any>> {
+export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends Tuple<string, any>> {
     // private properties:
     #configs : WorkerBaseConfigs|undefined
     #worker  : Worker|null
