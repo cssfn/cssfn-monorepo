@@ -67,7 +67,7 @@ export class RenderPool extends WorkerBase<Request, Response> {
         const requestConfig : RequestConfig = ['config', options];
         this.postRequest(requestConfig);
     }
-    postRender(jobId: number, rules: ValueOf<RequestRender>) {
+    postRequestRender(jobId: number, rules: ValueOf<RequestRender>) {
         const requestRender : RequestRenderWithId = ['render', [jobId, rules]];
         this.postRequest(requestRender);
     }

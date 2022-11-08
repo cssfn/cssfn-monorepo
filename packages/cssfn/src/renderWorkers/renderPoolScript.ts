@@ -1,9 +1,3 @@
-// cssfn:
-import type {
-    // types:
-    BrowserInfo,
-}                           from '@cssfn/css-prop-auto-prefix'
-
 // internals:
 import type {
     // types:
@@ -21,11 +15,19 @@ import type {
     // responses:
     ResponseReady,
 }                           from './RenderPool-types.js'
+import type {
+    // responses:
+    ResponseRendered,
+    ResponseRenderedError,
+    ResponseRenderedWithId,
+    ResponseRenderedErrorWithId,
+    WorkerResponse,
+}                           from './RenderWorker-types.js'
 
 
 
 // utilities:
-let browserInfo: BrowserInfo|undefined = undefined;
+let workerConfig: ValueOf<RequestConfig>|undefined = undefined;
 
 
 
@@ -36,6 +38,21 @@ type WorkerEntry = {
 }
 const workerList = new Map<number, WorkerEntry>();
 
+const findFreeWorker = (workers: IterableIterator<WorkerEntry>): WorkerEntry|undefined => {
+    for (const worker of workers) {
+        if (worker.currentJob === null) return worker; // found
+    } // for
+    
+    return undefined; // not found
+}
+const bookingWorker = (): WorkerEntry|null => {
+    return (
+        findFreeWorker(workerList.values()) // take the non_busy worker (if any)
+        ??
+        null                                // no new worker available
+    );
+}
+
 
 
 // jobs:
@@ -45,12 +62,43 @@ type JobEntry = {
 }
 const jobList : JobEntry[] = [];
 
+const takeJob = (workerEntry: WorkerEntry): boolean => {
+    const job = jobList.shift(); // take the oldest queued job
+    if (!job) return false; // no job available => nothing to do => idle
+    
+    
+    
+    // setups:
+    workerEntry.currentJob = job; // mark as busy
+    postRequestRender(workerEntry.remotePort, job.jobId, job.rules);
+    
+    
+    
+    // delegation is complete:
+    return true;
+}
+
 
 
 // responses:
 const postReady = () => {
     const responseReady : ResponseReady = ['ready', undefined];
     postMessage(responseReady);
+}
+const postRendered = (jobId: number, rendered: ValueOf<ResponseRendered>) => {
+    const responseRenderedWithId : ResponseRenderedWithId = ['rendered', [jobId, rendered]];
+    postMessage(responseRenderedWithId);
+}
+const postRenderedError = (jobId: number, error: Error|string|null|undefined) => {
+    const responseRenderedErrorWithId : ResponseRenderedErrorWithId = ['renderederr', [jobId, error]];
+    postMessage(responseRenderedErrorWithId);
+}
+
+const handleRendered = (jobId: number, rendered: ValueOf<ResponseRendered>) => {
+    postRendered(jobId, rendered);
+}
+const handleRenderedError = (jobId: number, error: ValueOf<ResponseRenderedError>) => {
+    postRenderedError(jobId, error);
 }
 
 
@@ -72,7 +120,7 @@ self.onmessage = (event: MessageEvent<Request>): void => {
             handleConfig(payload);
             break;
         case 'render':
-            handleRender(payload[0], payload[1]);
+            handleRequestRender(payload[0], payload[1]);
             break;
     } // switch
 }
@@ -81,10 +129,35 @@ const handlePing = () => {
 }
 const handleAddWorker = (workerId: number, remotePort: MessagePort) => {
     workerList.set(workerId, { remotePort, currentJob: null });
+    
+    
+    
+    // configure:
+    if (workerConfig) postConfig(remotePort, workerConfig);
+    
+    
+    
+    // responses:
+    remotePort.onmessage = (event: MessageEvent<WorkerResponse>): void => {
+        const [type, payload] = event.data;
+        switch(type) {
+            case 'rendered':
+                handleRendered(payload[0], payload[1]);
+                break;
+            case 'renderederr':
+                handleRenderedError(payload[0], payload[1]);
+                break;
+        } // switch
+    }
 }
 const handleErrorWorker = (workerId: number, error: string|Error|null) => {
     const worker = workerList.get(workerId);
     workerList.delete(workerId);
+    
+    
+    
+    // terminate the responses:
+    worker?.remotePort.close();
     
     
     
@@ -95,20 +168,41 @@ const handleErrorWorker = (workerId: number, error: string|Error|null) => {
     } // if
 }
 const handleConfig = (options: ValueOf<RequestConfig>) => {
-    if ('browserInfo' in options) {
-        browserInfo = options.browserInfo;
-        
-        
-        
-        // TODO:
-        // // update already running workers:
-        // const requestConfig : RequestConfig = ['config', {browserInfo}];
-        // for (const {worker} of workerList) {
-        //     worker.postMessage(requestConfig);
-        // } // for
-    } // if
+    workerConfig = options;
+    
+    
+    
+    // update already running workers:
+    for (const {remotePort} of workerList.values()) {
+        postConfig(remotePort, options);
+    } // for
 }
-const handleRender = (jobId: number, rules: ValueOf<RequestRender>) => {
+const handleRequestRender = (jobId: number, rules: ValueOf<RequestRender>) => {
+    // push the new job:
+    const newJobEntry : JobEntry = {jobId, rules};
+    jobList.push(newJobEntry);
+    
+    
+    
+    // make sure all workers are running, so the promise will be resolved:
+    for (let jobs = 0; jobs < jobList.length; jobs++) {
+        const freeWorker = bookingWorker();
+        if (!freeWorker) break; // there is no more free worker => stop searching
+        
+        
+        
+        // take a job and do it:
+        takeJob(freeWorker); // calling `takeJob()` may cause the `jobList.length` reduced
+    } // for
+}
+
+const postConfig = (remotePort: MessagePort, options: ValueOf<RequestConfig>) => {
+    const requestConfig : RequestConfig = ['config', options];
+    remotePort.postMessage(requestConfig);
+}
+const postRequestRender = (remotePort: MessagePort, jobId: number, rules: ValueOf<RequestRender>) => {
+    const requestRenderWithId : RequestRenderWithId = ['render', [jobId, rules]];
+    remotePort.postMessage(requestRenderWithId);
 }
 
 
