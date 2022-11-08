@@ -1,7 +1,11 @@
 // internals:
 import type {
-    // types:
+    // requests:
     Request,
+    
+    
+    
+    // responses:
     Response,
 }                           from './RenderWorker-types.js'
 import {
@@ -25,6 +29,7 @@ export class RenderWorker extends WorkerBase<Request, Response> {
     
     
     
+    // constructors:
     constructor(scriptUrl: string|URL = new URL(/* webpackChunkName: 'renderWorkerScript' */ /* webpackPreload: true */ './renderWorkerScript.js', import.meta.url), options: WorkerOptions = { type: 'module' }, configs?: RenderWorkerConfigs) {
         super(scriptUrl, options, configs);
         

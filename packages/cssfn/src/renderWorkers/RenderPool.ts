@@ -1,7 +1,20 @@
 // internals:
 import type {
     // types:
+    ValueOf,
+}                           from './WorkerBase-types.js'
+import type {
+    // requests:
+    RequestConfig,
+    RequestRender,
+    RequestRenderWithId,
     Request,
+    
+    
+    
+    // responses:
+    ResponseRendered,
+    ResponseRenderedError,
     Response,
 }                           from './RenderPool-types.js'
 import {
@@ -17,7 +30,8 @@ import {
 
 
 export interface RenderPoolConfigs extends WorkerBaseConfigs {
-    onConnect ?: (remotePort: MessagePort) => void
+    onRendered      ?: (jobId: number, rendered: ValueOf<ResponseRendered>  ) => void
+    onRenderedError ?: (jobId: number, error: ValueOf<ResponseRenderedError>) => void
 }
 export class RenderPool extends WorkerBase<Request, Response> {
     // private properties:
@@ -25,6 +39,7 @@ export class RenderPool extends WorkerBase<Request, Response> {
     
     
     
+    // constructors:
     constructor(scriptUrl: string|URL = new URL(/* webpackChunkName: 'renderPoolScript' */ /* webpackPreload: true */ './renderPoolScript.js', import.meta.url), options: WorkerOptions = { type: 'module' }, configs?: RenderPoolConfigs) {
         super(scriptUrl, options);
         
@@ -32,5 +47,43 @@ export class RenderPool extends WorkerBase<Request, Response> {
         
         // configs:
         this.#configs = configs;
+    }
+    
+    
+    
+    // requests:
+    postConfig(options: ValueOf<RequestConfig>) {
+        const requestConfig : RequestConfig = ['config', options];
+        this.postRequest(requestConfig);
+    }
+    postRender(jobId: number, rules: ValueOf<RequestRender>) {
+        const requestRender : RequestRenderWithId = ['render', [jobId, rules]];
+        this.postRequest(requestRender);
+    }
+    
+    
+    
+    // responses:
+    handleResponse(event: MessageEvent<Response>): void {
+        super.handleResponse(event);
+        
+        
+        
+        const [type, payload] = event.data;
+        switch (type) {
+            case 'rendered':
+                this.handleRendered(payload[0], payload[1]);
+                break;
+            
+            case 'renderederr':
+                this.handleRenderedError(payload[0], payload[1]);
+                break;
+        } // switch
+    }
+    handleRendered(jobId: number, rendered: ValueOf<ResponseRendered>) {
+        this.#configs?.onRendered?.(jobId, rendered)
+    }
+    handleRenderedError(jobId: number, error: ValueOf<ResponseRenderedError>) {
+        this.#configs?.onRenderedError?.(jobId, error);
     }
 }
