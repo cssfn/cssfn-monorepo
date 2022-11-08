@@ -79,12 +79,8 @@ export class WorkerBase<TRequest extends Tuple<string, any> & RequestPing, TResp
     
     // responses:
     handleResponse({data: [type, payload]}: MessageEvent<TResponse>): void {
-        switch (type) {
-            case 'ready':
-                this.handleReady(payload);
-                break;
-            // case 'future...':
-        } // switch
+        // any responses are treated as ready status:
+        this.handleReady();
     }
     handleError(event: ErrorEvent): void {
         this.#worker?.terminate();
@@ -92,7 +88,7 @@ export class WorkerBase<TRequest extends Tuple<string, any> & RequestPing, TResp
         this.#isReady = false;
         this.#isError = event.error;
     }
-    handleReady(_payload: any): void {
+    handleReady(): void {
         this.#isReady = true;
     }
     
