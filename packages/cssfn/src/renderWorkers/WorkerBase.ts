@@ -1,7 +1,11 @@
 // internals:
 import type {
-    // types:
+    // requests:
     Request,
+    
+    
+    
+    // responses:
     Response,
 }                           from './WorkerBase-types.js'
 
