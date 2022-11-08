@@ -78,7 +78,7 @@ export class WorkerBase<TRequest extends Tuple<string, any> & RequestPing, TResp
     
     
     // responses:
-    handleResponse({data: [type, payload]}: MessageEvent<TResponse>): void {
+    handleResponse(_event: MessageEvent<TResponse>): void {
         // any responses are treated as ready status:
         this.handleReady();
     }
