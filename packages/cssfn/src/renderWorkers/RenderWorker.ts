@@ -36,8 +36,8 @@ export class RenderWorker extends WorkerBase<Request, Response> {
     
     
     // constructors:
-    constructor(scriptUrl: string|URL = new URL(/* webpackChunkName: 'renderWorkerScript' */ /* webpackPreload: true */ './renderWorkerScript.js', import.meta.url), options: WorkerOptions = { type: 'module' }, configs?: RenderWorkerConfigs) {
-        super(scriptUrl, options, configs);
+    constructor(configs?: RenderWorkerConfigs) {
+        super(new URL(/* webpackChunkName: 'renderWorkerScript' */ /* webpackPreload: true */ './renderWorkerScript.js', import.meta.url), { type: 'module' }, configs);
         
         
         
