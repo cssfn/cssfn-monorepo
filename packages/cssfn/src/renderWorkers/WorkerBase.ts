@@ -1,22 +1,21 @@
-// types:
-export type Tuple<TName, TValue>  = readonly [TName, TValue]
-export type NameOf <TTuple extends Tuple<any, any>> = TTuple[0]
-export type ValueOf<TTuple extends Tuple<any, any>> = TTuple[1]
-export type ResponseReady = Tuple<'ready', any>
-export type Response =
-    |ResponseReady
+// internals:
+import type {
+    // types:
+    Request,
+    Response,
+}                           from './WorkerBase-types.js'
 
 
 
-export class WorkerBase<TResponse extends Response = Response> {
-    //#region private fields
+export class WorkerBase<TRequest extends Request, TResponse extends Response> {
+    //#region private properties:
     #worker  : Worker|null
     #isReady : boolean
     #isError : string|Error|null
-    //#endregion private fields
     
     
     
+    // constructors:
     constructor(scriptUrl: string|URL, options?: WorkerOptions) {
         // setup web worker:
         if (typeof(Worker) !== 'undefined') { // supports Web Worker
@@ -54,16 +53,24 @@ export class WorkerBase<TResponse extends Response = Response> {
         // configure web worker:
         const worker = this.#worker;
         if (worker) {
-            worker.onmessage = this.handleMessage;
+            worker.onmessage = this.handleResponse;
             worker.onerror   = this.handleError;
         } // if
     }
     
     
     
-    // handlers:
-    handleMessage(event: MessageEvent<TResponse>) {
-        const [type, payload] = event.data;
+    // requests:
+    postRequest(requestData : TRequest): void {
+        const worker = this.#worker;
+        if (!worker) throw Error('internal error');
+        worker.postMessage(requestData);
+    }
+    
+    
+    
+    // responses:
+    handleResponse({data: [type, payload]}: MessageEvent<TResponse>): void {
         switch (type) {
             case 'ready':
                 this.handleReady(payload);
@@ -72,31 +79,25 @@ export class WorkerBase<TResponse extends Response = Response> {
             // case 'future...':
         } // switch
     }
-    handleError(event: ErrorEvent) {
+    handleError(event: ErrorEvent): void {
         this.#worker?.terminate();
         this.#worker  = null;
         this.#isReady = false;
         this.#isError = event.error;
     }
-    handleReady(_payload: any) {
+    handleReady(_payload: any): void {
         this.#isReady = true;
     }
     
     
     
-    //#region public fields
+    // public properties:
     get isReady() { return this.#isReady }
     get isError() { return this.#isError }
-    //#endregion public fields
     
     
     
-    //#region public methods
-    response(responseData : TResponse): void {
-        const worker = this.#worker;
-        if (!worker) throw Error('internal error');
-        worker.postMessage(responseData);
-    }
+    // public methods:
     async ensureReady(timeout = 100): Promise<boolean> {
         if (this.#isError) return false; // never ready
         if (this.#isReady) return true;  // was ready
@@ -133,5 +134,4 @@ export class WorkerBase<TResponse extends Response = Response> {
             worker.addEventListener('message', handleAnyResponse, { once: true });
         });
     }
-    //#endregion public methods
 }
