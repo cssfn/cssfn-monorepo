@@ -49,7 +49,7 @@ const postReady = () => {
 }
 const postConnect = (remotePort: MessagePort) => {
     const responseConnectWorker : ResponseConnectWorker = ['connect', remotePort];
-    postMessage(responseConnectWorker);
+    postMessage(responseConnectWorker, [remotePort]);
 }
 
 const postRendered = (jobId: number, rendered: ValueOf<ResponseRendered>) => {

@@ -99,10 +99,10 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
         const worker = this.#worker;
         if (!worker) throw Error('internal error');
         if (transfer) {
-            worker.postMessage(requestData);
+            worker.postMessage(requestData, transfer);
         }
         else {
-            worker.postMessage(requestData, transfer);
+            worker.postMessage(requestData);
         } // if
     }
     postPing(): void {
