@@ -25,7 +25,10 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
     
     
     // constructors:
-    constructor(scriptUrl: string|URL, options?: WorkerOptions, configs?: WorkerBaseConfigs) {
+    protected createWorker(): Worker {
+        throw 'not implemented';
+    }
+    constructor(configs?: WorkerBaseConfigs) {
         // configs:
         this.#configs = configs;
         
@@ -34,7 +37,7 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
         // setup web worker:
         if (typeof(Worker) !== 'undefined') { // supports Web Worker
             try {
-                this.#worker  = new Worker(scriptUrl, options); // try to initialize
+                this.#worker  = this.createWorker(); // try to initialize
                 this.#isReady = false; // not yet ready
                 this.#isError = null;  // not yet having error
             }

@@ -42,8 +42,11 @@ export class RenderPool extends WorkerBase<Request, Response> {
     
     
     // constructors:
+    protected createWorker(): Worker {
+        return new Worker(new URL(/* webpackChunkName: 'renderPoolScript' */ /* webpackPreload: true */ './renderPoolScript.js', import.meta.url), { type: 'module' });
+    }
     constructor(configs?: RenderPoolConfigs) {
-        super(new URL(/* webpackChunkName: 'renderPoolScript' */ /* webpackPreload: true */ './renderPoolScript.js', import.meta.url), { type: 'module' });
+        super(configs);
         
         
         
