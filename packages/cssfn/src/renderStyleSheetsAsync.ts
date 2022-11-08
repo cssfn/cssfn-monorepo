@@ -20,70 +20,16 @@ import {
 import {
     encodeStyles,
 }                           from './cssfn-encoders.js'
-import type {
-    // types:
-    ValueOf,
-    
-    RequestConfig,
-    RequestRender,
-    
-    ResponseRendered,
-    ResponseRenderedError,
-    Response,
-}                           from './renderStyleSheetsPool.js'
+import {
+    RenderPool,
+}                           from './renderWorkers/RenderPool.js'
+import {
+    RenderWorker,
+}                           from './renderWorkers/RenderWorker.js'
 
 
 
-// workers:
-const supportsWorker = (typeof(Worker) !== 'undefined');
-const createWorkerPool = () : Worker|null => {
-    // conditions:
-    if (!supportsWorker) return null; // not_support_worker => no worker can be created
-    
-    
-    
-    try {
-        // try to create a new worker with esm module:
-        const newWorkerInstance = new Worker(new URL(/* webpackChunkName: 'renderStyleSheetsPool' */ /* webpackPreload: true */ './renderStyleSheetsPool.js', import.meta.url), { type: 'module' });
-        
-        
-        
-        // handlers:
-        newWorkerInstance.onmessage = (event: MessageEvent<Response>) => {
-            const [type, payload] = event.data;
-            switch(type) {
-                case 'rendered':
-                    handleResponseRendered(payload);
-                    break;
-                case 'renderederr':
-                    handleResponseRenderedError(payload);
-                    break;
-            } // switch
-        }
-        newWorkerInstance.onerror = (event: ErrorEvent) => {
-            handleWorkerError(event);
-        }
-        
-        
-        
-        // configure:
-        const requestConfig : RequestConfig = ['config', {browserInfo}];
-        newWorkerInstance.postMessage(requestConfig);
-        
-        
-        
-        // ready:
-        return newWorkerInstance;
-    }
-    catch {
-        return null; // the worker doesn't support esm module => no worker can be created
-    } // try
-}
-let workerPool = createWorkerPool();
-
-
-
-// processors:
+// jobs:
 type ResolveCallback = (result: ReturnType<typeof renderStyleSheet>) => void
 type RejectCallback  = (reason?: any) => void
 type JobEntry = {
@@ -95,10 +41,66 @@ let jobCounter = 0;
 
 
 
+// workers:
+const renderPool = new RenderPool({
+    onRendered : (jobId, rendered) => {
+        const currentJob = jobList.get(jobId);
+        if (currentJob) {
+            jobList.delete(jobId); // the job was finished as succeeded => remove from the list
+            
+            
+            
+            currentJob.resolve(rendered); // the job was finished as succeeded => resolve
+        } // if
+    },
+    onRenderedError(jobId, error) {
+        const currentJob = jobList.get(jobId);
+        if (currentJob) {
+            jobList.delete(jobId); // the job was finished as failed => remove from the list
+            
+            
+            
+            currentJob.reject(error); // the job was finished as failed => reject
+        } // if
+    },
+});
+renderPool.postConfig({browserInfo});
+
+const maxConcurrentWorks = (globalThis.navigator?.hardwareConcurrency ?? 1); // determines the number of logical processors, fallback to 1 processor
+const renderWorkers : RenderWorker[] = [];
+const createRenderWorkerIfNeeded = (): boolean => {
+    // conditions:
+    if (renderWorkers.length >= maxConcurrentWorks) return false; // the maximum of workers has been reached => no more workers
+    
+    
+    
+    const renderWorker = new RenderWorker({
+        onConnectWorker(workerId, remotePort) {
+            renderPool.postAddWorker(workerId, remotePort);
+        },
+        onErrorWorker(workerId, error) {
+            renderPool.postRemoveWorker(workerId, error);
+            
+            const index = renderWorkers.findIndex((search) => (search === renderWorker));
+            if (index >= 0) renderWorkers.splice(index, 1);
+        },
+    });
+    renderWorkers.push(renderWorker);
+    return true;
+}
+// pre-load some workers, so the first page render will served quickly:
+const maxPreloadWorkers = 8;
+for (let addWorker = 0; addWorker < maxPreloadWorkers; addWorker++) {
+    if (!createRenderWorkerIfNeeded()) break; // max concurrent workers reached => stop adding new worker
+} // for
+
+
+
+// processors:
 export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): Promise<ReturnType<typeof renderStyleSheet>> => {
     // conditions:
     if (!styleSheet.enabled) return null; // the styleSheet is disabled => no need to render
-    if (!workerPool) return renderStyleSheet(styleSheet); // not_support_worker => fallback to sync mode
+    if (renderPool.isError)  return renderStyleSheet(styleSheet); // not_support_worker => fallback to sync mode
     
     
     
@@ -122,45 +124,10 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
     
     
     // delegate the render to the workerPool:
-    const requestRender : RequestRender = ['render', [jobId, encodedStyles]];
-    workerPool.postMessage(requestRender);
+    renderPool.postRequestRender(jobId, encodedStyles);
     
     
     
     // the workerPool is currently working, we will notify you if it done:
     return renderPromise;
-}
-
-
-
-// handlers:
-const handleResponseRendered      = ([jobId, rendered] : ValueOf<ResponseRendered>) => {
-    const currentJob = jobList.get(jobId);
-    if (currentJob) {
-        jobList.delete(jobId); // the job was finished as succeeded => remove from the list
-        
-        
-        
-        currentJob.resolve(rendered); // the job was finished as succeeded => resolve
-    } // if
-}
-const handleResponseRenderedError = ([jobId, error   ] : ValueOf<ResponseRenderedError>) => {
-    const currentJob = jobList.get(jobId);
-    if (currentJob) {
-        jobList.delete(jobId); // the job was finished as failed => remove from the list
-        
-        
-        
-        currentJob.reject(error); // the job was finished as failed => reject
-    } // if
-}
-const handleWorkerError           = (error : any) => {
-    workerPool?.terminate(); // kill the worker (suspected memory leak)
-    workerPool = null; // no worker available => fallback to sync mode
-    
-    
-    
-    // abort the unfinished jobs:
-    for (const {reject} of jobList.values()) reject(error);
-    jobList.clear();
 }
