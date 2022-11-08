@@ -68,7 +68,22 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
         const worker = this.#worker;
         if (worker) {
             worker.onmessage = this.handleResponse;
-            worker.onerror   = this.handleError;
+            worker.onerror   = ({error}: ErrorEvent) => {
+                const errorParam : string|Error|null = (
+                    ((error == null) || (error === undefined))
+                    ?
+                    null
+                    :
+                    (
+                        (error instanceof Error)
+                        ?
+                        error
+                        :
+                        `${error}`
+                    )
+                );
+                this.handleError(errorParam);
+            };
         } // if
     }
     
@@ -97,13 +112,13 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
         // any responses are treated as ready status:
         this.handleReady();
     }
-    handleError(event: ErrorEvent): void {
+    handleError(error: string|Error|null): void {
         this.#worker?.terminate();
         this.#worker  = null;
         this.#isReady = false;
-        this.#isError = event.error;
+        this.#isError = error;
         
-        this.#configs?.onError?.(event.error);
+        this.#configs?.onError?.(error);
     }
     handleReady(): void {
         this.#isReady = true;

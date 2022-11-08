@@ -45,18 +45,18 @@ export interface ConfigOptions {
     browserInfo ?: BrowserInfo
 }
 
-export type RemoteWorker = Tuple<number, MessagePort>
-
 
 
 // requests:
-export type RequestAddWorker            = Tuple<'addworker', RemoteWorker>
+export type RequestAddWorker            = Tuple<'addworker', Tuple<number, MessagePort>>
+export type RequestErrorWorker          = Tuple<'errworker', Tuple<number, string|Error|null>>
 export type RequestConfig               = Tuple<'config', ConfigOptions>
 export type RequestRender               = Tuple<'render', EncodedCssStyleCollection>
 export type RequestRenderWithId         = TupleWithId<RequestRender>
 export type Request =
     |BaseRequest
     |RequestAddWorker
+    |RequestErrorWorker
     |RequestConfig
     |RequestRenderWithId
 

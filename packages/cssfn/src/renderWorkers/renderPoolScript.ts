@@ -65,6 +65,9 @@ self.onmessage = (event: MessageEvent<Request>): void => {
         case 'addworker':
             handleAddWorker(payload[0], payload[1]);
             break;
+        case 'errworker':
+            handleErrorWorker(payload[0], payload[1])
+            break;
         case 'config':
             handleConfig(payload);
             break;
@@ -78,6 +81,18 @@ const handlePing = () => {
 }
 const handleAddWorker = (workerId: number, remotePort: MessagePort) => {
     workerList.set(workerId, { remotePort, currentJob: null });
+}
+const handleErrorWorker = (workerId: number, error: string|Error|null) => {
+    const worker = workerList.get(workerId);
+    workerList.delete(workerId);
+    
+    
+    
+    // abort the unfinished job:
+    const jobId = worker?.currentJob?.jobId;
+    if (jobId !== undefined) {
+        handleRenderedError(jobId, error);
+    } // if
 }
 const handleConfig = (options: ValueOf<RequestConfig>) => {
     if ('browserInfo' in options) {

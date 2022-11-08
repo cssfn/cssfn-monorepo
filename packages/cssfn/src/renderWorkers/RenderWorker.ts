@@ -26,6 +26,7 @@ let workerCounter = 0;
 
 export interface RenderWorkerConfigs extends WorkerBaseConfigs {
     onConnectWorker ?: (workerId: number, remotePort: MessagePort) => void
+    onErrorWorker   ?: (workerId: number, error: string|Error|null) => void
 }
 export class RenderWorker extends WorkerBase<Request, Response> {
     // private properties:
@@ -65,5 +66,13 @@ export class RenderWorker extends WorkerBase<Request, Response> {
     }
     handleConnectWorker(remotePort: MessagePort) {
         this.#configs?.onConnectWorker?.(this.#workerId, remotePort);
+    }
+    handleError(error: string|Error|null): void {
+        super.handleError(error);
+        
+        this.handleErrorWorker(error);
+    }
+    handleErrorWorker(error: string|Error|null) {
+        this.#configs?.onErrorWorker?.(this.#workerId, error);
     }
 }
