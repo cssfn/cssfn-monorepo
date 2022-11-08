@@ -1,18 +1,18 @@
 // internals:
 import type {
+    // types:
+    Tuple,
+    
+    
+    
     // requests:
-    Request,
-    
-    
-    
-    // responses:
-    Response,
+    RequestPing,
 }                           from './WorkerBase-types.js'
 
 
 
-export class WorkerBase<TRequest extends Request, TResponse extends Response> {
-    //#region private properties:
+export class WorkerBase<TRequest extends Tuple<string, any> & RequestPing, TResponse extends Tuple<string, any>> {
+    // private properties:
     #worker  : Worker|null
     #isReady : boolean
     #isError : string|Error|null
@@ -70,6 +70,10 @@ export class WorkerBase<TRequest extends Request, TResponse extends Response> {
         if (!worker) throw Error('internal error');
         worker.postMessage(requestData);
     }
+    postPing(): void {
+        const requestPing : RequestPing = ['ping', undefined];
+        this.postRequest(requestPing as TRequest);
+    }
     
     
     
@@ -79,7 +83,6 @@ export class WorkerBase<TRequest extends Request, TResponse extends Response> {
             case 'ready':
                 this.handleReady(payload);
                 break;
-            
             // case 'future...':
         } // switch
     }
@@ -136,6 +139,7 @@ export class WorkerBase<TRequest extends Request, TResponse extends Response> {
                 resolve(true); // worker script is responding => true
             };
             worker.addEventListener('message', handleAnyResponse, { once: true });
+            this.postPing();
         });
     }
 }
