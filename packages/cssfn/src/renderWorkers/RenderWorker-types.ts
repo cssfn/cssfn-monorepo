@@ -2,7 +2,6 @@
 import type {
     // types:
     Tuple,
-    NameOf,
     
     
     
@@ -12,7 +11,7 @@ import type {
     
     
     // responses:
-    ResponseReady as BaseResponseReady,
+    ResponseReady,
 }                           from './WorkerBase-types.js'
 
 
@@ -24,6 +23,8 @@ export type Request =
 
 
 // responses:
-export type ResponseReady = Tuple<NameOf<BaseResponseReady>, MessagePort|undefined>
+export { ResponseReady }
+export type ResponseConnect = Tuple<'connect', MessagePort>
 export type Response =
     |ResponseReady
+    |ResponseConnect
