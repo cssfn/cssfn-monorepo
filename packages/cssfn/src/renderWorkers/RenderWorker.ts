@@ -5,15 +5,33 @@ import type {
     Response,
 }                           from './RenderWorker-types.js'
 import {
+    // types:
+    WorkerBaseConfigs,
+    
+    
+    
     // worker:
     WorkerBase,
 }                           from './WorkerBase.js'
 
 
 
-export class RenderPool extends WorkerBase<Request, Response> {
-    constructor(scriptUrl: string|URL = new URL(/* webpackChunkName: 'renderWorkerScript' */ /* webpackPreload: true */ './renderWorkerScript.js', import.meta.url), options: WorkerOptions = { type: 'module' }) {
-        super(scriptUrl, options);
+export interface RenderWorkerConfigs extends WorkerBaseConfigs {
+    onConnect ?: (remotePort: MessagePort) => void
+}
+export class RenderWorker extends WorkerBase<Request, Response> {
+    // private properties:
+    #configs : RenderWorkerConfigs|undefined
+    
+    
+    
+    constructor(scriptUrl: string|URL = new URL(/* webpackChunkName: 'renderWorkerScript' */ /* webpackPreload: true */ './renderWorkerScript.js', import.meta.url), options: WorkerOptions = { type: 'module' }, configs?: RenderWorkerConfigs) {
+        super(scriptUrl, options, configs);
+        
+        
+        
+        // configs:
+        this.#configs = configs;
     }
     
     
@@ -34,5 +52,6 @@ export class RenderPool extends WorkerBase<Request, Response> {
         } // switch
     }
     handleConnect(remotePort: MessagePort) {
+        this.#configs?.onConnect?.(remotePort);
     }
 }
