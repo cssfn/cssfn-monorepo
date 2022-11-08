@@ -52,6 +52,17 @@ const bookingWorker = (): WorkerEntry|null => {
         null                                // no new worker available
     );
 }
+const ensureWorkerRunning = () => {
+    for (let jobs = 0; jobs < jobList.length; jobs++) {
+        const freeWorker = bookingWorker();
+        if (!freeWorker) break; // there is no more free worker => stop searching
+        
+        
+        
+        // take a job and do it:
+        takeJob(freeWorker); // calling `takeJob()` may cause the `jobList.length` reduced
+    } // for
+}
 
 
 
@@ -149,6 +160,11 @@ const handleAddWorker = (workerId: number, remotePort: MessagePort) => {
                 break;
         } // switch
     }
+    
+    
+    
+    // make sure all workers are running, so the promise will be resolved:
+    ensureWorkerRunning();
 }
 const handleErrorWorker = (workerId: number, error: string|Error|null) => {
     const worker = workerList.get(workerId);
@@ -185,15 +201,7 @@ const handleRequestRender = (jobId: number, rules: ValueOf<RequestRender>) => {
     
     
     // make sure all workers are running, so the promise will be resolved:
-    for (let jobs = 0; jobs < jobList.length; jobs++) {
-        const freeWorker = bookingWorker();
-        if (!freeWorker) break; // there is no more free worker => stop searching
-        
-        
-        
-        // take a job and do it:
-        takeJob(freeWorker); // calling `takeJob()` may cause the `jobList.length` reduced
-    } // for
+    ensureWorkerRunning();
 }
 
 const postConfig = (remotePort: MessagePort, options: ValueOf<RequestConfig>) => {
