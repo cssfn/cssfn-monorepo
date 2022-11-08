@@ -7,6 +7,7 @@ import type {
     
     // responses:
     ResponseReady,
+    ResponseConnect,
 }                           from './RenderWorker-types.js'
 
 
@@ -16,7 +17,19 @@ const channel = new MessageChannel();
 
 
 
-// handlers:
+// responses:
+const postReady = () => {
+    const responseReady : ResponseReady = ['ready', undefined];
+    postMessage(responseReady);
+}
+const postConnect = (remotePort: MessagePort) => {
+    const responseConnect : ResponseConnect = ['connect', remotePort];
+    postMessage(responseConnect);
+}
+
+
+
+// requests:
 self.onmessage = (event: MessageEvent<Request>): void => {
     const [type, payload] = event.data;
     switch (type) {
@@ -25,18 +38,11 @@ self.onmessage = (event: MessageEvent<Request>): void => {
             return;
     } // switch
 }
-const handlePing = (port2: MessagePort|undefined = undefined) => {
-    if (port2) {
-        const responseReady : ResponseReady = ['ready', port2];
-        self.postMessage(responseReady, [port2]);
-    }
-    else {
-        const responseReady : ResponseReady = ['ready', undefined];
-        self.postMessage(responseReady);
-    } // if
+const handlePing = () => {
+    postReady();
 }
 
 
 
 // notify the worker is ready:
-handlePing(channel.port2);
+postConnect(channel.port2);

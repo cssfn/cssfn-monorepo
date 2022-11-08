@@ -11,7 +11,15 @@ import type {
 
 
 
-// handlers:
+// responses:
+const postReady = () => {
+    const responseReady : ResponseReady = ['ready', undefined];
+    postMessage(responseReady);
+}
+
+
+
+// requests:
 self.onmessage = (event: MessageEvent<Request>): void => {
     const [type, payload] = event.data;
     switch (type) {
@@ -21,11 +29,10 @@ self.onmessage = (event: MessageEvent<Request>): void => {
     } // switch
 }
 const handlePing = () => {
-    const responseReady : ResponseReady = ['ready', undefined];
-    self.postMessage(responseReady);
+    postReady();
 }
 
 
 
-// notify the worker is ready:
-handlePing();
+// notify the pool is ready:
+postReady();
