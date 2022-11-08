@@ -11,8 +11,13 @@ import type {
 
 
 
+export interface WorkerBaseConfigs {
+    onReady ?: () => void
+    onError ?: (error: string|Error|null) => void
+}
 export class WorkerBase<TRequest extends Tuple<string, any> & RequestPing, TResponse extends Tuple<string, any>> {
     // private properties:
+    #configs : WorkerBaseConfigs|undefined
     #worker  : Worker|null
     #isReady : boolean
     #isError : string|Error|null
@@ -20,7 +25,12 @@ export class WorkerBase<TRequest extends Tuple<string, any> & RequestPing, TResp
     
     
     // constructors:
-    constructor(scriptUrl: string|URL, options?: WorkerOptions) {
+    constructor(scriptUrl: string|URL, options?: WorkerOptions, configs?: WorkerBaseConfigs) {
+        // configs:
+        this.#configs = configs;
+        
+        
+        
         // setup web worker:
         if (typeof(Worker) !== 'undefined') { // supports Web Worker
             try {
@@ -87,9 +97,13 @@ export class WorkerBase<TRequest extends Tuple<string, any> & RequestPing, TResp
         this.#worker  = null;
         this.#isReady = false;
         this.#isError = event.error;
+        
+        this.#configs?.onError?.(event.error);
     }
     handleReady(): void {
         this.#isReady = true;
+        
+        this.#configs?.onReady?.();
     }
     
     
