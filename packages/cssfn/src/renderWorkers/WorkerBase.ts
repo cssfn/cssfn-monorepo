@@ -67,7 +67,9 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
         // configure web worker:
         const worker = this.#worker;
         if (worker) {
-            worker.onmessage = this.handleResponse;
+            worker.onmessage = (event: MessageEvent<TResponse>) => {
+                this.handleResponse(event);
+            };
             worker.onerror   = ({error}: ErrorEvent) => {
                 const errorParam : string|Error|null = (
                     ((error == null) || (error === undefined))
