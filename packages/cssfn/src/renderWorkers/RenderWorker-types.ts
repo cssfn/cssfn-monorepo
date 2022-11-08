@@ -24,7 +24,7 @@ export type Request =
 
 // responses:
 export { ResponseReady }
-export type ResponseConnect = Tuple<'connect', MessagePort>
+export type ResponseConnectWorker = Tuple<'connect', MessagePort>
 export type Response =
     |ResponseReady
-    |ResponseConnect
+    |ResponseConnectWorker

@@ -7,7 +7,7 @@ import type {
     
     // responses:
     ResponseReady,
-    ResponseConnect,
+    ResponseConnectWorker,
 }                           from './RenderWorker-types.js'
 
 
@@ -23,8 +23,8 @@ const postReady = () => {
     postMessage(responseReady);
 }
 const postConnect = (remotePort: MessagePort) => {
-    const responseConnect : ResponseConnect = ['connect', remotePort];
-    postMessage(responseConnect);
+    const responseConnectWorker : ResponseConnectWorker = ['connect', remotePort];
+    postMessage(responseConnectWorker);
 }
 
 
@@ -35,7 +35,7 @@ self.onmessage = (event: MessageEvent<Request>): void => {
     switch (type) {
         case 'ping':
             handlePing();
-            return;
+            break;
     } // switch
 }
 const handlePing = () => {

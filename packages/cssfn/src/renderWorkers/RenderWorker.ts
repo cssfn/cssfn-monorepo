@@ -20,12 +20,17 @@ import {
 
 
 
+let workerCounter = 0;
+
+
+
 export interface RenderWorkerConfigs extends WorkerBaseConfigs {
-    onConnect ?: (remotePort: MessagePort) => void
+    onConnectWorker ?: (workerId: number, remotePort: MessagePort) => void
 }
 export class RenderWorker extends WorkerBase<Request, Response> {
     // private properties:
-    #configs : RenderWorkerConfigs|undefined
+    #configs  : RenderWorkerConfigs|undefined
+    #workerId : number
     
     
     
@@ -37,6 +42,9 @@ export class RenderWorker extends WorkerBase<Request, Response> {
         
         // configs:
         this.#configs = configs;
+        
+        workerCounter++; if (workerCounter >= Number.MAX_SAFE_INTEGER) workerCounter = 0;
+        this.#workerId = workerCounter;
     }
     
     
@@ -50,13 +58,12 @@ export class RenderWorker extends WorkerBase<Request, Response> {
         const [type, payload] = event.data;
         switch (type) {
             case 'connect':
-                this.handleConnect(payload);
+                this.handleConnectWorker(payload);
                 break;
-            
             // case 'future...':
         } // switch
     }
-    handleConnect(remotePort: MessagePort) {
-        this.#configs?.onConnect?.(remotePort);
+    handleConnectWorker(remotePort: MessagePort) {
+        this.#configs?.onConnectWorker?.(this.#workerId, remotePort);
     }
 }

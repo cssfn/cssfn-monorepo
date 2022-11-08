@@ -5,6 +5,7 @@ import type {
 }                           from './WorkerBase-types.js'
 import type {
     // requests:
+    RequestAddWorker,
     RequestConfig,
     RequestRender,
     RequestRenderWithId,
@@ -52,6 +53,10 @@ export class RenderPool extends WorkerBase<Request, Response> {
     
     
     // requests:
+    postAddWorker(workerId: number, remotePort: MessagePort) {
+        const requestAddWorker : RequestAddWorker = ['addworker', [workerId, remotePort]];
+        this.postRequest(requestAddWorker, [remotePort]);
+    }
     postConfig(options: ValueOf<RequestConfig>) {
         const requestConfig : RequestConfig = ['config', options];
         this.postRequest(requestConfig);
@@ -74,7 +79,6 @@ export class RenderPool extends WorkerBase<Request, Response> {
             case 'rendered':
                 this.handleRendered(payload[0], payload[1]);
                 break;
-            
             case 'renderederr':
                 this.handleRenderedError(payload[0], payload[1]);
                 break;

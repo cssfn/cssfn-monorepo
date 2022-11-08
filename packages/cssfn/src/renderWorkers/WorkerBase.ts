@@ -75,10 +75,15 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
     
     
     // requests:
-    postRequest(requestData : TRequest): void {
+    postRequest(requestData : TRequest, transfer?: Transferable[]): void {
         const worker = this.#worker;
         if (!worker) throw Error('internal error');
-        worker.postMessage(requestData);
+        if (transfer) {
+            worker.postMessage(requestData);
+        }
+        else {
+            worker.postMessage(requestData, transfer);
+        } // if
     }
     postPing(): void {
         const requestPing : RequestPing = ['ping', undefined];
