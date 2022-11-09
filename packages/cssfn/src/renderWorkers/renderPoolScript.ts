@@ -196,8 +196,8 @@ const handleAddWorker = (workerId: number, remotePort: MessagePort): void => {
     
     
     
-    // make sure all workers are running, so the jobs will be done:
-    ensureWorkerRunning();
+    // take a job and do it:
+    takeJob(newWorkerEntry);
 }
 const handleErrorWorker = (workerId: number, error: Error|string|null|undefined): void => {
     const worker = workerList.get(workerId);
