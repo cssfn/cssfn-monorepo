@@ -6,7 +6,7 @@ export type ValueOf<TTuple extends Tuple<any, any>> = TTuple[1]
 
 
 // requests:
-export type RequestPing = Tuple<'ping', undefined>
+export type RequestPing   = Tuple<'ping', undefined>
 export type Request =
     |RequestPing
 

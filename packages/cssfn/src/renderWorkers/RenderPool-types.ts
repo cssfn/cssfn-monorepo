@@ -11,27 +11,35 @@ import type {
     
     
     // responses:
-    ResponseReady,
+    Response as BaseResponse,
 }                           from './WorkerBase-types.js'
 import type {
     // requests:
+    RequestPing,
+    
     RequestConfig,
     RequestRender,
     RequestRenderWithId,
+    WorkerRequest,
     
     
     
     // responses:
+    ResponseReady,
+    
     ResponseRendered,
     ResponseRenderedError,
     ResponseRenderedWithId,
     ResponseRenderedErrorWithId,
+    WorkerResponse,
 }                           from './RenderWorker-types.js'
 
 
 
 // requests:
-export {
+export type {
+    RequestPing,
+    
     RequestConfig,
     RequestRender,
     RequestRenderWithId,
@@ -40,22 +48,21 @@ export type RequestAddWorker   = Tuple<'addworker', Tuple<number, MessagePort>>
 export type RequestErrorWorker = Tuple<'errworker', Tuple<number, string|Error|null>>
 export type Request =
     |BaseRequest
+    |WorkerRequest
     |RequestAddWorker
     |RequestErrorWorker
-    |RequestConfig
-    |RequestRenderWithId
 
 
 
 // responses:
-export { ResponseReady }
-export {
+export type {
+    ResponseReady,
+    
     ResponseRendered,
     ResponseRenderedError,
     ResponseRenderedWithId,
     ResponseRenderedErrorWithId,
 }
 export type Response =
-    |ResponseReady
-    |ResponseRenderedWithId
-    |ResponseRenderedErrorWithId
+    |BaseResponse
+    |WorkerResponse

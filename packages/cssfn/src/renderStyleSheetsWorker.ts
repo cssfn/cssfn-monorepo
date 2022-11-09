@@ -23,7 +23,7 @@ import {
 
 
 // types:
-export interface ConfigOptions {
+export interface RenderOptions {
     browserInfo ?: BrowserInfo
 }
 
@@ -31,7 +31,7 @@ export type Tuple<TName, TValue>  = readonly [TName, TValue]
 export type NameOf <TTuple extends Tuple<any, any>> = TTuple[0]
 export type ValueOf<TTuple extends Tuple<any, any>> = TTuple[1]
 
-export type RequestConfig         = Tuple<'config', ConfigOptions>
+export type RequestConfig         = Tuple<'config', RenderOptions>
 export type RequestRender         = Tuple<'render', EncodedCssStyleCollection>
 export type Request =
     |RequestConfig

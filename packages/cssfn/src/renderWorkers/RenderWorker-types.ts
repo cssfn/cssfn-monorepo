@@ -14,12 +14,14 @@ import type {
     
     
     // requests:
+    RequestPing,
     Request  as BaseRequest,
     
     
     
     // responses:
     ResponseReady,
+    Response as BaseResponse,
 }                           from './WorkerBase-types.js'
 import type {
     EncodedCssStyleCollection,
@@ -33,17 +35,20 @@ import type {
 // types:
 export type TupleWithId<TData extends Tuple<any, any>> = Tuple<NameOf<TData>, Tuple<number, ValueOf<TData>>>
 
-export interface ConfigOptions {
+export interface RenderOptions {
     browserInfo ?: BrowserInfo
 }
 
 
 
 // requests:
+export type {
+    RequestPing,
+}
 export type Request =
     |BaseRequest
 
-export type RequestConfig               = Tuple<'config', ConfigOptions>
+export type RequestConfig               = Tuple<'config', RenderOptions>
 export type RequestRender               = Tuple<'render', EncodedCssStyleCollection>
 export type RequestRenderWithId         = TupleWithId<RequestRender>
 export type WorkerRequest =
@@ -53,10 +58,12 @@ export type WorkerRequest =
 
 
 // responses:
-export { ResponseReady }
+export type {
+    ResponseReady,
+}
 export type ResponseConnectWorker = Tuple<'connect', MessagePort>
 export type Response =
-    |ResponseReady
+    |BaseResponse
     |ResponseConnectWorker
 
 export type ResponseRendered            = Tuple<'rendered'   , ReturnType<typeof renderRule>>
