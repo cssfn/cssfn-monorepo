@@ -63,8 +63,8 @@ const renderPool = new RenderPool({
             currentJob.reject(error); // the job was finished as failed => reject
         } // if
     },
+    browserInfo,
 });
-renderPool.postConfig({browserInfo});
 
 const maxConcurrentWorks = (globalThis.navigator?.hardwareConcurrency ?? 1); // determines the number of logical processors, fallback to 1 processor
 const renderWorkers : RenderWorker[] = [];
@@ -76,10 +76,10 @@ const createRenderWorkerIfNeeded = (): boolean => {
     
     const renderWorker = new RenderWorker({
         onConnectWorker(workerId, remotePort) {
-            renderPool.postAddWorker(workerId, remotePort);
+            renderPool.addWorker(workerId, remotePort);
         },
         onErrorWorker(workerId, error) {
-            renderPool.postRemoveWorker(workerId, error);
+            renderPool.errorWorker(workerId, error);
             
             const index = renderWorkers.findIndex((search) => (search === renderWorker));
             if (index >= 0) renderWorkers.splice(index, 1);
@@ -124,7 +124,7 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
     
     
     // delegate the render to the workerPool:
-    renderPool.postRequestRender(jobId, encodedStyles);
+    renderPool.requestRender(jobId, encodedStyles);
     
     
     

@@ -33,7 +33,7 @@ import type {
 
 
 
-export interface RenderPoolConfigs extends WorkerBaseConfigs {
+export interface RenderPoolConfigs extends WorkerBaseConfigs, ValueOf<RequestConfig> {
     onRendered      ?: (jobId: number, rendered: ValueOf<ResponseRendered>  ) => void
     onRenderedError ?: (jobId: number, error: ValueOf<ResponseRenderedError>) => void
 }
@@ -54,6 +54,16 @@ export class RenderPool extends WorkerBase<Request, Response> {
         
         // configs:
         this.#configs = configs;
+        if (configs) {
+            const {
+                onReady         : _onReady,         // remove
+                onError         : _onError,         // remove
+                onRendered      : _onRendered,      // remove
+                onRenderedError : _onRenderedError, // remove
+            ...restConfigs} = configs;
+            
+            this.postConfig(restConfigs);
+        } // if
     }
     
     
@@ -100,5 +110,19 @@ export class RenderPool extends WorkerBase<Request, Response> {
     }
     protected handleRenderedError(jobId: number, error: ValueOf<ResponseRenderedError>): void {
         this.#configs?.onRenderedError?.(jobId, error);
+    }
+    
+    
+    
+    // public methods:
+    requestRender(jobId: number, rules: ValueOf<RequestRender>): void {
+        this.postRequestRender(jobId, rules);
+    }
+    
+    addWorker(workerId: number, remotePort: MessagePort): void {
+        this.postAddWorker(workerId, remotePort);
+    }
+    errorWorker(workerId: number, error: Error|string|null|undefined): void {
+        this.postErrorWorker(workerId, error);
     }
 }
