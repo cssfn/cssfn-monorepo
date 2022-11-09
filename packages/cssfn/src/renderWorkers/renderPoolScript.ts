@@ -160,7 +160,8 @@ const handleRequestRender = (jobId: number, rules: ValueOf<RequestRender>): void
     ensureWorkerRunning();
 }
 const handleAddWorker = (workerId: number, remotePort: MessagePort): void => {
-    workerList.set(workerId, { remotePort, currentJob: null });
+    const newWorkerEntry : WorkerEntry = { remotePort, currentJob: null };
+    workerList.set(workerId, newWorkerEntry);
     
     
     
@@ -174,12 +175,23 @@ const handleAddWorker = (workerId: number, remotePort: MessagePort): void => {
         const [type, payload] = event.data;
         switch(type) {
             case 'rendered':
+                handleDone();
                 handleRendered(payload[0], payload[1]);
                 break;
             case 'renderederr':
+                handleDone();
                 handleRenderedError(payload[0], payload[1]);
                 break;
         } // switch
+    }
+    const handleDone = () => {
+        // cleanups:
+        newWorkerEntry.currentJob = null; // un-mark as busy
+        
+        
+        
+        // search for another job:
+        takeJob(newWorkerEntry);
     }
     
     
