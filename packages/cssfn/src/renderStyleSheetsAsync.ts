@@ -131,3 +131,14 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
     // the workerPool is currently working, we will notify you if it done:
     return renderPromise;
 }
+
+
+
+// optimizations:
+export const ensureRendererWorkersReady = async (timeout = 100/*ms*/): Promise<boolean> => {
+    const results = await Promise.all([
+        renderPool.ensureReady(timeout),
+        ...renderWorkers.map((renderWorker) => renderWorker.ensureReady(timeout))
+    ]);
+    return results.every((result) => result);
+}
