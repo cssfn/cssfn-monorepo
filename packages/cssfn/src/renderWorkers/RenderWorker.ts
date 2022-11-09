@@ -1,13 +1,4 @@
 // internals:
-import type {
-    // requests:
-    Request,
-    
-    
-    
-    // responses:
-    Response,
-}                           from './RenderWorker-types.js'
 import {
     // types:
     WorkerBaseConfigs,
@@ -17,6 +8,15 @@ import {
     // worker:
     WorkerBase,
 }                           from './WorkerBase.js'
+import type {
+    // requests:
+    Request,
+    
+    
+    
+    // responses:
+    Response,
+}                           from './RenderWorker-types.js'
 
 
 
@@ -25,8 +25,8 @@ let workerCounter = 0;
 
 
 export interface RenderWorkerConfigs extends WorkerBaseConfigs {
-    onConnectWorker ?: (workerId: number, remotePort: MessagePort) => void
-    onErrorWorker   ?: (workerId: number, error: string|Error|null) => void
+    onConnectWorker ?: (workerId: number, remotePort: MessagePort           ) => void
+    onErrorWorker   ?: (workerId: number, error: Error|string|null|undefined) => void
 }
 export class RenderWorker extends WorkerBase<Request, Response> {
     // private properties:
@@ -70,12 +70,12 @@ export class RenderWorker extends WorkerBase<Request, Response> {
     handleConnectWorker(remotePort: MessagePort) {
         this.#configs?.onConnectWorker?.(this.#workerId, remotePort);
     }
-    handleError(error: string|Error|null): void {
+    handleError(error: Error|string|null|undefined): void {
         super.handleError(error);
         
         this.handleErrorWorker(error);
     }
-    handleErrorWorker(error: string|Error|null) {
+    handleErrorWorker(error: Error|string|null|undefined) {
         this.#configs?.onErrorWorker?.(this.#workerId, error);
     }
 }

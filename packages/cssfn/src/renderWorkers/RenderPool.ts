@@ -3,22 +3,6 @@ import type {
     // types:
     ValueOf,
 }                           from './WorkerBase-types.js'
-import type {
-    // requests:
-    RequestAddWorker,
-    RequestErrorWorker,
-    RequestConfig,
-    RequestRender,
-    RequestRenderWithId,
-    Request,
-    
-    
-    
-    // responses:
-    ResponseRendered,
-    ResponseRenderedError,
-    Response,
-}                           from './RenderPool-types.js'
 import {
     // types:
     WorkerBaseConfigs,
@@ -28,6 +12,24 @@ import {
     // worker:
     WorkerBase,
 }                           from './WorkerBase.js'
+import type {
+    // requests:
+    RequestConfig,
+    RequestRender,
+    RequestRenderWithId,
+    
+    RequestAddWorker,
+    RequestErrorWorker,
+    Request,
+    
+    
+    
+    // responses:
+    ResponseRendered,
+    ResponseRenderedError,
+    
+    Response,
+}                           from './RenderPool-types.js'
 
 
 
@@ -57,18 +59,18 @@ export class RenderPool extends WorkerBase<Request, Response> {
     
     
     // requests:
+    postConfig(options: ValueOf<RequestConfig>) {
+        const requestConfig : RequestConfig = ['config', options];
+        this.postRequest(requestConfig);
+    }
+    
     postAddWorker(workerId: number, remotePort: MessagePort) {
         const requestAddWorker : RequestAddWorker = ['addworker', [workerId, remotePort]];
         this.postRequest(requestAddWorker, [remotePort]);
     }
-    postRemoveWorker(workerId: number, error: string|Error|null) {
+    postRemoveWorker(workerId: number, error: Error|string|null|undefined) {
         const requestErrorWorker : RequestErrorWorker = ['errworker', [workerId, error]];
         this.postRequest(requestErrorWorker);
-    }
-    
-    postConfig(options: ValueOf<RequestConfig>) {
-        const requestConfig : RequestConfig = ['config', options];
-        this.postRequest(requestConfig);
     }
     postRequestRender(jobId: number, rules: ValueOf<RequestRender>) {
         const requestRender : RequestRenderWithId = ['render', [jobId, rules]];

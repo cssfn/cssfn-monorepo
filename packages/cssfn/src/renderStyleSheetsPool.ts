@@ -246,7 +246,7 @@ const handleWorkerError           = (currentWorkerEntry : WorkerEntry, error: an
     const jobId = currentWorkerEntry.currentJob?.jobId;
     if (jobId !== undefined) {
         const errorParam : ValueOf<WorkerResponseRenderedError> = (
-            ((error == null) || (error === undefined))
+            ((error === null) || (error === undefined))
             ?
             (error as null|undefined)
             :

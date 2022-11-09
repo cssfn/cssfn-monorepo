@@ -166,7 +166,7 @@ const handleAddWorker = (workerId: number, remotePort: MessagePort) => {
     // make sure all workers are running, so the promise will be resolved:
     ensureWorkerRunning();
 }
-const handleErrorWorker = (workerId: number, error: string|Error|null) => {
+const handleErrorWorker = (workerId: number, error: Error|string|null|undefined) => {
     const worker = workerList.get(workerId);
     workerList.delete(workerId);
     

@@ -98,7 +98,7 @@ const handleResponseRendered      = (rendered : ValueOf<ResponseRendered>) => {
 }
 const handleResponseRenderedError = (error    : any) => {
     const errorParam : ValueOf<ResponseRenderedError> = (
-        ((error == null) || (error === undefined))
+        ((error === null) || (error === undefined))
         ?
         (error as null|undefined)
         :

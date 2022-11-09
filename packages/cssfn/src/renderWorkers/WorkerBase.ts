@@ -13,20 +13,20 @@ import type {
 
 export interface WorkerBaseConfigs {
     onReady ?: () => void
-    onError ?: (error: string|Error|null) => void
+    onError ?: (error: Error|string|null|undefined) => void
 }
 export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends Tuple<string, any>> {
     // private properties:
     #configs : WorkerBaseConfigs|undefined
     #worker  : Worker|null
     #isReady : boolean
-    #isError : string|Error|null
+    #isError : Error|string|null|undefined
     
     
     
     // constructors:
     protected createWorker(): Worker {
-        throw 'not implemented';
+        throw Error('not implemented');
     }
     constructor(configs?: WorkerBaseConfigs) {
         // configs:
@@ -45,9 +45,9 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
                 this.#worker  = null;  // Web Worker initialization was failed
                 this.#isReady = false; // never ready
                 this.#isError = (      // the causing error:
-                    ((error == null) || (error === undefined))
+                    !error
                     ?
-                    null
+                    Error() // avoids null|undefined|empty_string => nullish
                     :
                     (
                         (error instanceof Error)
@@ -74,17 +74,17 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
                 this.handleResponse(event);
             };
             worker.onerror   = ({error}: ErrorEvent) => {
-                const errorParam : string|Error|null = (
-                    ((error == null) || (error === undefined))
+                const errorParam : Error|string|null|undefined = (
+                    !error
                     ?
-                    null
+                    Error() // avoids null|undefined|empty_string => nullish
                     :
                     (
                         (error instanceof Error)
                         ?
                         error
                         :
-                        `${error}`
+                        `${error}` // stringify
                     )
                 );
                 this.handleError(errorParam);
@@ -117,11 +117,11 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
         // any responses are treated as ready status:
         this.handleReady();
     }
-    handleError(error: string|Error|null): void {
+    handleError(error: Error|string|null|undefined): void {
         this.#worker?.terminate();
         this.#worker  = null;
         this.#isReady = false;
-        this.#isError = error;
+        this.#isError = error || Error(); // avoids null|undefined|empty_string => nullish
         
         this.#configs?.onError?.(error);
     }
@@ -140,7 +140,7 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
     
     
     // public methods:
-    async ensureReady(timeout = 100): Promise<boolean> {
+    async ensureReady(timeout = 100/*ms*/): Promise<boolean> {
         if (this.#isError) return false; // never ready
         if (this.#isReady) return true;  // was ready
         
@@ -174,7 +174,7 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
                 resolve(true); // worker script is responding => true
             };
             worker.addEventListener('message', handleAnyResponse, { once: true });
-            this.postPing();
+            this.postPing(); // trigger the script to response
         });
     }
 }

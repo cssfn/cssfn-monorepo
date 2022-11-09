@@ -45,7 +45,7 @@ export type {
     RequestRenderWithId,
 }
 export type RequestAddWorker   = Tuple<'addworker', Tuple<number, MessagePort>>
-export type RequestErrorWorker = Tuple<'errworker', Tuple<number, string|Error|null>>
+export type RequestErrorWorker = Tuple<'errworker', Tuple<number, Error|string|null|undefined>>
 export type Request =
     |BaseRequest
     |WorkerRequest

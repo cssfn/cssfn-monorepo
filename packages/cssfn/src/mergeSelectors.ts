@@ -297,9 +297,9 @@ const increaseSpecificity = (pureSelector: PureSelector, missingSpecificityWeigh
 
 export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSpecificityWeight: number|null, maxSpecificityWeight: number|null): SelectorGroup => {
     if (
-        (minSpecificityWeight == null)
+        (minSpecificityWeight === null)
         &&
-        (maxSpecificityWeight == null)
+        (maxSpecificityWeight === null)
     ) return pureSelectorGroup; // nothing to adjust
     
     
