@@ -54,7 +54,7 @@ export class RenderPool extends WorkerBase<Request, Response> {
         
         // configs:
         this.#configs = configs;
-        if (configs) {
+        if (configs && !this.isError) {
             const {
                 onReady         : _onReady,         // remove
                 onError         : _onError,         // remove
