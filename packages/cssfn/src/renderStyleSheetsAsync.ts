@@ -43,7 +43,7 @@ let jobCounter = 0;
 
 // workers:
 const renderPool = new RenderPool({
-    onRendered : (jobId, rendered) => {
+    onRendered      : (jobId, rendered) => {
         const currentJob = jobList.get(jobId);
         if (currentJob) {
             jobList.delete(jobId); // the job was finished as succeeded => remove from the list
@@ -53,7 +53,7 @@ const renderPool = new RenderPool({
             currentJob.resolve(rendered); // the job was finished as succeeded => resolve
         } // if
     },
-    onRenderedError(jobId, error) {
+    onRenderedError : (jobId, error   ) => {
         const currentJob = jobList.get(jobId);
         if (currentJob) {
             jobList.delete(jobId); // the job was finished as failed => remove from the list
@@ -75,10 +75,10 @@ const createRenderWorkerIfNeeded = (): boolean => {
     
     
     const renderWorker = new RenderWorker({
-        onConnectWorker(workerId, remotePort) {
+        onConnectWorker : (workerId, remotePort) => {
             renderPool.addWorker(workerId, remotePort);
         },
-        onErrorWorker(workerId, error) {
+        onErrorWorker   : (workerId, error     ) => {
             renderPool.errorWorker(workerId, error);
             
             const index = renderWorkers.findIndex((search) => (search === renderWorker));
