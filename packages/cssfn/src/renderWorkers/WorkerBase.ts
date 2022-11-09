@@ -95,7 +95,7 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
     
     
     // requests:
-    postRequest(requestData : TRequest, transfer?: Transferable[]): void {
+    protected postRequest(requestData : TRequest, transfer?: Transferable[]): void {
         const worker = this.#worker;
         if (!worker) throw Error('internal error');
         if (transfer) {
@@ -105,7 +105,7 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
             worker.postMessage(requestData);
         } // if
     }
-    postPing(): void {
+    protected postPing(): void {
         const requestPing : RequestPing = ['ping', undefined];
         this.postRequest(requestPing as TRequest);
     }
@@ -113,11 +113,11 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
     
     
     // responses:
-    handleResponse(_event: MessageEvent<TResponse>): void {
+    protected handleResponse(_event: MessageEvent<TResponse>): void {
         // any responses are treated as ready status:
         this.handleReady();
     }
-    handleError(error: Error|string|null|undefined): void {
+    protected handleError(error: Error|string|null|undefined): void {
         this.#worker?.terminate();
         this.#worker  = null;
         this.#isReady = false;
@@ -125,7 +125,7 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
         
         this.#configs?.onError?.(error);
     }
-    handleReady(): void {
+    protected handleReady(): void {
         this.#isReady = true;
         
         this.#configs?.onReady?.();

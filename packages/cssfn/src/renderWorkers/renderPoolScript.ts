@@ -5,10 +5,11 @@ import type {
 }                           from './WorkerBase-types.js'
 import type {
     // requests:
+    Request,
+    
     RequestConfig,
     RequestRender,
     RequestRenderWithId,
-    Request,
     
     
     
@@ -27,7 +28,7 @@ import type {
 
 
 // utilities:
-let workerConfig: ValueOf<RequestConfig>|undefined = undefined;
+let workerOptions: ValueOf<RequestConfig>|undefined = undefined;
 
 
 
@@ -40,7 +41,7 @@ const workerList = new Map<number, WorkerEntry>();
 
 const findFreeWorker = (workers: IterableIterator<WorkerEntry>): WorkerEntry|undefined => {
     for (const worker of workers) {
-        if (worker.currentJob === null) return worker; // found
+        if (worker.currentJob === null) return worker; // found jobless worker
     } // for
     
     return undefined; // not found
@@ -92,23 +93,23 @@ const takeJob = (workerEntry: WorkerEntry): boolean => {
 
 
 // responses:
-const postReady = () => {
+const postReady = (): void => {
     const responseReady : ResponseReady = ['ready', undefined];
-    postMessage(responseReady);
+    self.postMessage(responseReady);
 }
-const postRendered = (jobId: number, rendered: ValueOf<ResponseRendered>) => {
+const postRendered = (jobId: number, rendered: ValueOf<ResponseRendered>): void => {
     const responseRenderedWithId : ResponseRenderedWithId = ['rendered', [jobId, rendered]];
-    postMessage(responseRenderedWithId);
+    self.postMessage(responseRenderedWithId);
 }
-const postRenderedError = (jobId: number, error: Error|string|null|undefined) => {
+const postRenderedError = (jobId: number, error: ValueOf<ResponseRenderedError>): void => {
     const responseRenderedErrorWithId : ResponseRenderedErrorWithId = ['renderederr', [jobId, error]];
-    postMessage(responseRenderedErrorWithId);
+    self.postMessage(responseRenderedErrorWithId);
 }
 
-const handleRendered = (jobId: number, rendered: ValueOf<ResponseRendered>) => {
+const handleRendered = (jobId: number, rendered: ValueOf<ResponseRendered>): void => {
     postRendered(jobId, rendered);
 }
-const handleRenderedError = (jobId: number, error: ValueOf<ResponseRenderedError>) => {
+const handleRenderedError = (jobId: number, error: ValueOf<ResponseRenderedError>): void => {
     postRenderedError(jobId, error);
 }
 
@@ -121,30 +122,50 @@ self.onmessage = (event: MessageEvent<Request>): void => {
         case 'ping':
             handlePing();
             break;
-        case 'addworker':
-            handleAddWorker(payload[0], payload[1]);
-            break;
-        case 'errworker':
-            handleErrorWorker(payload[0], payload[1])
-            break;
         case 'config':
             handleConfig(payload);
             break;
         case 'render':
             handleRequestRender(payload[0], payload[1]);
             break;
+        case 'addworker':
+            handleAddWorker(payload[0], payload[1]);
+            break;
+        case 'errworker':
+            handleErrorWorker(payload[0], payload[1])
+            break;
     } // switch
 }
-const handlePing = () => {
+const handlePing = (): void => {
     postReady();
 }
-const handleAddWorker = (workerId: number, remotePort: MessagePort) => {
+const handleConfig = (options: ValueOf<RequestConfig>): void => {
+    workerOptions = options;
+    
+    
+    
+    // update already running workers:
+    for (const {remotePort} of workerList.values()) {
+        postConfig(remotePort, options);
+    } // for
+}
+const handleRequestRender = (jobId: number, rules: ValueOf<RequestRender>): void => {
+    // push the new job:
+    const newJobEntry : JobEntry = {jobId, rules};
+    jobList.push(newJobEntry);
+    
+    
+    
+    // make sure all workers are running, so the jobs will be done:
+    ensureWorkerRunning();
+}
+const handleAddWorker = (workerId: number, remotePort: MessagePort): void => {
     workerList.set(workerId, { remotePort, currentJob: null });
     
     
     
     // configure:
-    if (workerConfig) postConfig(remotePort, workerConfig);
+    if (workerOptions) postConfig(remotePort, workerOptions);
     
     
     
@@ -163,17 +184,17 @@ const handleAddWorker = (workerId: number, remotePort: MessagePort) => {
     
     
     
-    // make sure all workers are running, so the promise will be resolved:
+    // make sure all workers are running, so the jobs will be done:
     ensureWorkerRunning();
 }
-const handleErrorWorker = (workerId: number, error: Error|string|null|undefined) => {
+const handleErrorWorker = (workerId: number, error: Error|string|null|undefined): void => {
     const worker = workerList.get(workerId);
     workerList.delete(workerId);
     
     
     
     // terminate the responses:
-    worker?.remotePort.close();
+    worker?.remotePort?.close();
     
     
     
@@ -182,26 +203,6 @@ const handleErrorWorker = (workerId: number, error: Error|string|null|undefined)
     if (jobId !== undefined) {
         handleRenderedError(jobId, error);
     } // if
-}
-const handleConfig = (options: ValueOf<RequestConfig>) => {
-    workerConfig = options;
-    
-    
-    
-    // update already running workers:
-    for (const {remotePort} of workerList.values()) {
-        postConfig(remotePort, options);
-    } // for
-}
-const handleRequestRender = (jobId: number, rules: ValueOf<RequestRender>) => {
-    // push the new job:
-    const newJobEntry : JobEntry = {jobId, rules};
-    jobList.push(newJobEntry);
-    
-    
-    
-    // make sure all workers are running, so the promise will be resolved:
-    ensureWorkerRunning();
 }
 
 const postConfig = (remotePort: MessagePort, options: ValueOf<RequestConfig>) => {

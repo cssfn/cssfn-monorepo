@@ -11,10 +11,10 @@ import type {
 }                           from './WorkerBase-types.js'
 import type {
     // requests:
-    RequestConfig,
-    RequestRender,
     Request,
     
+    RequestConfig,
+    RequestRender,
     WorkerRequest,
     
     
@@ -24,6 +24,7 @@ import type {
     ResponseConnectWorker,
     
     ResponseRendered,
+    ResponseRenderedError,
     ResponseRenderedWithId,
     ResponseRenderedErrorWithId,
 }                           from './RenderWorker-types.js'
@@ -37,28 +38,28 @@ import {
 
 
 // utilities:
-const channel = new MessageChannel();
+const {port1: selfPort, port2: remotePort} = new MessageChannel();
 let cssPropAutoPrefix : ReturnType<typeof createCssPropAutoPrefix>|undefined = undefined;
 
 
 
 // responses:
-const postReady = () => {
+const postReady = (): void => {
     const responseReady : ResponseReady = ['ready', undefined];
-    postMessage(responseReady);
+    self.postMessage(responseReady);
 }
-const postConnect = (remotePort: MessagePort) => {
+const postConnectWorker = (remotePort: MessagePort): void => {
     const responseConnectWorker : ResponseConnectWorker = ['connect', remotePort];
-    postMessage(responseConnectWorker, [remotePort]);
+    self.postMessage(responseConnectWorker, [remotePort]);
 }
 
-const postRendered = (jobId: number, rendered: ValueOf<ResponseRendered>) => {
+const postRendered = (jobId: number, rendered: ValueOf<ResponseRendered>): void => {
     const responseRenderedWithId : ResponseRenderedWithId = ['rendered', [jobId, rendered]];
-    channel.port1.postMessage(responseRenderedWithId);
+    selfPort.postMessage(responseRenderedWithId);
 }
-const postRenderedError = (jobId: number, error: Error|string|null|undefined) => {
+const postRenderedError = (jobId: number, error: ValueOf<ResponseRenderedError>): void => {
     const responseRenderedErrorWithId : ResponseRenderedErrorWithId = ['renderederr', [jobId, error]];
-    channel.port1.postMessage(responseRenderedErrorWithId);
+    selfPort.postMessage(responseRenderedErrorWithId);
 }
 
 
@@ -72,11 +73,11 @@ self.onmessage = (event: MessageEvent<Request>): void => {
             break;
     } // switch
 }
-const handlePing = () => {
+const handlePing = (): void => {
     postReady();
 }
 
-channel.port1.onmessage = (event: MessageEvent<WorkerRequest>): void => {
+selfPort.onmessage = (event: MessageEvent<WorkerRequest>): void => {
     const [type, payload] = event.data;
     switch (type) {
         case 'config':
@@ -87,7 +88,7 @@ channel.port1.onmessage = (event: MessageEvent<WorkerRequest>): void => {
             break;
     } // switch
 }
-const handleConfig = (options: ValueOf<RequestConfig>) => {
+const handleConfig = (options: ValueOf<RequestConfig>): void => {
     const { browserInfo } = options;
     if (browserInfo) {
         cssPropAutoPrefix = createCssPropAutoPrefix(browserInfo);
@@ -97,7 +98,7 @@ const handleConfig = (options: ValueOf<RequestConfig>) => {
         ... other options may be added in the future
     */
 }
-const handleRequestRender = (jobId: number, rules: ValueOf<RequestRender>) => {
+const handleRequestRender = (jobId: number, rules: ValueOf<RequestRender>): void => {
     const scopeRules = decodeStyles(rules);
     
     
@@ -106,8 +107,21 @@ const handleRequestRender = (jobId: number, rules: ValueOf<RequestRender>) => {
     try {
         rendered = renderRule(scopeRules, { cssPropAutoPrefix });
     }
-    catch (error: any) {
-        postRenderedError(jobId, error);
+    catch (error) {
+        const errorParam : Error|string|null|undefined = (
+            !error
+            ?
+            Error() // avoids null|undefined|empty_string => nullish
+            :
+            (
+                (error instanceof Error)
+                ?
+                error
+                :
+                `${error}` // stringify
+            )
+        );
+        postRenderedError(jobId, errorParam);
         return;
     } // try
     
@@ -119,4 +133,4 @@ const handleRequestRender = (jobId: number, rules: ValueOf<RequestRender>) => {
 
 
 // notify the worker is ready:
-postConnect(channel.port2);
+postConnectWorker(remotePort);

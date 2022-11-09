@@ -59,28 +59,28 @@ export class RenderPool extends WorkerBase<Request, Response> {
     
     
     // requests:
-    postConfig(options: ValueOf<RequestConfig>) {
+    protected postConfig(options: ValueOf<RequestConfig>): void {
         const requestConfig : RequestConfig = ['config', options];
         this.postRequest(requestConfig);
     }
+    protected postRequestRender(jobId: number, rules: ValueOf<RequestRender>): void {
+        const requestRender : RequestRenderWithId = ['render', [jobId, rules]];
+        this.postRequest(requestRender);
+    }
     
-    postAddWorker(workerId: number, remotePort: MessagePort) {
+    protected postAddWorker(workerId: number, remotePort: MessagePort): void {
         const requestAddWorker : RequestAddWorker = ['addworker', [workerId, remotePort]];
         this.postRequest(requestAddWorker, [remotePort]);
     }
-    postRemoveWorker(workerId: number, error: Error|string|null|undefined) {
+    protected postErrorWorker(workerId: number, error: Error|string|null|undefined): void {
         const requestErrorWorker : RequestErrorWorker = ['errworker', [workerId, error]];
         this.postRequest(requestErrorWorker);
-    }
-    postRequestRender(jobId: number, rules: ValueOf<RequestRender>) {
-        const requestRender : RequestRenderWithId = ['render', [jobId, rules]];
-        this.postRequest(requestRender);
     }
     
     
     
     // responses:
-    handleResponse(event: MessageEvent<Response>): void {
+    protected handleResponse(event: MessageEvent<Response>): void {
         super.handleResponse(event);
         
         
@@ -95,10 +95,10 @@ export class RenderPool extends WorkerBase<Request, Response> {
                 break;
         } // switch
     }
-    handleRendered(jobId: number, rendered: ValueOf<ResponseRendered>) {
+    protected handleRendered(jobId: number, rendered: ValueOf<ResponseRendered>): void {
         this.#configs?.onRendered?.(jobId, rendered)
     }
-    handleRenderedError(jobId: number, error: ValueOf<ResponseRenderedError>) {
+    protected handleRenderedError(jobId: number, error: ValueOf<ResponseRenderedError>): void {
         this.#configs?.onRenderedError?.(jobId, error);
     }
 }

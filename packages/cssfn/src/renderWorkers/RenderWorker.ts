@@ -54,7 +54,7 @@ export class RenderWorker extends WorkerBase<Request, Response> {
     
     
     // responses:
-    handleResponse(event: MessageEvent<Response>): void {
+    protected handleResponse(event: MessageEvent<Response>): void {
         super.handleResponse(event);
         
         
@@ -67,15 +67,17 @@ export class RenderWorker extends WorkerBase<Request, Response> {
             // case 'future...':
         } // switch
     }
-    handleConnectWorker(remotePort: MessagePort) {
+    protected handleConnectWorker(remotePort: MessagePort): void {
         this.#configs?.onConnectWorker?.(this.#workerId, remotePort);
     }
-    handleError(error: Error|string|null|undefined): void {
+    protected handleError(error: Error|string|null|undefined): void {
         super.handleError(error);
+        
+        
         
         this.handleErrorWorker(error);
     }
-    handleErrorWorker(error: Error|string|null|undefined) {
+    protected handleErrorWorker(error: Error|string|null|undefined): void {
         this.#configs?.onErrorWorker?.(this.#workerId, error);
     }
 }

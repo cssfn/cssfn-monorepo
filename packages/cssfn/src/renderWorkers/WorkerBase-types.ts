@@ -13,6 +13,6 @@ export type Request =
 
 
 // responses:
-export type ResponseReady = Tuple<'ready', any>
+export type ResponseReady = Tuple<'ready', undefined>
 export type Response =
     |ResponseReady
