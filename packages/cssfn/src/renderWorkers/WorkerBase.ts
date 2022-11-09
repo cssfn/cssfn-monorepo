@@ -115,7 +115,7 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
     // responses:
     protected handleResponse(_event: MessageEvent<TResponse>): void {
         // any responses are treated as ready status:
-        this.handleReady();
+        if (!this.#isReady) this.handleReady();
     }
     protected handleError(error: Error|string|null|undefined): void {
         this.#worker?.terminate();
