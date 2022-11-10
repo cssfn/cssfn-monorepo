@@ -218,7 +218,6 @@ export const HeadPortal = ({ children }: React.PropsWithChildren<{}>): JSX.Eleme
 // hooks:
 class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     //#region private properties
-    readonly    #isStaticEnabled           : boolean
     readonly    #dynamicStyleSheet         : Subject<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>
     readonly    #scopeMap                  : CssScopeMap<TCssScopeName>
     /*mutable*/ #registeredUsingStyleSheet : number
@@ -228,28 +227,18 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     
     //#region constructors
     constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions) {
-        this.#isStaticEnabled   = typeof(options?.enabled) === 'boolean';
-        
-        
-        
         //#region setup dynamic styleSheet
         this.#dynamicStyleSheet = new Subject<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>();
         this.#scopeMap = styleSheets(
             this.#dynamicStyleSheet,
-            (
-                this.#isStaticEnabled
-                ?
-                options // an option with `enabled` assigned
-                :
-                {
-                    ...options,
-                    enabled: false, // initially disabled, will be re-enabled/re-disabled at runtime
-                }
-            )
+            /*options: */{
+                ...options,
+                enabled: options?.enabled ?? false, // the default is initially disabled, will be re-enabled/re-disabled at runtime
+            }
         );
         if (isObservableScopes(scopes)) {
             scopes.subscribe((newScopesOrEnabled) => {
-                this.#dynamicStyleSheet.next(newScopesOrEnabled); // forwards
+                this.#dynamicStyleSheet.next(newScopesOrEnabled); // forwards dynamically
             });
         }
         else {
@@ -303,35 +292,31 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
         
         
         
-        if (this.#isStaticEnabled) { // static enabled
-            return this.#scopeMap;
-        }
-        else { // dynamic enabled
-            return new Proxy<CssScopeMap<TCssScopeName>>(this.#scopeMap, {
-                get: (scopeMap: CssScopeMap<TCssScopeName>, scopeName: CssScopeName): CssClassName|undefined => {
-                    // ignores react runtime type check:
-                    if (scopeName === '$$typeof') {
-                        return undefined;
-                    } // if
-                    
-                    
-                    
-                    const className = scopeMap[scopeName as keyof CssScopeMap<TCssScopeName>];
-                    if (className === undefined) return undefined; // not found => return undefined
-                    
-                    
-                    
-                    if (!isStyleSheetInUse.current) {
-                        isStyleSheetInUse.current = true; // mark the styleSheet as in_use
-                        this.#registerUsingStyleSheet();
-                    } // if
-                    
-                    
-                    
-                    return className;
-                },
-            });
-        } // if
+        // dynamically enabled:
+        return new Proxy<CssScopeMap<TCssScopeName>>(this.#scopeMap, {
+            get: (scopeMap: CssScopeMap<TCssScopeName>, scopeName: CssScopeName): CssClassName|undefined => {
+                // ignores react runtime type check:
+                if (scopeName === '$$typeof') {
+                    return undefined;
+                } // if
+                
+                
+                
+                const className = scopeMap[scopeName as keyof CssScopeMap<TCssScopeName>];
+                if (className === undefined) return undefined; // not found => return undefined
+                
+                
+                
+                if (!isStyleSheetInUse.current) {
+                    isStyleSheetInUse.current = true; // mark the styleSheet as in_use
+                    this.#registerUsingStyleSheet();
+                } // if
+                
+                
+                
+                return className;
+            },
+        });
     }
     //#endregion public methods
 }
