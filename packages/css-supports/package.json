@@ -1,0 +1,34 @@
+{
+  "name": "@cssfn/css-supports",
+  "version": "2.0.0",
+  "description": "Checks if a certain css feature is supported by the running browser.",
+  "keywords": [
+    "css",
+    "stylesheet",
+    "supports",
+    "property",
+    "selector"
+  ],
+  "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
+  "homepage": "https://cssfn.org",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cssfn/cssfn-monorepo.git"
+  },
+  "main": "dist/css-supports.js",
+  "types": "dist/css-supports.d.ts",
+  "type": "module",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "tsc:watch": "tsc --watch",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
+  },
+  "dependencies": {
+    "is-in-browser": "^2.0.0"
+  }
+}
