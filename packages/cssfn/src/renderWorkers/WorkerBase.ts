@@ -150,7 +150,7 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
         if (!worker) return false; // never ready
         return new Promise<boolean>((resolve) => {
             let resolved = false;
-            const cancelTimeout = setTimeout(() => {
+            const cancelTimeout = (timeout === Infinity) ? undefined : setTimeout(() => {
                 // conditions:
                 if (resolved) return; // already resolved => abort
                 resolved = true;      // resolved

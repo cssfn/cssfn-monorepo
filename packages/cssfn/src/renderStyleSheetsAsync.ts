@@ -135,10 +135,44 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
 
 
 // optimizations:
-export const ensureRendererWorkersReady = async (timeout = 100/*ms*/): Promise<boolean> => {
+export interface EnsureRendererWorkersReadyOptions {
+    timeout                 ?: number
+    ensureCriticalResLoaded ?: boolean
+}
+export const ensureRendererWorkersReady = async (options ?: EnsureRendererWorkersReadyOptions): Promise<boolean> => {
+    const timeout                 = options?.timeout                 ?? 100/*ms*/;
+    const ensureCriticalResLoaded = options?.ensureCriticalResLoaded ?? true;
+    
+    
+    
+    // start promises:
+    const poolEnsureReadyPromise    : Promise<boolean>   = renderPool.ensureReady(
+        ensureCriticalResLoaded
+        ?
+        Infinity // critical     => no timeout
+        :
+        timeout  // not_critical => has timeout
+    );
+    const workersEnsureReadyPromise : Promise<boolean>[] = renderWorkers.map((renderWorker) => renderWorker.ensureReady(timeout));
+    
+    // wait until all promises ready -or- timeout:
     const results = await Promise.all([
-        renderPool.ensureReady(timeout),
-        ...renderWorkers.map((renderWorker) => renderWorker.ensureReady(timeout))
+        poolEnsureReadyPromise,
+        ...workersEnsureReadyPromise
     ]);
-    return results.every((result) => result);
+    
+    if (results.every((result) => result)) {
+        return true; // fully success => success
+    }
+    else {
+        // prematurely success => ok no problem, but at least one worker must be ready:
+        if (ensureCriticalResLoaded) {
+            const workersEnsureReadyPromise : Promise<boolean>[] = renderWorkers.map((renderWorker) => renderWorker.ensureReady(Infinity));
+            return await Promise.any(workersEnsureReadyPromise);
+        } // if
+        
+        
+        
+        return false; // prematurely success
+    }
 }
