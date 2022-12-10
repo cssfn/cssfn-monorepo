@@ -216,8 +216,14 @@ export const HeadPortal = ({ children }: React.PropsWithChildren<{}>): JSX.Eleme
 
 
 // hooks:
+export interface DynamicStyleSheetOptions extends StyleSheetOptions {
+    disableDelay ?: number
+}
 class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     //#region private properties
+    readonly    #options                   : DynamicStyleSheetOptions
+    /*mutable*/ #cancelDisable             : ReturnType<typeof setTimeout>|undefined
+    
     readonly    #dynamicStyleSheet         : Subject<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>
     readonly    #scopeMap                  : CssScopeMap<TCssScopeName>
     /*mutable*/ #registeredUsingStyleSheet : number
@@ -226,15 +232,17 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     
     
     //#region constructors
-    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions) {
+    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: DynamicStyleSheetOptions) {
         //#region setup dynamic styleSheet
+        this.#options = {
+            ...options,
+            enabled      : options?.enabled      ?? false, // the default is initially disabled, will be re-enabled/re-disabled at runtime
+            disableDelay : options?.disableDelay ?? 1000,
+        };
         this.#dynamicStyleSheet = new Subject<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>();
         this.#scopeMap = styleSheets(
             this.#dynamicStyleSheet,
-            /*options: */{
-                ...options,
-                enabled: options?.enabled ?? false, // the default is initially disabled, will be re-enabled/re-disabled at runtime
-            }
+            this.#options
         );
         if (isObservableScopes(scopes)) {
             scopes.subscribe((newScopesOrEnabled) => {
@@ -258,10 +266,26 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     
     
     //#region private methods
+    #cancelDelayedDisableStyleSheet() {
+        // conditions:
+        if (!this.#cancelDisable) return; // nothing to cancel => ignore
+        
+        
+        
+        // actions:
+        clearTimeout(this.#cancelDisable);
+        this.#cancelDisable = undefined;
+    }
+    
     #registerUsingStyleSheet() {
         this.#registeredUsingStyleSheet++;
         
         if (this.#registeredUsingStyleSheet === 1) { // first user
+            // cancel previously delayed disable styleSheet (if any):
+            this.#cancelDelayedDisableStyleSheet();
+            
+            
+            
             this.#dynamicStyleSheet.next(true); // first user => enable styleSheet
         } // if
     }
@@ -269,7 +293,27 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
         this.#registeredUsingStyleSheet--;
         
         if (this.#registeredUsingStyleSheet === 0) { // no user
-            this.#dynamicStyleSheet.next(false); // no user => disable styleSheet
+            // cancel previously delayed disable styleSheet (if any):
+            this.#cancelDelayedDisableStyleSheet();
+            
+            
+            
+            const disableDelay = this.#options.disableDelay ?? 0;
+            if (disableDelay <= 0) {
+                // immediately disable styleSheet:
+                this.#dynamicStyleSheet.next(false); // no user => disable styleSheet
+            }
+            else {
+                // delayed disable styleSheet:
+                this.#cancelDisable = setTimeout(() => {
+                    this.#cancelDisable = undefined; // mark as was performed
+                    
+                    
+                    
+                    // perform disable styleSheet:
+                    this.#dynamicStyleSheet.next(false); // no user => disable styleSheet
+                }, disableDelay);
+            } // if
         } // if
     }
     //#endregion private methods
@@ -320,7 +364,7 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     }
     //#endregion public methods
 }
-export const dynamicStyleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
+export const dynamicStyleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: DynamicStyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
     // a single builder for creating many hooks:
     const builder = new StyleSheetsHookBuilder(scopes, options);
     
@@ -331,7 +375,7 @@ export const dynamicStyleSheets = <TCssScopeName extends CssScopeName>(scopes: P
     );
 };
 export { dynamicStyleSheets as createUseStyleSheets }
-export const dynamicStyleSheet  = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>, options?: StyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
+export const dynamicStyleSheet  = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>, options?: DynamicStyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
     if (!styles || (styles === true)) {
         return dynamicStyleSheets<'main'>(
             null,   // empty scope
