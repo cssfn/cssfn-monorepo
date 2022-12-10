@@ -155,12 +155,17 @@ export const ensureRendererWorkersReady = async (options ?: EnsureRendererWorker
     );
     const workersEnsureReadyPromise : Promise<boolean>[] = renderWorkers.map((renderWorker) => renderWorker.ensureReady(timeout));
     
+    
+    
     // wait until all promises ready -or- timeout:
     const results = await Promise.all([
         poolEnsureReadyPromise,
         ...workersEnsureReadyPromise
     ]);
     
+    
+    
+    // inspect the results:
     if (results.every((result) => result)) {
         return true; // fully success => success
     }
