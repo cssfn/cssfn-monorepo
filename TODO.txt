@@ -26,3 +26,5 @@ export const alwaysRule = (styles) => ({ [Symbol()]: [['&', undefined], styles] 
     for (const [refPropName, refPropValue] of this.#refProps) { // search for duplicates
     ...
 }
+
+combines requestAnimationFrame with setTimeout
