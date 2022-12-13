@@ -27,7 +27,18 @@ import {
 const isomorphicRequestAnimationFrame = (
     (typeof(requestAnimationFrame) !== 'undefined')
     ?
-    requestAnimationFrame
+    (callback: () => void): ReturnType<typeof requestAnimationFrame>|undefined => {
+        const timeoutHandler = setTimeout(() => {
+            cancelAnimationFrame(animationFrameHandler); // abort the `requestAnimationFrame()`
+            callback(); // invoke the callback
+        }, 1000); // in case of inactive tab => force to apply after 1 second
+        
+        const animationFrameHandler = requestAnimationFrame(() => {
+            clearTimeout(timeoutHandler); // abort the `setTimeout()`
+            callback(); // invoke the callback
+        });
+        return animationFrameHandler;
+    }
     :
     (callback: () => void): ReturnType<typeof requestAnimationFrame>|undefined => {
         Promise.resolve().then(callback);
