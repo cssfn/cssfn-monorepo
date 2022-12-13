@@ -31,7 +31,7 @@ const isomorphicRequestAnimationFrame = (
         const timeoutHandler = setTimeout(() => {
             cancelAnimationFrame(animationFrameHandler); // abort the `requestAnimationFrame()`
             callback(); // invoke the callback
-        }, 1000); // in case of inactive tab => force to apply after 1 second
+        }, 2000); // in case of inactive tab => force to apply after 2 seconds
         
         const animationFrameHandler = requestAnimationFrame(() => {
             clearTimeout(timeoutHandler); // abort the `setTimeout()`
