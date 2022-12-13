@@ -330,7 +330,12 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * -or- `null` if no equivalent found.
      */
     #findEqualProp(srcPropName: TSrcPropName, srcPropValue: Exclude<TSrcPropValue, undefined|null>): CssCustomSimpleRef|null {
-        for (const [refPropName, refPropValue] of this.#refProps) { // search for duplicates
+        // for (const [refPropName, refPropValue] of this.#refProps) { // search for duplicates // SLOW
+        for (const refPropName of this.#refProps.keys()) {             // search for duplicates // FASTER
+            const refPropValue = this.#refProps.get(refPropName);
+            
+            
+            
             // skip non-string ref prop:
             if (typeof(refPropName) !== 'string') continue; // symbol & number props are ignored
             
@@ -401,7 +406,12 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         const combined = new Map(srcProps) as (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap);
         
         // then update the changes:
-        for (const [propName, propValue] of modified) {
+        // for (const [propName, propValue] of modified) { // SLOW
+        for (const propName of modified.keys()) {          // FASTER
+            const propValue = modified.get(propName)!;
+            
+            
+            
             combined.set(propName, propValue);
         } // for
         
@@ -434,7 +444,12 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         if (genKeyframes) {
-            for (const [srcPropName, srcPropValue] of this.#srcProps) {          // rename all @keyframes name
+            // for (const [srcPropName, srcPropValue] of this.#srcProps) {       // rename all @keyframes name // SLOW
+            for (const srcPropName of this.#srcProps.keys()) {                   // rename all @keyframes name // FASTER
+                const srcPropValue = this.#srcProps.get(srcPropName);
+                
+                
+                
                 if (typeof(srcPropName) !== 'symbol')    continue;               // only interested of symbol props
                 const [selector] = srcPropValue as CssRuleData|CssFinalRuleData; // assumes the value of symbol prop always be `CssRuleData|CssFinalRuleData`
                 if (!isFinalSelector(selector))          continue;               // only interested of rendered selector
@@ -471,7 +486,12 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         
-        for (const [srcPropName, srcPropValue] of this.#srcProps) { // walk each entry in `#srcProps`
+        // for (const [srcPropName, srcPropValue] of this.#srcProps) { // walk each entry in `#srcProps` // SLOW
+        for (const srcPropName of this.#srcProps.keys()) {             // walk each entry in `#srcProps` // FASTER
+            const srcPropValue = this.#srcProps.get(srcPropName);
+            
+            
+            
             // skip empty src:
             if (!this.#hasValue(srcPropValue)) continue; // undefined & null values are ignored
             
@@ -622,7 +642,12 @@ class TransformCssConfigFactoryDuplicatesBuilder<TConfigProps extends CssConfigP
         } // for
         
         // then update the changes:
-        for (const [propName, propValue] of modified) {
+        // for (const [propName, propValue] of modified) { // SLOW
+        for (const propName of modified.keys()) {          // FASTER
+            const propValue = modified.get(propName)!;
+            
+            
+            
             combined.set(propName, propValue);
         } // for
         
