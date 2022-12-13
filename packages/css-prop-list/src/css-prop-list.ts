@@ -56,7 +56,18 @@ const isUppercase  = (test: string) => (test >= 'A') && (test <= 'Z');
 
 const indexedKnownCssPropsMaxIndex = indexedKnownCssProps.length - 1;
 const resolveWord = (wordIndex: number): string => indexedWordList[wordIndex];
+const cache = new Map<string, boolean>();
 export const isKnownCssProp = (propName: string): propName is CssKnownName => {
+    const cached = cache.get(propName);
+    if (cached !== undefined) return cached;
+    
+    
+    
+    const result = isKnownCssPropInternal(propName);
+    cache.set(propName, result);
+    return result;
+}
+export const isKnownCssPropInternal = (propName: string): propName is CssKnownName => {
          if (propName.startsWith('Moz')    && isUppercase(propName[3])) return true; // Moz[A-Z]    => always considered valid
     else if (propName.startsWith('ms')     && isUppercase(propName[2])) return true; // ms[A-Z]     => always considered valid
     else if (propName.startsWith('Webkit') && isUppercase(propName[6])) return true; // Webkit[A-Z] => always considered valid
