@@ -37,7 +37,7 @@ import type {
     
     
     // cssfn properties:
-    EncodedCssProps,
+    // EncodedCssProps,
     EncodedCssRuleData,
     EncodedCssStyle,
     EncodedCssStyleCollection,
@@ -60,23 +60,23 @@ const encodePropSubValue = (propSubValue: Extract<CssCustomValue, any[]>[number]
         .map(encodePropSimpleValue)
     );
 }
-const encodePropValue = (propValue: CssCustomValue|undefined|null): EncodedCssCustomValue|undefined|null => {
-    if ((propValue === undefined) || (propValue === null)) return propValue;
-    
-    
-    
-    if (!Array.isArray(propValue)) return encodePropSimpleValue(propValue); // CssComplexBaseValueOf<CssSimpleValue>
-    
-    
-    
-    return (
-        propValue
-        .map(encodePropSubValue)
-    ) as EncodedCssCustomValue;
-}
-const encodeProp = ([key, value] : readonly [string, CssCustomValue|undefined|null]): readonly [keyof EncodedCssProps, EncodedCssCustomValue|undefined|null] => {
-    return [key as keyof CssProps, encodePropValue(value)];
-}
+// const encodePropValue = (propValue: CssCustomValue|undefined|null): EncodedCssCustomValue|undefined|null => {
+//     if ((propValue === undefined) || (propValue === null)) return propValue;
+//     
+//     
+//     
+//     if (!Array.isArray(propValue)) return encodePropSimpleValue(propValue); // CssComplexBaseValueOf<CssSimpleValue>
+//     
+//     
+//     
+//     return (
+//         propValue
+//         .map(encodePropSubValue)
+//     ) as EncodedCssCustomValue;
+// }
+// const encodeProp = ([key, value] : readonly [string, CssCustomValue|undefined|null]): readonly [keyof EncodedCssProps, EncodedCssCustomValue|undefined|null] => {
+//     return [key as keyof CssProps, encodePropValue(value)];
+// }
 const encodeRuleData = (ruleData: CssRuleData): EncodedCssRuleData => {
     const [selector, styles] = ruleData;
     return [
@@ -94,10 +94,37 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
     
     
     
-    const encodedStyle = Object.fromEntries(
-        Object.entries(styleValue) // take all string keys (excluding symbol keys)
-        .map(encodeProp)
-    ) as EncodedCssProps as EncodedCssStyle;
+    // SLOW:
+    // const encodedStyle = Object.fromEntries(
+    //     Object.entries(styleValue) // take all string keys (excluding symbol keys)
+    //     .map(encodeProp)
+    // ) as EncodedCssProps as EncodedCssStyle;
+    
+    // FASTER:
+    const encodedStyle = styleValue;
+    for (const propName in encodedStyle) { // iterates string keys, ignoring symbol keys
+        const propValue : CssCustomValue|undefined|null = encodedStyle[propName as keyof CssProps];
+        
+        
+        
+        // ignore undefined|null|number|string because it *transferable*:
+        if (propValue === undefined) continue;
+        if (propValue === null) continue;
+        switch (typeof(propValue)) {
+            case 'number':
+            case 'string':
+                continue;
+        } // switch
+        
+        
+        if (!Array.isArray(propValue)) {
+            // CssCustomKeyframesRef *un-transferable* => .toString() *transferable*
+            encodedStyle[propName as any] = propValue.toString() as any;
+        }
+        else {
+            encodedStyle[propName as any] = propValue.map(encodePropSubValue) as any;
+        } // if
+    } // for
     
     
     
@@ -107,12 +134,12 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
             symbolProps
             .map(encodeNestedRule.bind(styleValue))
         );
-        encodedStyle[''] = nestedRules; // an empty string key is a special property for storing (nested) rules
+        encodedStyle['' as any] = nestedRules as any; // an empty string key is a special property for storing (nested) rules
     } // if
     
     
     
-    return encodedStyle;
+    return encodedStyle as EncodedCssStyle;
 }
 function* unwrapStyles(styles: Extract<CssStyleCollection, any[]>): Generator<EncodedCssStyle> {
     for (const style of styles) {

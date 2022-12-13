@@ -11,15 +11,15 @@ add auto-id on cssfn-react createStyleSheet(s)
 
 optimize:
 
-export const encodeStyle = (style) => {
-    ...
-    const encodedStyle = Object.fromEntries(Object.entries(styleValue) // take all string keys (excluding symbol keys)
-    ...
-    const symbolProps = Object.getOwnPropertySymbols(styleValue); // take all symbol keys
-    ...
-}
+ // export const encodeStyle = (style) => {
+ //     ...
+ //     const encodedStyle = Object.fromEntries(Object.entries(styleValue) // take all string keys (excluding symbol keys)
+ //     ...
+ //     const symbolProps = Object.getOwnPropertySymbols(styleValue); // take all symbol keys
+ //     ...
+ // }
 
-export const alwaysRule = (styles) => ({ [Symbol()]: [['&', undefined], styles] }); // a bit faster
+ // export const alwaysRule = (styles) => ({ [Symbol()]: [['&', undefined], styles] }); // a bit faster
 
 #findEqualProp(srcPropName, srcPropValue) {
     ...
