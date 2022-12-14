@@ -92,24 +92,52 @@ export const atRule = (atRule: `@${string}`, styles: CssStyleCollection): CssRul
 
 
 // rule groups:
-const overwriteSelectorOptions = (selector: CssRawSelector|CssFinalSelector, options: CssSelectorOptions): CssRawSelector => {
+const convertRuleOrFactoryToOptionalRule = (ruleOrFactory: CssRule|Factory<OptionalOrBoolean<CssRule>>): OptionalOrBoolean<CssRule> => {
+    if (typeof(ruleOrFactory) === 'function') return ruleOrFactory();
+    return ruleOrFactory;
+}
+const overwriteSelectorOptions = (selector: CssRawSelector|CssFinalSelector, newOptions: CssSelectorOptions): CssRawSelector => {
     if (isFinalSelector(selector)) {
+        // a CssFinalSelector => just convert to CssRawSelector with additional options:
         return [
             selector,
-            options
+            newOptions
         ];
     } // if
     
     
     
-    // extract raw selector:
+    // a CssRawSelector => mutate to another CssRawSelector with overriden options:
     const [selectors, oldOptions] = selector;
     
-    const performGrouping      =                      options.performGrouping      ?? oldOptions?.performGrouping;
-    const specificityWeight    =                      options.specificityWeight    ?? oldOptions?.specificityWeight;
-    const minSpecificityWeight = specificityWeight ?? options.minSpecificityWeight ?? oldOptions?.minSpecificityWeight;
-    const maxSpecificityWeight = specificityWeight ?? options.maxSpecificityWeight ?? oldOptions?.maxSpecificityWeight;
+    if (!oldOptions) {
+        // no oldOptions => just convert to CssRawSelector with newOptions:
+        return [
+            selectors,
+            newOptions
+        ]
+    } // if
     
+    // overriden options:
+    const performGrouping      =                      newOptions.performGrouping      ?? oldOptions?.performGrouping;
+    const specificityWeight    =                      newOptions.specificityWeight    ?? oldOptions?.specificityWeight;
+    let   minSpecificityWeight = specificityWeight ?? newOptions.minSpecificityWeight ?? oldOptions?.minSpecificityWeight;
+    let   maxSpecificityWeight = specificityWeight ?? newOptions.maxSpecificityWeight ?? oldOptions?.maxSpecificityWeight;
+    
+    if (
+        ((minSpecificityWeight !== undefined) && (minSpecificityWeight !== null))
+        &&
+        ((maxSpecificityWeight !== undefined) && (maxSpecificityWeight !== null))
+        &&
+        (minSpecificityWeight > maxSpecificityWeight)
+    ) { // invalid
+        
+        // assumes the newOptions has valid minSpecificityWeight & maxSpecificityWeight:
+        minSpecificityWeight = newOptions.minSpecificityWeight;
+        maxSpecificityWeight = newOptions.maxSpecificityWeight;
+    } // if
+    
+    // mutated CssRawSelector:
     return [
         selectors,
         {
@@ -121,9 +149,20 @@ const overwriteSelectorOptions = (selector: CssRawSelector|CssFinalSelector, opt
         }
     ];
 }
-const convertRuleOrFactoryToOptionalRule = (ruleOrFactory: CssRule|Factory<OptionalOrBoolean<CssRule>>): OptionalOrBoolean<CssRule> => {
-    if (typeof(ruleOrFactory) === 'function') return ruleOrFactory();
-    return ruleOrFactory;
+function convertRuleToRuleEntriesWithOptions (this: CssSelectorOptions, rule: CssRule): (readonly [symbol, CssRuleData])[] {
+    return (
+        Object.getOwnPropertySymbols(rule)
+        .map((symbolProp): readonly [symbol, CssRuleData] => {
+            const [selector, styles] = rule[symbolProp];
+            const rawSelector : CssRawSelector = overwriteSelectorOptions(selector, this);
+            const ruleData    : CssRuleData    = [rawSelector, styles];
+            
+            return [
+                symbolProp,
+                ruleData
+            ];
+        })
+    );
 }
 export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptions): CssRule => {
     const result = (
@@ -147,19 +186,7 @@ export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptio
     
     return Object.fromEntries(
         result
-        .flatMap((rule): (readonly [symbol, CssRuleData])[] => (
-            Object.getOwnPropertySymbols(rule)
-            .map((symbolProp): readonly [symbol, CssRuleData] => {
-                const [selector, styles] = rule[symbolProp];
-                const rawSelector : CssRawSelector = overwriteSelectorOptions(selector, options);
-                const ruleData    : CssRuleData    = [rawSelector, styles];
-                
-                return [
-                    symbolProp,
-                    ruleData
-                ];
-            })
-        ))
+        .flatMap(convertRuleToRuleEntriesWithOptions.bind(options))
     );
 };
 
