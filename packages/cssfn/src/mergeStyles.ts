@@ -56,6 +56,7 @@ import {
 import {
     flat,
     isFinalSelector,
+    isNotFalsyStyles,
     isStyle,
     isFinalStyleMap,
 }                           from './utilities.js'
@@ -257,7 +258,7 @@ export const mergeParent  = (style: CssStyleMap): void => {
                 
                 
                 let [, styles]         = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp)!;
-                if (!!styles && (styles !== true)) {
+                if (isNotFalsyStyles(styles)) {
                     // efficiently dealing with *deep nested* only_parentSelector:
                     let deepStyles : CssStyleCollection = undefined;
                     while((deepStyles = containsOnlyParentSelector(styles)) !== undefined) {
@@ -266,7 +267,7 @@ export const mergeParent  = (style: CssStyleMap): void => {
                     
                     
                     
-                    if (!!styles && (styles !== true)) {
+                    if (isNotFalsyStyles(styles)) {
                         const mergedParentStyles = (isFinalStyleMap(styles) ? styles : mergeStyles(styles)) as (CssStyleMap|null);
                         if (mergedParentStyles) {
                             if (!needToReorderTheRestSymbolProps) {
