@@ -149,19 +149,26 @@ const overwriteSelectorOptions = (selector: CssRawSelector|CssFinalSelector, new
         }
     ];
 }
-function convertRuleToRuleEntriesWithOptions (this: CssSelectorOptions, rule: CssRule): (readonly [symbol, CssRuleData])[] {
+function convertSymbolPropToRuleEntry(this: CssRule, symbolProp: symbol): readonly [symbol, CssRuleData] {
+    return [
+        symbolProp,
+        this[symbolProp]
+    ];
+}
+function convertRuleEntryToRuleEntryWithOptions(this: CssSelectorOptions, oldRuleEntry: readonly [symbol, CssRuleData]): readonly [symbol, CssRuleData] {
+    const [symbolProp, [selector, styles]] = oldRuleEntry;
+    const rawSelector : CssRawSelector = overwriteSelectorOptions(selector, this);
+    
+    return [
+        symbolProp,
+        [rawSelector, styles]
+    ];
+}
+function convertRuleToRuleEntriesWithOptions(this: CssSelectorOptions, rule: CssRule): (readonly [symbol, CssRuleData])[] {
     return (
         Object.getOwnPropertySymbols(rule)
-        .map((symbolProp): readonly [symbol, CssRuleData] => {
-            const [selector, styles] = rule[symbolProp];
-            const rawSelector : CssRawSelector = overwriteSelectorOptions(selector, this);
-            const ruleData    : CssRuleData    = [rawSelector, styles];
-            
-            return [
-                symbolProp,
-                ruleData
-            ];
-        })
+        .map(convertSymbolPropToRuleEntry.bind(rule))
+        .map(convertRuleEntryToRuleEntryWithOptions.bind(this))
     );
 }
 export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptions): CssRule => {
