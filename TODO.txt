@@ -17,7 +17,4 @@ optimize:
 
 high cpu usage:
 
-        // check if the `#props` has `propDecl`:
-        if (!this.#props.has(propDecl)) return undefined; // not found
-
             const equalPropRef = this.#findEqualProp(srcPropName, srcPropValue);
