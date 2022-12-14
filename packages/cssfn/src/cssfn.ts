@@ -132,7 +132,16 @@ export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptio
         .map(convertRuleOrFactoryToOptionalRule)
         .filter(isNotFalsyRule)
     );
-    if (!options) return Object.assign({}, ...result); // merge multiple CssRule objects to single CssRule object
+    if (!options) { // no options => no further mutate, just merge them
+        switch(result.length) {
+            case 0:
+                return {};                           // empty rule => nothing to merge => just return an empty object
+            case 1:
+                return result[0];                    // only singular CssRule object => nothing to merge => just return it
+            default:
+                return Object.assign({}, ...result); // merge multiple CssRule objects to single CssRule object (merges the symbol props)
+        } // switch
+    } // if
     
     
     
