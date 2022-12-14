@@ -14,3 +14,10 @@ optimize:
     const filteredSelectors         : PureSelector[] = selectors.filter(isNotEmptySelector).map((selector) => selector.filter(isNotEmptySelectorEntry));
     const selectorsWithoutPseudoElm : PureSelector[] = filteredSelectors.filter((selector) => selector.every(isNotPseudoElementSelector)); // not contain ::pseudo-element
     const selectorsWithPseudoElm    : PureSelector[] = filteredSelectors.filter((selector) => selector.some(isPseudoElementSelector));     // is  contain ::pseudo-element
+
+high cpu usage:
+
+        // check if the `#props` has `propDecl`:
+        if (!this.#props.has(propDecl)) return undefined; // not found
+
+            const equalPropRef = this.#findEqualProp(srcPropName, srcPropValue);
