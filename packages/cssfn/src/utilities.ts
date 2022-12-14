@@ -69,15 +69,18 @@ export const flat = <T,>(collection: SingleOrDeepArray<T>): T[] => {
 
 export const isFinalSelector = (selector: CssRawSelector|CssFinalSelector): selector is CssFinalSelector => (typeof(selector) === 'string');
 
-export const isStyle = (style: CssStyleCollection|CssFinalStyleMap): style is CssStyle => (
-    (!!style && (style !== true))
+export const isNotFalsyStyles = (styles: CssStyleCollection|CssFinalStyleMap): styles is Exclude<CssStyleCollection|CssFinalStyleMap, undefined|null|boolean> => {
+    return (!!styles && (styles !== true));
+};
+export const isStyle = (styles: CssStyleCollection|CssFinalStyleMap): styles is CssStyle => (
+    isNotFalsyStyles(styles)
     &&
-    (Object.getPrototypeOf(style) === Object.prototype)
+    (Object.getPrototypeOf(styles) === Object.prototype)
 );
-export const isFinalStyleMap = (style: CssStyleCollection|CssFinalStyleMap): style is CssFinalStyleMap => (
-    (!!style && (style !== true))
+export const isFinalStyleMap = (styles: CssStyleCollection|CssFinalStyleMap): styles is CssFinalStyleMap => (
+    isNotFalsyStyles(styles)
     &&
-    (Object.getPrototypeOf(style) === Map.prototype)
+    (Object.getPrototypeOf(styles) === Map.prototype)
 );
 
 export const normalizeSelectorOptions = <TDefaultOptions extends CssSelectorOptions>(options: CssSelectorOptions|undefined, defaultOptions: TDefaultOptions): TDefaultOptions => {
