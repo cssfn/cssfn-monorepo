@@ -49,6 +49,7 @@ import {
     flat,
     isFinalSelector,
     isNotFalsySelector,
+    isNotFalsyRule,
     normalizeSelectorOptions,
 }                           from './utilities.js'
 
@@ -122,7 +123,7 @@ const overwriteSelectorOptions = (selector: CssRawSelector|CssFinalSelector, opt
 export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptions): CssRule => {
     const result = (
         flat(rules)
-        .filter((rule): rule is CssRule|Factory<OptionalOrBoolean<CssRule>> => !!rule && (rule !== true))
+        .filter(isNotFalsyRule)
         .map((ruleOrFactory): OptionalOrBoolean<CssRule> => {
             if (typeof(ruleOrFactory) === 'function') return ruleOrFactory();
             return ruleOrFactory;

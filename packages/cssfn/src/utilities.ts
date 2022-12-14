@@ -5,8 +5,13 @@ import type {
     
     DeepArray,
     SingleOrDeepArray,
+    
+    Factory,
+    ProductOrFactory,
 }                           from '@cssfn/types'
 import type {
+    CssRule,
+    
     CssStyle,
     CssFinalStyleMap,
     CssStyleCollection,
@@ -74,6 +79,9 @@ export const isFinalSelector = (selector: CssRawSelector|CssFinalSelector): sele
 
 export const isNotFalsySelector = (selector: OptionalOrBoolean<CssSelector>): selector is CssSelector => {
     return (!!selector && (selector !== true));
+};
+export const isNotFalsyRule = (rule: ProductOrFactory<OptionalOrBoolean<CssRule>>): rule is CssRule|Factory<OptionalOrBoolean<CssRule>> => {
+    return (!!rule && (rule !== true));
 };
 export const isNotFalsyStyles = (styles: CssStyleCollection|CssFinalStyleMap): styles is Exclude<CssStyleCollection|CssFinalStyleMap, undefined|null|boolean> => {
     return (!!styles && (styles !== true));
