@@ -14,19 +14,3 @@ optimize:
     const filteredSelectors         : PureSelector[] = selectors.filter(isNotEmptySelector).map((selector) => selector.filter(isNotEmptySelectorEntry));
     const selectorsWithoutPseudoElm : PureSelector[] = filteredSelectors.filter((selector) => selector.every(isNotPseudoElementSelector)); // not contain ::pseudo-element
     const selectorsWithPseudoElm    : PureSelector[] = filteredSelectors.filter((selector) => selector.some(isPseudoElementSelector));     // is  contain ::pseudo-element
-
-
-        const name = (
-            liveOptions.minify
-            ?
-            `v${((): number => { // excessive creating string
-                let id = idMap.get(propName);
-                if (id === undefined) {
-                    id = (++globalIdCounter);
-                    idMap.set(propName, id);
-                } // if
-                return id;
-            })()}`
-            :
-            propName
-        );
