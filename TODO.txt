@@ -11,8 +11,6 @@ add auto-id on cssfn-react createStyleSheet(s)
 
 optimize:
 
-export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptions): CssRule => {
-
     const filteredSelectors         : PureSelector[] = selectors.filter(isNotEmptySelector).map((selector) => selector.filter(isNotEmptySelectorEntry));
     const selectorsWithoutPseudoElm : PureSelector[] = filteredSelectors.filter((selector) => selector.every(isNotPseudoElementSelector)); // not contain ::pseudo-element
     const selectorsWithPseudoElm    : PureSelector[] = filteredSelectors.filter((selector) => selector.some(isPseudoElementSelector));     // is  contain ::pseudo-element
@@ -32,5 +30,3 @@ export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptio
             :
             propName
         );
-
-combines requestAnimationFrame with setTimeout
