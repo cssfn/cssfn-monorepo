@@ -106,11 +106,11 @@ export const normalizeSelectorOptions = <TDefaultOptions extends CssSelectorOpti
     
     
     
-    const performGrouping      = options?.performGrouping ?? defaultOptions.performGrouping;
+    const performGrouping      = options.performGrouping ?? defaultOptions.performGrouping;
     
-    const specificityWeight    =                      ((options?.specificityWeight    !== undefined) ? options.specificityWeight    : defaultOptions.specificityWeight   );
-    const minSpecificityWeight = specificityWeight ?? ((options?.minSpecificityWeight !== undefined) ? options.minSpecificityWeight : defaultOptions.minSpecificityWeight);
-    const maxSpecificityWeight = specificityWeight ?? ((options?.maxSpecificityWeight !== undefined) ? options.maxSpecificityWeight : defaultOptions.maxSpecificityWeight);
+    const specificityWeight    =                      ((options.specificityWeight    !== undefined) ? options.specificityWeight    : defaultOptions.specificityWeight   );
+    const minSpecificityWeight = specificityWeight ?? ((options.minSpecificityWeight !== undefined) ? options.minSpecificityWeight : defaultOptions.minSpecificityWeight);
+    const maxSpecificityWeight = specificityWeight ?? ((options.maxSpecificityWeight !== undefined) ? options.maxSpecificityWeight : defaultOptions.maxSpecificityWeight);
     
     
     

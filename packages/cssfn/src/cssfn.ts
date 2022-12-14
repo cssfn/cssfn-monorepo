@@ -115,38 +115,13 @@ const overwriteSelectorOptions = (selector: CssRawSelector|CssFinalSelector, new
         return [
             selectors,
             newOptions
-        ]
-    } // if
-    
-    // overriden options:
-    const performGrouping      =                      newOptions.performGrouping      ?? oldOptions?.performGrouping;
-    const specificityWeight    =                      newOptions.specificityWeight    ?? oldOptions?.specificityWeight;
-    let   minSpecificityWeight = specificityWeight ?? newOptions.minSpecificityWeight ?? oldOptions?.minSpecificityWeight;
-    let   maxSpecificityWeight = specificityWeight ?? newOptions.maxSpecificityWeight ?? oldOptions?.maxSpecificityWeight;
-    
-    if (
-        ((minSpecificityWeight !== undefined) && (minSpecificityWeight !== null))
-        &&
-        ((maxSpecificityWeight !== undefined) && (maxSpecificityWeight !== null))
-        &&
-        (minSpecificityWeight > maxSpecificityWeight)
-    ) { // invalid
-        
-        // assumes the newOptions has valid minSpecificityWeight & maxSpecificityWeight:
-        minSpecificityWeight = newOptions.minSpecificityWeight;
-        maxSpecificityWeight = newOptions.maxSpecificityWeight;
+        ];
     } // if
     
     // mutated CssRawSelector:
     return [
         selectors,
-        {
-            performGrouping,
-            
-            specificityWeight,
-            minSpecificityWeight,
-            maxSpecificityWeight,
-        }
+        normalizeSelectorOptions(newOptions, /*defaultOptions: */oldOptions)
     ];
 }
 function convertSymbolPropToRuleEntry(this: CssRule, symbolProp: symbol): readonly [symbol, CssRuleData] {
