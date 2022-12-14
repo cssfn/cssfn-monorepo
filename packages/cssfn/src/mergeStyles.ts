@@ -56,6 +56,7 @@ import {
 import {
     flat,
     isFinalSelector,
+    isNotFalsySelector,
     isNotFalsyStyles,
     isStyle,
     isFinalStyleMap,
@@ -148,9 +149,9 @@ const finalizeSelector = (style: (CssRuleMap & CssFinalRuleMap), symbolProp: sym
     
     
     // group selectors by rule type:
-    const selectorsString = (
+    const selectorsString : CssSelector[] = (
         flat(selectors)
-        .filter((selector): selector is CssSelector => !!selector && (selector !== true))
+        .filter(isNotFalsySelector)
     );
     const selectorGroupByRuleType = selectorsString.reduce(
         groupByRuleType,

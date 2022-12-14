@@ -1,6 +1,8 @@
 // cssfn:
 import type {
     // types:
+    OptionalOrBoolean,
+    
     DeepArray,
     SingleOrDeepArray,
 }                           from '@cssfn/types'
@@ -9,6 +11,7 @@ import type {
     CssFinalStyleMap,
     CssStyleCollection,
     
+    CssSelector,
     CssSelectorOptions,
     
     CssRawSelector,
@@ -69,9 +72,13 @@ export const flat = <T,>(collection: SingleOrDeepArray<T>): T[] => {
 
 export const isFinalSelector = (selector: CssRawSelector|CssFinalSelector): selector is CssFinalSelector => (typeof(selector) === 'string');
 
+export const isNotFalsySelector = (selector: OptionalOrBoolean<CssSelector>): selector is CssSelector => {
+    return (!!selector && (selector !== true));
+};
 export const isNotFalsyStyles = (styles: CssStyleCollection|CssFinalStyleMap): styles is Exclude<CssStyleCollection|CssFinalStyleMap, undefined|null|boolean> => {
     return (!!styles && (styles !== true));
 };
+
 export const isStyle = (styles: CssStyleCollection|CssFinalStyleMap): styles is CssStyle => (
     isNotFalsyStyles(styles)
     &&

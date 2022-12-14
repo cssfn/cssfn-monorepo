@@ -48,6 +48,7 @@ import type {
 import {
     flat,
     isFinalSelector,
+    isNotFalsySelector,
     normalizeSelectorOptions,
 }                           from './utilities.js'
 
@@ -376,7 +377,7 @@ export const ifNotEmpty        = (styles:         CssStyleCollection, options?: 
 
 // combinators:
 export const combinators  = (combinator: Combinator, selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
-    const combiSelectors : CssSelector[] = flat(selectors).filter((selector): selector is CssSelector => !!selector && (selector !== true)).map((selector) => {
+    const combiSelectors : CssSelector[] = flat(selectors).filter(isNotFalsySelector).map((selector) => {
         if (selector.includes('&')) return selector; // custom combinator
         
         if (selector.startsWith('::')) return `&${selector}`; // pseudo element => directly attach to the parent_selector
