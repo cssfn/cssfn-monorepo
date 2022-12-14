@@ -49,6 +49,7 @@ import {
     flat,
     isFinalSelector,
     isNotFalsySelector,
+    isNotFalsyRuleOrFactory,
     isNotFalsyRule,
     normalizeSelectorOptions,
 }                           from './utilities.js'
@@ -127,9 +128,9 @@ const convertRuleOrFactoryToOptionalRule = (ruleOrFactory: CssRule|Factory<Optio
 export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptions): CssRule => {
     const result = (
         flat(rules)
-        .filter(isNotFalsyRule)
+        .filter(isNotFalsyRuleOrFactory)
         .map(convertRuleOrFactoryToOptionalRule)
-        .filter((optionalRule): optionalRule is CssRule => !!optionalRule && (optionalRule !== true))
+        .filter(isNotFalsyRule)
     );
     if (!options) return Object.assign({}, ...result); // merge multiple CssRule objects to single CssRule object
     

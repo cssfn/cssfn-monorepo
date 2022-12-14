@@ -80,7 +80,10 @@ export const isFinalSelector = (selector: CssRawSelector|CssFinalSelector): sele
 export const isNotFalsySelector = (selector: OptionalOrBoolean<CssSelector>): selector is CssSelector => {
     return (!!selector && (selector !== true));
 };
-export const isNotFalsyRule = (rule: ProductOrFactory<OptionalOrBoolean<CssRule>>): rule is CssRule|Factory<OptionalOrBoolean<CssRule>> => {
+export const isNotFalsyRuleOrFactory = (ruleOrFactory: ProductOrFactory<OptionalOrBoolean<CssRule>>): ruleOrFactory is CssRule|Factory<OptionalOrBoolean<CssRule>> => {
+    return (!!ruleOrFactory && (ruleOrFactory !== true));
+};
+export const isNotFalsyRule = (rule: OptionalOrBoolean<CssRule>): rule is CssRule => {
     return (!!rule && (rule !== true));
 };
 export const isNotFalsyStyles = (styles: CssStyleCollection|CssFinalStyleMap): styles is Exclude<CssStyleCollection|CssFinalStyleMap, undefined|null|boolean> => {
