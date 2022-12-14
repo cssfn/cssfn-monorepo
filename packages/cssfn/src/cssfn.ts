@@ -120,14 +120,15 @@ const overwriteSelectorOptions = (selector: CssRawSelector|CssFinalSelector, opt
         }
     ];
 }
+const convertRuleOrFactoryToOptionalRule = (ruleOrFactory: CssRule|Factory<OptionalOrBoolean<CssRule>>): OptionalOrBoolean<CssRule> => {
+    if (typeof(ruleOrFactory) === 'function') return ruleOrFactory();
+    return ruleOrFactory;
+}
 export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptions): CssRule => {
     const result = (
         flat(rules)
         .filter(isNotFalsyRule)
-        .map((ruleOrFactory): OptionalOrBoolean<CssRule> => {
-            if (typeof(ruleOrFactory) === 'function') return ruleOrFactory();
-            return ruleOrFactory;
-        })
+        .map(convertRuleOrFactoryToOptionalRule)
         .filter((optionalRule): optionalRule is CssRule => !!optionalRule && (optionalRule !== true))
     );
     if (!options) return Object.assign({}, ...result); // merge multiple CssRule objects to single CssRule object
