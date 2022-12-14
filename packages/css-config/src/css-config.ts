@@ -165,13 +165,18 @@ export type CssConfig<TConfigProps extends CssConfigProps> = readonly [Refs<TCon
 
 
 // utilities:
+const isUppercase = (test: string) => (test >= 'A') && (test <= 'Z');
+const isPropDecl  = (propDecl: CssCustomName|symbol): propDecl is CssCustomName => (typeof(propDecl) === 'string');
+function convertPropDeclToPropName(skipPrefixChars: number, propDecl: CssCustomName): string {
+    return propDecl.slice(skipPrefixChars);
+}
+
 const unusedObj = {};
 const defaultPropDescriptor : PropertyDescriptor = {
     writable     : true, // make sure the propName is assignable
     enumerable   : true, // make sure the propName always listed by `for (const i in refs)`
     configurable : true, // make sure the propName can be deleted
 };
-Object.freeze(defaultPropDescriptor);
 
 /**
  * Creates the *declaration name* of the specified `propName`, eg: `--my-favColor`.
@@ -182,6 +187,8 @@ const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomN
     // add double dash with prefix `--prefix-` or double dash without prefix `--`
     return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
 }
+
+
 
 class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|CssRuleData|CssFinalRuleData|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|CssFinalRuleData|undefined|null> {
     //#region private properties
@@ -903,6 +910,8 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     
     //#region proxy getters & setters
+    #_propDeclCache = new Map<string, CssCustomName|false>()
+    
     /**
      * Gets the *declaration name* of the specified `propName`, eg: `--my-favColor`.
      * @param propName The prop name to retrieve.
@@ -918,12 +927,25 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         
+        const cached = this.#_propDeclCache.get(propName);
+        if (cached !== undefined) return (cached === false) ? undefined : cached;
+        
+        
+        
         const propDecl = this.#createDecl(propName);
         
-        // check if the `#props` has `propDecl`:
-        if (!this.#props.has(propDecl)) return undefined; // not found
         
-        return propDecl;
+        
+        // check if the `#props` has `propDecl`:
+        if (!this.#props.has(propDecl)) {
+            this.#_propDeclCache.set(propName, false); // update cache
+            return undefined; // not found
+        } // if
+        
+        
+        
+        this.#_propDeclCache.set(propName, propDecl); // update cache
+        return propDecl; // found
     }
     
     /**
@@ -979,12 +1001,14 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         if ((newValue === undefined) || (newValue === null)) {
             props.delete(propDecl);
             
+            this.#_propDeclCache.set(propName, false); // update cache
             this.#update();     // property DELETED => the `#genProps` needs to `update()`
         }
         else {
             if (props.get(propDecl) !== newValue) {
                 props.set(propDecl, newValue);
                 
+                this.#_propDeclCache.set(propName, propDecl); // update cache
                 this.#update(); // property MODIFIED => the `#genProps` needs to `update()`
             } // if
         } // if
@@ -1016,11 +1040,28 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             :
             2                  // remove double dash --
         );
-        return (
+        
+        
+        
+        const propDecls = (
             Array.from(this.#props.keys() as IterableIterator<CssCustomName|symbol>)
-            .filter((propName): propName is CssCustomName => (typeof(propName) === 'string')) // only show string props, ignores symbol props
-            .map((cssCustomName): string => cssCustomName.slice(skipPrefixChars)) // remove prefix
+            .filter(isPropDecl) // only show string props, ignores symbol props
         );
+        const _propDeclCache = this.#_propDeclCache;
+        return Array.from(
+            (function*(): Generator<string> {
+                for (const propDecl of propDecls) {
+                    const propName = convertPropDeclToPropName(skipPrefixChars, propDecl);
+                    _propDeclCache.set(propName, propDecl);
+                    yield propName;
+                } // for
+            })()
+        );
+        // return (
+        //     Array.from(this.#props.keys() as IterableIterator<CssCustomName|symbol>)
+        //     .filter(isPropDecl) // only show string props, ignores symbol props
+        //     .map(convertPropDeclToPropName.bind(skipPrefixChars)) // remove prefix
+        // );
     }
     /**
      * Gets the behavior of the specified `propName`.
@@ -1050,6 +1091,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     constructor(initialProps: ProductOrFactory<TConfigProps>, options?: CssConfigOptions) {
         this.#propsFactory = initialProps;
         this.#options = new LiveCssConfigOptions(() => {
+            this.#_propDeclCache.clear(); // clear cache
             this.#update(); // when the config MODIFIED => the `#genProps` needs to `update()`
         }, options);
         
@@ -1100,11 +1142,6 @@ const cssConfig = <TConfigProps extends CssConfigProps>(initialProps: ProductOrF
     ];
 }
 export { cssConfig, cssConfig as default, cssConfig as createCssConfig }
-
-
-
-// utilities:
-const isUppercase  = (test: string) => (test >= 'A') && (test <= 'Z');
 
 
 
