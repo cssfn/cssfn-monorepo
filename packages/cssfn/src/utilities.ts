@@ -81,11 +81,17 @@ export const isFinalStyleMap = (style: CssStyleCollection|CssFinalStyleMap): sty
 );
 
 export const normalizeSelectorOptions = <TDefaultOptions extends CssSelectorOptions>(options: CssSelectorOptions|undefined, defaultOptions: TDefaultOptions): TDefaultOptions => {
+    if (!options) return defaultOptions;
+    
+    
+    
     const performGrouping      = options?.performGrouping ?? defaultOptions.performGrouping;
     
     const specificityWeight    =                      ((options?.specificityWeight    !== undefined) ? options.specificityWeight    : defaultOptions.specificityWeight   );
     const minSpecificityWeight = specificityWeight ?? ((options?.minSpecificityWeight !== undefined) ? options.minSpecificityWeight : defaultOptions.minSpecificityWeight);
     const maxSpecificityWeight = specificityWeight ?? ((options?.maxSpecificityWeight !== undefined) ? options.maxSpecificityWeight : defaultOptions.maxSpecificityWeight);
+    
+    
     
     if (
         ((minSpecificityWeight !== undefined) && (minSpecificityWeight !== null))
@@ -102,6 +108,8 @@ export const normalizeSelectorOptions = <TDefaultOptions extends CssSelectorOpti
             maxSpecificityWeight : null, // invalid => set to null
         } as TDefaultOptions;
     } // if
+    
+    
     
     return {
         performGrouping,
