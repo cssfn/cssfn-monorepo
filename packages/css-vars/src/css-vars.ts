@@ -31,7 +31,7 @@ const isClientSide : boolean = isBrowser || isJsDom;
 
 // types:
 export type CssVars<TCssCustomProps extends {}>            = Readonly<{ [Key in keyof TCssCustomProps]: CssCustomSimpleRef  }>
-export type CssVarsWithOptions<TCssCustomProps extends {}> = readonly [CssVars<TCssCustomProps>]
+export type CssVarsWithOptions<TCssCustomProps extends {}> = readonly [ CssVars<TCssCustomProps>, LiveCssVarsOptions ]
 
 
 
@@ -51,6 +51,59 @@ const defaultOptions : Required<CssVarsOptions> = {
     prefix : '',
     minify : true,
 };
+class LiveCssVarsOptions implements Required<CssVarsOptions> {
+    //#region private properties
+    #prefix : string
+    #minify : boolean
+    
+    readonly #updatedCallback : () => void
+    //#endregion private properties
+    
+    
+    
+    //#region constructors
+    constructor(updatedCallback: () => void, options?: CssVarsOptions) {
+        this.#prefix = options?.prefix ?? defaultOptions.prefix; // an empty prefix is allowed
+        this.#minify = options?.minify ?? defaultOptions.minify;
+        
+        this.#updatedCallback = updatedCallback;
+    }
+    //#endregion constructors
+    
+    
+    
+    //#region public properties
+    get prefix() {
+        return this.#prefix;
+    }
+    set prefix(value: string) {
+        // an empty prefix is allowed
+        if (this.#prefix === value) return; // no change => no need to update
+        
+        this.#prefix = value; // update
+        this.#update(); // notify a css-vars updated
+    }
+    
+    get minify() {
+        return this.#minify;
+    }
+    set minify(value: boolean) {
+        if (this.#minify === value) return; // no change => no need to update
+        
+        this.#minify = value; // update
+        this.#update(); // notify a css-vars updated
+    }
+    //#endregion public properties
+    
+    
+    
+    //#region private methods
+    #update() {
+        this.#updatedCallback(); // notify a css-config updated
+    }
+    //#endregion private methods
+}
+export type { LiveCssVarsOptions }
 
 
 
@@ -71,14 +124,24 @@ let globalIdCounter = 0; // should not be incremented on server side
  */
 export const cssVars = <TCssCustomProps extends {}>(options?: CssVarsOptions): CssVarsWithOptions<TCssCustomProps> => {
     // options:
-    const prefix = options?.prefix ?? defaultOptions.prefix;
-    const minify = options?.minify ?? defaultOptions.minify;
+    const liveOptions = new LiveCssVarsOptions(() => {
+        cache.clear(); // the cached propDecl(s) are depended on [prefix] & [minify], the [prefix] and/or [minify] was changed => cached propDecl(s) are now invalid
+    }, options);
     
     
     
     // data generates:
     
-    const cache = new Map<string, CssCustomName>();
+    const cache      = new Map<string, CssCustomName>();
+    const idRegistry = new Map<string, string>();
+    
+    const updateDecl = (propName: string, id: string): CssCustomName => {
+        const prefix   = liveOptions.prefix;
+        const propDecl : CssCustomName = prefix ? `--${prefix}-${id}` : `--${id}`; // add double dash with prefix `--prefix-` or double dash without prefix `--`
+        
+        cache.set(propName, propDecl);
+        return propDecl;
+    };
     
     /**
      * Gets the *declaration name* of the specified `propName`, eg: `--my-favColor`.
@@ -88,9 +151,9 @@ export const cssVars = <TCssCustomProps extends {}>(options?: CssVarsOptions): C
     const decl = (propName: string): CssCustomName => {
         if (process.env.NODE_ENV === 'dev') {
             warning(
-                isClientSide // must run in browser
-                ||           // or
-                !minify      // not minified
+                isClientSide        // on client_side => can use static_id and/or auto_counter_id
+                ||                  // or
+                !liveOptions.minify // not minified => static_id => no auto_counter_id is used => can be run both on client_side or server_side
                 ,
                 '`css-vars` with option `minify = true (default)` is not supported to be fetched on server side. Assign an option `{ minify: false }` to fix it.'
             )
@@ -103,21 +166,20 @@ export const cssVars = <TCssCustomProps extends {}>(options?: CssVarsOptions): C
         
         
         
-        if (!minify) {
-            const newId   = propName;
-            const newDecl : CssCustomName = prefix ? `--${prefix}-${newId}` : `--${newId}`; // add double dash with prefix `--prefix-` or double dash without prefix `--`
-            
-            cache.set(propName, newDecl);
-            return newDecl;
+        if (!liveOptions.minify) {
+            return updateDecl(propName, /*static_id: */ propName);
         } // if
         
         
         
-        const newId   = `v${++globalIdCounter}`;
-        const newDecl : CssCustomName = prefix ? `--${prefix}-${newId}` : `--${newId}`; // add double dash with prefix `--prefix-` or double dash without prefix `--`
+        const existingId = idRegistry.get(propName);
+        if (existingId !== undefined) return updateDecl(propName, /*id: */ existingId);
         
-        cache.set(propName, newDecl);
-        return newDecl;
+        
+        
+        const newId = `v${++globalIdCounter}`; // the global counter is always incremented, so it's guaranteed to be unique
+        idRegistry.set(propName, newId); // register the newId to be re-use later (when the cache get invalidated)
+        return updateDecl(propName, /*id: */ newId);
     };
     
     /**
@@ -143,7 +205,9 @@ export const cssVars = <TCssCustomProps extends {}>(options?: CssVarsOptions): C
                 return ref(propName);
             },
             set : setReadonlyHandler,
-        }) as CssVars<TCssCustomProps>
+        }) as CssVars<TCssCustomProps>,
+        
+        liveOptions
     ];
 }
 export {
