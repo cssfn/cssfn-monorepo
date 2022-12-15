@@ -31,7 +31,7 @@ const isClientSide : boolean = isBrowser || isJsDom;
 
 // types:
 export type CssVars<TCssCustomProps extends {}>            = Readonly<{ [Key in keyof TCssCustomProps]: CssCustomSimpleRef  }>
-export type CssVarsWithOptions<TCssCustomProps extends {}> = readonly [CssVars<TCssCustomProps>, LiveCssVarsOptions]
+export type CssVarsWithOptions<TCssCustomProps extends {}> = readonly [CssVars<TCssCustomProps>]
 
 
 
@@ -50,22 +50,7 @@ export interface CssVarsOptions {
 const defaultOptions : Required<CssVarsOptions> = {
     prefix : '',
     minify : true,
-}
-class LiveCssVarsOptions implements Required<CssVarsOptions> {
-    //#region public options
-    prefix : string
-    minify : boolean
-    //#endregion public options
-    
-    
-    
-    //#region constructors
-    constructor(options?: CssVarsOptions) {
-        this.prefix = options?.prefix ?? defaultOptions.prefix;
-        this.minify = options?.minify ?? defaultOptions.minify;
-    }
-    //#endregion constructors
-}
+};
 
 
 
@@ -84,29 +69,32 @@ let globalIdCounter = 0; // should not be incremented on server side
 /**
  * Declares & retrieves *css variables* (css custom properties).
  */
-export const cssVars = <TCssCustomProps extends {}>(options: CssVarsOptions = defaultOptions): CssVarsWithOptions<TCssCustomProps> => {
+export const cssVars = <TCssCustomProps extends {}>(options?: CssVarsOptions): CssVarsWithOptions<TCssCustomProps> => {
     // options:
-    const liveOptions = new LiveCssVarsOptions(options);
+    const prefix = options?.prefix ?? defaultOptions.prefix;
+    const minify = options?.minify ?? defaultOptions.minify;
     
     
     
     // data generates:
     
-    const cache = new Map<string, string>();
-    const getOrGenerateId = (propName: string): string => {
+    const cache = new Map<string, CssCustomName>();
+    
+    /**
+     * Gets the *declaration name* of the specified `propName`, eg: `--my-favColor`.
+     * @param propName The prop name to retrieve.
+     * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
+     */
+    const decl = (propName: string): CssCustomName => {
         if (process.env.NODE_ENV === 'dev') {
             warning(
-                isClientSide        // must run in browser
-                ||                  // or
-                !liveOptions.minify // not minified
+                isClientSide // must run in browser
+                ||           // or
+                !minify      // not minified
                 ,
                 '`css-vars` with option `minify = true (default)` is not supported to be fetched on server side. Assign an option `{ minify: false }` to fix it.'
             )
         } // if
-        
-        
-        
-        if (!liveOptions.minify) return propName;
         
         
         
@@ -115,19 +103,21 @@ export const cssVars = <TCssCustomProps extends {}>(options: CssVarsOptions = de
         
         
         
-        const newId = `v${++globalIdCounter}`;
-        cache.set(propName, newId);
-        return newId;
-    };
-    
-    /**
-     * Gets the *declaration name* of the specified `propName`, eg: `--my-favColor`.
-     * @param propName The prop name to retrieve.
-     * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
-     */
-    const decl = (propName: string): CssCustomName => {
-        const id = getOrGenerateId(propName);
-        return liveOptions.prefix ? `--${liveOptions.prefix}-${id}` : `--${id}`; // add double dash with prefix `--prefix-` or double dash without prefix `--`
+        if (!minify) {
+            const newId   = propName;
+            const newDecl : CssCustomName = prefix ? `--${prefix}-${newId}` : `--${newId}`; // add double dash with prefix `--prefix-` or double dash without prefix `--`
+            
+            cache.set(propName, newDecl);
+            return newDecl;
+        } // if
+        
+        
+        
+        const newId   = `v${++globalIdCounter}`;
+        const newDecl : CssCustomName = prefix ? `--${prefix}-${newId}` : `--${newId}`; // add double dash with prefix `--prefix-` or double dash without prefix `--`
+        
+        cache.set(propName, newDecl);
+        return newDecl;
     };
     
     /**
@@ -153,12 +143,7 @@ export const cssVars = <TCssCustomProps extends {}>(options: CssVarsOptions = de
                 return ref(propName);
             },
             set : setReadonlyHandler,
-        }) as CssVars<TCssCustomProps>,
-        
-        
-        
-        // options:
-        liveOptions,
+        }) as CssVars<TCssCustomProps>
     ];
 }
 export {
