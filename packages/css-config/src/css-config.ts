@@ -135,7 +135,7 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
         if (this.#prefix === value) return; // no change => no need to update
         
         this.#prefix = value; // update
-        this.update(); // notify a css-config updated
+        this.#update(); // notify a css-config updated
     }
     
     get selector() {
@@ -146,17 +146,17 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
         if (this.#selector === value) return; // no change => no need to update
         
         this.#selector = value; // update
-        this.update(); // notify a css-config updated
+        this.#update(); // notify a css-config updated
     }
     //#endregion public properties
     
     
     
-    //#region public methods
-    update() {
+    //#region private methods
+    #update() {
         this.#updatedCallback(); // notify a css-config updated
     }
-    //#endregion public methods
+    //#endregion private methods
 }
 export type { LiveCssConfigOptions }
 
