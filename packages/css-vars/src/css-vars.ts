@@ -92,14 +92,8 @@ export const cssVars = <TCssCustomProps extends {}>(options: CssVarsOptions = de
     
     // data generates:
     
-    const idMap = new Map<string, number>();
-    
-    /**
-     * Gets the *declaration name* of the specified `propName`, eg: `--my-favColor`.
-     * @param propName The prop name to retrieve.
-     * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
-     */
-    const decl = (propName: string): CssCustomName => {
+    const cache = new Map<string, string>();
+    const getOrGenerateId = (propName: string): string => {
         if (process.env.NODE_ENV === 'dev') {
             warning(
                 isClientSide        // must run in browser
@@ -112,22 +106,28 @@ export const cssVars = <TCssCustomProps extends {}>(options: CssVarsOptions = de
         
         
         
-        const name = (
-            liveOptions.minify
-            ?
-            `v${((): number => {
-                let id = idMap.get(propName);
-                if (id === undefined) {
-                    id = (++globalIdCounter);
-                    idMap.set(propName, id);
-                } // if
-                return id;
-            })()}`
-            :
-            propName
-        );
+        if (!liveOptions.minify) return propName;
         
-        return liveOptions.prefix ? `--${liveOptions.prefix}-${name}` : `--${name}`; // add double dash with prefix `--prefix-` or double dash without prefix `--`
+        
+        
+        const cached = cache.get(propName);
+        if (cached !== undefined) return cached;
+        
+        
+        
+        const newId = `v${++globalIdCounter}`;
+        cache.set(propName, newId);
+        return newId;
+    };
+    
+    /**
+     * Gets the *declaration name* of the specified `propName`, eg: `--my-favColor`.
+     * @param propName The prop name to retrieve.
+     * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
+     */
+    const decl = (propName: string): CssCustomName => {
+        const id = getOrGenerateId(propName);
+        return liveOptions.prefix ? `--${liveOptions.prefix}-${id}` : `--${id}`; // add double dash with prefix `--prefix-` or double dash without prefix `--`
     };
     
     /**
