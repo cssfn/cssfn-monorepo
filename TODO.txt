@@ -17,4 +17,7 @@ optimize:
 
 high cpu usage:
 
+export const encodeStyle =          ... 133ms
+export function encodeNestedRule    ... 133ms
+
             const equalPropRef = this.#findEqualProp(srcPropName, srcPropValue);
