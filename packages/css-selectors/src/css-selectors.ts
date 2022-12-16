@@ -1070,6 +1070,9 @@ export const ungroupSelector  = (selector : OptionalOrBoolean<Selector>     , op
         pureSelector, // no changes - just cleaned up
     );
 }
+function ungroupSelectorWithOptions(this: UngroupSelectorOptions, selector : OptionalOrBoolean<Selector>) {
+    return ungroupSelector(selector, this);
+}
 export const ungroupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, options: UngroupSelectorOptions = defaultUngroupSelectorOptions): PureSelectorGroup => {
     if (!isNotEmptySelectors(selectors)) return pureSelectorGroup(
         /* an empty SelectorGroup */
@@ -1077,7 +1080,7 @@ export const ungroupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, op
     
     
     
-    return selectors.flatMap((selector) => ungroupSelector(selector, options));
+    return selectors.flatMap(ungroupSelectorWithOptions.bind(options));
 }
 
 
