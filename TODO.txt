@@ -3,18 +3,7 @@ publish:
 @cssfn/cssfn
 
 
-\.(\s|\n)*(every|filter|find|findIndex|findLast|findLastIndex|flatMap|forEach|group|groupToMap|map|some)(\s|\n)*\((\s|\n)*\(
-Optimize flat(), unwrap(), filter(), map():
-flatExisting
-flatMapExisting
 
-Optimize mergeSelectors => pure*** => ***
 Fix bug on css-config when renaming `cssConfig.prefix`
 
 add auto-id on cssfn-react createStyleSheet(s)
-
-
-
-high cpu usage:
-
-            const equalPropRef = this.#findEqualProp(srcPropName, srcPropValue);
