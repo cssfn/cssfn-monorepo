@@ -485,6 +485,7 @@ const createCommonSuffixedParentSelector = (isSelector: Selector, combinator: Co
         parentSelector(), // add a ParentSelector      after :is(...)
     );
 }
+const isNotContainPseudoElement = (selector: PureSelector) => selector.every(isNotPseudoElementSelector);
 const createBaseParentSelectorGroup      = (
         groupByParentSelectorGroup               : PureSelector[],
         groupByCombinator                        : null | ((accum: GroupByCombinator, pureSelector: PureSelector) => GroupByCombinator),
@@ -506,7 +507,7 @@ const createBaseParentSelectorGroup      = (
     
     return Array.from(selectorGroupByCombinator.entries()).flatMap(([combinator, selectors]) => {
         if (selectors.length < 2) return selectors; // must contains at least 2 selectors, if only one/no selector => no need to group
-        if (selectors.filter((selector) => selector.every(isNotPseudoElementSelector)).length < 2) return selectors; // must contains at least 2 selectors which without ::pseudo-element, if only one/no selector => no need to group
+        if (selectors.filter(isNotContainPseudoElement).length < 2) return selectors; // must contains at least 2 selectors which without ::pseudo-element, if only one/no selector => no need to group
         
         
         const conditionalRemoveCommonParentSelector = combinator ? removeCommonParentSelectorWithCombinator : removeCommonParentSelector;
