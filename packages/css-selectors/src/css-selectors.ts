@@ -926,8 +926,18 @@ export const replaceSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, ca
         .map(convertOptionalSelectorToOptionalSelectorWithReplacement.bind(callbackFn)) // mutates a `Selector` to another `Selector`
     );
 };
-export const replaceSelector  = (selector : OptionalOrBoolean<Selector>     , callbackFn: ReplaceSelectorCallback): OptionalOrBoolean<Selector> => {
-    return convertOptionalSelectorToOptionalSelectorWithReplacement.bind(callbackFn)(selector);
+export const replaceSelector  = (selector : OptionalOrBoolean<Selector>     , callbackFn: ReplaceSelectorCallback): Selector => {
+    if (!isNotEmptySelector(selector)) return createSelector(
+        /* an empty Selector */
+    ); // nullish => nothing to replace => return an empty Selector
+    
+    
+    
+    const result = convertOptionalSelectorToOptionalSelectorWithReplacement.bind(callbackFn)(selector);
+    if (!result || (result === true)) return createSelector(
+        /* an empty Selector */
+    ); // nullish => nothing to replace => return an empty Selector
+    return result;
 }
 
 // groups:
