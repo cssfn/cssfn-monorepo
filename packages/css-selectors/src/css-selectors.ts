@@ -815,37 +815,42 @@ export const selectorParamsToString = (selectorParams: SelectorParams): string =
         return `(${selectorsToString(selectorParams)})`;
     } // if
 };
+const convertOptionalSelectorEntryToString = (optionalSelectorEntry: OptionalOrBoolean<SelectorEntry>): string => {
+    if (!isNotEmptySelectorEntry(optionalSelectorEntry)) return ''; // nullish => empty string
+    
+    
+    
+    // SimpleSelector:
+    if (isSimpleSelector(optionalSelectorEntry)) {
+        const [
+            selectorToken,
+            selectorName,
+            selectorParams,
+        ] = optionalSelectorEntry;
+        
+        if (selectorToken === '[') { // AttrSelectorToken
+            return selectorParamsToString(selectorParams);
+        }
+        else {
+            return `${selectorToken}${selectorName ?? ''}${(selectorParams === undefined) ? '' : selectorParamsToString(selectorParams)}`;
+        } // if
+    } // if
+    
+    
+    
+    // Combinator:
+    return optionalSelectorEntry;
+}
 export const selectorToString       = (selector: Selector): string => {
     return (
         selector
-        .filter(isNotEmptySelectorEntry) // remove empty SelectorEntry(es) in Selector
-        .map((selectorEntry): string => {
-            if (isSimpleSelector(selectorEntry)) {
-                const [
-                    selectorToken,
-                    selectorName,
-                    selectorParams,
-                ] = selectorEntry;
-                
-                if (selectorToken === '[') { // AttrSelectorToken
-                    return selectorParamsToString(selectorParams);
-                }
-                else {
-                    return `${selectorToken}${selectorName ?? ''}${(selectorParams === undefined) ? '' : selectorParamsToString(selectorParams)}`;
-                } // if
-            } // if SimpleSelector
-            
-            
-            
-            return selectorEntry;
-        })
-        .join('')
+        .map(convertOptionalSelectorEntryToString)
+        .join('') // merge (SimpleSelector|Combinator)+
     );
 };
 export const selectorsToString      = (selectors: SelectorGroup): string => {
     return (
-        selectors
-        .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup, we don't want to join some rendered empty string '' => `.boo , , #foo`
+        convertSelectorGroupToPureSelectorGroup(selectors) // remove empty Selector(s) in SelectorGroup, we don't want to join some rendered empty string '' => `.boo , , #foo`
         .map(selectorToString)
         .join(', ')
     );
