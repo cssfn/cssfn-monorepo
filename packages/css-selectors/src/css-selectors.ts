@@ -1094,7 +1094,7 @@ export const calculateSpecificity = (selector: OptionalOrBoolean<Selector>): Spe
     return (
         selector
         .filter(isSimpleSelector) // filter out Combinator(s)
-        .reduce((accum, simpleSelector, index, array): Specificity => {
+        .reduce((accum, simpleSelector): Specificity => {
             const [
                 /*
                     selector tokens:
@@ -1133,9 +1133,8 @@ export const calculateSpecificity = (selector: OptionalOrBoolean<Selector>): Spe
                     case 'has': {
                         if (!selectorParams || !isSelectors(selectorParams)) return accum; // no changes
                         const moreSpecificities = (
-                            selectorParams
-                            .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
-                            .map((selectorParam) => calculateSpecificity(selectorParam))
+                            convertSelectorGroupToPureSelectorGroup(selectorParams) // remove empty Selector(s) in SelectorGroup
+                            .map(calculateSpecificity)
                         );
                         const maxSpecificity    = moreSpecificities.reduce((accum, current): Specificity => {
                             if (
