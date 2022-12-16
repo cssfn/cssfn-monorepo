@@ -29,6 +29,7 @@ import {
     isNotEmptySelectorEntry,
     isNotEmptySelector,
     convertSelectorToPureSelector,
+    convertSelectorGroupToPureSelectorGroup,
     
     
     
@@ -571,7 +572,7 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
     
     
     
-    return createSelectorGroup(
+    return convertSelectorGroupToPureSelectorGroup(createSelectorGroup(
         // no parent
         // aaa, bbb, ccc
         ...createNoParentSelectorGroup(noParentSelectorGroup),
@@ -607,9 +608,8 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
         // parent at random
         // aaa&bbb, aaa&bbb&ccc
         ...randomParentSelectorGroup,
-    )
-    .filter(isNotEmptySelector)                                  // remove undefined|null|false|true|Selector(empty) => only real Selector
-    .map((selector) => selector.filter(isNotEmptySelectorEntry)) // remove undefined|null|false|true                 => only real SelectorEntry
+    ))
+    .map(convertSelectorToPureSelector) // remove undefined|null|false|true => only real SelectorEntry
 }
 
 
