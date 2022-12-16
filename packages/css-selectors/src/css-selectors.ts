@@ -960,9 +960,9 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
     
     
     
-    const filteredSelectors         : PureSelector[] = selectors.filter(isNotEmptySelector).map(convertSelectorToPureSelector);
-    const selectorsWithoutPseudoElm : PureSelector[] = filteredSelectors.filter(isNotContainPseudoElement); // not contain ::pseudo-element
-    const selectorsWithPseudoElm    : PureSelector[] = filteredSelectors.filter(isContainPseudoElement);    // is  contain ::pseudo-element
+    const pureSelectors             : PureSelector[] = convertSelectorGroupToPureSelectorGroup(selectors).map(convertSelectorToPureSelector);
+    const selectorsWithoutPseudoElm : PureSelector[] = pureSelectors.filter(isNotContainPseudoElement); // not contain ::pseudo-element
+    const selectorsWithPseudoElm    : PureSelector[] = pureSelectors.filter(isContainPseudoElement);    // is  contain ::pseudo-element
     
     
     
@@ -1015,9 +1015,9 @@ export const ungroupSelector  = (selector : OptionalOrBoolean<Selector>     , op
     
     
     
-    const filteredSelector = selector.filter(isNotEmptySelectorEntry);
-    if (filteredSelector.length === 1) {
-        const selectorEntry = filteredSelector[0]; // get the only one SelectorEntry
+    const pureSelector = convertSelectorToPureSelector(selector);
+    if (pureSelector.length === 1) {
+        const selectorEntry = pureSelector[0]; // get the only one SelectorEntry
         if (isPseudoClassSelector(selectorEntry)) {
             const {
                 selectorName : targetSelectorName = defaultUngroupSelectorOptions.selectorName,
@@ -1067,7 +1067,7 @@ export const ungroupSelector  = (selector : OptionalOrBoolean<Selector>     , op
     
     
     return pureSelectorGroup(
-        filteredSelector, // no changes - just cleaned up
+        pureSelector, // no changes - just cleaned up
     );
 }
 export const ungroupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, options: UngroupSelectorOptions = defaultUngroupSelectorOptions): PureSelectorGroup => {
