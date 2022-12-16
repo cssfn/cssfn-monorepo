@@ -286,7 +286,7 @@ const isClassSelectorWithoutParams = (selectorEntry: SelectorEntry): selectorEnt
     
     return (selectorParams === undefined);
 }
-const increaseSpecificity = (pureSelector: PureSelector, missingSpecificityWeight: number) => {
+const increaseSpecificity = (pureSelector: PureSelector, missingSpecificityWeight: number): Selector => {
     const adjustSpecificitySelector : Selector = new Array<SimpleSelector>(missingSpecificityWeight).fill(
         pureSelector
         .filter(isClassSelectorWithoutParams) // class selector -or- pseudo class selector without parameters
@@ -304,6 +304,25 @@ const increaseSpecificity = (pureSelector: PureSelector, missingSpecificityWeigh
     );
 }
 
+type SpecificityWeightStatusGroup = { selector: PureSelector, specificityWeight: number }
+function convertGroupToSelector(group: SpecificityWeightStatusGroup): Selector {
+    return group.selector;
+}
+function convertGroupToIncreasedSpecificitySelector(this: number|null, group: SpecificityWeightStatusGroup): Selector {
+    const minSpecificityWeight = this;
+    return increaseSpecificity(
+        group.selector,
+        ((minSpecificityWeight ?? 1) - group.specificityWeight)
+    );
+}
+function convertGroupToDecreasedSpecificitySelector(this: readonly [number|null, number|null], group: SpecificityWeightStatusGroup): Selector {
+    const [minSpecificityWeight, maxSpecificityWeight] = this;
+    return decreaseSpecificity(
+        group.selector,
+        (group.specificityWeight - (maxSpecificityWeight ?? group.specificityWeight)),
+        minSpecificityWeight
+    );
+}
 export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSpecificityWeight: number|null, maxSpecificityWeight: number|null): SelectorGroup => {
     if (
         (minSpecificityWeight === null)
@@ -316,7 +335,7 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
     // group selectors by specificity weight status:
     const selectorGroupBySpecificityWeightStatus = pureSelectorGroup.reduce(
         createGroupBySpecificityWeightStatus(minSpecificityWeight, maxSpecificityWeight),
-        new Map<SpecificityWeightStatus, { selector: PureSelector, specificityWeight: number }[]>()
+        new Map<SpecificityWeightStatus, SpecificityWeightStatusGroup[]>()
     );
     
     const fitSelectors      = selectorGroupBySpecificityWeightStatus.get(SpecificityWeightStatus.Fit     ) ?? [];
@@ -326,18 +345,11 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
     
     
     return createSelectorGroup(
-        ...fitSelectors.map((group) => group.selector),
+        ...fitSelectors.map(convertGroupToSelector),
         
-        ...tooSmallSelectors.map((group) => increaseSpecificity(
-            group.selector,
-            ((minSpecificityWeight ?? 1) - group.specificityWeight)
-        )),
+        ...tooSmallSelectors.map(convertGroupToIncreasedSpecificitySelector.bind(minSpecificityWeight)),
         
-        ...tooBigSelectors.map((group) => decreaseSpecificity(
-            group.selector,
-            (group.specificityWeight - (maxSpecificityWeight ?? group.specificityWeight)),
-            minSpecificityWeight
-        )),
+        ...tooBigSelectors.map(convertGroupToDecreasedSpecificitySelector.bind([minSpecificityWeight, maxSpecificityWeight])),
     );
 }
 
