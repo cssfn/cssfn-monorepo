@@ -5,6 +5,8 @@ import type {
 }                           from '@cssfn/css-types'
 import {
     // types:
+    ClassSelector,
+    PseudoClassSelector,
     PseudoElementSelector,
     SimpleSelector,
     Combinator,
@@ -246,44 +248,48 @@ const decreaseSpecificity = (pureSelector: PureSelector, excessSpecificityWeight
         ...adjustSpecificitySelector,
     );
 }
+const isClassSelectorWithoutParams = (selectorEntry: SelectorEntry): selectorEntry is ClassSelector|PseudoClassSelector => {
+    if (!isClassOrPseudoClassSelector(selectorEntry)) return false; // only interested to class selector -or- pseudo class selector
+    
+    
+    
+    const [
+        /*
+            selector tokens:
+            '&'  = parent         selector
+            '*'  = universal      selector
+            '['  = attribute      selector
+            ''   = element        selector
+            '#'  = ID             selector
+            '.'  = class          selector
+            ':'  = pseudo class   selector
+            '::' = pseudo element selector
+        */
+        // selectorToken
+        ,
+        
+        /*
+            selector name:
+            string = the name of [element, ID, class, pseudo class, pseudo element] selector
+        */
+        // selectorName
+        ,
+        
+        /*
+            selector parameter(s):
+            string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
+            array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
+            SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
+        */
+        selectorParams,
+    ] = selectorEntry;
+    
+    return (selectorParams === undefined);
+}
 const increaseSpecificity = (pureSelector: PureSelector, missingSpecificityWeight: number) => {
     const adjustSpecificitySelector : Selector = new Array<SimpleSelector>(missingSpecificityWeight).fill(
         pureSelector
-        .filter(isClassOrPseudoClassSelector) // only interested to class selector -or- pseudo class selector
-        .filter((simpleSelector) => {         // pseudo class selector without parameters
-            const [
-                /*
-                    selector tokens:
-                    '&'  = parent         selector
-                    '*'  = universal      selector
-                    '['  = attribute      selector
-                    ''   = element        selector
-                    '#'  = ID             selector
-                    '.'  = class          selector
-                    ':'  = pseudo class   selector
-                    '::' = pseudo element selector
-                */
-                // selectorToken
-                ,
-                
-                /*
-                    selector name:
-                    string = the name of [element, ID, class, pseudo class, pseudo element] selector
-                */
-                // selectorName
-                ,
-                
-                /*
-                    selector parameter(s):
-                    string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
-                    array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
-                    SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
-                */
-                selectorParams,
-            ] = simpleSelector;
-            
-            return (selectorParams === undefined);
-        })
+        .filter(isClassSelectorWithoutParams) // class selector -or- pseudo class selector without parameters
         .pop()            // take the last interested selector. It's okay to mutate the `selector` because it was cloned by `filter()`
         ??
         nthChildNSelector // or use `nth-child(n)`
