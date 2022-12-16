@@ -783,6 +783,8 @@ export const isNotEmptySelectors  = (selectors : OptionalOrBoolean<SelectorGroup
 export const countSelectorEntries = (selector  : OptionalOrBoolean<Selector     >): number                     => ((!!selector  && (selector  !== true)) &&  selector.filter(isNotEmptySelectorEntry).length) || 0;
 export const countSelectors       = (selectors : OptionalOrBoolean<SelectorGroup>): number                     => ((!!selectors && (selectors !== true)) && selectors.filter(isNotEmptySelector     ).length) || 0;
 
+export const convertSelectorToPureSelector = (selector: Selector): PureSelector => selector.filter(isNotEmptySelectorEntry);
+
 
 
 // renders:
@@ -918,6 +920,8 @@ const defaultGroupSelectorOptions : Required<GroupSelectorOptions> = {
     selectorName           : 'is',
     cancelGroupIfSingular  : false
 };
+const isNotContainPseudoElement = (selector: PureSelector) => selector.every(isNotPseudoElementSelector);
+const isContainPseudoElement    = (selector: PureSelector) => selector.some(isPseudoElementSelector);
 export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorGroup & [Selector, ...Selector[]] => {
     if (!isNotEmptySelectors(selectors)) return pureSelectorGroup(
         selector(
@@ -927,9 +931,9 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
     
     
     
-    const filteredSelectors         : PureSelector[] = selectors.filter(isNotEmptySelector).map((selector) => selector.filter(isNotEmptySelectorEntry));
-    const selectorsWithoutPseudoElm : PureSelector[] = filteredSelectors.filter((selector) => selector.every(isNotPseudoElementSelector)); // not contain ::pseudo-element
-    const selectorsWithPseudoElm    : PureSelector[] = filteredSelectors.filter((selector) => selector.some(isPseudoElementSelector));     // is  contain ::pseudo-element
+    const filteredSelectors         : PureSelector[] = selectors.filter(isNotEmptySelector).map(convertSelectorToPureSelector);
+    const selectorsWithoutPseudoElm : PureSelector[] = filteredSelectors.filter(isNotContainPseudoElement); // not contain ::pseudo-element
+    const selectorsWithPseudoElm    : PureSelector[] = filteredSelectors.filter(isContainPseudoElement);    // is  contain ::pseudo-element
     
     
     
