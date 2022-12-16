@@ -1,3 +1,9 @@
+publish:
+@cssfn/css-selectors
+@cssfn/cssfn
+
+
+
 Optimize flat(), unwrap(), filter(), map():
 flatExisting
 flatMapExisting
