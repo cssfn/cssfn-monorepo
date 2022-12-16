@@ -860,6 +860,40 @@ export const selectorsToString      = (selectors: SelectorGroup): string => {
 
 // transforms:
 export type ReplaceSelectorCallback = (selectorEntry: SelectorEntry) => OptionalOrBoolean<SelectorEntry|Selector>
+function convertOptionalSelectorEntryToSelector(this: ReplaceSelectorCallback, optionalSelectorEntry: OptionalOrBoolean<SelectorEntry>): OptionalOrBoolean<Selector> {
+    if (!isNotEmptySelectorEntry(optionalSelectorEntry)) return optionalSelectorEntry; // nullish => ignore
+    
+    
+    
+    const callbackFn     = this;
+    const callbackResult = callbackFn(optionalSelectorEntry);
+    let replacement = (callbackResult === undefined) ? optionalSelectorEntry : callbackResult;
+    
+    
+    
+    if (replacement === optionalSelectorEntry) { // if has not been replaced by `callbackFn` (same by reference)
+        const [
+            selectorToken,
+            selectorName,
+            selectorParams,
+        ] = optionalSelectorEntry;
+        
+        if (selectorParams && isSelectors(selectorParams)) {
+            const oldSelectors = selectorParams;
+            const newSelectors = replaceSelectors(oldSelectors, callbackFn); // recursively map the `oldSelectors`
+            
+            replacement = [
+                selectorToken,
+                selectorName,
+                newSelectors,
+            ] as SimpleSelector;
+        } // if
+    } // if
+    
+    
+    
+    return isSelector(replacement) ? replacement /* as Selector */ : createSelector(replacement) /* createSelector(as SelectorEntry) as Selector */;
+}
 /**
  * Creates a new `SelectorGroup` populated with the results of calling a provided `callbackFn` on every `SelectorEntry` in the `selectors`.  
  * The nested `SelectorEntry` (if any) will also be passed to `callbackFn`.  
@@ -880,36 +914,7 @@ export const replaceSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, ca
         .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
         .map((selector: Selector): Selector => // mutates a `Selector` to another `Selector`
             selector
-            .filter(isNotEmptySelectorEntry) // remove empty SelectorEntry(es) in Selector
-            .flatMap((selectorEntry: SelectorEntry): Selector => { // mutates a (SimpleSelector|Combinator) to ([SimpleSelector]|Selector)
-                const callbackResult = callbackFn(selectorEntry);
-                let replacement = (callbackResult === undefined) ? selectorEntry : callbackResult;
-                
-                
-                
-                if (replacement === selectorEntry) { // if has not been replaced by `callbackFn` (same by reference)
-                    const [
-                        selectorToken,
-                        selectorName,
-                        selectorParams,
-                    ] = selectorEntry;
-                    
-                    if (selectorParams && isSelectors(selectorParams)) {
-                        const oldSelectors = selectorParams;
-                        const newSelectors = replaceSelectors(oldSelectors, callbackFn); // recursively map the `oldSelectors`
-                        
-                        replacement = [
-                            selectorToken,
-                            selectorName,
-                            newSelectors,
-                        ] as SimpleSelector;
-                    } // if
-                } // if
-                
-                
-                
-                return isSelector(replacement) ? replacement /* as Selector */ : createSelector(replacement) /* createSelector(as SelectorEntry) as Selector */;
-            })
+            .flatMap(convertOptionalSelectorEntryToSelector.bind(callbackFn))
         )
     );
 };
