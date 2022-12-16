@@ -94,7 +94,7 @@ const createGroupBySpecificityWeightStatus = (minSpecificityWeight: number|null,
 }
 
 const nthChildNSelector = pseudoClassSelector('nth-child', 'n');
-type ReducedSpecificity = { excess: number, unchanged: SelectorEntry[], quarantined: (SelectorEntry[]|PseudoElementSelector)[], buffered: SelectorEntry[] }
+type ReducedSpecificity = { excess: number, unchanged: PureSelector, quarantined: (PureSelector|PseudoElementSelector)[], buffered: PureSelector }
 const reduceSpecificity = (accum: ReducedSpecificity, selectorEntry: SelectorEntry): ReducedSpecificity => {
     if (accum.excess <= 0) {
         accum.unchanged.unshift(selectorEntry);
@@ -190,6 +190,24 @@ const reduceSpecificity = (accum: ReducedSpecificity, selectorEntry: SelectorEnt
     // loop to next selectorEntry:
     return accum;
 }
+const convertSelectorsOrPseudoElmToWhereSelector = (selectorsOrPseudoElm: PureSelector|PseudoElementSelector): Selector => {
+    if (selectorsOrPseudoElm[0] === '::') return [selectorsOrPseudoElm as PseudoElementSelector];
+    
+    
+    
+    // group the selector with :where(), so the specificity is zero:
+    const [
+        whereSelector,            // grouped selectorEntries inside :where()
+        // ...selectorsWithPseudoElm // ungroupable ::pseudoElement selectorEntries => always empty because we've filtered the ::pseudoElement
+    ] = groupSelectors(
+        ungroupSelector(          // if wrapped with :is() or :where() => unwrap
+            selectorsOrPseudoElm as PureSelector
+        ),
+        { selectorName: 'where' } // :where
+    );
+    
+    return whereSelector;
+}
 const decreaseSpecificity = (pureSelector: PureSelector, excessSpecificityWeight: number, minSpecificityWeight: number|null): Selector => {
     const reducedSpecificity = pureSelector.reduceRight(reduceSpecificity, { excess: excessSpecificityWeight, unchanged: [], quarantined: [], buffered: [] });
     if (reducedSpecificity.buffered.length) {
@@ -198,24 +216,7 @@ const decreaseSpecificity = (pureSelector: PureSelector, excessSpecificityWeight
     
     
     
-    const neutralizedSelector : Selector = reducedSpecificity.quarantined.flatMap((selectorsOrPseudoElm): Selector => {
-        if (selectorsOrPseudoElm[0] === '::') return [selectorsOrPseudoElm as PseudoElementSelector];
-        
-        
-        
-        // group the selector with :where(), so the specificity is zero:
-        const [
-            whereSelector,            // grouped selectorEntries inside :where()
-         // ...selectorsWithPseudoElm // ungroupable ::pseudoElement selectorEntries => always empty because we've filtered the ::pseudoElement
-        ] = groupSelectors(
-            ungroupSelector(          // if wrapped with :is() or :where() => unwrap
-                selectorsOrPseudoElm as SelectorEntry[]
-            ),
-            { selectorName: 'where' } // :where
-        );
-        
-        return whereSelector;
-    });
+    const neutralizedSelector : Selector = reducedSpecificity.quarantined.flatMap(convertSelectorsOrPseudoElmToWhereSelector);
     
     
     
