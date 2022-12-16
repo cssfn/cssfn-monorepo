@@ -1,8 +1,4 @@
 publish:
-@cssfn/css-selectors
-@cssfn/cssfn
-
-
 
 Fix bug on css-config when renaming `cssConfig.prefix`
 
