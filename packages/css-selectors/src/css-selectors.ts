@@ -917,7 +917,7 @@ function convertOptionalSelectorToOptionalSelectorWithReplacement(this: ReplaceS
 export const replaceSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, callbackFn: ReplaceSelectorCallback): SelectorGroup => {
     if (!isNotEmptySelectors(selectors)) return selectorGroup(
         /* an empty SelectorGroup */
-    ); // empty selectors => nothing to replace => return an empty SelectorGroup
+    ); // nullish => nothing to replace => return an empty SelectorGroup
     
     
     
@@ -926,8 +926,8 @@ export const replaceSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, ca
         .map(convertOptionalSelectorToOptionalSelectorWithReplacement.bind(callbackFn)) // mutates a `Selector` to another `Selector`
     );
 };
-export const replaceSelector  = (selector : OptionalOrBoolean<Selector>     , callbackFn: ReplaceSelectorCallback): SelectorGroup => {
-    return replaceSelectors(selectorGroup(selector), callbackFn);
+export const replaceSelector  = (selector : OptionalOrBoolean<Selector>     , callbackFn: ReplaceSelectorCallback): OptionalOrBoolean<Selector> => {
+    return convertOptionalSelectorToOptionalSelectorWithReplacement.bind(callbackFn)(selector);
 }
 
 // groups:
