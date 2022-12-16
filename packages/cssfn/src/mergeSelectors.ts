@@ -28,12 +28,14 @@ import {
     createSelectorGroup,
     isNotEmptySelectorEntry,
     isNotEmptySelector,
+    convertSelectorToPureSelector,
     
     
     
     // transforms:
     groupSelectors,
     ungroupSelector,
+    ungroupSelectors,
     
     
     
@@ -544,10 +546,8 @@ const createSuffixedParentSelectorGroup  = (groupByParentSelectorGroup: PureSele
 export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): PureSelector[] => {
     // we need to unwrap the :is(...) and :where(...) before grouping the similarities
     const normalizedSelectorGroup: PureSelector[] = (
-        pureSelectorGroup
-        .flatMap((selector) => ungroupSelector(selector))            // SelectorGroup  =>  PureSelectorGroup === Selector[] === [ Selector...Selector... ]
-        .filter(isNotEmptySelector)                                  // remove undefined|null|false|true|Selector(empty) => only real Selector
-        .map((selector) => selector.filter(isNotEmptySelectorEntry)) // remove undefined|null|false|true                 => only real SelectorEntry
+        ungroupSelectors(pureSelectorGroup) // PureSelectorGroup === Selector[] === [ Selector...Selector... ]
+        .map(convertSelectorToPureSelector) // remove undefined|null|false|true => only real SelectorEntry
     );
     
     
