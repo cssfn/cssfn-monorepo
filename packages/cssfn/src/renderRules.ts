@@ -140,6 +140,8 @@ const shortProps = new Map<keyof CssProps, keyof CssProps>(Object.entries({
     gapBlock   : 'rowGap',
 }) as [keyof CssProps, keyof CssProps][]);
 
+const isExistingPropSubValue = (propSubValue: string|null): propSubValue is string => (propSubValue !== null);
+
 
 
 export interface RenderRuleOptions {
@@ -201,7 +203,7 @@ class RenderRule {
                     .join(' ') // space_separated_values
                 );
             })
-            .filter((propSubValue): propSubValue is string => (propSubValue !== null))
+            .filter(isExistingPropSubValue)
             .join(', ') // comma_separated_values
             +
             (hasImportant ? ' !important' : '')
