@@ -780,10 +780,11 @@ export const isSelector = (test: OptionalOrBoolean<SelectorEntry|Selector>): tes
 };
 export const isNotEmptySelector   = (selector  : OptionalOrBoolean<Selector     >): selector  is Selector      =>  (!!selector  && (selector  !== true)) &&  selector.some(  isNotEmptySelectorEntry);
 export const isNotEmptySelectors  = (selectors : OptionalOrBoolean<SelectorGroup>): selectors is SelectorGroup =>  (!!selectors && (selectors !== true)) && selectors.some(  isNotEmptySelector     );
-export const countSelectorEntries = (selector  : OptionalOrBoolean<Selector     >): number                     => ((!!selector  && (selector  !== true)) &&  selector.filter(isNotEmptySelectorEntry).length) || 0;
-export const countSelectors       = (selectors : OptionalOrBoolean<SelectorGroup>): number                     => ((!!selectors && (selectors !== true)) && selectors.filter(isNotEmptySelector     ).length) || 0;
+export const countSelectorEntries = (selector  : OptionalOrBoolean<Selector     >): number                     => ((!!selector  && (selector  !== true)) && convertSelectorToPureSelector(selector).length            ) || 0;
+export const countSelectors       = (selectors : OptionalOrBoolean<SelectorGroup>): number                     => ((!!selectors && (selectors !== true)) && convertSelectorGroupToPureSelectorGroup(selectors).length ) || 0;
 
-export const convertSelectorToPureSelector = (selector: Selector): PureSelector => selector.filter(isNotEmptySelectorEntry);
+export const convertSelectorToPureSelector           = (selector  : Selector     ): PureSelector      =>  selector.filter(isNotEmptySelectorEntry);
+export const convertSelectorGroupToPureSelectorGroup = (selectors : SelectorGroup): PureSelectorGroup => selectors.filter(isNotEmptySelector);
 
 
 
