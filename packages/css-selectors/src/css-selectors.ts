@@ -860,7 +860,7 @@ export const selectorsToString      = (selectors: SelectorGroup): string => {
 
 // transforms:
 export type ReplaceSelectorCallback = (selectorEntry: SelectorEntry) => OptionalOrBoolean<SelectorEntry|Selector>
-function convertOptionalSelectorEntryToSelector(this: ReplaceSelectorCallback, optionalSelectorEntry: OptionalOrBoolean<SelectorEntry>): OptionalOrBoolean<Selector> {
+function convertOptionalSelectorEntryToSelectorWithReplacement(this: ReplaceSelectorCallback, optionalSelectorEntry: OptionalOrBoolean<SelectorEntry>): OptionalOrBoolean<Selector> {
     if (!isNotEmptySelectorEntry(optionalSelectorEntry)) return optionalSelectorEntry; // nullish => ignore
     
     
@@ -895,6 +895,17 @@ function convertOptionalSelectorEntryToSelector(this: ReplaceSelectorCallback, o
     if (!replacement || (replacement === true)) return replacement; // nullish => ignore
     return isSelector(replacement) ? replacement /* as Selector */ : createSelector(replacement) /* createSelector(as SelectorEntry) as Selector */;
 }
+function convertOptionalSelectorToOptionalSelectorWithReplacement(this: ReplaceSelectorCallback, optionalSelector: OptionalOrBoolean<Selector>): OptionalOrBoolean<Selector> {
+    if (!isNotEmptySelector(optionalSelector)) return optionalSelector; // nullish => ignore
+    
+    
+    
+    const callbackFn = this;
+    return (
+        optionalSelector
+        .flatMap(convertOptionalSelectorEntryToSelectorWithReplacement.bind(callbackFn))
+    );
+}
 /**
  * Creates a new `SelectorGroup` populated with the results of calling a provided `callbackFn` on every `SelectorEntry` in the `selectors`.  
  * The nested `SelectorEntry` (if any) will also be passed to `callbackFn`.  
@@ -912,11 +923,7 @@ export const replaceSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, ca
     
     return (
         selectors
-        .filter(isNotEmptySelector) // remove empty Selector(s) in SelectorGroup
-        .map((selector: Selector): Selector => // mutates a `Selector` to another `Selector`
-            selector
-            .flatMap(convertOptionalSelectorEntryToSelector.bind(callbackFn))
-        )
+        .map(convertOptionalSelectorToOptionalSelectorWithReplacement.bind(callbackFn)) // mutates a `Selector` to another `Selector`
     );
 };
 export const replaceSelector  = (selector : OptionalOrBoolean<Selector>     , callbackFn: ReplaceSelectorCallback): SelectorGroup => {
