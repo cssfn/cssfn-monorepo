@@ -892,6 +892,7 @@ function convertOptionalSelectorEntryToSelector(this: ReplaceSelectorCallback, o
     
     
     
+    if (!replacement || (replacement === true)) return replacement; // nullish => ignore
     return isSelector(replacement) ? replacement /* as Selector */ : createSelector(replacement) /* createSelector(as SelectorEntry) as Selector */;
 }
 /**
