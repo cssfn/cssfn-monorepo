@@ -26,7 +26,6 @@ import {
     isCombinator,
     createSelector,
     createSelectorGroup,
-    isNotEmptySelectorEntry,
     isNotEmptySelector,
     convertSelectorToPureSelector,
     convertSelectorGroupToPureSelectorGroup,
@@ -636,9 +635,8 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options?: CssSelect
     // remove empty_selector(s) undefined|null|false|true|Selector(...only_emptySelectorEntry...) from selectorGroup,
     // so we only working with real_selector(s)
     const normalizedSelectorGroup: PureSelector[] = (
-        selectorGroup
-        .filter(isNotEmptySelector)                                  // remove undefined|null|false|true|Selector(empty) => only real Selector
-        .map((selector) => selector.filter(isNotEmptySelectorEntry)) // remove undefined|null|false|true                 => only real SelectorEntry
+        convertSelectorGroupToPureSelectorGroup(selectorGroup) // remove undefined|null|false|true|Selector(empty) => only real Selector
+        .map(convertSelectorToPureSelector)                    // remove undefined|null|false|true                 => only real SelectorEntry
     );
     
     
