@@ -1,19 +1,19 @@
-@cssfn/types
-@cssfn/css-types
+[published ] @cssfn/types
+[published ] @cssfn/css-types
 
-@cssfn/bulk-list-builder
-@cssfn/css-prop-list
+[published ] @cssfn/bulk-list-builder
+[published ] @cssfn/css-prop-list
 
-@cssfn/css-selectors
-@cssfn/css-vars
+[modified  ] @cssfn/css-selectors
+[published ] @cssfn/css-vars
 
-@cssfn/css-supports
-@cssfn/css-prop-auto-prefix
+[published ] @cssfn/css-supports
+[modified  ] @cssfn/css-prop-auto-prefix
 
-@cssfn/cssfn
+[modified  ] @cssfn/cssfn
 
-@cssfn/css-config
-@cssfn/cssfn-dom
-@cssfn/cssfn-react
+[modified  ] @cssfn/css-config
+[modified  ] @cssfn/cssfn-dom
+[modified  ] @cssfn/cssfn-react
 
-@cssfn/core
+[modified  ] @cssfn/core
