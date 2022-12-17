@@ -1,6 +1,7 @@
 publish @cssfn/css-prop-auto-prefix
 publish @cssfn/css-selectors
 publish @cssfn/cssfn
+publish @cssfn/css-config
 
 
 
@@ -17,10 +18,6 @@ high cpu usage:
 
 
             getOwnPropertyDescriptor : (_unusedObj, propName: string|symbol)                                          => this.#getPropDescRef(propName),
-
-
-pascalCase
-    return d.slice(f, p).split("\0").map(u).join(void 0 === c ? " " : c) // high cpu usage
 
 
 // simplifies:
