@@ -955,7 +955,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      */
     #getRef(propName: string|symbol): CssCustomSimpleRef|undefined {
         const propDecl = this.#getDecl(propName);
-        if (!propDecl) return undefined; // not found
+        if (propDecl === undefined) return undefined; // not found
         
         return `var(${propDecl})`;
     }
@@ -967,7 +967,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      */
     #getVal(propName: string|symbol): CssCustomValue|undefined {
         const propDecl = this.#getDecl(propName);
-        if (!propDecl) return undefined; // not found
+        if (propDecl === undefined) return undefined; // not found
         
         
         
@@ -1024,8 +1024,20 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @returns `true` indicates the specified `propName` exists -or- `false` if it doesn't exist.
      */
     #hasProp(propName: string|symbol): boolean {
+        // ignores symbol & number props:
+        if (typeof(propName) !== 'string') return false;
+        
+        
+        
+        const cached = this.#_propDeclCache.get(propName);
+        if (cached !== undefined) {
+            return (cached !== false);
+        } // if
+        
+        
+        
         const propDecl = this.#getDecl(propName);
-        return !!propDecl;
+        return (propDecl !== undefined);
     }
     /**
      * Gets the *all possible* `propName`s in the css-config.
@@ -1043,25 +1055,46 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         
-        const propDecls = (
-            Array.from(this.#props.keys() as IterableIterator<CssCustomName|symbol>)
-            .filter(isPropDecl) // only show string props, ignores symbol props
-        );
-        const _propDeclCache = this.#_propDeclCache;
-        return Array.from(
-            (function*(): Generator<string> {
-                for (const propDecl of propDecls) {
-                    const propName = convertPropDeclToPropName(skipPrefixChars, propDecl);
-                    _propDeclCache.set(propName, propDecl);
-                    yield propName;
-                } // for
-            })()
-        );
+        // const propDecls = (
+        //     Array.from(this.#props.keys() as IterableIterator<CssCustomName|symbol>)
+        //     .filter(isPropDecl) // only show string props, ignores symbol props
+        // );
+        // const _propDeclCache = this.#_propDeclCache;
+        // return Array.from(
+        //     (function*(): Generator<string> {
+        //         for (const propDecl of propDecls) {
+        //             const propName = convertPropDeclToPropName(skipPrefixChars, propDecl);
+        //             _propDeclCache.set(propName, propDecl);
+        //             yield propName;
+        //         } // for
+        //     })()
+        // );
+        
         // return (
         //     Array.from(this.#props.keys() as IterableIterator<CssCustomName|symbol>)
         //     .filter(isPropDecl) // only show string props, ignores symbol props
         //     .map(convertPropDeclToPropName.bind(skipPrefixChars)) // remove prefix
         // );
+        
+        // const _propDeclCache = this.#_propDeclCache;
+        return Array.from(
+            (function* (propKeys: IterableIterator<CssCustomName|symbol>): Generator<string> {
+                for (const propDecl of propKeys) {
+                    // conditions:
+                    if (!isPropDecl(propDecl)) continue;
+                    
+                    
+                    
+                    // results:
+                    
+                    yield convertPropDeclToPropName(skipPrefixChars, propDecl);
+                    
+                    // const propName = convertPropDeclToPropName(skipPrefixChars, propDecl);
+                    // _propDeclCache.set(propName, propDecl);
+                    // yield propName;
+                } // for
+            })(this.#props.keys() as IterableIterator<CssCustomName|symbol>)
+        )
     }
     /**
      * Gets the behavior of the specified `propName`.
