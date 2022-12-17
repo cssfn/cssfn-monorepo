@@ -5,10 +5,6 @@ publish @cssfn/css-config
 
 
 
-Fix bug on css-config when renaming `cssConfig.prefix`
-
-
-
 high cpu usage:
 
     const result: Refs<CssConfigProps> = {};

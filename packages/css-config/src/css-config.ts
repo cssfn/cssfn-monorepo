@@ -111,13 +111,13 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
     #prefix   : string
     #selector : CssSelector
     
-    readonly #updatedCallback : () => void
+    readonly #updatedCallback : (prevPrefix: string) => void
     //#endregion private properties
     
     
     
     //#region constructors
-    constructor(updatedCallback: () => void, options?: CssConfigOptions) {
+    constructor(updatedCallback: (prevPrefix: string) => void, options?: CssConfigOptions) {
         this.#prefix   = options?.prefix   ?? defaultOptions.prefix;   // an empty prefix   is allowed
         this.#selector = options?.selector || defaultOptions.selector; // an empty selector is not allowed
         
@@ -135,8 +135,9 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
         // an empty prefix is allowed
         if (this.#prefix === value) return; // no change => no need to update
         
+        const prevPrefix = this.#prefix;
         this.#prefix = value; // update
-        this.#update(); // notify a css-config updated
+        this.#update(prevPrefix); // notify a css-config updated
     }
     
     get selector() {
@@ -154,8 +155,8 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
     
     
     //#region private methods
-    #update() {
-        this.#updatedCallback(); // notify a css-config updated
+    #update(prevPrefix?: string) {
+        this.#updatedCallback(prevPrefix ?? this.prefix); // notify a css-config updated
     }
     //#endregion private methods
 }
@@ -699,7 +700,8 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     
     //#region data sources
-    #_propsCache : CssConfigCustomPropsMap|null = null
+    #_propsMapSource : Map<keyof TConfigProps, ValueOf<TConfigProps>>|null = null
+    #_propsCache     : CssConfigCustomPropsMap|null = null
     /**
      * A *generated css custom props* as the *source of truth*.  
      *   
@@ -752,31 +754,34 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     get #props() : CssConfigCustomPropsMap {
         //#region construct `#props` for the first time
         if (!this.#_propsCache) {
-            const propsFactory = this.#propsFactory;
-            const props : TConfigProps = (
-                (typeof(propsFactory) === 'function')
-                ?
-                propsFactory()
-                :
-                propsFactory
-            );
+            if (!this.#_propsMapSource) {
+                const propsFactory = this.#propsFactory;
+                const props : TConfigProps = (
+                    (typeof(propsFactory) === 'function')
+                    ?
+                    propsFactory()
+                    :
+                    propsFactory
+                );
+                
+                
+                
+                // convert props to propsMap:
+                this.#_propsMapSource = new Map<keyof TConfigProps, ValueOf<TConfigProps>>([
+                    ...Object.entries(props) as [keyof TConfigProps, ValueOf<TConfigProps>][],
+                    ...Object.getOwnPropertySymbols(props).map((symbolProp) => [ symbolProp, props[symbolProp] ]) as [keyof TConfigProps, ValueOf<TConfigProps>][],
+                ]);
+            } // if
             
             
             
-            // convert props to propsMap:
-            const propsMap = new Map<keyof TConfigProps, ValueOf<TConfigProps>>([
-                ...Object.entries(props) as [keyof TConfigProps, ValueOf<TConfigProps>][],
-                ...Object.getOwnPropertySymbols(props).map((symbolProp) => [ symbolProp, props[symbolProp] ]) as [keyof TConfigProps, ValueOf<TConfigProps>][],
-            ]);
-            
-            
-            
-            // convert propsMap to cssCustomPropsMap:
+            // convert #_propsMapSource to cssCustomPropsMap:
             const cssCustomPropsMap : CssConfigCustomPropsMap = (
-                (new TransformCssConfigFactoryDuplicatesBuilder<TConfigProps>(propsMap, this.#options)).props
+                (new TransformCssConfigFactoryDuplicatesBuilder<TConfigProps>(this.#_propsMapSource, this.#options)).props
                 ??
-                propsMap as CssConfigCustomPropsMap
+                this.#_propsMapSource as CssConfigCustomPropsMap
             );
+            this.#_propsMapSource = null; // converted! => dispose the source
             
             
             
@@ -1124,7 +1129,46 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     //#region constructors
     constructor(initialProps: ProductOrFactory<TConfigProps>, options?: CssConfigOptions) {
         this.#propsFactory = initialProps;
-        this.#options = new LiveCssConfigOptions(() => {
+        this.#options = new LiveCssConfigOptions((prevPrefix: string) => {
+            this.#_propsMapSource = (() => {
+                const prevState = this.#_propsCache;
+                if (!prevState) return prevState;
+                
+                
+                
+                // rename the prefPrefix to currentPrefix:
+                const prefixLength    = prevPrefix.length;
+                const skipPrefixChars = (
+                    prefixLength
+                    ?
+                    (3 + prefixLength) // remove double dash -- AND remove prefix AND remove single dash -
+                    :
+                    2                  // remove double dash --
+                );
+                const props = Array.from(
+                    (function* (): Generator<readonly[CssCustomName, string]> {
+                        for (const propDecl of prevState.keys()) {
+                            // conditions:
+                            if (typeof(propDecl) !== 'string') continue;
+                            
+                            
+                            
+                            yield [propDecl as CssCustomName, propDecl.slice(skipPrefixChars)];
+                        } // for
+                    })()
+                );
+                for (const [propDecl, propName] of props) {
+                    const prevValue = prevState.get(propDecl);
+                    prevState.delete(propDecl);
+                    prevState.set(propName as any, prevValue as any);
+                } // for
+                
+                
+                
+                // here the restored:
+                return prevState as Map<keyof TConfigProps, ValueOf<TConfigProps>>;
+            })();
+            this.#_propsCache = null;
             this.#_propDeclCache.clear(); // clear cache
             this.#update(); // when the config MODIFIED => the `#genProps` needs to `update()`
         }, options);
