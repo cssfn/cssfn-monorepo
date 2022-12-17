@@ -1,3 +1,4 @@
+publish @cssfn/css-prop-auto-prefix
 publish @cssfn/css-selectors
 publish @cssfn/cssfn
 

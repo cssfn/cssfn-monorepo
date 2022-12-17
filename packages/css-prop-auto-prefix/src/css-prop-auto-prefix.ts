@@ -4,16 +4,23 @@ import type {
     CssProps,
 }                           from '@cssfn/css-types'
 
-// other libs:
-import {
-    pascalCase,
-}                           from 'pascal-case'
-
 // internals:
 import type {
     BrowserInfo,
     PrefixedProp,
 }                           from './types.js'
+
+
+
+// utilities:
+const startsCapitalized = (propName: string): string => {
+    // conditions:
+    if (!propName) return propName; // ignore empty string
+    
+    
+    
+    return propName[0].toUpperCase() + propName.slice(1);
+};
 
 
 
@@ -61,7 +68,7 @@ export const createCssPropAutoPrefix = (browserInfo: BrowserInfo): ((propName: k
             
             
             
-            const prefixedPropName = `${prefix}${pascalCase(propName)}` as keyof CssProps;
+            const prefixedPropName = `${prefix}${startsCapitalized(propName)}` as keyof CssProps;
             cache.set(propName, prefixedPropName);
             return prefixedPropName;
         } // if
@@ -69,7 +76,7 @@ export const createCssPropAutoPrefix = (browserInfo: BrowserInfo): ((propName: k
         
         
         const prefix = needPrefix;
-        const prefixedPropName = `${prefix}${pascalCase(propName)}` as keyof CssProps;
+        const prefixedPropName = `${prefix}${startsCapitalized(propName)}` as keyof CssProps;
         cache.set(propName, prefixedPropName);
         return prefixedPropName;
     };
