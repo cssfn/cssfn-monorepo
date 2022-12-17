@@ -139,7 +139,7 @@ export const normalizeSelectorOptions = <TDefaultOptions extends CssSelectorOpti
         minSpecificityWeight,
         maxSpecificityWeight,
     } as TDefaultOptions;
-}
+};
 
 const fastHash = (input: string): string => {
     let hash = 0, i, chr;
@@ -204,4 +204,23 @@ export const generateId = (styleSheetId: string, scopeName: CssScopeName): strin
     
     
     return myHash;
+};
+
+
+
+export const startsCapitalized = (propName: string): string => {
+    // conditions:
+    if (!propName) return propName; // ignore empty string
+    
+    
+    
+    return propName[0].toUpperCase() + propName.slice(1);
+};
+export const startsDecapitalized = (propName: string): string => {
+    // conditions:
+    if (!propName) return propName; // ignore empty string
+    
+    
+    
+    return propName[0].toLowerCase() + propName.slice(1);
 };

@@ -168,8 +168,8 @@ class RenderRule {
         const unshortPropName    = shortProps.get(propName) ?? propName;
         const cssPropAutoPrefix  = this.#options?.cssPropAutoPrefix;
         const prefixedPropName   = cssPropAutoPrefix ? cssPropAutoPrefix(unshortPropName) : unshortPropName;
-        const camelCasedPropName = hyphenate(prefixedPropName);
-        return camelCasedPropName;
+        const hyphenatedPropName = hyphenate(prefixedPropName);
+        return hyphenatedPropName;
     }
     #renderPropSimpleValue(propValue: CssComplexBaseValueOf<CssSimpleValue>): string {
         if (typeof(propValue) === 'number') return `${propValue}`; // CssSimpleNumericValue              => number => string
