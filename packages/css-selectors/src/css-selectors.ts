@@ -774,8 +774,8 @@ export const isSelector = (test: OptionalOrBoolean<SelectorEntry|Selector>): tes
         SelectorEntry  = SimpleSelector | Combinator
         
         Combinator     : string
-        SimpleSelector : [ SelectorToken, SelectorName, SelectorParams  ] => [ SelectorToken, SelectorName, SelectorParams ]
-        Selector       : [ SelectorEntry...SelectorEntry...             ] => [ (SimpleSelector|Combinator)...              ]
+        SimpleSelector : [ SelectorToken, SelectorName, SelectorParams                  ] => [ SelectorToken, SelectorName, SelectorParams                ]
+        Selector       : [ undefined|null|false|true...SelectorEntry...SelectorEntry... ] => [ undefined|null|false|true...(SimpleSelector|Combinator)... ]
     */
     return (
         (!!test && (test !== true)) // filter out undefined|null|false|true
@@ -783,7 +783,7 @@ export const isSelector = (test: OptionalOrBoolean<SelectorEntry|Selector>): tes
         (typeof(test) !== 'string') // filter out Combinator
         &&
         (
-            (typeof(test[0]) !== 'string')   // is SimpleSelector
+            (typeof(test[0]) !== 'string')   // is Selector[0] => [ undefined|null|false|true...SimpleSelector...readonly[***] ]
             ||
             combinatorList.includes(test[0]) // is Combinator|SelectorToken => filter in Combinator
         )
