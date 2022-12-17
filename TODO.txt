@@ -1,10 +1,3 @@
-publish @cssfn/css-selectors
-publish @cssfn/css-prop-auto-prefix
-publish @cssfn/cssfn
-publish @cssfn/css-config
-
-
-
 high cpu usage:
 
     const result: Refs<CssConfigProps> = {};
