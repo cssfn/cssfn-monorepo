@@ -3,8 +3,6 @@ publish @cssfn/cssfn
 
 
 
-add support :has(>:relative)
-
 Fix bug on css-config when renaming `cssConfig.prefix`
 
 
