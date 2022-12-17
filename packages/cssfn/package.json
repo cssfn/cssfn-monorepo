@@ -41,10 +41,10 @@
     "tiny-warning": "^1.0.3"
   },
   "peerDependencies": {
-    "rxjs": "^7.5.5"
+    "rxjs": "^7.8.0"
   },
   "devDependencies": {
-    "@types/jsdom": "^20.0.0",
-    "jsdom": "^20.0.1"
+    "@types/jsdom": "^20.0.1",
+    "jsdom": "^20.0.3"
   }
 }
