@@ -29,8 +29,8 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
-    "@cssfn/css-prop-auto-prefix": "^2.0.0",
-    "@cssfn/css-selectors": "^2.0.5",
+    "@cssfn/css-prop-auto-prefix": "^2.0.1",
+    "@cssfn/css-selectors": "^2.0.7",
     "@cssfn/css-types": "^2.0.6",
     "@cssfn/types": "^2.0.1",
     "@types/hyphenate-style-name": "^1.0.0",

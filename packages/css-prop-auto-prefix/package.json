@@ -32,6 +32,6 @@
     "is-in-browser": "^2.0.0"
   },
   "devDependencies": {
-    "@cssfn/css-prop-list": "^2.0.7"
+    "@cssfn/css-prop-list": "^2.0.8"
   }
 }

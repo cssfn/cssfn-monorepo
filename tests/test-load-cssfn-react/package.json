@@ -3,9 +3,9 @@
   "version": "0.1.1",
   "private": true,
   "dependencies": {
-    "@cssfn/cssfn": "^2.0.13",
-    "@cssfn/cssfn-dom": "^2.0.12",
-    "@cssfn/cssfn-react": "^2.0.16",
+    "@cssfn/cssfn": "^2.0.28",
+    "@cssfn/cssfn-dom": "^2.0.15",
+    "@cssfn/cssfn-react": "^2.0.19",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",

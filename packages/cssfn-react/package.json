@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/cssfn-react",
-  "version": "2.0.18",
+  "version": "2.0.19",
   "description": "Declares, loads, and unloads css stylesheets in React hooks way.",
   "keywords": [
     "css",
@@ -35,7 +35,7 @@
     "@types/react-dom": "^18.0.8"
   },
   "peerDependencies": {
-    "@cssfn/cssfn": "^2.0.22",
+    "@cssfn/cssfn": "^2.0.28",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "rxjs": "^7.5.5"

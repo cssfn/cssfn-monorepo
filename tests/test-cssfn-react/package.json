@@ -4,8 +4,8 @@
   "private": true,
   "dependencies": {
     "@cssfn/css-types": "^2.0.6",
-    "@cssfn/cssfn": "^2.0.13",
-    "@cssfn/cssfn-react": "^2.0.16",
+    "@cssfn/cssfn": "^2.0.28",
+    "@cssfn/cssfn-react": "^2.0.19",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.2.0",
