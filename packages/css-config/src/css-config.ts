@@ -61,10 +61,11 @@ import {
     
     
     // utilities:
-    camelCase,
-    pascalCase,
     isFinalSelector,
     isFinalStyleMap,
+    
+    startsCapitalized,
+    startsDecapitalized,
 }                           from '@cssfn/cssfn'
 import {
     isKnownCssProp,
@@ -1205,22 +1206,23 @@ export const usesCssProps      = (cssProps: Refs<CssConfigProps>): CssKnownProps
  * If `remove === true`, the returning props will be normalized (renamed), so they don't start with `prefix`.
  */
 export const usesPrefixedProps = (cssProps: Refs<CssConfigProps>, prefix: string, remove = true): Refs<CssConfigProps> => {
+    prefix = startsDecapitalized(prefix);
     const result: Refs<CssConfigProps> = {};
     for (const propName in cssProps) {
         // excludes the entries if the `propName` is not starting with the specified `prefix`:
         if (!propName.startsWith(prefix)) continue; // exclude
-        if (propName.length === prefix.length) continue; // at least 1 char left;
+        if (propName.length === prefix.length) continue; // the length of propName must be greater than the length of prefix
         
-        const propNameLeft = propName.slice(prefix.length); // remove the `prefix`
+        const reducedPropName = propName.slice(prefix.length); // remove the `prefix`
         /**
          * prefix: `menu`
-         * menuColor  => Color  => [ok]  => but still need to camelized
+         * menuColor  => Color  => [ok]  => but still need to decapitalize
          * menusColor => sColor => [err]
          */
-        if (!isUppercase(propNameLeft[0])) continue; // workaround for [err] => the first character must be a capital
+        if (!isUppercase(reducedPropName[0])) continue; // workaround for [err] => the first character must be a capital
         
-        // if passed => camelized the case => include it:
-        result[(remove ? camelCase(propNameLeft) : propName)] = cssProps[propName];
+        // if passed => decapitalize the case => include it:
+        result[(remove ? startsDecapitalized(reducedPropName) : propName)] = cssProps[propName];
     } // for
     return result;
 }
@@ -1234,22 +1236,22 @@ export const usesPrefixedProps = (cssProps: Refs<CssConfigProps>, prefix: string
  * If `remove === true`, the returning props will be normalized (renamed), so they don't end with `suffix`.
  */
 export const usesSuffixedProps = (cssProps: Refs<CssConfigProps>, suffix: string, remove = true): Refs<CssConfigProps> => {
-    suffix = pascalCase(suffix);
+    suffix = startsCapitalized(suffix);
     const result: Refs<CssConfigProps> = {};
     for (const propName in cssProps) {
         // excludes the entries if the `propName` is not ending with the specified `suffix`:
         if (!propName.endsWith(suffix)) continue; // exclude
-        if (propName.length === suffix.length) continue; // at least 1 char left;
+        if (propName.length === suffix.length) continue; // the length of propName must be greater than the length of suffix
         
-        const propNameLeft = propName.slice(0, - suffix.length); // remove the `suffix`
+        const reducedPropName = propName.slice(0, - suffix.length); // remove the `suffix`
         /**
          * suffix: `valid` => `Valid`
          * colorValid   => color   => [ok]
-         * colorInvalid => colorIn => never happened, because filtered by pascalized `Valid`
+         * colorInvalid => colorIn => never happened, because filtered by capitalized `Valid`
          */
         
         // if passed => include it:
-        result[(remove ? propNameLeft : propName)] = cssProps[propName];
+        result[(remove ? reducedPropName : propName)] = cssProps[propName];
     } // for
     return result;
 }
