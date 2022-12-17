@@ -551,6 +551,46 @@ test(`selectorToString(Selector)`, () => {
         '.boo :foo(a+b)>#bleh'
     );
 });
+test(`selectorToString(Selector)`, () => {
+    expect(selectorToString(
+        selector(
+            classSelector('boo'),
+            pseudoClassSelector(
+                'has',
+                selectorGroup(
+                    selector(
+                        classSelector('foo'),
+                        combinator('>'),
+                        pseudoClassSelector('bleh'),
+                    ),
+                ),
+            ),
+        ),
+    ))
+    .toBe(
+        '.boo:has(.foo>:bleh)'
+    );
+});
+test(`selectorToString(Selector)`, () => {
+    expect(selectorToString(
+        selector(
+            classSelector('boo'),
+            pseudoClassSelector(
+                'has',
+                selectorGroup(
+                    selector(
+                        combinator('>'),
+                        classSelector('foo'),
+                        pseudoClassSelector('bleh'),
+                    ),
+                ),
+            ),
+        ),
+    ))
+    .toBe(
+        '.boo:has(>.foo:bleh)'
+    );
+});
 ['is', 'not', 'where', 'has'].forEach((group) => {
     test(`selectorToString(Selector)`, () => {
         expect(selectorToString(

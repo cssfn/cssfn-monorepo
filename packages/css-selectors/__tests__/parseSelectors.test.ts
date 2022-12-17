@@ -961,6 +961,47 @@ test(`parseSelectors('   .boo   .foo:bleh  >  :alice~:bob  +  #charlie   ')`, ()
 
 
 
+//#region test relative Combinator
+test(`parseSelectors('.boo:has(.foo>:bleh)')`, () => {
+    expect(parseSelectors('.boo:has(.foo>:bleh)'))
+    .toEqual(selectorGroup(
+        selector(
+            classSelector('boo'),
+            pseudoClassSelector(
+                'has',
+                selectorGroup(
+                    selector(
+                        classSelector('foo'),
+                        combinator('>'),
+                        pseudoClassSelector('bleh'),
+                    ),
+                ),
+            ),
+        ),
+    ));
+});
+test(`parseSelectors('.boo:has(>.foo:bleh)')`, () => {
+    expect(parseSelectors('.boo:has(>.foo:bleh)'))
+    .toEqual(selectorGroup(
+        selector(
+            classSelector('boo'),
+            pseudoClassSelector(
+                'has',
+                selectorGroup(
+                    selector(
+                        combinator('>'),
+                        classSelector('foo'),
+                        pseudoClassSelector('bleh'),
+                    ),
+                ),
+            ),
+        ),
+    ));
+});
+//#endregion test relative Combinator
+
+
+
 //#region test SelectorGroup
 test(`parseSelectors('.boo,:foo(a+b),#bleh,::charlie')`, () => {
     expect(parseSelectors('.boo,:foo(a+b),#bleh,::charlie'))

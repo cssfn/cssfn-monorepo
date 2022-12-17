@@ -275,27 +275,38 @@ class ParseSelectors {
         while (!this.#isEof()) {
             // this.#skipWhitespace(); // already included in `this.#parseCombinator()`, do not `this.#skipWhitespace()` here => causing DescendantCombinator (space) unrecognized
             
-            if (selector.length) {
+            if (!selector.length) { // a relative Combinator (a Combinator at the beginning)
+                const combinator = this.#parseCombinator();
+                if (combinator) selector.push(combinator);
+            }
+            else { // an absolute Combinator (a Combinator between SelectorSequence(s))
                 // the next SelectorSequence must be separated by combinator:
                 const combinator = this.#parseCombinator();
                 if (!combinator) break; // no more next SelectorSequence
                 selector.push(combinator);
             } // if
             
+            
+            
+            // a separator between [prev expression -or- Combinator] and the SelectorSequence(s)
             this.#skipWhitespace();
             
+            
+            
+            //#region SelectorSequence(s) - not separated by any spaces
+            // first sequence:
             const simpleSelector = this.#parseSimpleSelector();
             if (!simpleSelector) { this.#pos = originPos; return null; } // syntax error: missing simpleSelector => revert changes & return null
             selector.push(simpleSelector);
             
-            //#region SelectorSequence
+            // optional next sequence(s):
             let nextSequence : SimpleSelector|null;
             do {
                 nextSequence = this.#parseSimpleSelector();
                 if (nextSequence) selector.push(nextSequence);
             }
             while(nextSequence);
-            //#endregion SelectorSequence
+            //#endregion SelectorSequence(s) - not separated by any spaces
         } // while
         
         if (!selector.length) { this.#pos = originPos; return null; }; // syntax error: no any simpleSelector => revert changes & return null
