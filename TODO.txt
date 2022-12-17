@@ -14,12 +14,3 @@ high cpu usage:
 
 
             getOwnPropertyDescriptor : (_unusedObj, propName: string|symbol)                                          => this.#getPropDescRef(propName),
-
-
-// simplifies:
-    const result = (
-        flat(rules)
-        .filter(isNotFalsyRuleOrFactory)
-        .map(convertRuleOrFactoryToOptionalRule)
-        .filter(isNotFalsyRule)
-    );

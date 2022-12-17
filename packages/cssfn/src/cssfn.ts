@@ -3,7 +3,7 @@ import type {
     // types:
     OptionalOrBoolean,
     
-    Factory,
+    ProductOrFactory,
     
     Dictionary,
 }                           from '@cssfn/types'
@@ -49,7 +49,6 @@ import {
     flat,
     isFinalSelector,
     isNotFalsySelector,
-    isNotFalsyRuleOrFactory,
     isNotFalsyRule,
     normalizeSelectorOptions,
 }                           from './utilities.js'
@@ -92,9 +91,14 @@ export const atRule = (atRule: `@${string}`, styles: CssStyleCollection): CssRul
 
 
 // rule groups:
-const convertRuleOrFactoryToOptionalRule = (ruleOrFactory: CssRule|Factory<OptionalOrBoolean<CssRule>>): OptionalOrBoolean<CssRule> => {
-    if (typeof(ruleOrFactory) === 'function') return ruleOrFactory();
-    return ruleOrFactory;
+const convertOptionalRuleOrFactoryToOptionalRule = (optionalRuleOrFactory: ProductOrFactory<OptionalOrBoolean<CssRule>>): OptionalOrBoolean<CssRule> => {
+    // conditions:
+    if (!optionalRuleOrFactory || (optionalRuleOrFactory === true)) return optionalRuleOrFactory;
+    
+    
+    
+    if (typeof(optionalRuleOrFactory) === 'function') return optionalRuleOrFactory();
+    return optionalRuleOrFactory;
 }
 const overwriteSelectorOptions = (selector: CssRawSelector|CssFinalSelector, newOptions: CssSelectorOptions): CssRawSelector => {
     if (isFinalSelector(selector)) {
@@ -149,8 +153,7 @@ function convertRuleToRuleEntriesWithOptions(this: CssSelectorOptions, rule: Css
 export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptions): CssRule => {
     const result = (
         flat(rules)
-        .filter(isNotFalsyRuleOrFactory)
-        .map(convertRuleOrFactoryToOptionalRule)
+        .map(convertOptionalRuleOrFactoryToOptionalRule)
         .filter(isNotFalsyRule)
     );
     if (!options) { // no options => no further mutate, just merge them
