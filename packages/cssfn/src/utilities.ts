@@ -163,6 +163,7 @@ const fastHash = (input: string): string => {
 };
 
 const takenHashes = new Map</*hash :*/string, /*owner :*/string>();
+const globalSalt  : number = (new Date().getTime());
 export const generateId = (styleSheetId: string, scopeName: CssScopeName): string => {
     const mySelf = `${styleSheetId}${scopeName}`;
     let   myHash = fastHash(mySelf);
@@ -184,15 +185,23 @@ export const generateId = (styleSheetId: string, scopeName: CssScopeName): strin
             return myHash;
         } // if
         
-        // try to re-generate a unique hash by adding a counter salt (not SSR friendly):
-        myHash = fastHash(`${mySelf}${counterSalt}`);
-        if ((counterSalt === 2) && (styleSheetId !== '')) {
-            warning(false, `[cssfn] The styleSheetId of ${styleSheetId} is not a unique ID. Please re-generate another random ID.`);
+        if (process.env.NODE_ENV === 'dev') {
+            if ((counterSalt === 2) && (styleSheetId !== '')) {
+                warning(false, `[cssfn] The styleSheetId of ${styleSheetId} is not a unique ID. Please re-generate another random ID.`);
+            } // if
         } // if
+        
+        // try to re-generate a unique hash by adding a counter salt (not SSR friendly):
+        myHash = fastHash(`${mySelf}${counterSalt}${globalSalt}`);
     } // for
     
     
     
-    warning(false, `[cssfn] You might have a memory leak. ID counter is at ${counterSalt}.`);
+    if (process.env.NODE_ENV === 'dev') {
+        warning(false, `[cssfn] You might have a memory leak. ID counter is at ${counterSalt}.`);
+    } // if
+    
+    
+    
     return myHash;
 };
