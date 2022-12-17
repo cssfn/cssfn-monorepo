@@ -1,6 +1,29 @@
-publish:
 add support :has(>:relative)
 
 Fix bug on css-config when renaming `cssConfig.prefix`
 
 add auto-id on cssfn-react createStyleSheet(s)
+
+
+high cpu usage:
+
+    const result: Refs<CssConfigProps> = {};
+    for (const propName in cssProps) { // high cpu usage
+        // excludes the entries if the `propName` is not ending with the specified `suffix`:
+        if (!propName.endsWith(suffix)) continue; // exclude
+
+
+            getOwnPropertyDescriptor : (_unusedObj, propName: string|symbol)                                          => this.#getPropDescRef(propName),
+
+
+pascalCase
+    return d.slice(f, p).split("\0").map(u).join(void 0 === c ? " " : c) // high cpu usage
+
+
+// simplifies:
+    const result = (
+        flat(rules)
+        .filter(isNotFalsyRuleOrFactory)
+        .map(convertRuleOrFactoryToOptionalRule)
+        .filter(isNotFalsyRule)
+    );
