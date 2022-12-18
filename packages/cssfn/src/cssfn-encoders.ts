@@ -150,6 +150,7 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
         
         
         
+        if (propValue === '') continue; // an empty string key is a special property for storing (nested) rules => ignore
         if (isTransferableProp(propValue)) continue; // ignore *transferable* prop, no need to mutate
         
         
