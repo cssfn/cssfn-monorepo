@@ -73,6 +73,7 @@ import {
 
 // other libs:
 import {
+    Observable,
     Subject,
 }                           from 'rxjs'
 
@@ -101,8 +102,13 @@ export interface CssConfigOptions {
      * The declaring location (selector) of the generated css vars.
      */
     selector ?: CssSelector
+    
+    /**
+     * Registers callback function to be called when the `CssConfig` changed.
+    */
+    onChange  : Observable<void>
 }
-const defaultOptions : Required<CssConfigOptions> = {
+const defaultOptions : Required<Omit<CssConfigOptions, 'onChange'>> = {
     prefix    : '',
     selector  : ':root',
 }
@@ -110,6 +116,7 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
     //#region private properties
     #prefix   : string
     #selector : CssSelector
+    #onChange : Subject<void>
     
     readonly #updatedCallback : (prevPrefix: string) => void
     //#endregion private properties
@@ -120,6 +127,7 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
     constructor(updatedCallback: (prevPrefix: string) => void, options?: CssConfigOptions) {
         this.#prefix   = options?.prefix   ?? defaultOptions.prefix;   // an empty prefix   is allowed
         this.#selector = options?.selector || defaultOptions.selector; // an empty selector is not allowed
+        this.#onChange = new Subject<void>();
         
         this.#updatedCallback = updatedCallback;
     }
@@ -150,6 +158,10 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
         this.#selector = value; // update
         this.#update(); // notify a css-config updated
     }
+    
+    get onChange(): Observable<void> {
+        return this.#onChange;
+    }
     //#endregion public properties
     
     
@@ -159,6 +171,12 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
         this.#updatedCallback(prevPrefix ?? this.prefix); // notify a css-config updated
     }
     //#endregion private methods
+    
+    //#region public methods
+    notifyChanged() {
+        this.#onChange.next()
+    }
+    //#endregion public methods
 }
 export type { LiveCssConfigOptions }
 
@@ -1009,6 +1027,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             
             this.#_propDeclCache.set(propName, false); // update cache
             this.#update();     // property DELETED => the `#genProps` needs to `update()`
+            this.#options.notifyChanged();
         }
         else {
             if (props.get(propDecl) !== newValue) {
@@ -1016,6 +1035,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
                 
                 this.#_propDeclCache.set(propName, propDecl); // update cache
                 this.#update(); // property MODIFIED => the `#genProps` needs to `update()`
+                this.#options.notifyChanged();
             } // if
         } // if
         
@@ -1170,7 +1190,8 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             })();
             this.#_propsCache = null;
             this.#_propDeclCache.clear(); // clear cache
-            this.#update(); // when the config MODIFIED => the `#genProps` needs to `update()`
+            this.#update(); // config MODIFIED => the `#genProps` needs to `update()`
+            this.#options.notifyChanged();
         }, options);
         
         
