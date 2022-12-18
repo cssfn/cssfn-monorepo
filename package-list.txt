@@ -10,10 +10,10 @@
 [published ] @cssfn/css-supports
 [published ] @cssfn/css-prop-auto-prefix
 
-[modified  ] @cssfn/cssfn
+[published ] @cssfn/cssfn
 
-[modified  ] @cssfn/css-config
-[modified  ] @cssfn/cssfn-dom
-[modified  ] @cssfn/cssfn-react
+[published ] @cssfn/css-config
+[published ] @cssfn/cssfn-dom
+[published ] @cssfn/cssfn-react
 
-[modified  ] @cssfn/core
+[published ] @cssfn/core
