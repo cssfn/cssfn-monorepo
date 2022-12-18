@@ -1,4 +1,4 @@
-publish all modified => done
+publish all modified => [done]
 
 
 high cpu usage:
