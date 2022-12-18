@@ -102,13 +102,8 @@ export interface CssConfigOptions {
      * The declaring location (selector) of the generated css vars.
      */
     selector ?: CssSelector
-    
-    /**
-     * Registers callback function to be called when the `CssConfig` changed.
-    */
-    onChange  : Observable<void>
 }
-const defaultOptions : Required<Omit<CssConfigOptions, 'onChange'>> = {
+const defaultOptions : Required<CssConfigOptions> = {
     prefix    : '',
     selector  : ':root',
 }
@@ -159,6 +154,9 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
         this.#update(); // notify a css-config updated
     }
     
+    /**
+     * Registers callback function to be called when the `CssConfig` changed.
+    */
     get onChange(): Observable<void> {
         return this.#onChange;
     }
