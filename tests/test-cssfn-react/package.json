@@ -5,7 +5,7 @@
   "dependencies": {
     "@cssfn/css-types": "^2.0.6",
     "@cssfn/cssfn": "^2.0.29",
-    "@cssfn/cssfn-react": "^2.0.19",
+    "@cssfn/cssfn-react": "^2.0.21",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
