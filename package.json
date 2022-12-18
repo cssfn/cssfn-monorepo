@@ -1,6 +1,11 @@
 {
   "name": "cssfn-monorepo",
   "private": true,
+  "scripts": {
+    "compile+test": "lerna run tsc && lerna run test",
+    "update-deps": "ncu \"/^((?!react)[a-z0-9@_/-])+$/\" --root --workspaces --peer",
+    "update-deps-u": "ncu \"/^((?!react)[a-z0-9@_/-])+$/\" --root --workspaces --peer -u"
+  },
   "devDependencies": {
     "@types/jest": "^29.2.4",
     "@types/node": "^18.11.17",
