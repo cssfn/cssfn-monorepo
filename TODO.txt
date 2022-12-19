@@ -1,7 +1,9 @@
 publish all modified => [done]
 
 
-high cpu usage:
+optimize:
+
+export const switchOf = (first: CssCustomRef
 
     const result: Refs<CssConfigProps> = {};
     for (const propName in cssProps) { // high cpu usage
