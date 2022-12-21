@@ -174,6 +174,8 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
             symbolProps
             .map(encodeNestedRule.bind(styleValue)) // expensive op!
         );
+        
+        // expensive op! causes chrome's *hidden class* to re-create:
         encodedStyle['' as any] = nestedRules as any; // an empty string key is a special property for storing (nested) rules
     } // if
     
