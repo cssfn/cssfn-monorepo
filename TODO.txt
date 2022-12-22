@@ -1,12 +1,4 @@
-publish all modified => [done]
-
-
 optimize:
-
-export const usesCssProps      =
-export const usesPrefixedProps =
-export const usesSuffixedProps =
-export const overwriteProps    =
 
 export const switchOf = (first: CssCustomRef
 
