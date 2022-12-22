@@ -1,6 +1,14 @@
 optimize:
 
-export const switchOf = (first: CssCustomRef
+    #getDecl(propName: string|symbol): CssCustomName|undefined {
+
+export const alwaysRule        = (styles:         CssStyleCollection                              ) => ({ [Symbol()] : ['&', styles] }) as CssRule; // a bit faster
+
+export const usesCssProps      = (cssProps: Refs<CssConfigProps>): CssKnownProps => {
+
+export const usesSuffixedProps = (cssProps: Refs<CssConfigProps>, suffix: string, remove = true): Refs<CssConfigProps> => {
+
+export const switchOf = (first: CssCustomRef, ...nexts: [...OptionalOrBoolean<CssCustomRef>[], OptionalOrBoolean<CssCustomRef|CssCustomValue>]|[]): CssCustomRef => {
 
     const result: Refs<CssConfigProps> = {};
     for (const propName in cssProps) { // high cpu usage
