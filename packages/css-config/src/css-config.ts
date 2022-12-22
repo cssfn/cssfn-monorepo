@@ -1075,6 +1075,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         } // if
         
         
+        
         const cached2 = this.#_propNamesCache;
         if (cached2) return cached2.includes(propName);
         
