@@ -1010,7 +1010,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         // ensures the `#genProps` was fully generated:
-        this.#ensureGenerated();
+        this.#ensureGenerated(); // expensive op!
         
         return this.#genProps.get(propDecl);
     }
@@ -1073,6 +1073,10 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         if (cached !== undefined) {
             return (cached !== false);
         } // if
+        
+        
+        const cached2 = this.#_propNamesCache;
+        if (cached2) return cached2.includes(propName);
         
         
         
