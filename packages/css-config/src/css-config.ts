@@ -189,7 +189,6 @@ function convertPropDeclToPropName(skipPrefixChars: number, propDecl: CssCustomN
     return propDecl.slice(skipPrefixChars);
 }
 
-const unusedObj = {};
 const defaultPropDescriptor : PropertyDescriptor = {
     writable     : true, // make sure the propName is assignable
     enumerable   : true, // make sure the propName always listed by `for (const i in refs)`
@@ -204,6 +203,18 @@ const defaultPropDescriptor : PropertyDescriptor = {
 const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomName => {
     // add double dash with prefix `--prefix-` or double dash without prefix `--`
     return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
+}
+
+function* iteratePropList(this: number, propKeys: IterableIterator<CssCustomName|symbol>): Generator<string> {
+    for (const propDecl of propKeys) {
+        // conditions:
+        if (!isPropDecl(propDecl)) continue;
+        
+        
+        
+        // results:
+        yield convertPropDeclToPropName(this, propDecl);
+    } // for
 }
 
 
@@ -716,8 +727,8 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     
     //#region data sources
-    #_propsMapSource : Map<keyof TConfigProps, ValueOf<TConfigProps>>|null = null
-    #_propsCache     : CssConfigCustomPropsMap|null = null
+    #_propsMapSource : Map<keyof TConfigProps, ValueOf<TConfigProps>> | undefined = undefined
+    #_propsCache     : CssConfigCustomPropsMap                        | undefined = undefined
     /**
      * A *generated css custom props* as the *source of truth*.  
      *   
@@ -793,11 +804,15 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             
             // convert #_propsMapSource to cssCustomPropsMap:
             const cssCustomPropsMap : CssConfigCustomPropsMap = (
+                // if mutated (simplified):
                 (new TransformCssConfigFactoryDuplicatesBuilder<TConfigProps>(this.#_propsMapSource, this.#options)).props
+                
                 ??
+                
+                // if no mutate required (as original):
                 this.#_propsMapSource as CssConfigCustomPropsMap
             );
-            this.#_propsMapSource = null; // converted! => dispose the source
+            this.#_propsMapSource = undefined; // converted! => dispose the source
             
             
             
@@ -932,7 +947,8 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     
     //#region proxy getters & setters
-    #_propDeclCache = new Map<string, CssCustomName|false>()
+    #_propDeclCache  = new Map<string, CssCustomName|false>();
+    #_propNamesCache : string[] | undefined = undefined;
     
     /**
      * Gets the *declaration name* of the specified `propName`, eg: `--my-favColor`.
@@ -1068,6 +1084,11 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @returns An `Array<string>` contains *all possible* `propName`s in the css-config.
      */
     #getPropList(): ArrayLike<string|symbol> {
+        const cached = this.#_propNamesCache;
+        if (cached !== undefined) return cached;
+        
+        
+        
         const prefixLength    = this.#options.prefix.length;
         const skipPrefixChars = (
             prefixLength
@@ -1101,41 +1122,18 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         // );
         
         // const _propDeclCache = this.#_propDeclCache;
-        return Array.from(
-            (function* (propKeys: IterableIterator<CssCustomName|symbol>): Generator<string> {
-                for (const propDecl of propKeys) {
-                    // conditions:
-                    if (!isPropDecl(propDecl)) continue;
-                    
-                    
-                    
-                    // results:
-                    
-                    yield convertPropDeclToPropName(skipPrefixChars, propDecl);
-                    
-                    // const propName = convertPropDeclToPropName(skipPrefixChars, propDecl);
-                    // _propDeclCache.set(propName, propDecl);
-                    // yield propName;
-                } // for
-            })(this.#props.keys() as IterableIterator<CssCustomName|symbol>)
-        )
+        return (this.#_propNamesCache = Array.from(
+            iteratePropList
+            .bind(skipPrefixChars)
+            (this.#props.keys() as IterableIterator<CssCustomName|symbol>)
+        ));
     }
     /**
      * Gets the behavior of the specified `propName`.
      * @param propName The prop name to retrieve.
      * @returns A `PropertyDescriptor` represents the behavior of the specified `propName` -or- `undefined` if it doesn't exist.
      */
-    #getPropDescRef(propName: string|symbol): PropertyDescriptor|undefined {
-        if (!this.#hasProp(propName)) return undefined;
-        
-        return defaultPropDescriptor;
-    }
-    /**
-     * Gets the behavior of the specified `propName`.
-     * @param propName The prop name to retrieve.
-     * @returns A `PropertyDescriptor` represents the behavior of the specified `propName` -or- `undefined` if it doesn't exist.
-     */
-    #getPropDescVal(propName: string|symbol): PropertyDescriptor|undefined {
+    #getPropDesc(propName: string|symbol): PropertyDescriptor|undefined {
         if (!this.#hasProp(propName)) return undefined;
         
         return defaultPropDescriptor;
@@ -1186,8 +1184,9 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
                 // here the restored:
                 return prevState as Map<keyof TConfigProps, ValueOf<TConfigProps>>;
             })();
-            this.#_propsCache = null;
-            this.#_propDeclCache.clear(); // clear cache
+            this.#_propsCache     = undefined; // clear cache
+            this.#_propDeclCache.clear();      // clear cache
+            this.#_propNamesCache = undefined; // clear cache
             this.#update(); // config MODIFIED => the `#genProps` needs to `update()`
             this.#options.notifyChanged();
         }, options);
@@ -1204,23 +1203,22 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         // proxies - representing data in various formats:
-        this.#refs = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */CssCustomSimpleRef | /*setter: */CssCustomValue|undefined|null }>(unusedObj as any, {
-            get                      : (_unusedObj, propName: string|symbol)                                          => this.#getRef(propName),
-            set                      : (_unusedObj, propName: string|symbol, newValue: CssCustomValue|undefined|null) => this.#setVal(propName, newValue),
-            deleteProperty           : (_unusedObj, propName: string|symbol)                                          => this.#setVal(propName, undefined),
+        type This = CssConfigBuilder<TConfigProps>;
+        const restProxyHandler : ProxyHandler<{ [Key in keyof TConfigProps] : /*setter: */CssCustomValue|undefined|null }> = {
+            set                      (_this, propName: string|symbol, newValue: CssCustomValue|undefined|null) { return (_this as This).#setVal(propName, newValue) },
+            deleteProperty           (_this, propName: string|symbol)                                          { return (_this as This).#setVal(propName, undefined) },
             
-            has                      : (_unusedObj, propName: string|symbol)                                          => this.#hasProp(propName),
-            ownKeys                  : (_unusedObj)                                                                   => this.#getPropList(),
-            getOwnPropertyDescriptor : (_unusedObj, propName: string|symbol)                                          => this.#getPropDescRef(propName),
+            has                      (_this, propName: string|symbol)                                          { return (_this as This).#hasProp(propName) },
+            ownKeys                  (_this)                                                                   { return (_this as This).#getPropList() },
+            getOwnPropertyDescriptor (_this, propName: string|symbol)                                          { return (_this as This).#getPropDesc(propName) },
+        };
+        this.#refs = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */CssCustomSimpleRef | /*setter: */CssCustomValue|undefined|null }>(this as any, {
+            get                      (_this, propName: string|symbol)                                          { return (_this as This).#getRef(propName) },
+            ...restProxyHandler
         }) as Refs<TConfigProps>;
-        this.#vals = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */    CssCustomValue | /*setter: */CssCustomValue|undefined|null }>(unusedObj as any, {
-            get                      : (_unusedObj, propName: string|symbol)                                          => this.#getVal(propName),
-            set                      : (_unusedObj, propName: string|symbol, newValue: CssCustomValue|undefined|null) => this.#setVal(propName, newValue),
-            deleteProperty           : (_unusedObj, propName: string|symbol)                                          => this.#setVal(propName, undefined),
-            
-            has                      : (_unusedObj, propName: string|symbol)                                          => this.#hasProp(propName),
-            ownKeys                  : (_unusedObj)                                                                   => this.#getPropList(),
-            getOwnPropertyDescriptor : (_unusedObj, propName: string|symbol)                                          => this.#getPropDescVal(propName),
+        this.#vals = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */    CssCustomValue | /*setter: */CssCustomValue|undefined|null }>(this as any, {
+            get                      (_this, propName: string|symbol)                                          { return (_this as This).#getVal(propName) },
+            ...restProxyHandler
         }) as Vals<TConfigProps>;
     }
     //#endregion constructors
