@@ -1,9 +1,9 @@
 {
   "name": "test-css-config",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "dependencies": {
-    "@cssfn/css-config": "^2.0.31",
+    "@cssfn/css-config": "^2.0.32",
     "@cssfn/cssfn-dom": "^2.0.16",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
