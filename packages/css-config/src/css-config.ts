@@ -1036,20 +1036,24 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         
-        if ((newValue === undefined) || (newValue === null)) {
+        if ((newValue === undefined) || (newValue === null)) { // delete property
             props.delete(propDecl);
             
-            this.#_propDeclCache.set(propName, false); // update cache
-            this.#update();     // property DELETED => the `#genProps` needs to `update()`
-            this.#options.notifyChanged();
+            this.#_propDeclCache.set(propName, false);        // update the cached mapping of [ propName => *deleted* ]
+            this.#_propNamesCache = undefined;                // collection CHANGED => clear enumeration cache
+            
+            this.#update();                    // property DELETED => the `#genProps` needs to `update()` and the live styleSheet also need to re-build
+            this.#options.notifyChanged();     // notify the subscriber of `onChange.subscribe()` that something was changed
         }
         else {
-            if (props.get(propDecl) !== newValue) {
+            if (props.get(propDecl) !== newValue) { // add new -or- update property
                 props.set(propDecl, newValue);
                 
-                this.#_propDeclCache.set(propName, propDecl); // update cache
-                this.#update(); // property MODIFIED => the `#genProps` needs to `update()`
-                this.#options.notifyChanged();
+                this.#_propDeclCache.set(propName, propDecl); // update the cached mapping of [ propName => `--prefix-(new)PropDecl` ]
+                this.#_propNamesCache = undefined;            // collection CHANGED => clear enumeration cache
+                
+                this.#update();                // property MODIFIED => the `#genProps` needs to `update()` and the live styleSheet also need to re-build
+                this.#options.notifyChanged(); // notify the subscriber of `onChange.subscribe()` that something was changed
             } // if
         } // if
         
@@ -1189,11 +1193,11 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
                 // here the restored:
                 return prevState as Map<keyof TConfigProps, ValueOf<TConfigProps>>;
             })();
-            this.#_propsCache     = undefined; // clear cache
-            this.#_propDeclCache.clear();      // clear cache
-            this.#_propNamesCache = undefined; // clear cache
-            this.#update(); // config MODIFIED => the `#genProps` needs to `update()`
-            this.#options.notifyChanged();
+            this.#_propsCache     = undefined; // config MODIFIED => the cached vars    of { `--oldPrefix-propDecl`: someValue  } becomes invalid
+            this.#_propDeclCache.clear();      // config MODIFIED => the cached mapping of [ propName => `--oldPrefix-propDecl` ] becomes invalid
+            
+            this.#update();                    // config MODIFIED => the `#genProps` needs to `update()` and the live styleSheet also need to re-build
+            this.#options.notifyChanged();     // notify the subscriber of `onChange.subscribe()` that something was changed
         }, options);
         
         
