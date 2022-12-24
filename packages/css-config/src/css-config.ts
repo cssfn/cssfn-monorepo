@@ -728,7 +728,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     //#region data sources
     #_propsMapSource : Map<keyof TConfigProps, ValueOf<TConfigProps>> | undefined = undefined
-    #_propsCache     : CssConfigCustomPropsMap                        | undefined = undefined
+    #_propsState     : CssConfigCustomPropsMap                        | undefined = undefined
     /**
      * A *generated css custom props* as the *source of truth*.  
      *   
@@ -780,7 +780,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      */
     get #props() : CssConfigCustomPropsMap {
         //#region construct `#props` for the first time
-        if (!this.#_propsCache) {
+        if (!this.#_propsState) {
             if (!this.#_propsMapSource) {
                 const propsFactory = this.#propsFactory;
                 const props : TConfigProps = (
@@ -817,13 +817,13 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             
             
             // now the cssCustomPropsMap becomes a new *source of truth*:
-            this.#_propsCache = cssCustomPropsMap;
+            this.#_propsState = cssCustomPropsMap;
         } // if
         //#endregion construct `#props` for the first time
         
         
         
-        return this.#_propsCache;
+        return this.#_propsState;
     }
     //#endregion data sources
     
@@ -948,7 +948,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     //#region proxy getters & setters
     #_propDeclCache  = new Map<string, CssCustomName|false>();
-    #_propNamesCache : string[] | undefined = undefined;
+    #_propNamesCache : WeakRef<string[]> | undefined = undefined;
     
     /**
      * Gets the *declaration name* of the specified `propName`, eg: `--my-favColor`.
@@ -1080,7 +1080,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         
-        const cached2 = this.#_propNamesCache;
+        const cached2 = this.#_propNamesCache?.deref();
         if (cached2) return cached2.includes(propName);
         
         
@@ -1093,7 +1093,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @returns An `Array<string>` contains *all possible* `propName`s in the css-config.
      */
     #getPropList(): ArrayLike<string|symbol> {
-        const cached = this.#_propNamesCache;
+        const cached = this.#_propNamesCache?.deref();
         if (cached !== undefined) return cached;
         
         
@@ -1131,11 +1131,13 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         // );
         
         // const _propDeclCache = this.#_propDeclCache;
-        return (this.#_propNamesCache = Array.from(
+        const result = Array.from(
             iteratePropList
             .bind(skipPrefixChars)
             (this.#props.keys() as IterableIterator<CssCustomName|symbol>)
-        ));
+        );
+        this.#_propNamesCache = new WeakRef<string[]>(result);
+        return result;
     }
     /**
      * Gets the behavior of the specified `propName`.
@@ -1156,7 +1158,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         this.#propsFactory = initialProps;
         this.#options = new LiveCssConfigOptions((prevPrefix: string) => {
             this.#_propsMapSource = (() => {
-                const prevState = this.#_propsCache;
+                const prevState = this.#_propsState;
                 if (!prevState) return prevState;
                 
                 
@@ -1193,7 +1195,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
                 // here the restored:
                 return prevState as Map<keyof TConfigProps, ValueOf<TConfigProps>>;
             })();
-            this.#_propsCache     = undefined; // config MODIFIED => the cached vars    of { `--oldPrefix-propDecl`: someValue  } becomes invalid
+            this.#_propsState     = undefined; // config MODIFIED => the stated vars    of { `--oldPrefix-propDecl`: someValue  } becomes invalid
             this.#_propDeclCache.clear();      // config MODIFIED => the cached mapping of [ propName => `--oldPrefix-propDecl` ] becomes invalid
             
             this.#update();                    // config MODIFIED => the `#genProps` needs to `update()` and the live styleSheet also need to re-build
