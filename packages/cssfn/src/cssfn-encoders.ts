@@ -137,6 +137,12 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
     
     
     
+    // an empty string key is a special property for storing (nested) rules
+    // if exists => assumes as already encoded:
+    if ('' in style) return style as EncodedCssStyle;
+    
+    
+    
     // SLOW:
     // const encodedStyle = Object.fromEntries(
     //     Object.entries(styleValue) // take all string keys (excluding symbol keys)
@@ -174,6 +180,10 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
             symbolProps
             .map(encodeNestedRule.bind(styleValue)) // expensive op!
         );
+        
+        
+        
+        // expensive op! causing chrome's to re-create hidden class:
         encodedStyle['' as any] = nestedRules as any; // an empty string key is a special property for storing (nested) rules
     } // if
     
