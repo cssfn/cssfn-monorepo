@@ -1,9 +1,9 @@
 {
   "name": "test-load-cssfn-react",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "dependencies": {
-    "@cssfn/cssfn": "^2.0.29",
+    "@cssfn/cssfn": "^2.0.30",
     "@cssfn/cssfn-dom": "^2.0.16",
     "@cssfn/cssfn-react": "^2.0.21",
     "@testing-library/jest-dom": "^5.16.5",
