@@ -4,8 +4,8 @@
   "private": true,
   "dependencies": {
     "@cssfn/cssfn": "^2.0.30",
-    "@cssfn/cssfn-dom": "^2.0.16",
-    "@cssfn/cssfn-react": "^2.0.21",
+    "@cssfn/cssfn-dom": "^2.0.17",
+    "@cssfn/cssfn-react": "^2.0.22",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
