@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/core",
-  "version": "2.0.9",
+  "version": "2.0.10",
   "description": "A set of common cssfn packages.",
   "keywords": [
     "core",
@@ -32,7 +32,7 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
-    "@cssfn/css-config": "^2.0.34",
+    "@cssfn/css-config": "^2.0.35",
     "@cssfn/css-selectors": "^2.0.7",
     "@cssfn/css-supports": "^2.0.0",
     "@cssfn/css-types": "^2.0.6",
@@ -40,6 +40,6 @@
   },
   "peerDependencies": {
     "@cssfn/css-vars": "^2.0.13",
-    "@cssfn/cssfn": "^2.0.29"
+    "@cssfn/cssfn": "^2.0.30"
   }
 }
