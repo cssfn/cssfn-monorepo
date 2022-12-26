@@ -217,6 +217,12 @@ function* iteratePropList(this: number, propKeys: IterableIterator<CssCustomName
     } // for
 }
 
+const convertSrcValueToEntry = (item: Extract<CssCustomValue, Array<any>>[number], index: number) => [index, item] as const;
+
+function convertSymbolPropToEntry<TConfigProps extends CssConfigProps>(this: TConfigProps, symbolProp: symbol) {
+    return [ symbolProp, this[symbolProp] ] as const;
+}
+
 
 
 class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|CssRuleData|CssFinalRuleData|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|CssFinalRuleData|undefined|null> {
@@ -599,7 +605,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 
                 // convert the array to Map:
                 const srcNestedProps = new Map(
-                    srcNestedValues.map((item, index) => [index, item])
+                    srcNestedValues.map(convertSrcValueToEntry)
                 );
                 
                 
@@ -796,7 +802,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
                 // convert props to propsMap:
                 this.#_propsMapSource = new Map<keyof TConfigProps, ValueOf<TConfigProps>>([
                     ...Object.entries(props) as [keyof TConfigProps, ValueOf<TConfigProps>][],
-                    ...Object.getOwnPropertySymbols(props).map((symbolProp) => [ symbolProp, props[symbolProp] ]) as [keyof TConfigProps, ValueOf<TConfigProps>][],
+                    ...Object.getOwnPropertySymbols(props).map(convertSymbolPropToEntry.bind(props)) as [keyof TConfigProps, ValueOf<TConfigProps>][],
                 ]);
             } // if
             
