@@ -400,15 +400,38 @@ export const ifNotEmpty        = (styles:         CssStyleCollection, options?: 
 
 
 // combinators:
+function convertOptionalSelectorToSelectorWithCombinator(this: Combinator, selector: OptionalOrBoolean<CssSelector>): OptionalOrBoolean<CssSelector> {
+    if (!isNotFalsySelector(selector)) return selector;
+    
+    
+    
+    if (selector.includes('&')) return selector; // custom combinator
+    
+    if (selector.startsWith('::')) return `&${selector}`; // pseudo element => directly attach to the parent_selector
+    
+    return `&${this}${selector}`;
+};
+const convertOptionalSelectorToSelectorWithCombinators = new Map<Combinator, ((selector: OptionalOrBoolean<CssSelector>) => OptionalOrBoolean<CssSelector>)>();
+const getConvertOptionalSelectorToSelectorWithCombinator = (combinator: Combinator) : ((selector: OptionalOrBoolean<CssSelector>) => OptionalOrBoolean<CssSelector>) => {
+    const cached = convertOptionalSelectorToSelectorWithCombinators.get(combinator);
+    if (cached) return cached;
+    
+    
+    
+    const result = convertOptionalSelectorToSelectorWithCombinator.bind(combinator);
+    convertOptionalSelectorToSelectorWithCombinators.set(combinator, result);
+    return result;
+};
 export const combinators  = (combinator: Combinator, selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
-    const combiSelectors : CssSelector[] = flat(selectors).filter(isNotFalsySelector).map((selector) => {
-        if (selector.includes('&')) return selector; // custom combinator
-        
-        if (selector.startsWith('::')) return `&${selector}`; // pseudo element => directly attach to the parent_selector
-        
-        return `&${combinator}${selector}`;
-    });
-    if (!combiSelectors.length) return neverRule(); // no selector => return empty
+    const combiSelectors : CssSelectorCollection = (
+        !Array.isArray(selectors)
+        ?
+        getConvertOptionalSelectorToSelectorWithCombinator(combinator)(selectors)
+        :
+        flat(selectors).map(
+            getConvertOptionalSelectorToSelectorWithCombinator(combinator)
+        )
+    );
     
     
     
