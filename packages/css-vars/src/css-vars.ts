@@ -108,10 +108,20 @@ export type { LiveCssVarsOptions }
 
 
 // global proxy's handlers:
-const unusedObj = {}
-const setReadonlyHandler = (_unusedObj: any, propName: string|symbol, _newValue: any): boolean => {
-    throw new Error(`Setter \`${String(propName)}\` is not supported.`);
-}
+const cssVarsProxyHandler : ProxyHandler<Dictionary<CssCustomSimpleRef>> = {
+    get(_this, propName: string|symbol) {
+        // ignores symbol & number props:
+        if (typeof(propName) !== 'string') return undefined;
+        
+        
+        
+        return (_this as unknown as ((propName: string) => CssCustomSimpleRef))(propName);
+    },
+    
+    set(_this, propName: string|symbol) {
+        throw new Error(`Setter \`${String(propName)}\` is not supported.`);
+    },
+};
 
 
 
@@ -195,17 +205,7 @@ export const cssVars = <TCssCustomProps extends {}>(options?: CssVarsOptions): C
     
     return [
         // data proxy:
-        new Proxy<Dictionary<CssCustomSimpleRef>>(unusedObj, {
-            get : (_unusedObj, propName: string|symbol): string|undefined => {
-                // ignores symbol & number props:
-                if (typeof(propName) !== 'string') return undefined;
-                
-                
-                
-                return ref(propName);
-            },
-            set : setReadonlyHandler,
-        }) as CssVars<TCssCustomProps>,
+        new Proxy<Dictionary<CssCustomSimpleRef>>(ref as any, cssVarsProxyHandler) as CssVars<TCssCustomProps>,
         
         liveOptions
     ];
