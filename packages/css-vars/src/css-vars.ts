@@ -109,7 +109,7 @@ export type { LiveCssVarsOptions }
 
 // global proxy's handlers:
 const cssVarsProxyHandler : ProxyHandler<Dictionary<CssCustomSimpleRef>> = {
-    get(_this, propName: string|symbol) {
+    get(_this, propName: string|symbol): CssCustomSimpleRef|undefined {
         // ignores symbol & number props:
         if (typeof(propName) !== 'string') return undefined;
         
@@ -118,7 +118,7 @@ const cssVarsProxyHandler : ProxyHandler<Dictionary<CssCustomSimpleRef>> = {
         return (_this as unknown as ((propName: string) => CssCustomSimpleRef))(propName);
     },
     
-    set(_this, propName: string|symbol) {
+    set(_this, propName: string|symbol): boolean {
         throw new Error(`Setter \`${String(propName)}\` is not supported.`);
     },
 };
