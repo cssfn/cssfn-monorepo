@@ -261,6 +261,45 @@ const renderPropValue = (propValue: CssCustomValue): { rendered: string, hasImpo
     };
 };
 const filterEmptyVars = (next: OptionalOrBoolean<CssCustomRef|CssCustomValue>): next is CssCustomRef|CssCustomValue => !!next && (next !== true)
+type ReducedSwitchOf  = { totalClosingCount: number, hasImportantValue: boolean, mutatedRefs: string[] }
+const reducedSwitchOf : ReducedSwitchOf = { totalClosingCount: 0, hasImportantValue: false, mutatedRefs: [] }
+const reduceSwitchOf  = (accum: ReducedSwitchOf, ref : (CssCustomRef|CssCustomValue)): ReducedSwitchOf => {
+    // a bare value => render it:
+    if ((typeof(ref) !== 'string') || !ref.startsWith('var(--')) {
+        const {rendered, hasImportant} = renderPropValue(ref);
+        if (hasImportant) accum.hasImportantValue = true;
+        accum.mutatedRefs.push(rendered);
+        return accum;
+    } // if
+    
+    
+    
+    // remove the ending !important:
+    if (ref.endsWith('!important')) {
+        accum.hasImportantValue = true;
+        ref = ref.slice(0, -10).trimEnd(); // remove '!important' and then remove excess space(s)
+    } // if
+    
+    
+    
+    // count the closing )):
+    let closingCount = 0;
+    for (let index = ref.length - 1; index >= 0; index--) {
+        if (ref.at(index) !== ')') break;
+        closingCount++;
+    } // for
+    accum.totalClosingCount += closingCount;
+    
+    
+    
+    // remove the ending closing )):
+    /*
+        var(--boo)               =>   var(--boo
+        var(--wow, var(--beh))   =>   var(--wow, var(--beh
+    */
+    accum.mutatedRefs.push(ref.slice(0, -closingCount));
+    return accum;
+};
 export const switchOf = (first: CssCustomRef, ...nexts: [...OptionalOrBoolean<CssCustomRef>[], OptionalOrBoolean<CssCustomRef|CssCustomValue>]|[]): CssCustomRef => {
     // conditions:
     if (!nexts || !nexts.length) return first;
@@ -270,65 +309,41 @@ export const switchOf = (first: CssCustomRef, ...nexts: [...OptionalOrBoolean<Cs
     
     
     const refs : (CssCustomRef|CssCustomValue)[] = [first, ...nextsAbs];
-    let totalClosingCount = 0;
-    let hasImportantValue = false;
-    return (
-        refs
-        .map((ref): string => {
-            // a bare value => render it:
-            if ((typeof(ref) !== 'string') || !ref.startsWith('var(--')) {
-                const {rendered, hasImportant} = renderPropValue(ref);
-                if (hasImportant) hasImportantValue = true;
-                return rendered;
-            } // if
-            
-            
-            
-            // remove the ending !important:
-            if (ref.endsWith('!important')) {
-                hasImportantValue = true;
-                ref = ref.slice(0, -10).trimEnd(); // remove '!important' and then remove excess space(s)
-            } // if
-            
-            
-            
-            // count the closing )):
-            let closingCount = 0;
-            for (let index = ref.length - 1; index >= 0; index--) {
-                if (ref.at(index) !== ')') break;
-                closingCount++;
-            } // for
-            totalClosingCount += closingCount;
-            
-            
-            
-            // remove the ending closing )):
+    refs.reduce(reduceSwitchOf, reducedSwitchOf);
+    try {
+        return (
             /*
-                var(--boo)               =>   var(--boo
-                var(--wow, var(--beh))   =>   var(--wow, var(--beh
+                var(--boo
+                var(--wow, var(--beh
             */
-            return ref.slice(0, -closingCount);
-        })
-        
-        /*
-            var(--boo
-            var(--wow, var(--beh
+            reducedSwitchOf.mutatedRefs
             
-            =>   var(--boo, var(--wow, var(--beh
-        */
-        .join(', ')
-        
-        +
-        
-        /*
-            var(--boo, var(--wow, var(--beh
+            /*
+                var(--boo
+                var(--wow, var(--beh
+                
+                =>   var(--boo, var(--wow, var(--beh
+            */
+            .join(', ')
             
-            =>   var(--boo, var(--wow, var(--beh)))
-        */
-        (new Array(/*arrayLength: */totalClosingCount)).fill(')').join('')
-        
-        +
-        
-        (hasImportantValue ? ' !important' : '')
-    ) as CssCustomRef;
+            +
+            
+            /*
+                var(--boo, var(--wow, var(--beh
+                
+                =>   var(--boo, var(--wow, var(--beh)))
+            */
+            (new Array(/*arrayLength: */reducedSwitchOf.totalClosingCount)).fill(')').join('')
+            
+            +
+            
+            (reducedSwitchOf.hasImportantValue ? ' !important' : '')
+        ) as CssCustomRef;
+    }
+    finally {
+        // reset the accumulator to be used later:
+        reducedSwitchOf.totalClosingCount = 0;
+        reducedSwitchOf.hasImportantValue = false;
+        reducedSwitchOf.mutatedRefs.splice(0);
+    } // try
 }
