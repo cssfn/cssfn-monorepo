@@ -283,15 +283,16 @@ export function keyframes(nameOrItems : string|CssKeyframes, items ?: CssKeyfram
         keyframesRef,
     ];
 }
+const convertCssKeyframesEntryToCssRuleEntry = ([key, frame]: readonly [string, CssStyleCollection]): readonly [symbol, CssRuleData] => [
+    Symbol(),
+    [
+        ` ${key}`, // add a single space as PropRule token
+        frame
+    ]
+];
 const createKeyframesRules = (items: CssKeyframes): CssRuleCollection => Object.fromEntries(
     Object.entries(items)
-    .map(([key, frame]): readonly [symbol, CssRuleData] => [
-        Symbol(),
-        [
-            ` ${key}`, // add a single space as PropRule token
-            frame
-        ]
-    ])
+    .map(convertCssKeyframesEntryToCssRuleEntry)
 ) as CssRuleCollection
 
 
