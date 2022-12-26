@@ -274,7 +274,8 @@ export const switchOf = (first: CssCustomRef, ...nexts: [...OptionalOrBoolean<Cs
     let hasImportantValue = false;
     return (
         refs
-        .map((ref, index): string => {
+        .map((ref): string => {
+            // a bare value => render it:
             if ((typeof(ref) !== 'string') || !ref.startsWith('var(--')) {
                 const {rendered, hasImportant} = renderPropValue(ref);
                 if (hasImportant) hasImportantValue = true;
@@ -283,24 +284,51 @@ export const switchOf = (first: CssCustomRef, ...nexts: [...OptionalOrBoolean<Cs
             
             
             
+            // remove the ending !important:
             if (ref.endsWith('!important')) {
                 hasImportantValue = true;
-                ref = ref.replace(/\s*!important/, '');
+                ref = ref.slice(0, -10).trimEnd(); // remove '!important' and then remove excess space(s)
             } // if
             
-            const closingCount = (ref.match(/\)+$/)?.[0]?.length ?? 0);
+            
+            
+            // count the closing )):
+            let closingCount = 0;
+            for (let index = ref.length - 1; index >= 0; index--) {
+                if (ref.at(index) !== ')') break;
+                closingCount++;
+            } // for
             totalClosingCount += closingCount;
             
-            return (
-                ref.slice(0, - closingCount)
-                +
-                ((index < (refs.length - 1)) ? ', ' : '') // add a comma except the last one
-            );
+            
+            
+            // remove the ending closing )):
+            /*
+                var(--boo)               =>   var(--boo
+                var(--wow, var(--beh))   =>   var(--wow, var(--beh
+            */
+            return ref.slice(0, -closingCount);
         })
-        .join('')
+        
+        /*
+            var(--boo
+            var(--wow, var(--beh
+            
+            =>   var(--boo, var(--wow, var(--beh
+        */
+        .join(', ')
+        
         +
+        
+        /*
+            var(--boo, var(--wow, var(--beh
+            
+            =>   var(--boo, var(--wow, var(--beh)))
+        */
         (new Array(/*arrayLength: */totalClosingCount)).fill(')').join('')
+        
         +
+        
         (hasImportantValue ? ' !important' : '')
     ) as CssCustomRef;
 }
