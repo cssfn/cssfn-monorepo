@@ -4,12 +4,6 @@ import type {
     ValueOf,
 }                           from '@cssfn/types'
 import type {
-    // css values:
-    CssSimpleValue,
-    CssComplexBaseValueOf,
-    
-    
-    
     // css custom properties:
     CssCustomValue,
     
@@ -70,6 +64,9 @@ import {
     hasPropKeys,
     mergeStyles,
 }                           from './mergeStyles.js'
+import {
+    renderValue,
+}                           from './renderValues.js'
 
 // other libs:
 import {
@@ -140,8 +137,6 @@ const shortProps = new Map<keyof CssProps, keyof CssProps>(Object.entries({
     gapBlock   : 'rowGap',
 }) as [keyof CssProps, keyof CssProps][]);
 
-const isExistingPropSubValue = (propSubValue: string|null): propSubValue is string => (propSubValue !== null);
-
 
 
 export interface RenderRuleOptions {
@@ -171,44 +166,6 @@ class RenderRule {
         const hyphenatedPropName = hyphenate(prefixedPropName);
         return hyphenatedPropName;
     }
-    #renderPropSimpleValue(propValue: CssComplexBaseValueOf<CssSimpleValue>): string {
-        if (typeof(propValue) === 'number') return `${propValue}`; // CssSimpleNumericValue              => number => string
-        if (typeof(propValue) === 'string') return propValue;      // CssSimpleLiteralValue|CssCustomRef => string
-        return propValue.toString();                               // CssCustomKeyframesRef              => .toString()
-    }
-    #renderPropValue(propValue: CssCustomValue): string {
-        if (!Array.isArray(propValue)) return this.#renderPropSimpleValue(propValue); // CssComplexBaseValueOf<CssSimpleValue>
-        
-        
-        
-        let hasImportant = false;
-        return (
-            propValue
-            .map((propSubValue, index, array): string|null => {
-                if (!Array.isArray(propSubValue)) {
-                    if (typeof(propSubValue) === 'number') return `${propSubValue}`; // CssSimpleNumericValue              => number => string
-                    if ((index === (array.length - 1)) && (propSubValue === '!important')) {
-                        hasImportant = true;
-                        return null; // do not comma_separated_!important
-                    }
-                    if (typeof(propSubValue) === 'string') return propSubValue;      // CssSimpleLiteralValue|CssCustomRef => string
-                    return propSubValue.toString();                                  // CssCustomKeyframesRef              => .toString()
-                } // if
-                
-                
-                
-                return (
-                    propSubValue
-                    .map(this.#renderPropSimpleValue)
-                    .join(' ') // space_separated_values
-                );
-            })
-            .filter(isExistingPropSubValue)
-            .join(', ') // comma_separated_values
-            +
-            (hasImportant ? ' !important' : '')
-        );
-    }
     #renderProp(propName: keyof CssProps, propValue: CssCustomValue|undefined|null): void {
         if ((propValue === undefined) || (propValue === null)) return;
         
@@ -218,7 +175,7 @@ class RenderRule {
         const renderedPropName = this.#renderPropName(propName);
         this.rendered += renderedPropName;
         this.rendered += ': ';
-        this.rendered += this.#renderPropValue(propValue);
+        this.rendered += renderValue(propValue);
         this.rendered += ';';
     }
     
