@@ -261,13 +261,13 @@ const renderPropValue = (propValue: CssCustomValue): { rendered: string, hasImpo
     };
 };
 const filterEmptyVars = (next: OptionalOrBoolean<CssCustomRef|CssCustomValue>): next is CssCustomRef|CssCustomValue => !!next && (next !== true)
-type ReducedSwitchOf  = { totalClosingCount: number, hasImportantValue: boolean, truncatedRefs: string[] }
-const reducedSwitchOf : ReducedSwitchOf = { totalClosingCount: 0, hasImportantValue: false, truncatedRefs: [] }
+type ReducedSwitchOf  = { totalClosingCount: number, hasImportant: boolean, truncatedRefs: string[] }
+const reducedSwitchOf : ReducedSwitchOf = { totalClosingCount: 0, hasImportant: false, truncatedRefs: [] }
 const reduceSwitchOf  = (accum: ReducedSwitchOf, ref : (CssCustomRef|CssCustomValue)): ReducedSwitchOf => {
     // a bare value => render it:
     if ((typeof(ref) !== 'string') || !ref.startsWith('var(--')) {
         const {rendered, hasImportant} = renderPropValue(ref);
-        if (hasImportant) accum.hasImportantValue = true;
+        if (hasImportant) accum.hasImportant = true;
         accum.truncatedRefs.push(rendered);
         return accum;
     } // if
@@ -276,7 +276,7 @@ const reduceSwitchOf  = (accum: ReducedSwitchOf, ref : (CssCustomRef|CssCustomVa
     
     // remove the ending !important:
     if (ref.endsWith('!important')) {
-        accum.hasImportantValue = true;
+        accum.hasImportant = true;
         ref = ref.slice(0, -10).trimEnd(); // remove '!important' and then remove excess space(s)
     } // if
     
@@ -337,13 +337,13 @@ export const switchOf = (first: CssCustomRef, ...nexts: [...OptionalOrBoolean<Cs
             
             +
             
-            (reducedSwitchOf.hasImportantValue ? ' !important' : '')
+            (reducedSwitchOf.hasImportant ? ' !important' : '')
         ) as CssCustomRef;
     }
     finally {
         // reset the accumulator to be used later:
         reducedSwitchOf.totalClosingCount = 0;
-        reducedSwitchOf.hasImportantValue = false;
+        reducedSwitchOf.hasImportant = false;
         reducedSwitchOf.truncatedRefs.splice(0);
     } // try
 }
