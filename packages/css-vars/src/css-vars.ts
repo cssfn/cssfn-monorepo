@@ -261,14 +261,14 @@ const renderPropValue = (propValue: CssCustomValue): { rendered: string, hasImpo
     };
 };
 const filterEmptyVars = (next: OptionalOrBoolean<CssCustomRef|CssCustomValue>): next is CssCustomRef|CssCustomValue => !!next && (next !== true)
-type ReducedSwitchOf  = { totalClosingCount: number, hasImportantValue: boolean, mutatedRefs: string[] }
-const reducedSwitchOf : ReducedSwitchOf = { totalClosingCount: 0, hasImportantValue: false, mutatedRefs: [] }
+type ReducedSwitchOf  = { totalClosingCount: number, hasImportantValue: boolean, truncatedRefs: string[] }
+const reducedSwitchOf : ReducedSwitchOf = { totalClosingCount: 0, hasImportantValue: false, truncatedRefs: [] }
 const reduceSwitchOf  = (accum: ReducedSwitchOf, ref : (CssCustomRef|CssCustomValue)): ReducedSwitchOf => {
     // a bare value => render it:
     if ((typeof(ref) !== 'string') || !ref.startsWith('var(--')) {
         const {rendered, hasImportant} = renderPropValue(ref);
         if (hasImportant) accum.hasImportantValue = true;
-        accum.mutatedRefs.push(rendered);
+        accum.truncatedRefs.push(rendered);
         return accum;
     } // if
     
@@ -297,7 +297,7 @@ const reduceSwitchOf  = (accum: ReducedSwitchOf, ref : (CssCustomRef|CssCustomVa
         var(--boo)               =>   var(--boo
         var(--wow, var(--beh))   =>   var(--wow, var(--beh
     */
-    accum.mutatedRefs.push(ref.slice(0, -closingCount));
+    accum.truncatedRefs.push(ref.slice(0, -closingCount));
     return accum;
 };
 export const switchOf = (first: CssCustomRef, ...nexts: [...OptionalOrBoolean<CssCustomRef>[], OptionalOrBoolean<CssCustomRef|CssCustomValue>]|[]): CssCustomRef => {
@@ -316,7 +316,7 @@ export const switchOf = (first: CssCustomRef, ...nexts: [...OptionalOrBoolean<Cs
                 var(--boo
                 var(--wow, var(--beh
             */
-            reducedSwitchOf.mutatedRefs
+            reducedSwitchOf.truncatedRefs
             
             /*
                 var(--boo
@@ -344,6 +344,6 @@ export const switchOf = (first: CssCustomRef, ...nexts: [...OptionalOrBoolean<Cs
         // reset the accumulator to be used later:
         reducedSwitchOf.totalClosingCount = 0;
         reducedSwitchOf.hasImportantValue = false;
-        reducedSwitchOf.mutatedRefs.splice(0);
+        reducedSwitchOf.truncatedRefs.splice(0);
     } // try
 }
