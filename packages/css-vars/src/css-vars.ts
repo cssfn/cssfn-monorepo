@@ -228,8 +228,8 @@ const reducedSwitchOf : ReducedSwitchOf = { totalClosingCount: 0, hasImportant: 
 const reduceSwitchOf  = (accum: ReducedSwitchOf, ref : (CssCustomRef|CssCustomValue)): ReducedSwitchOf => {
     // a bare value => render it:
     if ((typeof(ref) !== 'string') || !ref.startsWith('var(--')) {
-        const {rendered, hasImportant} = renderValue(ref);
-        if (hasImportant) accum.hasImportant = true;
+        const rendered = renderValue(ref);
+        if ((rendered.length > 11) && rendered.endsWith(' !important')) accum.hasImportant = true;
         accum.truncatedRefs.push(rendered);
         return accum;
     } // if
