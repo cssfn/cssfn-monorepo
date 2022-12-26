@@ -309,8 +309,11 @@ export const switchOf = (first: CssCustomRef, ...nexts: [...OptionalOrBoolean<Cs
     
     
     const refs : (CssCustomRef|CssCustomValue)[] = [first, ...nextsAbs];
-    refs.reduce(reduceSwitchOf, reducedSwitchOf);
     try {
+        refs.reduce(reduceSwitchOf, reducedSwitchOf);
+        
+        
+        
         return (
             /*
                 var(--boo
