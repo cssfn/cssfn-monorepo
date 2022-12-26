@@ -11,6 +11,10 @@ import type {
     CssCustomRef,
     CssCustomValue,
 }                           from '@cssfn/css-types'
+import {
+    // processors:
+    renderValue,
+}                           from '@cssfn/cssfn'
 
 // other libs:
 import {
@@ -218,55 +222,13 @@ export {
 
 
 // utilities:
-const renderPropValue = (propValue: CssCustomValue): { rendered: string, hasImportant: boolean } => {
-    if (!Array.isArray(propValue)) {
-        if (typeof(propValue) === 'number') return { rendered: `${propValue}`, hasImportant: false }; // CssSimpleNumericValue => number => convert to string
-        if (typeof(propValue) === 'string') return { rendered:    propValue  , hasImportant: false }; // CssSimpleLiteralValue|CssCustomRef => string
-        return { rendered: propValue.toString(), hasImportant: false } // CssCustomKeyframesRef => toString();
-    } // if
-    
-    
-    
-    let hasImportant = false;
-    return {
-        rendered : (
-            propValue
-            .map((propSubValue, index, array): string|null => {
-                if (!Array.isArray(propSubValue)) {
-                    if (typeof(propSubValue) === 'number') return `${propSubValue}`; // CssSimpleNumericValue => number => convert to string
-                    if ((index === (array.length - 1)) && (propSubValue === '!important')) {
-                        hasImportant = true;
-                        return null; // do not comma_separated_!important
-                    }
-                    if (typeof(propSubValue) === 'string') return propSubValue; // CssSimpleLiteralValue|CssCustomRef => string
-                    return propSubValue.toString(); // CssCustomKeyframesRef => toString();
-                } // if
-                
-                
-                
-                return (
-                    propSubValue
-                    .map((propSubSubValue): string => {
-                        if (typeof(propSubSubValue) === 'number') return `${propSubSubValue}`; // CssSimpleNumericValue => number => convert to string
-                        if (typeof(propSubSubValue) === 'string') return propSubSubValue; // CssSimpleLiteralValue|CssCustomRef => string
-                        return propSubSubValue.toString(); // CssCustomKeyframesRef => toString();
-                    })
-                    .join(' ') // space_separated_values
-                );
-            })
-            .filter((propSubValue): propSubValue is string => (propSubValue !== null))
-            .join(', ') // comma_separated_values
-        ),
-        hasImportant
-    };
-};
 const filterEmptyVars = (next: OptionalOrBoolean<CssCustomRef|CssCustomValue>): next is CssCustomRef|CssCustomValue => !!next && (next !== true)
 type ReducedSwitchOf  = { totalClosingCount: number, hasImportant: boolean, truncatedRefs: string[] }
 const reducedSwitchOf : ReducedSwitchOf = { totalClosingCount: 0, hasImportant: false, truncatedRefs: [] }
 const reduceSwitchOf  = (accum: ReducedSwitchOf, ref : (CssCustomRef|CssCustomValue)): ReducedSwitchOf => {
     // a bare value => render it:
     if ((typeof(ref) !== 'string') || !ref.startsWith('var(--')) {
-        const {rendered, hasImportant} = renderPropValue(ref);
+        const {rendered, hasImportant} = renderValue(ref);
         if (hasImportant) accum.hasImportant = true;
         accum.truncatedRefs.push(rendered);
         return accum;

@@ -34,5 +34,8 @@
     "@cssfn/types": "^2.0.1",
     "is-in-browser": "^2.0.0",
     "tiny-warning": "^1.0.3"
+  },
+  "peerDependencies": {
+    "@cssfn/cssfn": "^2.0.30"
   }
 }

@@ -5,14 +5,15 @@
 [published ] @cssfn/css-prop-list           [ 2.5 kB]
 
 [published ] @cssfn/css-selectors           [ 3.0 kB]
-[published ] @cssfn/css-vars                [ 1.0 kB]    8% is-in-browser, 6% tiny-warning
 
 [published ] @cssfn/css-supports            [ 0.4 kB]    40% is-in-browser
 [published ] @cssfn/css-prop-auto-prefix    [ 0.8 kB]    14% is-in-browser
 
 [published ] @cssfn/cssfn                   [10.2 kB]    24% css-selectors, 11% tslib
 
+[published ] @cssfn/css-vars                [ 1.0 kB]    8% is-in-browser, 6% tiny-warning
 [published ] @cssfn/css-config              [ 4.8 kB]    28% css-prop-list
+
 [published ] @cssfn/cssfn-dom               [ 0.8 kB]    12% is-in-browser
 [published ] @cssfn/cssfn-react             [ 1.1 kB]
 
