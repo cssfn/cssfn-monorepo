@@ -1098,6 +1098,105 @@ export const ungroupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, op
 
 // measures:
 export type Specificity = [number, number, number];
+const reduceGetSpecificity = (accum: Specificity, simpleSelector: SimpleSelector): Specificity => {
+    const [
+        /*
+            selector tokens:
+            '&'  = parent         selector
+            '*'  = universal      selector
+            '['  = attribute      selector
+            ''   = element        selector
+            '#'  = ID             selector
+            '.'  = class          selector
+            ':'  = pseudo class   selector
+            '::' = pseudo element selector
+        */
+        selectorToken,
+        
+        /*
+            selector name:
+            string = the name of [element, ID, class, pseudo class, pseudo element] selector
+        */
+        selectorName,
+        
+        /*
+            selector parameter(s):
+            string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
+            array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
+            SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
+        */
+        selectorParams,
+    ] = simpleSelector;
+    
+    
+    
+    if (selectorToken === ':') {
+        switch (selectorName) {
+            case 'is':
+            case 'not':
+            case 'has': {
+                if (!selectorParams || !isSelectors(selectorParams)) return accum; // no changes
+                const maxSpecificity = (
+                    convertSelectorGroupToPureSelectorGroup(selectorParams) // remove empty Selector(s) in SelectorGroup
+                    .map(calculateSpecificity)             // get the specificities
+                    .reduce(reduceMaxSpecificity, [0,0,0]) // get the highest specificity
+                );
+                return [
+                    accum[0] + maxSpecificity[0],
+                    accum[1] + maxSpecificity[1],
+                    accum[2] + maxSpecificity[2]
+                ] as Specificity;
+            }
+            
+            case 'where':
+                return accum; // no changes
+        } // switch
+    } // if
+    
+    
+    
+    switch(selectorToken) {
+        case '#' : // ID selector
+            return [
+                accum[0] + 1,
+                accum[1],
+                accum[2]
+            ] as Specificity;
+        
+        case '.' : // class selector
+        case '[' : // attribute selector
+        case ':' : // pseudo class selector
+            return [
+                accum[0],
+                accum[1] + 1,
+                accum[2]
+            ] as Specificity;
+        
+        case ''  : // element selector
+        case '::': // pseudo element selector
+            return  [
+                accum[0],
+                accum[1],
+                accum[2] + 1
+            ] as Specificity;
+        
+        case '&' : // parent selector
+        case '*' : // universal selector
+        default:
+            return accum; // no changes
+    } // switch
+};
+const reduceMaxSpecificity = (accum: Specificity, current: Specificity): Specificity => {
+    if (
+        (current[0] > accum[0])
+        ||
+        (current[1] > accum[1])
+        ||
+        (current[2] > accum[2])
+    ) return current; // current is higher than the highest record => replace it
+    
+    return accum; // the highest record
+};
 export const calculateSpecificity = (selector: OptionalOrBoolean<Selector>): Specificity => {
     if (!isNotEmptySelector(selector)) return [
         0, 0, 0
@@ -1108,103 +1207,6 @@ export const calculateSpecificity = (selector: OptionalOrBoolean<Selector>): Spe
     return (
         selector
         .filter(isSimpleSelector) // filter out Combinator(s)
-        .reduce((accum, simpleSelector): Specificity => {
-            const [
-                /*
-                    selector tokens:
-                    '&'  = parent         selector
-                    '*'  = universal      selector
-                    '['  = attribute      selector
-                    ''   = element        selector
-                    '#'  = ID             selector
-                    '.'  = class          selector
-                    ':'  = pseudo class   selector
-                    '::' = pseudo element selector
-                */
-                selectorToken,
-                
-                /*
-                    selector name:
-                    string = the name of [element, ID, class, pseudo class, pseudo element] selector
-                */
-                selectorName,
-                
-                /*
-                    selector parameter(s):
-                    string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
-                    array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
-                    SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
-                */
-                selectorParams,
-            ] = simpleSelector;
-            
-            
-            
-            if (selectorToken === ':') {
-                switch (selectorName) {
-                    case 'is':
-                    case 'not':
-                    case 'has': {
-                        if (!selectorParams || !isSelectors(selectorParams)) return accum; // no changes
-                        const moreSpecificities = (
-                            convertSelectorGroupToPureSelectorGroup(selectorParams) // remove empty Selector(s) in SelectorGroup
-                            .map(calculateSpecificity)
-                        );
-                        const maxSpecificity    = moreSpecificities.reduce((accum, current): Specificity => {
-                            if (
-                                (current[0] > accum[0])
-                                ||
-                                (current[1] > accum[1])
-                                ||
-                                (current[2] > accum[2])
-                            ) return current;
-                            
-                            return accum;
-                        }, ([0,0,0] as Specificity));
-                        return [
-                            accum[0] + maxSpecificity[0],
-                            accum[1] + maxSpecificity[1],
-                            accum[2] + maxSpecificity[2]
-                        ] as Specificity;
-                    }
-                    
-                    case 'where':
-                        return accum; // no changes
-                } // switch
-            } // if
-            
-            
-            
-            switch(selectorToken) {
-                case '#' : // ID selector
-                    return [
-                        accum[0] + 1,
-                        accum[1],
-                        accum[2]
-                    ] as Specificity;
-                
-                case '.' : // class selector
-                case '[' : // attribute selector
-                case ':' : // pseudo class selector
-                    return [
-                        accum[0],
-                        accum[1] + 1,
-                        accum[2]
-                    ] as Specificity;
-                
-                case ''  : // element selector
-                case '::': // pseudo element selector
-                    return  [
-                        accum[0],
-                        accum[1],
-                        accum[2] + 1
-                    ] as Specificity;
-                
-                case '&' : // parent selector
-                case '*' : // universal selector
-                default:
-                    return accum; // no changes
-            } // switch
-        }, ([0,0,0] as Specificity))
+        .reduce(reduceGetSpecificity, [0,0,0])
     );
 }
