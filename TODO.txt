@@ -1,1 +1,3 @@
-nothing todo yet
+high cpu usage:
+
+export const rule = (selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions)
