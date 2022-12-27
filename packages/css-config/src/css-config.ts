@@ -1115,28 +1115,6 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         
-        // const propDecls = (
-        //     Array.from(this.#props.keys() as IterableIterator<CssCustomName|symbol>)
-        //     .filter(isPropDecl) // only show string props, ignores symbol props
-        // );
-        // const _propDeclCache = this.#_propDeclCache;
-        // return Array.from(
-        //     (function*(): Generator<string> {
-        //         for (const propDecl of propDecls) {
-        //             const propName = convertPropDeclToPropName(skipPrefixChars, propDecl);
-        //             _propDeclCache.set(propName, propDecl);
-        //             yield propName;
-        //         } // for
-        //     })()
-        // );
-        
-        // return (
-        //     Array.from(this.#props.keys() as IterableIterator<CssCustomName|symbol>)
-        //     .filter(isPropDecl) // only show string props, ignores symbol props
-        //     .map(convertPropDeclToPropName.bind(skipPrefixChars)) // remove prefix
-        // );
-        
-        // const _propDeclCache = this.#_propDeclCache;
         const result = Array.from(
             iteratePropList
             .bind(skipPrefixChars)
