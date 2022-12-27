@@ -962,10 +962,6 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @returns A `CssCustomName` represents the declaration name of the specified `propName` -or- `undefined` if it doesn't exist.
      */
     #getDecl(propName: string|symbol): CssCustomName|undefined {
-        // ignores react runtime type check:
-        if (propName === '$$typeof') {
-            return undefined;
-        } // if
         // ignores symbol & number props:
         if (typeof(propName) !== 'string') return undefined;
         
