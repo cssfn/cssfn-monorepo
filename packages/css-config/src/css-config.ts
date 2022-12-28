@@ -969,38 +969,6 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     #_propNamesCache : WeakRef<string[]> | undefined = undefined;
     
     /**
-     * Gets the *declaration name* of the specified `propName`, eg: `--my-favColor`.
-     * @param propName The prop name to retrieve.
-     * @returns A `CssCustomName` represents the declaration name of the specified `propName` -or- `undefined` if it doesn't exist.
-     */
-    #getDecl(propName: string|symbol): CssCustomName|undefined {
-        // ignores symbol & number props:
-        if (typeof(propName) !== 'string') return undefined;
-        
-        
-        
-        const cached = this.#_propDeclsCache.get(propName);
-        if (cached !== undefined) return (cached === false) ? undefined : cached;
-        
-        
-        
-        const propDecl = this.#createDecl(propName);
-        
-        
-        
-        // check if the `#props` has `propDecl`:
-        if (!this.#props.has(propDecl)) {
-            this.#_propDeclsCache.set(propName, false); // update cache
-            return undefined; // not found
-        } // if
-        
-        
-        
-        this.#_propDeclsCache.set(propName, propDecl); // update cache
-        return propDecl; // found
-    }
-    
-    /**
      * Gets the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
      * @param propName The prop name to retrieve.
      * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName` -or- `undefined` if it doesn't exist.
@@ -1039,8 +1007,13 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @returns A `CssCustomValue` represents the value of the specified `propName` -or- `undefined` if it doesn't exist.
      */
     #getVal(propName: string|symbol): CssCustomValue|undefined {
-        const propDecl = this.#getDecl(propName);
-        if (propDecl === undefined) return undefined; // not found
+        // ignores symbol & number props:
+        if (typeof(propName) !== 'string') return undefined;
+        
+        
+        
+        const propDecl = this.#createDecl(propName);
+        if (!this.#props.has(propDecl)) return undefined; // not found
         
         
         
