@@ -965,6 +965,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     //#region proxy getters & setters
     #_propDeclCache  = new Map<string, CssCustomName|false>();
+    #_propRefCache   = new Map<string, CssCustomSimpleRef|false>();
     #_propNamesCache : WeakRef<string[]> | undefined = undefined;
     
     /**
@@ -1005,10 +1006,31 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName` -or- `undefined` if it doesn't exist.
      */
     #getRef(propName: string|symbol): CssCustomSimpleRef|undefined {
-        const propDecl = this.#getDecl(propName);
-        if (propDecl === undefined) return undefined; // not found
+        // ignores symbol & number props:
+        if (typeof(propName) !== 'string') return undefined;
         
-        return `var(${propDecl})`;
+        
+        
+        const cached = this.#_propRefCache.get(propName);
+        if (cached !== undefined) return (cached === false) ? undefined : cached;
+        
+        
+        
+        const propDecl = this.#createDecl(propName);
+        
+        
+        
+        // check if the `#props` has `propDecl`:
+        if (!this.#props.has(propDecl)) {
+            this.#_propRefCache.set(propName, false); // update cache
+            return undefined; // not found
+        } // if
+        
+        
+        
+        const propRef : CssCustomSimpleRef = `var(${propDecl})`;
+        this.#_propRefCache.set(propName, propRef); // update cache
+        return propRef; // found
     }
     
     /**
@@ -1098,8 +1120,8 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         
-        const propDecl = this.#getDecl(propName);
-        return (propDecl !== undefined);
+        const propRef = this.#getRef(propName);
+        return (propRef !== undefined);
     }
     /**
      * Gets the *all possible* `propName`s in the css-config.
