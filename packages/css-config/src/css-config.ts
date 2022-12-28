@@ -1075,7 +1075,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             props.delete(propDecl);
             
             this.#_propDeclsCache.set(propName, false);        // update the cached mapping of [ propName => *deleted* ]
-            this.#_propRefsCache.set(propName, false);         // update the cached mapping of [ propName => *deleted* ]
+            this.#_propRefsCache.set(propName,  false);        // update the cached mapping of [ propName => *deleted* ]
             this.#_propNamesCache = undefined;                 // collection CHANGED => clear enumeration cache
             
             this.#update();                    // property DELETED => the `#genProps` needs to `update()` and the live styleSheet also need to re-build
@@ -1085,7 +1085,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             if (props.get(propDecl) !== newValue) { // add new -or- update property
                 props.set(propDecl, newValue);
                 
-                this.#_propDeclsCache.set(propName, propDecl);          // update the cached mapping of [ propName => `--prefix-(new)PropDecl` ]
+                this.#_propDeclsCache.set(propName,       propDecl);    // update the cached mapping of [ propName => `--prefix-(new)PropDecl` ]
                 this.#_propRefsCache.set(propName, `var(${propDecl})`); // update the cached mapping of [ propName => `--prefix-(new)PropDecl` ]
                 this.#_propNamesCache = undefined;                      // collection CHANGED => clear enumeration cache
                 
