@@ -3,3 +3,5 @@ optimized css-vars & css-config [done]
 high cpu usage:
 
 export const rule = (selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions)
+
+export const isKnownCssPropInternal = (propName: string) // expensive!
