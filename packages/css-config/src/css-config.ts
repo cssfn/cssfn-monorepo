@@ -1092,7 +1092,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         
-        const propRef = this.#getRef(propName); // calling `#getRef` also generate a cached `var(--foo)` to be used later (high probability)
+        const propRef = this.#getRef(propName); // calling `#getRef` also generates a cached `var(--foo)` to be used later (high probability)
         return (propRef !== undefined);
     }
     /**
