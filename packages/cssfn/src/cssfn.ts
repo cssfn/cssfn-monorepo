@@ -159,7 +159,7 @@ export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptio
     if (!options) { // no options => no further mutate, just merge them
         switch(result.length) {
             case 0:
-                return {};                           // empty rule => nothing to merge => just return an empty object
+                return neverRule();                  // empty rule => nothing to merge => just return a `neverRule` (an empty object)
             case 1:
                 return result[0];                    // only singular CssRule object => nothing to merge => just return it
             default:
@@ -301,7 +301,9 @@ const createKeyframesRules = (items: CssKeyframes): CssRuleCollection => Object.
 // export const alwaysRule       = (styles:         CssStyleCollection                              ) => rule('&'                   , styles         );
 export const alwaysRule        = (styles:         CssStyleCollection                              ) => ({ [Symbol()] : ['&', styles] }) as CssRule; // a bit faster
 // export const neverRule         = (                                                                ) => rule(null                  , null           );
-export const neverRule         = (                                                                ) => ({ /* empty object */ }) as CssRule; // a bit faster
+const neverRuleCache           : CssRule = { /* empty object */ };
+Object.freeze(neverRuleCache);
+export const neverRule         = (                                                                ) => neverRuleCache; // a bit faster
 export const fallbacks         = (styles:         CssStyleCollection                              ) => atRule('@fallbacks'        , styles         );
 export const fontFace          = (styles: CssFontFaceStyleCollection                              ) => atRule('@font-face'        , styles         );
 export const atGlobal          = (rules :          CssRuleCollection                              ) => atRule('@global'           , rules          );
@@ -485,7 +487,7 @@ export const globalScope = (rules :  CssRuleCollection                          
 
 // utilities:
 export const iif = <TCssStyle extends (CssProps|CssRule|CssStyle)>(condition: boolean, content: TCssStyle): TCssStyle => {
-    return condition ? content : ({} as TCssStyle);
+    return condition ? content : (neverRule() as TCssStyle);
 };
 /**
  * Escapes some sets of character in svg data, so it will be valid to be written in css.
