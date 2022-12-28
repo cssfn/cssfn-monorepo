@@ -205,6 +205,16 @@ const createDecl = (propName: string, options: LiveCssConfigOptions): CssCustomN
     return options.prefix ? `--${options.prefix}-${propName}` : `--${propName}`;
 }
 
+/**
+ * Creates the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
+ * @param propName The prop name to create.
+ * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName`.
+ */
+const createRef = (propName: string, options: LiveCssConfigOptions): CssCustomSimpleRef => {
+    // add double dash with prefix `--prefix-` or double dash without prefix `--`
+    return options.prefix ? `var(--${options.prefix}-${propName})` : `var(--${propName})`;
+}
+
 function* iteratePropList(this: number, propKeys: IterableIterator<CssCustomName|symbol>): Generator<string> {
     for (const propDecl of propKeys) {
         // conditions:
@@ -229,8 +239,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     //#region private properties
     readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
     readonly #refProps     : Map<TRefPropName, TRefPropValue>
-    readonly #genKeyframes : Map<string, string>|null
-    readonly #options      : LiveCssConfigOptions|null
+    readonly #genKeyframes : Map<string, string>|undefined
+    readonly #options      : LiveCssConfigOptions|undefined
     //#endregion private properties
     
     //#region public properties
@@ -243,15 +253,6 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     
     
     //#region private utility methods
-    /**
-     * Creates the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
-     * @param propName The prop name to create.
-     * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName`.
-     */
-    #createRef(propName: string): CssCustomSimpleRef {
-        return `var(${this._createDecl(propName)})`;
-    }
-    
     /**
      * Creates the name of `@keyframes` rule.
      * @param basicKeyframesName The basic name of `@keyframes` rule to create.
@@ -393,7 +394,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             
             
             // comparing the `srcPropValue` & `refPropValue` deeply:
-            if (this.#isDeepEqual(srcPropValue, refPropValue)) return this.#createRef(refPropName); // return the link to the ref
+            if (this.#isDeepEqual(srcPropValue, refPropValue)) return this._createRef(refPropName); // return the link to the ref
         } // search for duplicates
         
         // not found:
@@ -434,8 +435,18 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
      */
     protected _createDecl(propName: string): CssCustomName {
-        if (this.#options === null) return propName as CssCustomName;
+        if (!this.#options) return propName as CssCustomName;
         return createDecl(propName, this.#options);
+    }
+    
+    /**
+     * Creates the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
+     * @param propName The prop name to create.
+     * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName`.
+     */
+    protected _createRef(propName: string): CssCustomSimpleRef {
+        if (!this.#options) return `var(${propName})` as CssCustomSimpleRef;
+        return createRef(propName, this.#options);
     }
     //#endregion protected utility methods
     
@@ -472,8 +483,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param refProps     The `Map<TRefPropName, TRefPropValue>` object as the prop duplicate references.
      * @param genKeyframes The `Map<string, string>` object as a storage for the generated `@keyframes`.
      */
-    constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>, genKeyframes: Map<string, string>|null, options: LiveCssConfigOptions|null) {
-        if (!options?.prefix) genKeyframes = null; // no prefix modifier => no need to mutate the @keyframes names
+    constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>, genKeyframes: Map<string, string>|undefined, options: LiveCssConfigOptions|undefined) {
+        if (!options?.prefix) genKeyframes = undefined; // no prefix modifier => no need to mutate the @keyframes names
         this.#srcProps     = srcProps;
         this.#refProps     = refProps;
         this.#genKeyframes = genKeyframes;
@@ -700,7 +711,7 @@ class TransformCssConfigFactoryDuplicatesBuilder<TConfigProps extends CssConfigP
     
     
     
-    constructor(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, options: LiveCssConfigOptions|null) {
+    constructor(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, options: LiveCssConfigOptions|undefined) {
         super(srcProps, srcProps, new Map<string, string>(), options);
     }
     
@@ -714,7 +725,7 @@ class TransformCssConfigDuplicatesBuilder
     extends TransformCssStyleDuplicatesBuilder<(keyof CssCustomProps)|symbol, CssCustomValue|CssKeyframesRule[symbol]>
 {
     constructor(configCustomProps: CssConfigCustomPropsMap) {
-        super(configCustomProps, configCustomProps, null, null);
+        super(configCustomProps, configCustomProps, undefined, undefined);
     }
     
     
