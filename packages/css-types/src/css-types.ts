@@ -408,8 +408,8 @@ export type CssKnownProps =
 export type CssProps                   = CssCustomProps    & CssKnownProps
 export type CssPropsMap                = CssCustomPropsMap & MapOf<CssKnownProps>
 
-export type CssRuleData                = readonly [CssRawSelector|CssFinalSelector, CssStyleCollection]
-export type CssFinalRuleData           = readonly [               CssFinalSelector, CssFinalStyleMap  ]
+export type CssRuleData                = readonly [undefined|CssRawSelector|CssFinalSelector, CssStyleCollection]
+export type CssFinalRuleData           = readonly [                         CssFinalSelector, CssFinalStyleMap  ]
 export type CssRule                    = { // do not use Record<symbol, CssRuleData> => doesn't support circular ref
     [name: symbol] : CssRuleData
 }
