@@ -144,7 +144,7 @@ const finalizeSelector = (style: (CssRuleMap & CssFinalRuleMap), symbolProp: sym
     
     
     // extract raw selector:
-    const [selectors, options] = selector;
+    const [selectors, options] = selector ?? ['&', undefined]; // selector of `undefined` is the shortcut of '&' without any options
     
     
     
@@ -241,7 +241,7 @@ const containsOnlyParentSelector = (styles: CssStyleCollection|CssFinalStyleMap)
     
     const symbolProp = symbolProps[0];
     const [selector, nestedStyles] = styles[symbolProp];
-    if (selector !== '&')           return undefined; // not a parentSelector => ignore
+    if ((selector !== undefined) && (selector !== '&')) return undefined; // not a parentSelector (`undefined` => a shortcut of '&') => ignore
     return nestedStyles ?? null; // if `undefined` => convert to `null` to make different than *`undefined` means not_found*
 }
 export const mergeParent  = (style: CssStyleMap): void => {
