@@ -39,18 +39,18 @@ export {
 
 
 
-function* unwrap<T>(collection: DeepArray<T>): Generator<T> {
+function unwrap<T>(collection: DeepArray<T>, result: T[]): void {
     for (const item of collection) {
+        // handle single item:
         if (!Array.isArray(item)) {
-            yield item;
+            result.push(item);
             continue;
         } // if
         
         
         
-        for (const subItem of unwrap(item)) {
-            yield subItem;
-        } // for
+        // handle multi item(s):
+        unwrap(item, result);
     } // for
 }
 /**
@@ -66,16 +66,20 @@ export const flat = <T,>(collection: SingleOrDeepArray<T>): T[] => {
     
     
     
+    // statically handle single item:
     if (!Array.isArray(collection)) {
         return [collection];
     } // if
     
     
     
-    return Array.from(unwrap(collection));
+    // dynamically handle multi item(s):
+    const result : T[] = [];
+    unwrap(collection, result);
+    return result;
 };
 
-export const isFinalSelector = (selector: CssRawSelector|CssFinalSelector): selector is CssFinalSelector => (typeof(selector) === 'string');
+export const isFinalSelector = (selector: undefined|CssRawSelector|CssFinalSelector): selector is CssFinalSelector => (typeof(selector) === 'string');
 
 export const isNotFalsySelector = (selector: OptionalOrBoolean<CssSelector>): selector is CssSelector => {
     return (!!selector && (selector !== true));
