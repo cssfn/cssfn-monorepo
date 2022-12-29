@@ -39,15 +39,16 @@ export const decodeStyle = (style: OptionalOrBoolean<EncodedCssStyle>): Optional
     
     
     const ruleDatas = style['']; // an empty string key is a special property for storing (nested) rules
-    
-    
-    
-    delete style[''];
     const decodedStyle = style as CssStyle; // no need to clone to improve performance
     
     
     
     if (ruleDatas && ruleDatas.length) {
+        // delete style[''];   // expensive op! causing chrome's to re-create hidden class
+        style[''] = undefined; // assigning to undefined instead of deleting, to improve performance
+        
+        
+        
         const nestedRules = (
             ruleDatas
             .map(decodeNestedRule)
