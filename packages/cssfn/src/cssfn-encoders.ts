@@ -137,12 +137,6 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
     
     
     
-    // an empty string key is a special property for storing (nested) rules
-    // if exists => assumes as already encoded:
-    if ('' in style) return style as EncodedCssStyle;
-    
-    
-    
     // SLOW:
     // const encodedStyle = Object.fromEntries(
     //     Object.entries(styleValue) // take all string keys (excluding symbol keys)
@@ -151,12 +145,16 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
     
     // FASTER:
     const encodedStyle = styleValue; // hack: re-use the style object as encoded object; the symbol keys will be ignored when transfering
+    
+    // an empty string key is a special property for storing (nested) rules
+    // if exists => assumes as already encoded:
+    if (encodedStyle['' as any] !== undefined) return encodedStyle as EncodedCssStyle;
+    
     for (const propName in encodedStyle) { // iterates string keys, ignoring symbol keys
         const propValue : CssCustomValue|undefined|null = encodedStyle[propName as keyof CssProps];
         
         
         
-        if (propValue === '') continue; // an empty string key is a special property for storing (nested) rules => ignore
         if (isTransferableProp(propValue)) continue; // ignore *transferable* prop, no need to mutate
         
         
