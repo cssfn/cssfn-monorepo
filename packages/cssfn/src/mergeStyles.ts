@@ -232,10 +232,21 @@ const ensureSymbolPropsUpdated = (style: CssStyleMap): void => {
 }
 const containsOnlyParentSelector = (styles: CssStyleCollection|CssFinalStyleMap): CssStyleCollection => {
     // conditions:
-    if (!isStyle(styles))           return undefined; // not a CssStyle object => ignore
-    if (Object.keys(styles).length) return undefined; // has any props => ignore
+    if (!isStyle(styles))         return undefined; // not a CssStyle object => ignore
+    const stringPropsCount = Object.keys(styles).length;
+    if (
+        stringPropsCount            // has any_props  : 1, 2, 3, -or- many
+        &&
+        (
+            (stringPropsCount >= 2) // has many_props :    2, 3, -or- many => ignore
+            ||
+            (!('' in styles))       // has one_prop of non_empty_string    => ignore
+        )
+    ) {
+        return undefined; // ignore
+    } // if
     const symbolProps = Object.getOwnPropertySymbols(styles);
-    if (symbolProps.length !== 1)   return undefined; // not exactly one nested_prop => ignore
+    if (symbolProps.length !== 1) return undefined; // not exactly one nested_prop => ignore
     
     
     
