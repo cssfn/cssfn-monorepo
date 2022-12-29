@@ -54,7 +54,7 @@ export type EncodedCssKnownProps = {
 // cssfn properties:
 export type EncodedCssProps           = EncodedCssCustomProps & EncodedCssKnownProps
 
-export type EncodedCssRuleData        = readonly [CssRawSelector|CssFinalSelector, EncodedCssStyleCollection]
+export type EncodedCssRuleData        = readonly [undefined|CssRawSelector|CssFinalSelector, EncodedCssStyleCollection]
 export type EncodedCssRule            = {
     '' ?: EncodedCssRuleData[] | null
 }
