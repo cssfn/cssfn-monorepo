@@ -76,7 +76,7 @@ export function* filterOnlyRuleKeys(keys: IterableIterator<keyof CssCustomProps|
 }
 export function* filterOnlyPropKeys(keys: IterableIterator<keyof CssCustomProps|keyof CssKnownProps|keyof CssRule>): Generator<keyof CssCustomProps|keyof CssKnownProps> {
     for (const propName of keys) {
-        if (typeof(propName) !== 'symbol') yield propName; // found a symbol prop
+        if (typeof(propName) !== 'symbol') yield propName; // found a string prop
     } // for
 }
 export const hasRuleKeys = (keys: IterableIterator<keyof CssCustomProps|keyof CssKnownProps|keyof CssRule>): boolean => {
@@ -88,7 +88,7 @@ export const hasRuleKeys = (keys: IterableIterator<keyof CssCustomProps|keyof Cs
 }
 export const hasPropKeys = (keys: IterableIterator<keyof CssCustomProps|keyof CssKnownProps|keyof CssRule>): boolean => {
     for (const propName of keys) {
-        if (typeof(propName) !== 'symbol') return true; // found a symbol prop
+        if (typeof(propName) !== 'symbol') return true; // found a string prop
     } // for
     
     return false; // not found
@@ -450,6 +450,11 @@ const cssStyleToMap = (style: OptionalOrBoolean<CssStyle>): CssStyleMap|null => 
     // const map = new Map(Object.entries(style)) as CssStyleMap; // slow!
     const map = new Map() as CssStyleMap;
     for (const propName in style) { // faster!
+        // an empty_string key is a special key => ignore:
+        if ((propName as string) === '') continue;
+        
+        
+        
         const propName2 = propName as keyof Omit<CssStyle, symbol>;
         (map as CssPropsMap).set(propName2 as any, style[propName2]);
     } //
