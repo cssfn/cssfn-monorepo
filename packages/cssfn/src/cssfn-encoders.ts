@@ -189,32 +189,36 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
     
     return encodedStyle as EncodedCssStyle;
 }
-function* unwrapStyles(styles: Extract<CssStyleCollection, any[]>): Generator<EncodedCssStyle> {
+function unwrapStyles(styles: Extract<CssStyleCollection, any[]>, result: EncodedCssStyle[]): void {
     for (const style of styles) {
         if (!style || (style === true)) continue; // falsy style(s) => ignore
         
         
         
+        // handle single item:
         if (!Array.isArray(style)) {
             const encodedStyle = encodeStyle(style); // expensive op!
             if (!encodedStyle || (encodedStyle === true)) continue; // falsy style(s) => ignore
-            yield encodedStyle;
+            result.push(encodedStyle);
             continue;
         } // if
         
         
         
-        for (const subStyle of unwrapStyles(style)) { // expensive op!
-            yield subStyle;
-        } // for
+        // handle multi item(s):
+        unwrapStyles(style, result); // expensive op!
     } // for
 }
 export const encodeStyles = (styles: CssStyleCollection): EncodedCssStyleCollection => {
+    // statically handle single item:
     if (!Array.isArray(styles)) {
         return encodeStyle(styles); // expensive op!
     } // if
     
     
     
-    return Array.from(unwrapStyles(styles)); // expensive op!
+    // dynamically handle multi item(s):
+    const result: EncodedCssStyle[] = [];
+    unwrapStyles(styles, result); // expensive op!
+    return result;
 }
