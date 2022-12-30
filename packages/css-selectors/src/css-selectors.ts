@@ -118,16 +118,12 @@ const joinExpressions = (expressions: SingleOrDeepArray<OptionalOrBoolean<string
     );
 };
 
-class ParseSelectors {
+class SelectorsParser {
     //#region private fields
-    readonly #expression       : string
-    readonly #expressionLength : number
-    #pos                       : number
+    #expression       : string = ''
+    #expressionLength : number = 0
+    #pos              : number = 0
     //#endregion private fields
-    
-    //#region public fields
-    readonly result            : SelectorGroup|null
-    //#endregion public fields
     
     
     
@@ -561,34 +557,42 @@ class ParseSelectors {
     
     
     
-    constructor(expressions: SingleOrDeepArray<OptionalOrBoolean<string>>) {
+    process(expressions: SingleOrDeepArray<OptionalOrBoolean<string>>): SelectorGroup|null {
+        // configure:
         this.#expression       = joinExpressions(expressions);
         this.#expressionLength = this.#expression.length;
         this.#pos              = 0;
         
         
         
+        // process:
         const allSelectors = this.#parseSelectors();
         this.#skipWhitespace();
         if (!allSelectors) {
             if (this.#isEof()) {
-                this.result = []; // empty selector
-                return;
+                return []; // empty selector
             } // if
             
-            this.result = null;   // syntax error: not all expression are valid selector
-            return;
+            return null;   // syntax error: not all expression are valid selector
         } // if
         if (!this.#isEof()) {
-            this.result = null;   // syntax error: not all expression are valid selector
-            return;
+            return null;   // syntax error: not all expression are valid selector
         } // if
         
-        this.result = allSelectors;
+        
+        
+        // cleanups:
+        this.#expression = '';
+        
+        
+        
+        // result:
+        return allSelectors;
     }
 }
+const selectorsParser : SelectorsParser = new SelectorsParser();
 export const parseSelectors = (expressions: SingleOrDeepArray<OptionalOrBoolean<string>>): SelectorGroup|null => {
-    return (new ParseSelectors(expressions)).result;
+    return selectorsParser.process(expressions);
 };
 
 
