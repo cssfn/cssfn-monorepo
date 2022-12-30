@@ -58,6 +58,8 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
     // if exists => assumes as already encoded:
     if (styleValue['' as any] !== undefined) return styleValue as EncodedCssStyle;
     
+    
+    
     for (const propName in styleValue) { // iterates string keys, ignoring symbol keys
         const propValue : CssCustomValue|undefined|null = styleValue[propName as keyof CssProps];
         
@@ -108,9 +110,9 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
         for (let index = 0, max = nestedRules.length, ruleData: MutableCssRuleData; index < max; index++) {
             ruleData = styleValue[nestedRules[index] as symbol] as MutableCssRuleData;
             
-            ruleData[1] = encodeStyles(ruleData[1]) as any; // expensive op!
+            ruleData[1] = encodeStyles(ruleData[1]) as any;      // mutate CssStyleCollection with EncodedCssStyleCollection
             
-            nestedRules[index] = ruleData as EncodedCssRuleData; // replace mutate with EncodedCssRuleData
+            nestedRules[index] = ruleData as EncodedCssRuleData; // mutate symbol with EncodedCssRuleData
         } // for
         
         
@@ -129,14 +131,20 @@ const unwrapStyles = (styles: Extract<CssStyleCollection, any[]>): void => {
         
         
         
-        if (!style || (style === true)) continue; // falsy style(s) => ignore
+        if (!style || (style === true)) {
+            styles[index] = undefined; // mutate : falsy style => undefined (delete)
+            continue;
+        } // if
         
         
         
         // handle single item:
         if (!Array.isArray(style)) {
-            const encodedStyle = encodeStyle(style); // expensive op!
-            if (!encodedStyle || (encodedStyle === true)) continue; // falsy style(s) => ignore
+            const encodedStyle = encodeStyle(style); // mutate CssStyle with EncodedCssStyle
+            if (!encodedStyle || (encodedStyle === true)) {
+                styles[index] = undefined; // mutate : falsy style => undefined (delete)
+                continue;
+            } // if
             
             
             
@@ -153,7 +161,7 @@ const unwrapStyles = (styles: Extract<CssStyleCollection, any[]>): void => {
 export const encodeStyles = (styles: CssStyleCollection): EncodedCssStyleCollection => {
     // statically handle single item:
     if (!Array.isArray(styles)) {
-        return encodeStyle(styles); // expensive op!
+        return encodeStyle(styles); // mutate CssStyle with EncodedCssStyle
     } // if
     
     
