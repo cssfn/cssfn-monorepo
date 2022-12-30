@@ -72,7 +72,10 @@ const isClientSide : boolean = isBrowser || isJsDom;
  * @returns A `CssRule` represents a conditional style(s).
  */
 export const rule = (selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => ({
-    [Symbol()] : [
+    // reserved! an empty string key is a special property for storing (nested) rules at rendering phase-1:
+    ['' as any] : undefined as any,
+    
+    [Symbol() ] : [
         [selectors, options],
         styles
     ],
@@ -82,7 +85,10 @@ export const rule = (selectors: CssSelectorCollection, styles: CssStyleCollectio
  * @returns A `CssRule` represents an @rule.
  */
 export const atRule = (atRule: `@${string}`, styles: CssStyleCollection): CssRule => ({
-    [Symbol()] : [
+    // reserved! an empty string key is a special property for storing (nested) rules at rendering phase-1:
+    ['' as any] : undefined as any,
+    
+    [Symbol() ] : [
         atRule,
         styles
     ],
@@ -100,7 +106,7 @@ const convertOptionalRuleOrFactoryToOptionalRule = (optionalRuleOrFactory: Produ
     if (typeof(optionalRuleOrFactory) === 'function') return optionalRuleOrFactory();
     return optionalRuleOrFactory;
 }
-const overwriteSelectorOptions = (selector: CssRawSelector|CssFinalSelector, newOptions: CssSelectorOptions): CssRawSelector => {
+const overwriteSelectorOptions = (selector: undefined|CssRawSelector|CssFinalSelector = '&', newOptions: CssSelectorOptions): CssRawSelector => {
     if (isFinalSelector(selector)) {
         // a CssFinalSelector => just convert to CssRawSelector with additional options:
         return [
@@ -159,20 +165,26 @@ export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptio
     if (!options) { // no options => no further mutate, just merge them
         switch(result.length) {
             case 0:
-                return neverRule();                  // empty rule => nothing to merge => just return a `neverRule` (an empty object)
+                return neverRule();     // empty rule => nothing to merge => just return a `neverRule` (an empty object)
             case 1:
-                return result[0];                    // only singular CssRule object => nothing to merge => just return it
+                return result[0];       // only singular CssRule object => nothing to merge => just return it
             default:
-                return Object.assign({}, ...result); // merge multiple CssRule objects to single CssRule object (merges the symbol props)
+                return Object.assign({
+                    // reserved! an empty string key is a special property for storing (nested) rules at rendering phase-1:
+                    ['' as any] : undefined as any,
+                }, ...result);          // merge multiple CssRule objects to single CssRule object (merges the symbol props)
         } // switch
     } // if
     
     
     
-    return Object.fromEntries(
-        result
+    return Object.fromEntries([
+        // reserved! an empty string key is a special property for storing (nested) rules at rendering phase-1:
+        [ '' , undefined ],
+        
+        ...result
         .flatMap(convertRuleToRuleEntriesWithOptions.bind(options))
-    );
+    ]);
 };
 
 const defaultVariantOptions : CssSelectorOptions = {
@@ -276,7 +288,10 @@ export function keyframes(nameOrItems : string|CssKeyframes, items ?: CssKeyfram
         createKeyframesRules(nameOrItems)
     ];
     const keyframesRule = {
-        [Symbol()] : ruleData,
+        // reserved! an empty string key is a special property for storing (nested) rules at rendering phase-1:
+        ['' as any] : undefined as any,
+        
+        [Symbol() ] : ruleData,
     } as CssKeyframesRule;
     return [
         keyframesRule,
@@ -290,18 +305,31 @@ const convertCssKeyframesEntryToCssRuleEntry = ([key, frame]: readonly [string, 
         frame
     ]
 ];
-const createKeyframesRules = (items: CssKeyframes): CssRuleCollection => Object.fromEntries(
-    Object.entries(items)
+const createKeyframesRules = (items: CssKeyframes): CssRuleCollection => Object.fromEntries([
+    // reserved! an empty string key is a special property for storing (nested) rules at rendering phase-1:
+    [ '' , undefined ],
+    
+    ...Object.entries(items)
     .map(convertCssKeyframesEntryToCssRuleEntry)
-) as CssRuleCollection
+]) as CssRuleCollection
 
 
 
 // rule shortcuts:
 // export const alwaysRule       = (styles:         CssStyleCollection                              ) => rule('&'                   , styles         );
-export const alwaysRule        = (styles:         CssStyleCollection                              ) => ({ [Symbol()] : ['&', styles] }) as CssRule; // a bit faster
+export const alwaysRule        = (styles:         CssStyleCollection                              ) => ({
+    // reserved! an empty string key is a special property for storing (nested) rules at rendering phase-1:
+    ['' as any] : undefined as any,
+    
+    [Symbol() ] : [/*'&'*/ /* empty */, styles]
+}) as CssRule; // a bit faster
 // export const neverRule         = (                                                                ) => rule(null                  , null           );
-const neverRuleCache           : CssRule = { /* empty object */ };
+const neverRuleCache           : CssRule = {
+    // reserved! an empty string key is a special property for storing (nested) rules at rendering phase-1:
+    ['' as any] : undefined as any,
+    
+    /* empty object */
+};
 Object.freeze(neverRuleCache);
 export const neverRule         = (                                                                ) => neverRuleCache; // a bit faster
 export const fallbacks         = (styles:         CssStyleCollection                              ) => atRule('@fallbacks'        , styles         );
