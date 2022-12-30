@@ -183,11 +183,9 @@ export type CssConfig<TConfigProps extends CssConfigProps> = readonly [Refs<TCon
 
 
 // utilities:
-const isUppercase = (test: string) => (test >= 'A') && (test <= 'Z');
-const isPropDecl  = (propDecl: CssCustomName|symbol): propDecl is CssCustomName => (typeof(propDecl) === 'string');
-function convertPropDeclToPropName(skipPrefixChars: number, propDecl: CssCustomName): string {
-    return propDecl.slice(skipPrefixChars);
-}
+const isUppercase               = (test: string) => (test >= 'A') && (test <= 'Z');
+const isPropDecl                = (propDecl: CssCustomName|symbol): propDecl is CssCustomName => (typeof(propDecl) === 'string');
+const convertPropDeclToPropName = (propDecl: CssCustomName, skipPrefixChars: number): string => propDecl.slice(skipPrefixChars);
 
 const defaultPropDescriptor : PropertyDescriptor = {
     writable     : true, // make sure the propName is assignable
@@ -215,7 +213,7 @@ const createRef = (propName: string, options: LiveCssConfigOptions): CssCustomSi
     return options.prefix ? `var(--${options.prefix}-${propName})` : `var(--${propName})`;
 }
 
-function* iteratePropList(this: number, propKeys: IterableIterator<CssCustomName|symbol>): Generator<string> {
+const iteratePropList = (propKeys: IterableIterator<CssCustomName|symbol>, skipPrefixChars: number, result: string[]): void => {
     for (const propDecl of propKeys) {
         // conditions:
         if (!isPropDecl(propDecl)) continue;
@@ -223,7 +221,9 @@ function* iteratePropList(this: number, propKeys: IterableIterator<CssCustomName
         
         
         // results:
-        yield convertPropDeclToPropName(this, propDecl);
+        result.push(
+            convertPropDeclToPropName(propDecl, skipPrefixChars)
+        );
     } // for
 }
 
@@ -1116,11 +1116,8 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         
-        const result = Array.from(
-            iteratePropList
-            .bind(skipPrefixChars)
-            (this.#props.keys() as IterableIterator<CssCustomName|symbol>)
-        );
+        const result: string[] = [];
+        iteratePropList(this.#props.keys() as IterableIterator<CssCustomName|symbol>, skipPrefixChars, result);
         this.#_propNamesCache = new WeakRef<string[]>(result);
         return result;
     }
