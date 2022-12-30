@@ -63,32 +63,36 @@ export const decodeStyle = (style: OptionalOrBoolean<EncodedCssStyle>): Optional
     
     return decodedStyle;
 }
-function* unwrapStyles(styles: Extract<EncodedCssStyleCollection, any[]>): Generator<CssStyle> {
+function unwrapStyles(styles: Extract<EncodedCssStyleCollection, any[]>, result: CssStyle[]): void {
     for (const style of styles) {
         if (!style || (style === true)) continue; // falsy style(s) => ignore
         
         
         
+        // handle single item:
         if (!Array.isArray(style)) {
             const decodedStyle = decodeStyle(style);
             if (!decodedStyle || (decodedStyle === true)) continue; // falsy style(s) => ignore
-            yield decodedStyle;
+            result.push(decodedStyle);
             continue;
         } // if
         
         
         
-        for (const subStyle of unwrapStyles(style)) {
-            yield subStyle;
-        } // for
+        // handle multi item(s):
+        unwrapStyles(style, result);
     } // for
 }
 export const decodeStyles = (styles: EncodedCssStyleCollection): CssStyleCollection => {
+    // statically handle single item:
     if (!Array.isArray(styles)) {
         return decodeStyle(styles);
     } // if
     
     
     
-    return Array.from(unwrapStyles(styles));
+    // dynamically handle multi item(s):
+    const result: CssStyle[] = [];
+    unwrapStyles(styles, result);
+    return result;
 }
