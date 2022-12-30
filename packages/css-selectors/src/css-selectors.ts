@@ -85,22 +85,23 @@ const isNotEmptyExpression = (expression: OptionalOrBoolean<string>): expression
     &&
     (expression !== true)  // not `true`
 );
-function* unwrapExpressions(expressions: DeepArray<OptionalOrBoolean<string>>): Generator<string> {
+function unwrapExpressions(expressions: DeepArray<OptionalOrBoolean<string>>, result: string[]): void {
     for (const expression of expressions) {
+        // handle single item:
         if (!Array.isArray(expression)) {
             if (!isNotEmptyExpression(expression)) continue; // falsy or empty string => ignore
-            yield expression;
+            result.push(expression);
             continue;
         } // if
         
         
         
-        for (const subExpression of unwrapExpressions(expression)) {
-            yield subExpression;
-        } // for
+        // handle multi item(s):
+        unwrapExpressions(expression, result);
     } // for
 }
 const joinExpressions = (expressions: SingleOrDeepArray<OptionalOrBoolean<string>>): string => {
+    // statically handle single item:
     if (!Array.isArray(expressions)) {
         if (!isNotEmptyExpression(expressions)) return ''; // falsy or empty string => empty result
         return expressions;
@@ -108,8 +109,11 @@ const joinExpressions = (expressions: SingleOrDeepArray<OptionalOrBoolean<string
     
     
     
+    // dynamically handle multi item(s):
+    const result: string[] = [];
+    unwrapExpressions(expressions, result);
     return (
-        Array.from(unwrapExpressions(expressions))
+        result
         .join(',')
     );
 };
