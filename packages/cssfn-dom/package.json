@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/cssfn-dom",
-  "version": "2.0.18",
+  "version": "2.0.19",
   "description": "Automatically attaches the registered css(fn) to DOM.",
   "keywords": [
     "css",
@@ -35,10 +35,10 @@
     "is-in-browser": "^2.0.0"
   },
   "peerDependencies": {
-    "@cssfn/cssfn": "^2.0.31"
+    "@cssfn/cssfn": "^2.0.32"
   },
   "devDependencies": {
-    "@cssfn/css-types": "^2.0.6",
+    "@cssfn/css-types": "^2.0.7",
     "@types/jsdom": "^20.0.1",
     "jsdom": "^20.0.3",
     "rxjs": "^7.8.0"
