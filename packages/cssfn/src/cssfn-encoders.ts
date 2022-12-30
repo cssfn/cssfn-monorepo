@@ -2,17 +2,9 @@
 import type {
     OptionalOrBoolean,
     
-    DeepArray,
-    
     ProductOrFactory,
 }                           from '@cssfn/types'
 import type {
-    // css values:
-    CssSimpleValue,
-    CssComplexBaseValueOf,
-    
-    
-    
     // css custom properties:
     CssCustomValue,
     
@@ -29,18 +21,7 @@ import type {
 
 // internals:
 import type {
-    // css values:
-    EncodedCssSimpleValue,
-    
-    
-    
-    // css custom properties:
-    EncodedCssCustomValue,
-    
-    
-    
     // cssfn properties:
-    // EncodedCssProps,
     EncodedCssRuleData,
     EncodedCssStyle,
     EncodedCssStyleCollection,
@@ -50,7 +31,6 @@ import type {
 
 // types:
 type TransferablePrimitive = undefined|null|string|number
-type TransferableDeepArray = DeepArray<TransferablePrimitive>
 
 
 
@@ -67,69 +47,6 @@ const isTransferablePrimitive = <TPropValue extends CssCustomValue|undefined|nul
     
     return false; // unknown => assumes as *NON-transferable*
 }
-const isTransferableDeepArray = <TPropValue extends Extract<CssCustomValue, any[]>>(propValue : TPropValue): propValue is (TPropValue & TransferableDeepArray) => {
-    for (const propSubValue of propValue) {
-        if (Array.isArray(propSubValue)) {
-            if (!isTransferableDeepArray(propSubValue)) return false;
-        }
-        else {
-            if (!isTransferablePrimitive(propSubValue)) return false;
-        } // if
-    } // for
-    
-    
-    
-    return true; // all subValues are passed -or- empty array
-}
-const isTransferableProp = <TPropValue extends CssCustomValue|undefined|null>(propValue : TPropValue): propValue is ((TPropValue & TransferablePrimitive) | (TPropValue & TransferableDeepArray)) => {
-    if (isTransferablePrimitive(propValue)) return true;
-    
-    
-    
-    if (Array.isArray(propValue)) return isTransferableDeepArray(propValue);
-    
-    
-    
-    return false; // CssCustomKeyframesRef => *NON-transferable* => false
-}
-
-const encodePropSimpleValue = (propValue: CssComplexBaseValueOf<CssSimpleValue>): CssComplexBaseValueOf<EncodedCssSimpleValue> => {
-    if (isTransferablePrimitive(propValue)) return propValue;
-    
-    return propValue.toString(); // CssCustomKeyframesRef => *NON-transferable* => make *transferable* => .toString()
-}
-const encodePropSubValue = (propSubValue: Extract<CssCustomValue, any[]>[number]): Extract<EncodedCssCustomValue, any[]>[number] => {
-    if (!Array.isArray(propSubValue)) return encodePropSimpleValue(propSubValue);
-    
-    
-    
-    if (propSubValue.every(isTransferablePrimitive)) return propSubValue; // all items in the array are *transferable* -or- empty array => no need to mutate
-    
-    
-    
-    // some item(s) in the array is/are *NON-transferable* => NEED to mutate the array with *encoded* value(s):
-    return (
-        propSubValue
-        .map(encodePropSimpleValue) // expensive op!
-    );
-}
-const encodeRuleData = (ruleData: CssRuleData): EncodedCssRuleData => {
-    // SLOW:
-    // const [selector, styles] = ruleData;
-    // return [
-    //     selector,
-    //     encodeStyles(styles) // expensive op!
-    // ];
-    
-    // FASTER:
-    return [
-        ruleData[0],
-        encodeStyles(ruleData[1]) // expensive op!
-    ];
-}
-export function encodeNestedRule(this: CssStyle, symbolProp: symbol): EncodedCssRuleData {
-    return encodeRuleData(this[symbolProp]); // expensive op!
-}
 export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>): OptionalOrBoolean<EncodedCssStyle> => {
     if (!style || (style === true))           return undefined; // falsy style => ignore
     const styleValue = (typeof(style) === 'function') ? style() : style;
@@ -137,60 +54,85 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
     
     
     
-    // SLOW:
-    // const encodedStyle = Object.fromEntries(
-    //     Object.entries(styleValue) // take all string keys (excluding symbol keys)
-    //     .map(encodeProp) // expensive op!
-    // ) as EncodedCssProps as EncodedCssStyle;
-    
-    // FASTER:
-    const encodedStyle = styleValue; // hack: re-use the style object as encoded object; the symbol keys will be ignored when transfering
-    
     // an empty string key is a special property for storing (nested) rules
     // if exists => assumes as already encoded:
-    if (encodedStyle['' as any] !== undefined) return encodedStyle as EncodedCssStyle;
+    if (styleValue['' as any] !== undefined) return styleValue as EncodedCssStyle;
     
-    for (const propName in encodedStyle) { // iterates string keys, ignoring symbol keys
-        const propValue : CssCustomValue|undefined|null = encodedStyle[propName as keyof CssProps];
+    for (const propName in styleValue) { // iterates string keys, ignoring symbol keys
+        const propValue : CssCustomValue|undefined|null = styleValue[propName as keyof CssProps];
         
         
         
-        if (isTransferableProp(propValue)) continue; // ignore *transferable* prop, no need to mutate
-        
-        
-        
-        // *NON-transferable* => NEED to mutate the array with *encoded* value(s):
-        encodedStyle[propName as any] = (
-            Array.isArray(propValue)
-            ?
-            // some item(s) in the array is/are *NON-transferable* => NEED to mutate the array with *encoded* value(s):
-            (propValue.map(encodePropSubValue) as any) // expensive op!
-            :
-            (propValue.toString() as any) // CssCustomKeyframesRef => *NON-transferable* => make *transferable* => .toString()
-        );
+        if (!Array.isArray(propValue)) {
+            if (isTransferablePrimitive(propValue)) continue; // ignore *transferable* propValue
+            
+            
+            
+            styleValue[propName as any] = propValue.toString() as any; // mutate CssCustomKeyframesRef with CssCustomKeyframesRef.toString()
+        }
+        else {
+            for (let index = 0, max = propValue.length, propSubValue : typeof propValue[number]; index < max; index++) {
+                propSubValue = propValue[index];
+                
+                
+                
+                if (!Array.isArray(propSubValue)) {
+                    if (isTransferablePrimitive(propSubValue)) continue; // ignore *transferable* propSubValue
+                    
+                    
+                    
+                    propValue[index] = propSubValue.toString(); // mutate CssCustomKeyframesRef with CssCustomKeyframesRef.toString()
+                }
+                else {
+                    for(let subIndex = 0, subMax = propSubValue.length, propSubSubValue : typeof propSubValue[number]; subIndex < subMax; subIndex++) {
+                        propSubSubValue = propSubValue[subIndex];
+                        
+                        
+                        
+                        if (isTransferablePrimitive(propSubSubValue)) continue; // ignore *transferable* propSubSubValue
+                        
+                        
+                        
+                        propSubValue[subIndex] = propSubSubValue.toString(); // mutate CssCustomKeyframesRef with CssCustomKeyframesRef.toString()
+                    } // for
+                } // if
+                
+                
+                
+                // propValue[index] = encodePropSubValue(propValue[index]);
+            } // for
+        } // if
     } // for
     
     
     
-    const symbolProps = Object.getOwnPropertySymbols(styleValue); // take all symbol keys
-    if (symbolProps.length) {
-        const nestedRules = (
-            symbolProps
-            .map(encodeNestedRule.bind(styleValue)) // expensive op!
-        );
+    const nestedRules : (symbol|EncodedCssRuleData)[] = Object.getOwnPropertySymbols(styleValue); // take all symbol keys
+    if (nestedRules.length) {
+        type MutableCssRuleData = [...CssRuleData]
+        for (let index = 0, max = nestedRules.length, ruleData: MutableCssRuleData; index < max; index++) {
+            ruleData = styleValue[nestedRules[index] as symbol] as MutableCssRuleData;
+            
+            ruleData[1] = encodeStyles(ruleData[1]) as any; // expensive op!
+            
+            nestedRules[index] = ruleData as EncodedCssRuleData; // replace mutate with EncodedCssRuleData
+        } // for
         
         
         
         // expensive op! causing chrome's to re-create hidden class:
-        encodedStyle['' as any] = nestedRules as any; // an empty string key is a special property for storing (nested) rules
+        styleValue['' as any] = nestedRules as any; // an empty string key is a special property for storing (nested) rules
     } // if
     
     
     
-    return encodedStyle as EncodedCssStyle;
+    return styleValue as EncodedCssStyle;
 }
-function unwrapStyles(styles: Extract<CssStyleCollection, any[]>, result: EncodedCssStyle[]): void {
-    for (const style of styles) {
+const unwrapStyles = (styles: Extract<CssStyleCollection, any[]>): void => {
+    for (let index = 0, max = styles.length, style : typeof styles[number]; index < max; index++) {
+        style = styles[index];
+        
+        
+        
         if (!style || (style === true)) continue; // falsy style(s) => ignore
         
         
@@ -199,14 +141,17 @@ function unwrapStyles(styles: Extract<CssStyleCollection, any[]>, result: Encode
         if (!Array.isArray(style)) {
             const encodedStyle = encodeStyle(style); // expensive op!
             if (!encodedStyle || (encodedStyle === true)) continue; // falsy style(s) => ignore
-            result.push(encodedStyle);
+            
+            
+            
+            styles[index] = encodedStyle as EncodedCssStyle as any; // mutate CssStyle with EncodedCssStyle
             continue;
         } // if
         
         
         
         // handle multi item(s):
-        unwrapStyles(style, result); // expensive op!
+        unwrapStyles(style); // mutate each CssStyle with EncodedCssStyle
     } // for
 }
 export const encodeStyles = (styles: CssStyleCollection): EncodedCssStyleCollection => {
@@ -218,7 +163,6 @@ export const encodeStyles = (styles: CssStyleCollection): EncodedCssStyleCollect
     
     
     // dynamically handle multi item(s):
-    const result: EncodedCssStyle[] = [];
-    unwrapStyles(styles, result); // expensive op!
-    return result;
+    unwrapStyles(styles); // mutate each CssStyle with EncodedCssStyle
+    return styles as EncodedCssStyle[];
 }
