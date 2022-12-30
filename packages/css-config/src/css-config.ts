@@ -183,9 +183,7 @@ export type CssConfig<TConfigProps extends CssConfigProps> = readonly [Refs<TCon
 
 
 // utilities:
-const isUppercase               = (test: string) => (test >= 'A') && (test <= 'Z');
-const isPropDecl                = (propDecl: CssCustomName|symbol): propDecl is CssCustomName => (typeof(propDecl) === 'string');
-const convertPropDeclToPropName = (propDecl: CssCustomName, skipPrefixChars: number): string => propDecl.slice(skipPrefixChars);
+const isUppercase = (test: string) => (test >= 'A') && (test <= 'Z');
 
 const defaultPropDescriptor : PropertyDescriptor = {
     writable     : true, // make sure the propName is assignable
@@ -216,13 +214,14 @@ const createRef = (propName: string, options: LiveCssConfigOptions): CssCustomSi
 const iteratePropList = (propKeys: IterableIterator<CssCustomName|symbol>, skipPrefixChars: number, result: string[]): void => {
     for (const propDecl of propKeys) {
         // conditions:
-        if (!isPropDecl(propDecl)) continue;
+        if ((typeof(propDecl) !== 'string')) continue; // symbol props are ignored
         
         
         
         // results:
         result.push(
-            convertPropDeclToPropName(propDecl, skipPrefixChars)
+            // convert propDecl to propName:
+            propDecl.slice(skipPrefixChars)
         );
     } // for
 }
