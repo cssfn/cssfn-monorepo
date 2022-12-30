@@ -96,10 +96,6 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
                         propSubValue[subIndex] = propSubSubValue.toString(); // mutate CssCustomKeyframesRef with CssCustomKeyframesRef.toString()
                     } // for
                 } // if
-                
-                
-                
-                // propValue[index] = encodePropSubValue(propValue[index]);
             } // for
         } // if
     } // for
