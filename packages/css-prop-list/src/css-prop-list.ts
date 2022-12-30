@@ -11,7 +11,7 @@ const indexedWordList: string[] = (
     .split(',')
 );
 
-const indexedKnownCssProps : (number[]|string)[] = (() : (number[]|string)[] => {
+const indexedKnownCssProps : number[][] = (() : number[][] => {
     const prevWordIndexMap = new Map<number, number>();
     
     return (
@@ -44,21 +44,27 @@ const resolveWord = (wordIndex: number): string => indexedWordList[wordIndex];
 
 export const getKnownCssPropList = (): string[] => (
     indexedKnownCssProps
-    .map((subWordData, index, array): string => { // decode subWordIndices to word
-        if (typeof(subWordData) === 'string') return subWordData;
-        
-        
-        
-        const subWordString = subWordData.map(resolveWord).join('');
-        array[index] = subWordString; // update cache
-        return subWordString;
-    })
+    .map((subWordData, index, array): string => ( // decode subWordIndices to word
+        subWordData.map(resolveWord).join('')
+    ))
 );
 
 
 
-const indexedKnownCssPropsMaxIndex = indexedKnownCssProps.length - 1;
+const cache = new Map<string, boolean>();
 export const isKnownCssProp = (propName: string): propName is CssKnownName => {
+    const cached = cache.get(propName);
+    if (cached !== undefined) return cached;
+    
+    
+    
+    const result = isKnownCssPropInternal(propName);
+    cache.set(propName, result);
+    return result;
+}
+
+const indexedKnownCssPropsMaxIndex = indexedKnownCssProps.length - 1;
+export const isKnownCssPropInternal = (propName: string): propName is CssKnownName => {
          if (propName.startsWith('Moz')    && isUppercase(propName[3])) return true; // Moz[A-Z]    => always considered valid
     else if (propName.startsWith('ms')     && isUppercase(propName[2])) return true; // ms[A-Z]     => always considered valid
     else if (propName.startsWith('Webkit') && isUppercase(propName[6])) return true; // Webkit[A-Z] => always considered valid
@@ -77,14 +83,7 @@ export const isKnownCssProp = (propName: string): propName is CssKnownName => {
         
         // get the middle word:
         middleWordData = indexedKnownCssProps[middle];
-        if (typeof(middleWordData) === 'string') {
-            middlePropName = middleWordData;
-        }
-        else {
-            const subWordString = middleWordData.map(resolveWord).join('');
-            indexedKnownCssProps[middle] = subWordString; // update cache
-            middlePropName = subWordString;
-        } // if
+        middlePropName = middleWordData.map(resolveWord).join('');
         
         
         
