@@ -157,13 +157,14 @@ const unwrapStyles = (styles: Extract<CssStyleCollection, any[]>): void => {
             
             if (!encodedStyle || (encodedStyle === true)) {
                 styles[index] = undefined; // mutate : falsy style => undefined (delete)
-                continue;
+            }
+            else {
+                styles[index] = encodedStyle as EncodedCssStyle as any; // mutate CssStyle with EncodedCssStyle
             } // if
             
             
             
-            styles[index] = encodedStyle as EncodedCssStyle as any; // mutate CssStyle with EncodedCssStyle
-            continue;
+            continue; // handled => continue to next loop
         } // if
         
         
