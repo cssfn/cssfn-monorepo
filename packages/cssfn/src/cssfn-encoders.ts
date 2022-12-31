@@ -71,8 +71,8 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
             styleValue[propName as any] = propValue.toString() as any;          // mutate : CssCustomKeyframesRef => .toString()
         }
         else {
-            for (let index = 0, max = propValue.length, propSubValue : typeof propValue[number]; index < max; index++) {
-                propSubValue = propValue[index];
+            for (let subIndex = 0, subMax = propValue.length, propSubValue : typeof propValue[number]; subIndex < subMax; subIndex++) {
+                propSubValue = propValue[subIndex];
                 
                 
                 
@@ -81,11 +81,11 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
                     
                     
                     
-                    propValue[index] = propSubValue.toString();                 // mutate : CssCustomKeyframesRef => .toString()
+                    propValue[subIndex] = propSubValue.toString();              // mutate : CssCustomKeyframesRef => .toString()
                 }
                 else {
-                    for(let subIndex = 0, subMax = propSubValue.length, propSubSubValue : typeof propSubValue[number]; subIndex < subMax; subIndex++) {
-                        propSubSubValue = propSubValue[subIndex];
+                    for (let subSubIndex = 0, subSubMax = propSubValue.length, propSubSubValue : typeof propSubValue[number]; subSubIndex < subSubMax; subSubIndex++) {
+                        propSubSubValue = propSubValue[subSubIndex];
                         
                         
                         
@@ -93,7 +93,7 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
                         
                         
                         
-                        propSubValue[subIndex] = propSubSubValue.toString();    // mutate : CssCustomKeyframesRef => .toString()
+                        propSubValue[subSubIndex] = propSubSubValue.toString(); // mutate : CssCustomKeyframesRef => .toString()
                     } // for
                 } // if
             } // for
@@ -142,9 +142,10 @@ const unwrapStyles = (styles: Extract<CssStyleCollection, any[]>): void => {
         
         
         
+        // handle falsy item:
         if (!style || (style === true)) {
             styles[index] = undefined;                                  // mutate : falsy style => undefined (delete)
-            continue;
+            continue; // handled => continue to next loop
         } // if
         
         
