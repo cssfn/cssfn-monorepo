@@ -35,17 +35,15 @@ type TransferablePrimitive = undefined|null|string|number
 
 
 const isTransferablePrimitive = <TPropValue extends CssCustomValue|undefined|null>(propValue : TPropValue): propValue is (TPropValue & TransferablePrimitive) => {
-    if (propValue === undefined) return true; // undefined => *transferable*
-    if (propValue === null     ) return true; // null      => *transferable*
+    if (propValue === null) return true; // null object      => *transferable*     // the only object that transferable
     switch (typeof(propValue)) {
-        case 'string':                        // string    => *transferable*
-        case 'number':                        // number    => *transferable*
-            return true;
+        case 'object':                   // any object       => *NON-transferable*
+        case 'symbol':                   // primitive symbol => *NON-transferable* // the only primitive that NON-transferable
+            return false;
+        
+        default:
+            return true;                 // any primitive    => *transferable*
     } // switch
-    
-    
-    
-    return false; // unknown => assumes as *NON-transferable*
 }
 export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>): OptionalOrBoolean<EncodedCssStyle> => {
     if (!style || (style === true))           return undefined; // falsy style => ignore
