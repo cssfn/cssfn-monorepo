@@ -47,8 +47,8 @@ export const decodeStyle = (style: OptionalOrBoolean<EncodedCssStyle>): Optional
             }
             else {
                 encodedCssRuleData[1] = [                          // mutate : EncodedCssStyleCollection => CssRuleData
-                    (encodedCssRuleData as EncodedCssRuleData)[0], // undefined|CssRawSelector|CssFinalSelector
-                    decodedStyles                                  // CssStyleCollection
+                    (encodedCssRuleData as EncodedCssRuleData)[0], // type   : undefined|CssRawSelector|CssFinalSelector
+                    decodedStyles                                  // type   : CssStyleCollection
                 ] as CssRuleData;
                 encodedCssRuleData[0] = Symbol();                  // mutate : undefined|CssRawSelector|CssFinalSelector => symbol
             } // if
