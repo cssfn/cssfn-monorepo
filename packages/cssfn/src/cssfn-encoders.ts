@@ -128,8 +128,14 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
         
         
         
+        // mark as already converted & store the nestedRules:
         // expensive op! causing chrome's to re-create hidden class:
         styleValue['' as any] = nestedRules as any; // an empty string key is a special property for storing (nested) rules
+    }
+    else {
+        // mark as already converted:
+        // expensive op! causing chrome's to re-create hidden class:
+        styleValue['' as any] = null as any;        // an empty string key is a special property for storing (nested) rules
     } // if
     
     
