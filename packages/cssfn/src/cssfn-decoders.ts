@@ -21,7 +21,7 @@ import type {
 
 
 export const decodeStyle = (style: OptionalOrBoolean<EncodedCssStyle>): OptionalOrBoolean<CssStyle> => {
-    if (!style || (style === true)) return undefined; // falsy style => ignore
+    if (!style || (style === true)) return undefined;              // ignore : falsy style
     
     
     
@@ -39,16 +39,18 @@ export const decodeStyle = (style: OptionalOrBoolean<EncodedCssStyle>): Optional
             
             
             
-            const decodedStyles = decodeStyles((encodedCssRuleData as EncodedCssRuleData)[1]) // mutate EncodedCssStyleCollection with CssStyleCollection
+            const decodedStyles = decodeStyles(                    // mutate : EncodedCssStyleCollection => CssStyleCollection
+                (encodedCssRuleData as EncodedCssRuleData)[1]
+            );
             if (!decodedStyles || (decodedStyles === true)) {
-                nestedRules[index] = undefined;
+                nestedRules[index] = undefined;                    // mutate : falsy style => undefined (delete)
             }
             else {
-                encodedCssRuleData[1] = [         // mutate EncodedCssStyleCollection with CssRuleData
+                encodedCssRuleData[1] = [                          // mutate : EncodedCssStyleCollection => CssRuleData
                     (encodedCssRuleData as EncodedCssRuleData)[0], // undefined|CssRawSelector|CssFinalSelector
                     decodedStyles                                  // CssStyleCollection
                 ] as CssRuleData;
-                encodedCssRuleData[0] = Symbol(); // mutate undefined|CssRawSelector|CssFinalSelector with symbol
+                encodedCssRuleData[0] = Symbol();                  // mutate : undefined|CssRawSelector|CssFinalSelector => symbol
             } // if
         } // for
         
@@ -81,7 +83,7 @@ const unwrapStyles = (styles: Extract<EncodedCssStyleCollection, any[]>): void =
         
         
         if (!style || (style === true)) {
-            styles[index] = undefined; // mutate : falsy style => undefined (delete)
+            styles[index] = undefined;                           // mutate : falsy style => undefined (delete)
             continue;
         } // if
         
@@ -89,15 +91,15 @@ const unwrapStyles = (styles: Extract<EncodedCssStyleCollection, any[]>): void =
         
         // handle single item:
         if (!Array.isArray(style)) {
-            const decodedStyle = decodeStyle(style); // mutate EncodedCssStyle with CssStyle
+            const decodedStyle = decodeStyle(style);             // mutate : EncodedCssStyle => CssStyle
             
             
             
             if (!decodedStyle || (decodedStyle === true)) {
-                styles[index] = undefined; // mutate : falsy style => undefined (delete)
+                styles[index] = undefined;                       // mutate : falsy style => undefined (delete)
             }
             else {
-                styles[index] = decodedStyle as CssStyle as any; // mutate EncodedCssStyle with CssStyle
+                styles[index] = decodedStyle as CssStyle as any; // mutate : EncodedCssStyle => CssStyle
             } // if
             
             
@@ -108,18 +110,18 @@ const unwrapStyles = (styles: Extract<EncodedCssStyleCollection, any[]>): void =
         
         
         // handle multi item(s):
-        unwrapStyles(style); // mutate each EncodedCssStyle with CssStyle
+        unwrapStyles(style);                                     // mutate : EncodedCssStyle(s) => CssStyle(s)
     } // for
 }
 export const decodeStyles = (styles: EncodedCssStyleCollection): CssStyleCollection => {
     // statically handle single item:
     if (!Array.isArray(styles)) {
-        return decodeStyle(styles); // mutate EncodedCssStyle with CssStyle
+        return decodeStyle(styles);                              // mutate : EncodedCssStyle => CssStyle
     } // if
     
     
     
     // dynamically handle multi item(s):
-    unwrapStyles(styles); // mutate each EncodedCssStyle with CssStyle
+    unwrapStyles(styles);                                        // mutate : EncodedCssStyle(s) => CssStyle(s)
     return styles as CssStyle[];
 }
