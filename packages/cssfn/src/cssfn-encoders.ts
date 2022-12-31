@@ -46,9 +46,9 @@ const isTransferablePrimitive = <TPropValue extends CssCustomValue|undefined|nul
     } // switch
 }
 export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>): OptionalOrBoolean<EncodedCssStyle> => {
-    if (!style || (style === true))           return undefined; // falsy style => ignore
+    if (!style || (style === true))           return undefined;                 // ignore : falsy style
     const styleValue = (typeof(style) === 'function') ? style() : style;
-    if (!styleValue || (styleValue === true)) return undefined; // falsy style => ignore
+    if (!styleValue || (styleValue === true)) return undefined;                 // ignore : falsy style
     
     
     
@@ -64,11 +64,11 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
         
         
         if (!Array.isArray(propValue)) {
-            if (isTransferablePrimitive(propValue)) continue; // ignore *transferable* propValue
+            if (isTransferablePrimitive(propValue)) continue;                   // ignore : *transferable* propValue
             
             
             
-            styleValue[propName as any] = propValue.toString() as any; // mutate CssCustomKeyframesRef with CssCustomKeyframesRef.toString()
+            styleValue[propName as any] = propValue.toString() as any;          // mutate : CssCustomKeyframesRef => .toString()
         }
         else {
             for (let index = 0, max = propValue.length, propSubValue : typeof propValue[number]; index < max; index++) {
@@ -77,11 +77,11 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
                 
                 
                 if (!Array.isArray(propSubValue)) {
-                    if (isTransferablePrimitive(propSubValue)) continue; // ignore *transferable* propSubValue
+                    if (isTransferablePrimitive(propSubValue)) continue;        // ignore : *transferable* propSubValue
                     
                     
                     
-                    propValue[index] = propSubValue.toString(); // mutate CssCustomKeyframesRef with CssCustomKeyframesRef.toString()
+                    propValue[index] = propSubValue.toString();                 // mutate : CssCustomKeyframesRef => .toString()
                 }
                 else {
                     for(let subIndex = 0, subMax = propSubValue.length, propSubSubValue : typeof propSubValue[number]; subIndex < subMax; subIndex++) {
@@ -89,11 +89,11 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
                         
                         
                         
-                        if (isTransferablePrimitive(propSubSubValue)) continue; // ignore *transferable* propSubSubValue
+                        if (isTransferablePrimitive(propSubSubValue)) continue; // ignore : *transferable* propSubSubValue
                         
                         
                         
-                        propSubValue[subIndex] = propSubSubValue.toString(); // mutate CssCustomKeyframesRef with CssCustomKeyframesRef.toString()
+                        propSubValue[subIndex] = propSubSubValue.toString();    // mutate : CssCustomKeyframesRef => .toString()
                     } // for
                 } // if
             } // for
@@ -110,17 +110,19 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
             
             
             
-            const encodedStyles = encodeStyles((ruleData as CssRuleData)[1]); // mutate CssStyleCollection with EncodedCssStyleCollection
+            const encodedStyles = encodeStyles(                         // mutate : CssStyleCollection => EncodedCssStyleCollection
+                (ruleData as CssRuleData)[1]
+            );
             if (!encodedStyles || (encodedStyles === true)) {
-                nestedRules[index] = undefined; // mutate : falsy style => undefined (delete)
+                nestedRules[index] = undefined;                         // mutate : falsy style => undefined (delete)
             }
             else {
-                ruleData[1] = encodedStyles; // EncodedCssStyleCollection
-             // ruleData[0] = ruleData[0];   // unchanged : undefined|CssRawSelector|CssFinalSelector
+                ruleData[1] = encodedStyles;                            // mutate : CssStyleCollection => EncodedCssStyleCollection
+             // ruleData[0] = ruleData[0];                              // unchanged : undefined|CssRawSelector|CssFinalSelector
                 
                 
                 
-                nestedRules[index] = ruleData as EncodedCssRuleData; // mutate symbol with EncodedCssRuleData
+                nestedRules[index] = ruleData as EncodedCssRuleData;    // mutate : symbol => EncodedCssRuleData
             } // if
         } // for
         
@@ -141,7 +143,7 @@ const unwrapStyles = (styles: Extract<CssStyleCollection, any[]>): void => {
         
         
         if (!style || (style === true)) {
-            styles[index] = undefined; // mutate : falsy style => undefined (delete)
+            styles[index] = undefined;                                  // mutate : falsy style => undefined (delete)
             continue;
         } // if
         
@@ -149,15 +151,15 @@ const unwrapStyles = (styles: Extract<CssStyleCollection, any[]>): void => {
         
         // handle single item:
         if (!Array.isArray(style)) {
-            const encodedStyle = encodeStyle(style); // mutate CssStyle with EncodedCssStyle
+            const encodedStyle = encodeStyle(style);                    // mutate : CssStyle => EncodedCssStyle
             
             
             
             if (!encodedStyle || (encodedStyle === true)) {
-                styles[index] = undefined; // mutate : falsy style => undefined (delete)
+                styles[index] = undefined;                              // mutate : falsy style => undefined (delete)
             }
             else {
-                styles[index] = encodedStyle as EncodedCssStyle as any; // mutate CssStyle with EncodedCssStyle
+                styles[index] = encodedStyle as EncodedCssStyle as any; // mutate : CssStyle => EncodedCssStyle
             } // if
             
             
@@ -168,18 +170,18 @@ const unwrapStyles = (styles: Extract<CssStyleCollection, any[]>): void => {
         
         
         // handle multi item(s):
-        unwrapStyles(style); // mutate each CssStyle with EncodedCssStyle
+        unwrapStyles(style);                                            // mutate : CssStyle(s) => EncodedCssStyle(s)
     } // for
 }
 export const encodeStyles = (styles: CssStyleCollection): EncodedCssStyleCollection => {
     // statically handle single item:
     if (!Array.isArray(styles)) {
-        return encodeStyle(styles); // mutate CssStyle with EncodedCssStyle
+        return encodeStyle(styles);                                     // mutate : CssStyle => EncodedCssStyle
     } // if
     
     
     
     // dynamically handle multi item(s):
-    unwrapStyles(styles); // mutate each CssStyle with EncodedCssStyle
+    unwrapStyles(styles);                                               // mutate : CssStyle(s) => EncodedCssStyle(s)
     return styles as EncodedCssStyle[];
 }
