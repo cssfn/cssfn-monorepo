@@ -104,15 +104,26 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
     
     
     
-    const nestedRules : (symbol|EncodedCssRuleData)[] = Object.getOwnPropertySymbols(styleValue); // take all symbol keys
+    const nestedRules : (symbol|EncodedCssRuleData|undefined)[] = Object.getOwnPropertySymbols(styleValue); // take all symbol keys
     if (nestedRules.length) {
-        type MutableCssRuleData = [...CssRuleData]
+        type MutableCssRuleData = [...CssRuleData]|[...EncodedCssRuleData];
         for (let index = 0, max = nestedRules.length, ruleData: MutableCssRuleData; index < max; index++) {
             ruleData = styleValue[nestedRules[index] as symbol] as MutableCssRuleData;
             
-            ruleData[1] = encodeStyles(ruleData[1]) as any;      // mutate CssStyleCollection with EncodedCssStyleCollection
             
-            nestedRules[index] = ruleData as EncodedCssRuleData; // mutate symbol with EncodedCssRuleData
+            
+            const encodedStyles = encodeStyles((ruleData as CssRuleData)[1]); // mutate CssStyleCollection with EncodedCssStyleCollection
+            if (!encodedStyles || (encodedStyles === true)) {
+                nestedRules[index] = undefined; // mutate : falsy style => undefined (delete)
+            }
+            else {
+                ruleData[1] = encodedStyles; // EncodedCssStyleCollection
+             // ruleData[0] = ruleData[0];   // unchanged : undefined|CssRawSelector|CssFinalSelector
+                
+                
+                
+                nestedRules[index] = ruleData as EncodedCssRuleData; // mutate symbol with EncodedCssRuleData
+            } // if
         } // for
         
         
@@ -141,6 +152,9 @@ const unwrapStyles = (styles: Extract<CssStyleCollection, any[]>): void => {
         // handle single item:
         if (!Array.isArray(style)) {
             const encodedStyle = encodeStyle(style); // mutate CssStyle with EncodedCssStyle
+            
+            
+            
             if (!encodedStyle || (encodedStyle === true)) {
                 styles[index] = undefined; // mutate : falsy style => undefined (delete)
                 continue;
