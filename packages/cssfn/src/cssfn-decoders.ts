@@ -27,30 +27,31 @@ export const decodeStyle = (style: OptionalOrBoolean<EncodedCssStyle>): Optional
     
     type CssRuleEntry = readonly [symbol, CssRuleData];
     const nestedRules : (EncodedCssRuleData|CssRuleEntry|undefined)[]|null|undefined = style['']; // an empty string key is a special property for storing (nested) rules
-    if (nestedRules && nestedRules.length) {
-        // delete style[''];   // expensive op! causing chrome's to re-create hidden class
-        style[''] = undefined; // assigning to undefined instead of deleting, to improve performance
+    if (nestedRules /* ignore null|undefined marker */ && nestedRules.length) {
+        // delete style[''];      // expensive op! causing chrome's to re-create hidden class
+        // style[''] = undefined; // assigning to undefined instead of deleting, to improve performance
+        // no need to `delete` nor assigning `undefined` => the renderer will ignore an empty string key
         
         
         
         type MutableEncodedCssRuleData = [...EncodedCssRuleData]|[...CssRuleEntry];
-        for (let index = 0, max = nestedRules.length, encodedCssRuleData: MutableEncodedCssRuleData; index < max; index++) {
-            encodedCssRuleData = nestedRules[index] as MutableEncodedCssRuleData;
+        for (let index = 0, max = nestedRules.length, encodedRuleData: MutableEncodedCssRuleData; index < max; index++) {
+            encodedRuleData = nestedRules[index] as MutableEncodedCssRuleData;
             
             
             
-            const decodedStyles = decodeStyles(                    // mutate : EncodedCssStyleCollection => CssStyleCollection
-                (encodedCssRuleData as EncodedCssRuleData)[1]      // type   : EncodedCssStyleCollection
+            const decodedStyles = decodeStyles(                 // mutate : EncodedCssStyleCollection => CssStyleCollection
+                (encodedRuleData as EncodedCssRuleData)[1]      // type   : EncodedCssStyleCollection
             );
             if (!decodedStyles || (decodedStyles === true)) {
-                nestedRules[index] = undefined;                    // mutate : falsy style => undefined (delete)
+                nestedRules[index] = undefined;                 // mutate : falsy style => undefined (delete)
             }
             else {
-                encodedCssRuleData[1] = [                          // mutate : EncodedCssStyleCollection => CssRuleData
-                    (encodedCssRuleData as EncodedCssRuleData)[0], // type   : undefined|CssRawSelector|CssFinalSelector
-                    decodedStyles                                  // type   : CssStyleCollection
+                encodedRuleData[1] = [                          // mutate : EncodedCssStyleCollection => CssRuleData
+                    (encodedRuleData as EncodedCssRuleData)[0], // type   : undefined|CssRawSelector|CssFinalSelector
+                    decodedStyles                               // type   : CssStyleCollection
                 ] as CssRuleData;
-                encodedCssRuleData[0] = Symbol();                  // mutate : undefined|CssRawSelector|CssFinalSelector => symbol
+                encodedRuleData[0] = Symbol();                  // mutate : undefined|CssRawSelector|CssFinalSelector => new symbol
             } // if
         } // for
         
