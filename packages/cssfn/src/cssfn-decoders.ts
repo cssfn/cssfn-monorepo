@@ -82,9 +82,10 @@ const unwrapStyles = (styles: Extract<EncodedCssStyleCollection, any[]>): void =
         
         
         
+        // handle falsy item:
         if (!style || (style === true)) {
             styles[index] = undefined;                           // mutate : falsy style => undefined (delete)
-            continue;
+            continue; // handled => continue to next loop
         } // if
         
         
