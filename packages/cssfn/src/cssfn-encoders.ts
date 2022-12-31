@@ -111,7 +111,7 @@ export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>
             
             
             const encodedStyles = encodeStyles(                         // mutate : CssStyleCollection => EncodedCssStyleCollection
-                (ruleData as CssRuleData)[1]
+                (ruleData as CssRuleData)[1]                            // type   : CssStyleCollection
             );
             if (!encodedStyles || (encodedStyles === true)) {
                 nestedRules[index] = undefined;                         // mutate : falsy style => undefined (delete)
