@@ -40,7 +40,7 @@ export const decodeStyle = (style: OptionalOrBoolean<EncodedCssStyle>): Optional
             
             
             const decodedStyles = decodeStyles(                    // mutate : EncodedCssStyleCollection => CssStyleCollection
-                (encodedCssRuleData as EncodedCssRuleData)[1]
+                (encodedCssRuleData as EncodedCssRuleData)[1]      // type   : EncodedCssStyleCollection
             );
             if (!decodedStyles || (decodedStyles === true)) {
                 nestedRules[index] = undefined;                    // mutate : falsy style => undefined (delete)
