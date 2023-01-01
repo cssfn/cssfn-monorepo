@@ -212,96 +212,100 @@ export {
 
 
 // utilities:
-const filterEmptyVars = (next: OptionalOrBoolean<CssCustomRef|CssCustomValue>): next is CssCustomRef|CssCustomValue => !!next && (next !== true)
-type ReducedSwitchOf  = { totalClosingCount: number, hasImportant: boolean, truncatedRefs: string[] }
-const reducedSwitchOf : ReducedSwitchOf = { totalClosingCount: 0, hasImportant: false, truncatedRefs: [] }
-const reduceSwitchOf  = (accum: ReducedSwitchOf, ref : (CssCustomRef|CssCustomValue)): ReducedSwitchOf => {
-    // a bare value => render it:
-    if ((typeof(ref) !== 'string') || !ref.startsWith('var(--')) {
-        let rendered = renderValue(ref);
-        if ((rendered.length > 11) && rendered.endsWith(' !important')) {
-            accum.hasImportant = true;
-            rendered = rendered.slice(0, -11).trimEnd(); // remove ' !important' and then remove excess space(s)
+/**
+ * Required : must be `var(--boo)`.
+ */
+type FirstRef = CssCustomRef
+
+/**
+ * Optional : must be `var(--boo)`.
+ */
+type NextRef  = OptionalOrBoolean<CssCustomRef>
+
+/**
+ * Optional : must be `var(--boo)` -or- `'value'` -or- `1234`.
+ */
+type LastRef  = OptionalOrBoolean<CssCustomRef|CssCustomValue>
+
+/**
+ * A `var(--boo)` followed by (`var(--boo)`)* and optionally ends with `'value'` -or- `1234`.
+ */
+export type RefList = [FirstRef, ...([...NextRef[], LastRef]|[])]
+
+export const switchOf = (...refs: RefList): CssCustomRef => {
+    let hasImportant = false;
+    let totalClosingCount = 0;
+    let result = '';
+    
+    
+    
+    for (let ref of refs) {
+        // conditions:
+        if (!ref || (ref === true)) continue; // falsy ref => ignore
+        
+        
+        
+        // a bare value => render it:
+        if ((typeof(ref) !== 'string') || !ref.startsWith('var(--')) {
+            let rendered = renderValue(ref);
+            if ((rendered.length > 11) && rendered.endsWith(' !important')) {
+                hasImportant = true;
+                rendered = rendered.slice(0, -11).trimEnd(); // remove ' !important' and then remove excess space(s)
+            } // if
+            
+            
+            
+            if (result) result += ', ';
+            result += rendered;
+            continue; // handled => continue to next loop
         } // if
-        accum.truncatedRefs.push(rendered);
-        return accum;
-    } // if
-    
-    
-    
-    // remove the ending !important:
-    if (ref.endsWith('!important')) {
-        accum.hasImportant = true;
-        ref = ref.slice(0, -10).trimEnd(); // remove '!important' and then remove excess space(s)
-    } // if
-    
-    
-    
-    // count the closing )):
-    let closingCount = 0;
-    for (let index = ref.length - 1; index >= 0; index--) {
-        if (ref.at(index) !== ')') break;
-        closingCount++;
+        
+        
+        
+        // remove the ending !important:
+        if (ref.endsWith('!important')) {
+            hasImportant = true;
+            ref = ref.slice(0, -10).trimEnd(); // remove '!important' and then remove excess space(s)
+        } // if
+        
+        
+        
+        // count the closing )):
+        let closingCount = 0;
+        for (let index = ref.length - 1; index >= 0; index--) {
+            if (ref.at(index) !== ')') break;
+            closingCount++;
+        } // for
+        totalClosingCount += closingCount;
+        
+        
+        
+        // remove the ending closing )):
+        /*
+            var(--boo)               =>   var(--boo
+            var(--wow, var(--beh))   =>   var(--wow, var(--beh
+        */
+        /*
+            var(--boo
+            var(--wow, var(--beh
+            
+            =>   var(--boo, var(--wow, var(--beh
+        */
+        if (result) result += ', ';
+        result += ref.slice(0, -closingCount);
     } // for
-    accum.totalClosingCount += closingCount;
     
     
     
-    // remove the ending closing )):
     /*
-        var(--boo)               =>   var(--boo
-        var(--wow, var(--beh))   =>   var(--wow, var(--beh
+        var(--boo, var(--wow, var(--beh
+        
+        =>   var(--boo, var(--wow, var(--beh)))
     */
-    accum.truncatedRefs.push(ref.slice(0, -closingCount));
-    return accum;
-};
-export const switchOf = (first: CssCustomRef, ...nexts: [...OptionalOrBoolean<CssCustomRef>[], OptionalOrBoolean<CssCustomRef|CssCustomValue>]|[]): CssCustomRef => {
-    // conditions:
-    if (!nexts || !nexts.length) return first;
-    const nextsAbs = nexts.filter(filterEmptyVars) as (CssCustomRef|CssCustomValue)[];
-    if (!nextsAbs.length) return first;
+    if (totalClosingCount) result += ')'.repeat(totalClosingCount);
+    if (hasImportant) result += ' !important';
     
     
     
-    const refs : (CssCustomRef|CssCustomValue)[] = [first, ...nextsAbs];
-    try {
-        refs.reduce(reduceSwitchOf, reducedSwitchOf);
-        
-        
-        
-        return (
-            /*
-                var(--boo
-                var(--wow, var(--beh
-            */
-            reducedSwitchOf.truncatedRefs
-            
-            /*
-                var(--boo
-                var(--wow, var(--beh
-                
-                =>   var(--boo, var(--wow, var(--beh
-            */
-            .join(', ')
-            
-            +
-            
-            /*
-                var(--boo, var(--wow, var(--beh
-                
-                =>   var(--boo, var(--wow, var(--beh)))
-            */
-            (new Array(/*arrayLength: */reducedSwitchOf.totalClosingCount)).fill(')').join('')
-            
-            +
-            
-            (reducedSwitchOf.hasImportant ? ' !important' : '')
-        ) as CssCustomRef;
-    }
-    finally {
-        // reset the accumulator to be used later:
-        reducedSwitchOf.totalClosingCount = 0;
-        reducedSwitchOf.hasImportant = false;
-        reducedSwitchOf.truncatedRefs.splice(0);
-    } // try
+    return result as CssCustomRef;
 }
