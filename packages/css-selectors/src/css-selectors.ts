@@ -970,7 +970,7 @@ const defaultGroupSelectorOptions : Required<GroupSelectorOptions> = {
 };
 export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorGroup & [Selector, ...Selector[]] => {
     if (!selectors || (selectors === true)) return pureSelectorGroup(
-        selector(
+        createSelector(
             /* an empty Selector */
         ),
     ); // empty selectors => nothing to group => return a SelectorGroup with an empty Selector
@@ -979,37 +979,69 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
     
     const selectorsWithPseudoElm    : PureSelector[] = [];
     const selectorsWithoutPseudoElm : PureSelector[] = [];
-    let hasSelectorEntry = false;
-    iterateSelectors:
-    for (const selector of selectors) {
+    
+    let   selectorEntries           : SelectorEntry[]|undefined = undefined;
+    let   hasPseudoElement          : boolean;
+    
+    let   selectorIndex             : number
+    let   maxSelectorIndex          : number
+    let   selector                  : OptionalOrBoolean<Selector>
+    
+    let   selectorEntryIndex        : number
+    let   maxSelectorEntryIndex     : number
+    let   selectorEntry             : OptionalOrBoolean<SelectorEntry>
+    
+    // for (const selector of selectors) { // triggering too many garbage collector of creating & destroying `const selector`
+    for (selectorIndex = 0, maxSelectorIndex = selectors.length; selectorIndex < maxSelectorIndex; selectorIndex++) {
+        selector = selectors[selectorIndex];
+        
+        
+        
         // conditions:
         if (!isNotEmptySelector(selector)) continue; // falsy or empty selector => ignore
         
         
         
-        hasSelectorEntry = false;
-        for (const selectorEntry of selector) {
+        if (!selectorEntries) selectorEntries  = []; // create a new array if not was collected
+        hasPseudoElement = false;
+        // for (const selectorEntry of selector) { // triggering too many garbage collector of creating & destroying `const selectorEntry`
+        for (selectorEntryIndex = 0, maxSelectorEntryIndex = selector.length; selectorEntryIndex < maxSelectorEntryIndex; selectorEntryIndex++) {
+            selectorEntry = selector[selectorEntryIndex];
+            
+            
+            
             // conditions:
             if (!isNotEmptySelectorEntry(selectorEntry)) continue; // falsy selectorEntry => ignore
-            hasSelectorEntry = true;
+            
+            
+            
+            // collect:
+            selectorEntries.push(selectorEntry);
             
             
             
             // tests:
-            if (isPseudoElementSelector(selectorEntry)) { // contain ::pseudo-element
-                // collect:
-                selectorsWithPseudoElm.push(convertSelectorToPureSelector(selector));
-                continue iterateSelectors; // collected => continue to next loop
-            } // if
+            if (!hasPseudoElement && isPseudoElementSelector(selectorEntry)) hasPseudoElement = true;
         } // for
+        
+        
+        
         // collect:
-        if (hasSelectorEntry) selectorsWithoutPseudoElm.push(convertSelectorToPureSelector(selector));
+        if (selectorEntries.length) {
+            if (hasPseudoElement) {
+                selectorsWithPseudoElm.push(selectorEntries as PureSelector);
+            }
+            else {
+                selectorsWithoutPseudoElm.push(selectorEntries as PureSelector);
+            } // if
+            selectorEntries = undefined; // mark as collected
+        } // if
     } // for
     
     
     
     if (!selectorsWithoutPseudoElm.length) return pureSelectorGroup(
-        selector(
+        createSelector(
             /* an empty Selector */
         ),
         
@@ -1033,7 +1065,7 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
             selectorsWithoutPseudoElm?.[0]
             :
             // plural:
-            selector(
+            createSelector(
                 pseudoClassSelector(targetSelectorName, selectorsWithoutPseudoElm),
             )
         ),
