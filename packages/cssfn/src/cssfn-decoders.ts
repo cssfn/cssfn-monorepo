@@ -28,9 +28,7 @@ export const decodeStyle = (style: OptionalOrBoolean<EncodedCssStyle>): Optional
     type CssRuleEntry = readonly [symbol, CssRuleData];
     const nestedRules : (EncodedCssRuleData|CssRuleEntry|undefined)[]|null|undefined = style['']; // an empty string key is a special property for storing (nested) rules
     if (nestedRules /* ignore null|undefined marker */ && nestedRules.length) {
-        // delete style[''];      // expensive op! causing chrome's to re-create hidden class
-        // style[''] = undefined; // assigning to undefined instead of deleting, to improve performance
-        // no need to `delete` nor assigning `undefined` => the renderer will ignore an empty string key
+        delete style['']; // expensive op! causing chrome's to re-create hidden class
         
         
         
