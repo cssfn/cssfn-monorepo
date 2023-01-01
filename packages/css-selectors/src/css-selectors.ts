@@ -968,8 +968,6 @@ const defaultGroupSelectorOptions : Required<GroupSelectorOptions> = {
     selectorName           : 'is',
     cancelGroupIfSingular  : false
 };
-const isNotContainPseudoElement = (selector: PureSelector) => selector.every(isNotPseudoElementSelector);
-const isContainPseudoElement    = (selector: PureSelector) => selector.some(isPseudoElementSelector);
 export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorGroup & [Selector, ...Selector[]] => {
     if (!isNotEmptySelectors(selectors)) return pureSelectorGroup(
         selector(
@@ -979,9 +977,31 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
     
     
     
-    const pureSelectors             : PureSelector[] = convertSelectorGroupToPureSelectorGroup(selectors).map(convertSelectorToPureSelector);
-    const selectorsWithoutPseudoElm : PureSelector[] = pureSelectors.filter(isNotContainPseudoElement); // not contain ::pseudo-element
-    const selectorsWithPseudoElm    : PureSelector[] = pureSelectors.filter(isContainPseudoElement);    // is  contain ::pseudo-element
+    const selectorsWithPseudoElm    : PureSelector[] = [];
+    const selectorsWithoutPseudoElm : PureSelector[] = [];
+    iterateSelectors:
+    for (const selector of selectors) {
+        // conditions:
+        if (!isNotEmptySelector(selector)) continue; // falsy or empty selector => ignore
+        
+        
+        
+        for (const selectorEntry of selector) {
+            // conditions:
+            if (!isNotEmptySelectorEntry(selectorEntry)) continue; // falsy selectorEntry => ignore
+            
+            
+            
+            // tests:
+            if (isPseudoElementSelector(selectorEntry)) { // contain ::pseudo-element
+                // collect:
+                selectorsWithPseudoElm.push(convertSelectorToPureSelector(selector));
+                continue iterateSelectors; // collected => continue to next loop
+            } // if
+        } // for
+        // collect:
+        selectorsWithoutPseudoElm.push(convertSelectorToPureSelector(selector));
+    } // for
     
     
     
