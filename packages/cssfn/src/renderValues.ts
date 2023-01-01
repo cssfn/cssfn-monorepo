@@ -13,68 +13,58 @@ import type {
 
 
 // processors:
-const renderSimpleValue = (value: CssComplexBaseValueOf<CssSimpleValue>): string => {
-    if (typeof(value) === 'number') return `${value}`; // CssSimpleNumericValue              => number => string
-    if (typeof(value) === 'string') return value;      // CssSimpleLiteralValue|CssCustomRef => string
-    return value.toString();                           // CssCustomKeyframesRef              => .toString()
+const renderSimpleValue = (propValue: CssComplexBaseValueOf<CssSimpleValue>): string => {
+    switch (typeof(propValue)) {
+        case 'string' : return propValue;            // CssSimpleLiteralValue|CssCustomRef => string
+        case 'number' : return '' + propValue;       // CssSimpleNumericValue              => number => string
+        default       : return propValue.toString(); // CssCustomKeyframesRef              => .toString()
+    } // switch
 };
-type ReducedRenderSubValues  = { hasImportant: boolean, rendered: string[] }
-const reducedRenderSubValues : ReducedRenderSubValues = { hasImportant: false, rendered: [] }
-const reduceRenderSubValues  = (accum: ReducedRenderSubValues, subValue: Extract<CssCustomValue, Array<any>>[number], index: number, array: Extract<CssCustomValue, Array<any>>[number][]): ReducedRenderSubValues => {
-    if (!Array.isArray(subValue)) {
-        if (typeof(subValue) === 'number') {
-            accum.rendered.push(
-                `${subValue}`       // CssSimpleNumericValue              => number => string
-            );
-        }
-        else if ((index === (array.length - 1)) && (subValue === '!important')) {
-            accum.hasImportant = true;
-        }
-        else if (typeof(subValue) === 'string') {
-            accum.rendered.push(
-                subValue            // CssSimpleLiteralValue|CssCustomRef => string
-            );
-        }
-        else {
-            accum.rendered.push(
-                subValue.toString() // CssCustomKeyframesRef              => .toString()
-            );
-        } // if
+export const renderValue = (propValue: CssCustomValue): string => {
+    if (!Array.isArray(propValue)) {
+        return renderSimpleValue(propValue);
     }
     else {
-        accum.rendered.push(
-            subValue
-            .map(renderSimpleValue)
-            .join(' ')              // [[double array]]                   => join separated with [space]
-        );
+        let hasImportant = false;
+        let result = ''; // for a small array : a string concatenation is faster than array.join('')
+        
+        
+        
+        for (let subIndex = 0, subMax = propValue.length, propSubValue : typeof propValue[number]; subIndex < subMax; subIndex++) {
+            propSubValue = propValue[subIndex];
+            
+            
+            
+            if (!Array.isArray(propSubValue)) {
+                if ((subIndex >= 1) && (subIndex === (subMax - 1)) && (propSubValue === '!important')) {
+                    hasImportant = true;
+                }
+                else {
+                    if (subIndex >= 1) result += ', '; // comma separated values
+                    result += renderSimpleValue(propSubValue);
+                } // if
+            }
+            else {
+                for (let subSubIndex = 0, subSubMax = propSubValue.length, propSubSubValue : typeof propSubValue[number]; subSubIndex < subSubMax; subSubIndex++) {
+                    propSubSubValue = propSubValue[subSubIndex];
+                    
+                    
+                    
+                    if ((subSubIndex >= 1) && (subSubIndex === (subSubMax - 1)) && (propSubSubValue === '!important')) {
+                        hasImportant = true;
+                    }
+                    else {
+                        if ((subIndex >= 1) && (subSubIndex === 0)) result += ', '; // comma separated values
+                        if (subSubIndex >= 1) result += ' '; // space separated values
+                        result += renderSimpleValue(propSubSubValue);
+                    } // if
+                } // for
+            } // if
+        } // for
+        
+        
+        
+        if (hasImportant) result += ' !important';
+        return result;
     } // if
-    
-    
-    
-    return accum;
-};
-export const renderValue = (value: CssCustomValue): string => {
-    if (!Array.isArray(value)) return renderSimpleValue(value); // CssComplexBaseValueOf<CssSimpleValue>
-    
-    
-    
-    try {
-        (value as Extract<CssCustomValue, Array<any>>[number][]).reduce(reduceRenderSubValues, reducedRenderSubValues);
-        
-        
-        
-        return (
-            reducedRenderSubValues.rendered
-            .join(', ') // comma_separated_values
-            
-            +
-            
-            (reducedRenderSubValues.hasImportant ? ' !important' : '')
-        );
-    }
-    finally {
-        // reset the accumulator to be used later:
-        reducedRenderSubValues.hasImportant = false;
-        reducedRenderSubValues.rendered.splice(0);
-    } // try
 };
