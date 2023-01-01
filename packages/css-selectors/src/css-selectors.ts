@@ -868,11 +868,32 @@ export const selectorToString       = (selector: Selector): string => {
     );
 };
 export const selectorsToString      = (selectors: SelectorGroup): string => {
-    return (
-        convertSelectorGroupToPureSelectorGroup(selectors) // remove empty Selector(s) in SelectorGroup, we don't want to join some rendered empty string '' => `.boo , , #foo`
-        .map(selectorToString)
-        .join(', ')
-    );
+    const result : string[] = [];
+    
+    // for (const selector of selectors) { // inefficient : triggering too many garbage collector of creating & destroying `const selector`
+    for (let selectorIndex = 0, maxSelectorIndex = selectors.length, selector : OptionalOrBoolean<Selector>; selectorIndex < maxSelectorIndex; selectorIndex++) {
+        selector = selectors[selectorIndex];
+        
+        
+        
+        // conditions:
+        if (!isNotEmptySelector(selector)) continue; // falsy or empty selector => ignore
+        
+        
+        
+        // render:
+        result.push(
+            selectorToString(selector)
+        );
+    } // for
+    
+    
+    
+    switch (result.length) {
+        case 1  : return result[0];
+        case 0  : return '';
+        default : return result.join(', ');
+    } // switch
 };
 
 
