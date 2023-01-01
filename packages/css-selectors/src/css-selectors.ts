@@ -991,20 +991,21 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
     let   maxSelectorEntryIndex     : number
     let   selectorEntry             : OptionalOrBoolean<SelectorEntry>
     
-    // for (const selector of selectors) { // triggering too many garbage collector of creating & destroying `const selector`
+    // for (const selector of selectors) { // inefficient : triggering too many garbage collector of creating & destroying `const selector`
     for (selectorIndex = 0, maxSelectorIndex = selectors.length; selectorIndex < maxSelectorIndex; selectorIndex++) {
         selector = selectors[selectorIndex];
         
         
         
         // conditions:
-        if (!isNotEmptySelector(selector)) continue; // falsy or empty selector => ignore
+        // if (!isNotEmptySelector(selector)) continue; // falsy or empty selector => ignore // inefficient : intrinsically call `isNotEmptySelectorEntry`
+        if (!selector || (selector === true)) continue; // falsy selector => ignore
         
         
         
-        if (!selectorEntries) selectorEntries  = []; // create a new array if not was collected
+        if (!selectorEntries) selectorEntries = []; // create a new array if not was collected in previous loop
         hasPseudoElement = false;
-        // for (const selectorEntry of selector) { // triggering too many garbage collector of creating & destroying `const selectorEntry`
+        // for (const selectorEntry of selector) { // inefficient : triggering too many garbage collector of creating & destroying `const selectorEntry`
         for (selectorEntryIndex = 0, maxSelectorEntryIndex = selector.length; selectorEntryIndex < maxSelectorEntryIndex; selectorEntryIndex++) {
             selectorEntry = selector[selectorEntryIndex];
             
@@ -1034,7 +1035,7 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
             else {
                 selectorsWithoutPseudoElm.push(selectorEntries as PureSelector);
             } // if
-            selectorEntries = undefined; // mark as collected
+            selectorEntries = undefined; // mark as collected, so at the beginning of the next loop will create a new array
         } // if
     } // for
     
@@ -1059,10 +1060,13 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
     
     return pureSelectorGroup(
         (
-            (cancelGroupIfSingular && (selectorsWithoutPseudoElm.length < 2))
+            (cancelGroupIfSingular && (selectorsWithoutPseudoElm.length <= 1))
             ?
-            // singular:
-            selectorsWithoutPseudoElm?.[0]
+            // singular & no grouping is needed:
+            // if singular => take it || if zero => undefined => fallback to an empty selector
+            selectorsWithoutPseudoElm?.[0] ?? createSelector(
+                /* an empty Selector */
+            )
             :
             // plural:
             createSelector(
