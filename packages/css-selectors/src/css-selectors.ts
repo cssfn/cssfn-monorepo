@@ -834,38 +834,59 @@ export const selectorParamsToString = (selectorParams: SelectorParams): string =
         return `(${selectorsToString(selectorParams)})`;
     } // if
 };
-const convertOptionalSelectorEntryToString = (optionalSelectorEntry: OptionalOrBoolean<SelectorEntry>): string => {
-    if (!isNotEmptySelectorEntry(optionalSelectorEntry)) return ''; // nullish => empty string
-    
-    
-    
-    // SimpleSelector:
-    if (isSimpleSelector(optionalSelectorEntry)) {
-        const [
-            selectorToken,
-            selectorName,
-            selectorParams,
-        ] = optionalSelectorEntry;
-        
-        if (selectorToken === '[') { // AttrSelectorToken
-            return selectorParamsToString(selectorParams);
-        }
-        else {
-            return `${selectorToken}${selectorName ?? ''}${(selectorParams === undefined) ? '' : selectorParamsToString(selectorParams)}`;
-        } // if
-    } // if
-    
-    
-    
-    // Combinator:
-    return optionalSelectorEntry;
-}
 export const selectorToString       = (selector: Selector): string => {
-    return (
-        selector
-        .map(convertOptionalSelectorEntryToString)
-        .join('') // merge (SimpleSelector|Combinator)+
-    );
+    const result : string[] = [];
+    
+    // for (const selectorEntry of selector) { // inefficient : triggering too many garbage collector of creating & destroying `const selectorEntry`
+    for (let selectorEntryIndex = 0, maxSelectorEntryIndex = selector.length, selectorEntry : OptionalOrBoolean<SelectorEntry>; selectorEntryIndex < maxSelectorEntryIndex; selectorEntryIndex++) {
+        selectorEntry = selector[selectorEntryIndex];
+        
+        
+        
+        // conditions:
+        if (!isNotEmptySelectorEntry(selectorEntry)) continue; // falsy selectorEntry => ignore
+        
+        
+        
+        // render:
+        
+        // SimpleSelector:
+        if (isSimpleSelector(selectorEntry)) {
+            const [
+                selectorToken,
+                selectorName,
+                selectorParams,
+            ] = selectorEntry;
+            
+            if (selectorToken === '[') { // AttrSelectorToken
+                result.push(
+                    selectorParamsToString(selectorParams)
+                );
+            }
+            else {
+                result.push(
+                    `${selectorToken}${selectorName ?? ''}${(selectorParams === undefined) ? '' : selectorParamsToString(selectorParams)}`
+                );
+            } // if
+            
+            
+            
+            continue; // handled => continue to next loop
+        } // if
+        
+        
+        
+        // Combinator:
+        result.push(selectorEntry);
+    } // for
+    
+    
+    
+    switch (result.length) {
+        case 1  : return result[0];
+        case 0  : return '';
+        default : return result.join(''); // merge (SimpleSelector|Combinator)+ without altering any space
+    } // switch
 };
 export const selectorsToString      = (selectors: SelectorGroup): string => {
     const result : string[] = [];
