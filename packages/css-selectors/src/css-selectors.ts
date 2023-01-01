@@ -969,7 +969,7 @@ const defaultGroupSelectorOptions : Required<GroupSelectorOptions> = {
     cancelGroupIfSingular  : false
 };
 export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, options: GroupSelectorOptions = defaultGroupSelectorOptions): PureSelectorGroup & [Selector, ...Selector[]] => {
-    if (!isNotEmptySelectors(selectors)) return pureSelectorGroup(
+    if (!selectors || (selectors === true)) return pureSelectorGroup(
         selector(
             /* an empty Selector */
         ),
@@ -979,6 +979,7 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
     
     const selectorsWithPseudoElm    : PureSelector[] = [];
     const selectorsWithoutPseudoElm : PureSelector[] = [];
+    let hasSelectorEntry = false;
     iterateSelectors:
     for (const selector of selectors) {
         // conditions:
@@ -986,9 +987,11 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
         
         
         
+        hasSelectorEntry = false;
         for (const selectorEntry of selector) {
             // conditions:
             if (!isNotEmptySelectorEntry(selectorEntry)) continue; // falsy selectorEntry => ignore
+            hasSelectorEntry = true;
             
             
             
@@ -1000,12 +1003,12 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
             } // if
         } // for
         // collect:
-        selectorsWithoutPseudoElm.push(convertSelectorToPureSelector(selector));
+        if (hasSelectorEntry) selectorsWithoutPseudoElm.push(convertSelectorToPureSelector(selector));
     } // for
     
     
     
-    if (!isNotEmptySelectors(selectorsWithoutPseudoElm)) return pureSelectorGroup(
+    if (!selectorsWithoutPseudoElm.length) return pureSelectorGroup(
         selector(
             /* an empty Selector */
         ),
@@ -1026,8 +1029,10 @@ export const groupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, opti
         (
             (cancelGroupIfSingular && (selectorsWithoutPseudoElm.length < 2))
             ?
+            // singular:
             selectorsWithoutPseudoElm?.[0]
             :
+            // plural:
             selector(
                 pseudoClassSelector(targetSelectorName, selectorsWithoutPseudoElm),
             )
