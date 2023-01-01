@@ -1089,78 +1089,106 @@ const defaultUngroupSelectorOptions : Required<UngroupSelectorOptions> = {
     selectorName  : ['is', 'where'],
 };
 export const ungroupSelector  = (selector : OptionalOrBoolean<Selector>     , options: UngroupSelectorOptions = defaultUngroupSelectorOptions): PureSelectorGroup => {
-    if (!isNotEmptySelector(selector)) return pureSelectorGroup(
+    if (!selector || (selector === true)) return pureSelectorGroup(
         /* an empty SelectorGroup */
     ); // empty selector => nothing to ungroup => return an empty SelectorGroup
     
     
     
-    const pureSelector = convertSelectorToPureSelector(selector);
-    if (pureSelector.length === 1) {
-        const selectorEntry = pureSelector[0]; // get the only one SelectorEntry
-        if (isPseudoClassSelector(selectorEntry)) {
-            const {
-                selectorName : targetSelectorName = defaultUngroupSelectorOptions.selectorName,
-            } = options;
+    let theOnlySelectorEntry : SelectorEntry|undefined = undefined;
+    // for (const selectorEntry of selector) { // inefficient : triggering too many garbage collector of creating & destroying `const selectorEntry`
+    for (let selectorEntryIndex = 0, maxSelectorEntryIndex = selector.length, selectorEntry : OptionalOrBoolean<SelectorEntry>; selectorEntryIndex < maxSelectorEntryIndex; selectorEntryIndex++) {
+        selectorEntry = selector[selectorEntryIndex];
+        
+        
+        
+        // conditions:
+        if (!isNotEmptySelectorEntry(selectorEntry)) continue; // falsy selectorEntry => ignore
+        
+        
+        
+        // collect:
+        if (theOnlySelectorEntry !== undefined) { // multiple selectorEntries detected => unable to ungroup
+            return pureSelectorGroup(
+                convertSelectorToPureSelector(selector), // no changes - just cleaned up
+            );
+        } // if
+        theOnlySelectorEntry = selectorEntry;
+    } // for
+    
+    
+    
+    if (theOnlySelectorEntry && isPseudoClassSelector(theOnlySelectorEntry)) {
+        const {
+            selectorName : targetSelectorName = defaultUngroupSelectorOptions.selectorName,
+        } = options;
+        
+        
+        
+        const [
+            /*
+                selector tokens:
+                '&'  = parent         selector
+                '*'  = universal      selector
+                '['  = attribute      selector
+                ''   = element        selector
+                '#'  = ID             selector
+                '.'  = class          selector
+                ':'  = pseudo class   selector
+                '::' = pseudo element selector
+            */
+            // selectorToken
+            ,
             
+            /*
+                selector name:
+                string = the name of [element, ID, class, pseudo class, pseudo element] selector
+            */
+            selectorName,
             
-            
-            const [
-                /*
-                    selector tokens:
-                    '&'  = parent         selector
-                    '*'  = universal      selector
-                    '['  = attribute      selector
-                    ''   = element        selector
-                    '#'  = ID             selector
-                    '.'  = class          selector
-                    ':'  = pseudo class   selector
-                    '::' = pseudo element selector
-                */
-                // selectorToken
-                ,
-                
-                /*
-                    selector name:
-                    string = the name of [element, ID, class, pseudo class, pseudo element] selector
-                */
-                selectorName,
-                
-                /*
-                    selector parameter(s):
-                    string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
-                    array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
-                    SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
-                */
-                selectorParams,
-            ] = selectorEntry;
-            if (
-                targetSelectorName.includes(selectorName)
-                &&
-                selectorParams && isSelectors(selectorParams)
-            ) {
-                return ungroupSelectors(selectorParams, options); // recursively ungroup sub-selectors
-            } // if
+            /*
+                selector parameter(s):
+                string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
+                array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
+                SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
+            */
+            selectorParams,
+        ] = theOnlySelectorEntry;
+        if (
+            targetSelectorName.includes(selectorName)
+            &&
+            selectorParams && isSelectors(selectorParams)
+        ) {
+            return ungroupSelectors(selectorParams, options); // recursively ungroup sub-selectors
         } // if
     } // if
     
     
     
+    // unable to ungroup:
     return pureSelectorGroup(
-        pureSelector, // no changes - just cleaned up
+        convertSelectorToPureSelector(selector), // no changes - just cleaned up
     );
 }
-function ungroupSelectorWithOptions(this: UngroupSelectorOptions, selector : OptionalOrBoolean<Selector>) {
-    return ungroupSelector(selector, this);
-}
 export const ungroupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, options: UngroupSelectorOptions = defaultUngroupSelectorOptions): PureSelectorGroup => {
-    if (!isNotEmptySelectors(selectors)) return pureSelectorGroup(
+    if (!selectors || (selectors === true)) return pureSelectorGroup(
         /* an empty SelectorGroup */
     ); // empty selectors => nothing to ungroup => return an empty SelectorGroup
     
     
     
-    return selectors.flatMap(ungroupSelectorWithOptions.bind(options));
+    const result : Selector[] = [];
+    
+    // for (const selector of selectors) { // inefficient : triggering too many garbage collector of creating & destroying `const selector`
+    for (let selectorIndex = 0, maxSelectorIndex = selectors.length; selectorIndex < maxSelectorIndex; selectorIndex++) {
+        result.push(
+            ...ungroupSelector(selectors[selectorIndex], options)
+        );
+    } // for
+    
+    
+    
+    return result as PureSelectorGroup;
 }
 
 
