@@ -298,14 +298,14 @@ export const mergeParent  = (style: CssStyleMap): void => {
                             }
                             else {
                                 mergedParentStyles = mergeStyles(styles) as (CssStyleMap|null); // de-finalize
+                                
+                                
+                                
+                                // add to cache:
+                                for (const parentStyleKey of parentStyleKeys) {
+                                    mergedParentStylesCache.set(parentStyleKey, mergedParentStyles);
+                                } // for
                             } // if
-                            
-                            
-                            
-                            // add to cache:
-                            for (const parentStyleKey of parentStyleKeys) {
-                                mergedParentStylesCache.set(parentStyleKey, mergedParentStyles);
-                            } // for
                         } // if
                         
                         
