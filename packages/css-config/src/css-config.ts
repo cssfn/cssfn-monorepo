@@ -916,14 +916,14 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             this.#scheduleUpdate();
         } // if
     }
-    #scheduleUpdateToken : {}|null = null;
+    #scheduleUpdateToken = 0;
     #scheduleUpdate() {
         this.#valid = false;         // mark the `#genProps` as invalid
         
-        const scheduleUpdateToken = {};
-        this.#scheduleUpdateToken = scheduleUpdateToken;
+        const scheduleUpdateTokenLocal = (this.#scheduleUpdateToken === Number.MAX_SAFE_INTEGER) ? 0 : (++this.#scheduleUpdateToken);
+        this.#scheduleUpdateToken = scheduleUpdateTokenLocal;
         Promise.resolve().then(() => { // runs the `#rebuild()` to the microTasks
-            if (this.#scheduleUpdateToken !== scheduleUpdateToken) return; // token changed => a newer `#scheduleUpdate()` call was made
+            if (this.#scheduleUpdateToken !== scheduleUpdateTokenLocal) return; // token changed => a newer `#scheduleUpdate()` call was made
             
             if (this.#valid) return; // has been previously generated => abort
             this.#rebuild();
