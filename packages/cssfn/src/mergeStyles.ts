@@ -256,10 +256,10 @@ const containsOnlyParentSelector = (styles: CssStyleCollection|CssFinalStyleMap)
     return nestedStyles ?? null; // if `undefined` => convert to `null` to make different than *`undefined` means not_found*
 }
 let   mergedParentStylesCache = new WeakMap<Exclude<CssStyleCollection, undefined|null|boolean>, CssStyleMap|null>();
-let   scheduleCleanupMergedParentStylesCacheToken : {}|null = null;
+let   scheduleCleanupMergedParentStylesCacheToken = 0;
 let   cancelCleanupMergedParentStylesCache : ReturnType<typeof setTimeout>|undefined = undefined;
 const scheduleCleanupMergedParentStylesCache = (): void => {
-    const scheduleCleanupMergedParentStylesCacheTokenLocal = {};
+    const scheduleCleanupMergedParentStylesCacheTokenLocal = (scheduleCleanupMergedParentStylesCacheToken === Number.MAX_SAFE_INTEGER) ? 0 : (++scheduleCleanupMergedParentStylesCacheToken);
     scheduleCleanupMergedParentStylesCacheToken = scheduleCleanupMergedParentStylesCacheTokenLocal;
     Promise.resolve().then(() => {
         // conditions:
