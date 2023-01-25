@@ -255,7 +255,15 @@ const containsOnlyParentSelector = (styles: CssStyleCollection|CssFinalStyleMap)
     if ((selector !== undefined) && (selector !== '&')) return undefined; // not a parentSelector (`undefined` => a shortcut of '&') => ignore
     return nestedStyles ?? null; // if `undefined` => convert to `null` to make different than *`undefined` means not_found*
 }
-const mergedParentStylesCache = new WeakMap<Exclude<CssStyleCollection, undefined|null|boolean>, CssStyleMap|null>();
+let   mergedParentStylesCache = new WeakMap<Exclude<CssStyleCollection, undefined|null|boolean>, CssStyleMap|null>();
+let   cancelCleanupMergedParentStylesCache : ReturnType<typeof setTimeout>|undefined = undefined;
+const scheduleCleanupMergedParentStylesCache = () => {
+    if (cancelCleanupMergedParentStylesCache) clearTimeout(cancelCleanupMergedParentStylesCache);
+    cancelCleanupMergedParentStylesCache = setTimeout(scheduledCleanupMergedParentStylesCache, 10 * 1000);
+}
+const scheduledCleanupMergedParentStylesCache = () => {
+    mergedParentStylesCache = new WeakMap<Exclude<CssStyleCollection, undefined|null|boolean>, CssStyleMap|null>();
+}
 export const mergeParent  = (style: CssStyleMap): void => {
     let needToReorderTheRestSymbolProps : symbol|null = null;
     try {
@@ -305,6 +313,7 @@ export const mergeParent  = (style: CssStyleMap): void => {
                                 for (const parentStyleKey of parentStyleKeys) {
                                     mergedParentStylesCache.set(parentStyleKey, mergedParentStyles);
                                 } // for
+                                scheduleCleanupMergedParentStylesCache();
                             } // if
                         } // if
                         
