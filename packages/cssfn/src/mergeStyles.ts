@@ -266,6 +266,7 @@ const scheduledCleanupMergedParentStylesCache = () => {
 }
 export const mergeParent  = (style: CssStyleMap): void => {
     let needToReorderTheRestSymbolProps : symbol|null = null;
+    let needToScheduleCleanupMergedParentStylesCache = false;
     try {
         for (const symbolProp of filterOnlyRuleKeys(style.keys())) {
             if (needToReorderTheRestSymbolProps && (symbolProp === needToReorderTheRestSymbolProps)) break; // found mark_as_STOP => stop loop
@@ -313,7 +314,7 @@ export const mergeParent  = (style: CssStyleMap): void => {
                                 for (const parentStyleKey of parentStyleKeys) {
                                     mergedParentStylesCache.set(parentStyleKey, mergedParentStyles);
                                 } // for
-                                scheduleCleanupMergedParentStylesCache();
+                                needToScheduleCleanupMergedParentStylesCache = true;
                             } // if
                         } // if
                         
@@ -350,6 +351,10 @@ export const mergeParent  = (style: CssStyleMap): void => {
     finally {
         if (needToReorderTheRestSymbolProps) {
             style.delete(needToReorderTheRestSymbolProps); // remove the mark_as_STOP
+        } // if
+        
+        if (needToScheduleCleanupMergedParentStylesCache) {
+            scheduleCleanupMergedParentStylesCache();
         } // if
     } // try
 }
