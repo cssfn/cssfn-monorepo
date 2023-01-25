@@ -255,6 +255,7 @@ const containsOnlyParentSelector = (styles: CssStyleCollection|CssFinalStyleMap)
     if ((selector !== undefined) && (selector !== '&')) return undefined; // not a parentSelector (`undefined` => a shortcut of '&') => ignore
     return nestedStyles ?? null; // if `undefined` => convert to `null` to make different than *`undefined` means not_found*
 }
+const mergedParentStylesCache = new WeakMap<Exclude<CssStyleCollection, undefined|null|boolean>, CssStyleMap|null>();
 export const mergeParent  = (style: CssStyleMap): void => {
     let needToReorderTheRestSymbolProps : symbol|null = null;
     try {
@@ -271,16 +272,44 @@ export const mergeParent  = (style: CssStyleMap): void => {
                 
                 let [, styles]         = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp)!;
                 if (isNotFalsyStyles(styles)) {
+                    const parentStyleKeys : Exclude<CssStyleCollection, undefined|null|boolean>[] = [];
+                    if (!isFinalStyleMap(styles)) parentStyleKeys.push(styles);
+                    
+                    
+                    
                     // efficiently dealing with *deep nested* only_parentSelector:
                     let deepStyles : CssStyleCollection = undefined;
                     while((deepStyles = containsOnlyParentSelector(styles)) !== undefined) {
                         styles = deepStyles;
+                        if (isNotFalsyStyles(styles) && !isFinalStyleMap(styles)) parentStyleKeys.push(styles);
                     } // while
                     
                     
                     
                     if (isNotFalsyStyles(styles)) {
-                        const mergedParentStyles = (isFinalStyleMap(styles) ? styles : mergeStyles(styles)) as (CssStyleMap|null);
+                        let mergedParentStyles: CssStyleMap|null;
+                        if (isFinalStyleMap(styles)) {
+                            mergedParentStyles = styles              as CssStyleMap;            // de-finalize
+                        }
+                        else {
+                            const cached = mergedParentStylesCache.get(styles);
+                            if (cached !== undefined) {
+                                mergedParentStyles = cached;
+                            }
+                            else {
+                                mergedParentStyles = mergeStyles(styles) as (CssStyleMap|null); // de-finalize
+                            } // if
+                            
+                            
+                            
+                            // add to cache:
+                            for (const parentStyleKey of parentStyleKeys) {
+                                mergedParentStylesCache.set(parentStyleKey, mergedParentStyles);
+                            } // for
+                        } // if
+                        
+                        
+                        
                         if (mergedParentStyles) {
                             if (!needToReorderTheRestSymbolProps) {
                                 /* if mergedParentStyles has any (nested) Rule => all the rest of (nested) Rule need to rearrange to preserve the order */
