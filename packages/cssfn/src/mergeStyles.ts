@@ -256,12 +256,26 @@ const containsOnlyParentSelector = (styles: CssStyleCollection|CssFinalStyleMap)
     return nestedStyles ?? null; // if `undefined` => convert to `null` to make different than *`undefined` means not_found*
 }
 let   mergedParentStylesCache = new WeakMap<Exclude<CssStyleCollection, undefined|null|boolean>, CssStyleMap|null>();
+let   handledCleanupMergedParentStylesCache = false;
 let   cancelCleanupMergedParentStylesCache : ReturnType<typeof setTimeout>|undefined = undefined;
-const scheduleCleanupMergedParentStylesCache = () => {
-    if (cancelCleanupMergedParentStylesCache) clearTimeout(cancelCleanupMergedParentStylesCache);
-    cancelCleanupMergedParentStylesCache = setTimeout(scheduledCleanupMergedParentStylesCache, 10 * 1000);
+const scheduleCleanupMergedParentStylesCache = (): void => {
+    // conditions:
+    if (handledCleanupMergedParentStylesCache) return;  // already marked => ignore
+    handledCleanupMergedParentStylesCache = true; // mark
+    
+    
+    
+    Promise.resolve().then(() => {
+        handledCleanupMergedParentStylesCache = false; // unmark
+        
+        
+        
+        // actions:
+        if (cancelCleanupMergedParentStylesCache) clearTimeout(cancelCleanupMergedParentStylesCache);
+        cancelCleanupMergedParentStylesCache = setTimeout(scheduledCleanupMergedParentStylesCache, 10 * 1000);
+    })
 }
-const scheduledCleanupMergedParentStylesCache = () => {
+const scheduledCleanupMergedParentStylesCache = (): void => {
     mergedParentStylesCache = new WeakMap<Exclude<CssStyleCollection, undefined|null|boolean>, CssStyleMap|null>();
 }
 export const mergeParent  = (style: CssStyleMap): void => {
