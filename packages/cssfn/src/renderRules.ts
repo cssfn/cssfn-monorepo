@@ -55,7 +55,6 @@ import type {
 
 // internals:
 import {
-    hasPropKeys,
     CssStyleMapImpl,
     mergeStyles,
 }                           from './mergeStyles.js'
@@ -193,7 +192,7 @@ class RenderRule {
                 (
                     // there is no any prop:
                     // in case of the parentRule is only containing nestedRule(s)
-                    !hasPropKeys(finalStyle.keys())
+                    !finalStyle.hasPropKeys
                     
                     &&
                     

@@ -64,18 +64,6 @@ import {
 
 
 
-// processors:
-
-export const hasPropKeys = (keys: IterableIterator<keyof CssCustomProps|keyof CssKnownProps|keyof CssRule>): boolean => {
-    for (const propName of keys) {
-        if (typeof(propName) !== 'symbol') return true; // found a string prop
-    } // for
-    
-    return false; // not found
-}
-
-
-
 const enum RuleType {
     SelectorRule, // &.foo   .boo&   .foo&.boo
     AtRule,       // for `@media`
