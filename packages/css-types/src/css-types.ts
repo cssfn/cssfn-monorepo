@@ -469,6 +469,11 @@ export interface CssStyleMapOverloads
     extends
         Omit<Map<keyof CssStyle, CssStyle[keyof CssStyle]>, CssStyleMapExcludeMembers>
 {
+    // filtered iterators:
+    get rules() : Array<CssRuleData>
+    
+    
+    
     // iterators:
     [Symbol.iterator]() : IterableIterator<[CssUnionKey, CssUnionValue]>
     entries()           : IterableIterator<[CssUnionKey, CssUnionValue]>
@@ -514,6 +519,11 @@ export interface CssFinalStyleMapOverloads
     extends
         Omit<Map<keyof CssFinalStyle, CssFinalStyle[keyof CssFinalStyle]>, CssStyleMapExcludeMembers>
 {
+    // filtered iterators:
+    get rules() : Array<CssFinalRuleData>
+    
+    
+    
     // iterators:
     [Symbol.iterator]() : IterableIterator<[CssUnionKey, CssUnionFinalValue]>
     entries()           : IterableIterator<[CssUnionKey, CssUnionFinalValue]>

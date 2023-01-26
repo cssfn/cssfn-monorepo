@@ -174,9 +174,7 @@ class RenderRule {
     }
     
     #hasPropRule(finalStyle: CssFinalStyleMap): boolean {
-        for (const symbolProp of finalStyle.ruleKeys) {
-            const ruleData = finalStyle.get(symbolProp)!;
-            const [finalSelector] = ruleData;
+        for (const [finalSelector] of finalStyle.rules) {
             if (finalSelector[0] === ' ') return true; // found a PropRule
         } // for
         return false; // not found any PropRule
@@ -260,9 +258,7 @@ class RenderRule {
     
     #renderFallbacksRules(nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
-        for (const symbolProp of nestedRules.ruleKeys.slice(0).reverse()) { // reverse the @fallbacks order
-            const ruleData = nestedRules.get(symbolProp)!;
-            const [finalSelector, finalStyle] = ruleData;
+        for (const [finalSelector, finalStyle] of nestedRules.rules.slice(0).reverse()) { // reverse the @fallbacks order
             if (finalSelector !== '@fallbacks') continue; // only interested in @fallbacks
             
             
@@ -272,9 +268,7 @@ class RenderRule {
     }
     #renderPropRules(nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
-        for (const symbolProp of nestedRules.ruleKeys) {
-            const ruleData = nestedRules.get(symbolProp)!;
-            const [finalSelector, finalStyle] = ruleData;
+        for (const [finalSelector, finalStyle] of nestedRules.rules) {
             if (finalSelector[0] !== ' ') continue; // only interested in PropRule
             
             
@@ -288,10 +282,8 @@ class RenderRule {
     }
     #renderNestedRules(finalParentSelector: CssFinalSelector|null, nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
-        for (const symbolProp of nestedRules.ruleKeys) {
-            const ruleData = nestedRules.get(symbolProp)!;
-            const [finalSelector, finalStyle] = ruleData;
-            if (finalSelector[0] === ' ') continue; // skip PropRule
+        for (const [finalSelector, finalStyle] of nestedRules.rules) {
+            if (finalSelector[0] === ' ')       continue; // skip PropRule
             if (finalSelector === '@fallbacks') continue; // skip @fallbacks
             
             

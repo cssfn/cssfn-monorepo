@@ -15,6 +15,7 @@ import type {
     
     
     // cssfn properties:
+    CssRuleData,
     CssRule,
     CssFinalRuleMap,
     
@@ -475,27 +476,27 @@ export class CssStyleMapImpl
         CssStyleMap
 {
     // filtered iterators:
-    _ruleKeysCache      : Array<keyof CssRule>|undefined = undefined
+    _ruleKeysCache      : WeakRef<Array<keyof CssRule>>|undefined = undefined
     get ruleKeys()      : Array<keyof CssRule> {
-        const cached = this._ruleKeysCache;
+        const cached = this._ruleKeysCache?.deref();
         if (cached) return cached;
         
         
         
         const result = Array.from(super.keys()).filter(isRuleKey);
-        this._ruleKeysCache = result;
+        this._ruleKeysCache = new WeakRef<Array<keyof CssRule>>(result);
         return result;
     }
     
-    _propKeysCache      : Array<keyof CssCustomProps|keyof CssKnownProps>|undefined = undefined
+    _propKeysCache      : WeakRef<Array<keyof CssCustomProps|keyof CssKnownProps>>|undefined = undefined
     get propKeys()      : Array<keyof CssCustomProps|keyof CssKnownProps> {
-        const cached = this._propKeysCache;
+        const cached = this._propKeysCache?.deref();
         if (cached) return cached;
         
         
         
         const result = Array.from(super.keys()).filter(isPropKey);
-        this._propKeysCache = result;
+        this._propKeysCache = new WeakRef<Array<keyof CssCustomProps|keyof CssKnownProps>>(result);
         return result;
     }
     
@@ -504,6 +505,18 @@ export class CssStyleMapImpl
     }
     get hasPropKeys()   : boolean {
         return !!this.propKeys.length;
+    }
+    
+    _rulesCache : WeakRef<Array<CssRuleData>>|undefined = undefined
+    get rules() : Array<CssRuleData> {
+        const cached = this._rulesCache?.deref();
+        if (cached) return cached;
+        
+        
+        
+        const result = this.ruleKeys.map((symbolProp) => this.get(symbolProp)!);
+        this._rulesCache = new WeakRef<Array<CssRuleData>>(result);
+        return result;
     }
     
     
@@ -527,8 +540,9 @@ export class CssStyleMapImpl
     clear(): void {
         super.clear();
         
-        this._ruleKeysCache = []; // zero cache
-        this._propKeysCache = []; // zero cache
+        this._ruleKeysCache = undefined; // clear cache
+        this._propKeysCache = undefined; // clear cache
+        this._rulesCache    = undefined; // clear cache
     }
     
     
@@ -543,6 +557,7 @@ export class CssStyleMapImpl
         if (hasChanged) {
             if (typeof(key) === 'symbol') {
                 this._ruleKeysCache = undefined; // clear cache
+                this._rulesCache    = undefined; // clear cache
             }
             else {
                 this._propKeysCache = undefined; // clear cache
@@ -590,6 +605,7 @@ export class CssStyleMapImpl
         
         if (typeof(key) === 'symbol') {
             this._ruleKeysCache = undefined; // clear cache
+            this._rulesCache    = undefined; // clear cache
         }
         else {
             this._propKeysCache = undefined; // clear cache
