@@ -66,11 +66,6 @@ import {
 
 // processors:
 
-export function* filterOnlyPropKeys(keys: IterableIterator<keyof CssCustomProps|keyof CssKnownProps|keyof CssRule>): Generator<keyof CssCustomProps|keyof CssKnownProps> {
-    for (const propName of keys) {
-        if (typeof(propName) !== 'symbol') yield propName; // found a string prop
-    } // for
-}
 export const hasRuleKeys = (keys: IterableIterator<keyof CssCustomProps|keyof CssKnownProps|keyof CssRule>): boolean => {
     for (const propName of keys) {
         if (typeof(propName) === 'symbol') return true; // found a symbol prop

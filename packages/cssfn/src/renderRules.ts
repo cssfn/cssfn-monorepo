@@ -55,7 +55,6 @@ import type {
 
 // internals:
 import {
-    filterOnlyPropKeys,
     hasPropKeys,
     CssStyleMapImpl,
     mergeStyles,
@@ -248,7 +247,7 @@ class RenderRule {
         
         
         if (!finalStyle) return;
-        for (const propName of filterOnlyPropKeys(finalStyle.keys())) {
+        for (const propName of finalStyle.propKeys) {
             this.#renderProp(
                 propName,
                 (finalStyle as CssPropsMap).get(propName as any) as CssCustomValue|undefined|null
