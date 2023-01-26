@@ -107,7 +107,7 @@ const parseSelectorsFromString = (selectorString: CssSelector): SelectorGroup =>
 const finalizeSelector = (style: CssStyleMap, symbolProp: symbol): CssFinalSelector|null => {
     const ruleData = style.get(symbolProp); // get existing prop (if any)
     if (ruleData === undefined) return null;
-    const [selector, styles] = ruleData;
+    const [selector] = ruleData;
     if (isFinalSelector(selector)) return selector;
     
     
@@ -138,6 +138,10 @@ const finalizeSelector = (style: CssStyleMap, symbolProp: symbol): CssFinalSelec
     const mergedSelectors = mergeSelectors(selectorGroup, options);
     // render back to string:
     const finalSelector : CssFinalSelector|null = isNotEmptySelectors(mergedSelectors) ? selectorsToString(mergedSelectors) : null;
+    
+    
+    
+    const [, styles] = ruleData;
     
     
     
