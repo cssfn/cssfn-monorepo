@@ -1,9 +1,5 @@
 // cssfn:
 import type {
-    // types:
-    ValueOf,
-}                           from '@cssfn/types'
-import type {
     // css custom properties:
     CssCustomValue,
     
@@ -13,8 +9,8 @@ import type {
     CssProps,
     CssPropsMap,
     
+    CssRuleData,
     CssFinalRuleData,
-    CssFinalRule,
     
     CssRuleCollection,
     
@@ -62,6 +58,7 @@ import {
     filterOnlyRuleKeys,
     filterOnlyPropKeys,
     hasPropKeys,
+    CssStyleMapImpl,
     mergeStyles,
 }                           from './mergeStyles.js'
 import {
@@ -366,12 +363,12 @@ class RenderRule {
                     
                     this.#renderNestedSelector(finalSelector,
                         //#region wrap the style with a duplicated parentRule selector
-                        new Map<keyof CssFinalRule, ValueOf<CssFinalRule>>([
+                        new CssStyleMapImpl([
                             [Symbol(), [
                                 finalParentSelector,
                                 finalStyle
-                            ] as CssFinalRuleData],
-                        ]) as CssFinalStyleMap
+                            ] as CssFinalRuleData as unknown as CssRuleData],
+                        ]) as unknown as CssFinalStyleMap
                         //#endregion wrap the style with a duplicated parentRule selector
                     );
                 } // if

@@ -420,9 +420,143 @@ export type CssRuleMap                 = MapOf<CssRule>
 export type CssFinalRuleMap            = MapOf<CssFinalRule>
 export type CssRuleCollection          = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssRule>>
 
-export type CssStyle                   = CssProps    & CssRule
-export type CssStyleMap                = CssPropsMap & CssRuleMap & CssFinalRuleMap
-export type CssFinalStyleMap           = CssPropsMap & CssFinalRuleMap
+export type CssStyle                   = CssProps & CssRule
+export type CssFinalStyle              = CssProps & CssFinalRule
+
+export type CssUnionKey                =
+    | keyof CssCustomProps
+    | keyof CssKnownProps
+    | keyof CssRule
+
+export type CssUnionValue              =
+    | CssCustomProps[keyof CssCustomProps]
+    | CssKnownProps[keyof CssKnownProps]
+    | CssRule[keyof CssRule]
+
+export type CssUnionFinalValue         =
+    | CssCustomProps[keyof CssCustomProps]
+    | CssKnownProps[keyof CssKnownProps]
+    | CssFinalRule[keyof CssFinalRule]
+
+export type CssStyleMapExcludeMembers  =
+    | symbol
+    |'entries'
+    |'keys'
+    |'values'
+    
+    |'delete'
+    // |'forEach' // conflict with vanilla Map!
+    |'get'
+    |'has'
+    |'set'
+
+export interface CssStyleMapFilteredKeys
+    extends
+        Omit<Map<keyof CssStyle, CssStyle[keyof CssStyle]>, CssStyleMapExcludeMembers>
+{
+    // filtered iterators:
+    get ruleKeys()      : Array<keyof CssRule>
+    get propKeys()      : Array<keyof CssCustomProps|keyof CssKnownProps>
+    get hasRuleKeys()   : boolean
+    get hasPropKeys()   : boolean
+    
+    
+    
+    // miscs:
+    readonly [Symbol.toStringTag]: string
+}
+export interface CssStyleMapOverloads
+    extends
+        Omit<Map<keyof CssStyle, CssStyle[keyof CssStyle]>, CssStyleMapExcludeMembers>
+{
+    // iterators:
+    [Symbol.iterator]() : IterableIterator<[CssUnionKey, CssUnionValue]>
+    entries()           : IterableIterator<[CssUnionKey, CssUnionValue]>
+    keys()              : IterableIterator<CssUnionKey>
+    values()            : IterableIterator<CssUnionValue>
+    
+    
+    
+    // deletes:
+    delete(key: keyof CssCustomProps): boolean
+    delete(key: keyof CssKnownProps ): boolean
+    delete(key: keyof CssRule       ): boolean
+    
+    
+    
+    // forEach:
+    // conflict with vanilla Map!
+    // forEach(callbackfn: ((value: CssUnionValue, key: CssUnionKey, map: CssStyleMap) => void), thisArg?: any): void
+    
+    
+    
+    // gets:
+    get(key: keyof CssCustomProps): CssCustomProps[keyof CssCustomProps]
+    get(key: keyof CssKnownProps ): CssKnownProps[keyof CssKnownProps]
+    get(key: keyof CssRule       ): CssRule[keyof CssRule]
+    
+    
+    
+    // hases:
+    has(key: keyof CssCustomProps): boolean
+    has(key: keyof CssKnownProps ): boolean
+    has(key: keyof CssRule       ): boolean
+    
+    
+    
+    // sets:
+    set(key: keyof CssCustomProps | keyof CssKnownProps, value: CssCustomProps[keyof CssCustomProps] | CssKnownProps[keyof CssKnownProps]): this
+    set(key: keyof CssCustomProps, value: CssCustomProps[keyof CssCustomProps]): this
+    set(key: keyof CssKnownProps , value: CssKnownProps[keyof CssKnownProps]  ): this
+    set(key: keyof CssRule       , value: CssRule[keyof CssRule]              ): this
+}
+export interface CssFinalStyleMapOverloads
+    extends
+        Omit<Map<keyof CssFinalStyle, CssFinalStyle[keyof CssFinalStyle]>, CssStyleMapExcludeMembers>
+{
+    // iterators:
+    [Symbol.iterator]() : IterableIterator<[CssUnionKey, CssUnionFinalValue]>
+    entries()           : IterableIterator<[CssUnionKey, CssUnionFinalValue]>
+    keys()              : IterableIterator<CssUnionKey>
+    values()            : IterableIterator<CssUnionFinalValue>
+    
+    
+    
+    // deletes:
+    delete(key: keyof CssCustomProps): boolean
+    delete(key: keyof CssKnownProps ): boolean
+    delete(key: keyof CssFinalRule  ): boolean
+    
+    
+    
+    // forEach:
+    // conflict with vanilla Map!
+    // forEach(callbackfn: ((value: CssUnionFinalValue, key: CssUnionKey, map: CssStyleMap) => void), thisArg?: any): void
+    
+    
+    
+    // gets:
+    get(key: keyof CssCustomProps): CssCustomProps[keyof CssCustomProps]
+    get(key: keyof CssKnownProps ): CssKnownProps[keyof CssKnownProps]
+    get(key: keyof CssFinalRule  ): CssFinalRule[keyof CssFinalRule]
+    
+    
+    
+    // hases:
+    has(key: keyof CssCustomProps): boolean
+    has(key: keyof CssKnownProps ): boolean
+    has(key: keyof CssFinalRule  ): boolean
+    
+    
+    
+    // sets:
+    set(key: keyof CssCustomProps | keyof CssKnownProps, value: CssCustomProps[keyof CssCustomProps] | CssKnownProps[keyof CssKnownProps]): this
+    set(key: keyof CssCustomProps, value: CssCustomProps[keyof CssCustomProps]): this
+    set(key: keyof CssKnownProps , value: CssKnownProps[keyof CssKnownProps]  ): this
+    set(key: keyof CssFinalRule  , value: CssFinalRule[keyof CssFinalRule]    ): this
+}
+export type CssStyleMap                = CssStyleMapFilteredKeys & CssStyleMapOverloads      & Omit<CssPropsMap & CssRuleMap & CssFinalRuleMap, CssStyleMapExcludeMembers>
+export type CssFinalStyleMap           = CssStyleMapFilteredKeys & CssFinalStyleMapOverloads & Omit<CssPropsMap              & CssFinalRuleMap, CssStyleMapExcludeMembers>
 export type CssStyleCollection         = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssStyle>>
 export type CssFontFaceStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssFontFaceProps>>
 

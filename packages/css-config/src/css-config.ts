@@ -563,7 +563,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                     mergeStyles(styles)
                 );
                 if (srcNestedStyle) {
-                    const equalNestedStyle = (new TransformCssStyleDuplicatesBuilder<TRefPropName, TRefPropValue>(srcNestedStyle, refProps, genKeyframes, options)).style;
+                    const equalNestedStyle = (new TransformCssStyleDuplicatesBuilder<TRefPropName, TRefPropValue>(srcNestedStyle as unknown as CssStyleMap /* de-finalize */, refProps, genKeyframes, options)).style;
                     if (equalNestedStyle) {
                         // store the modified `srcNestedStyle`:
                         modified.set(

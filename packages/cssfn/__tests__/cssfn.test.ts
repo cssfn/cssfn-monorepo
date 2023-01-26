@@ -89,7 +89,7 @@ const cssMapToStyle = (style: CssStyleMap|CssFinalStyleMap|null): CssStyle|null 
         Array.from(style as Iterable<[string|symbol, CssRuleData|CssFinalRuleData]>)
         .filter(([key]) => (typeof(key) === 'symbol'))
         .map(([key, ruleData]) => {
-            if (ruleData[1] && (typeof(ruleData[1]) === 'object') && (Object.getPrototypeOf(ruleData[1]) === Map.prototype)) {
+            if (ruleData[1] && (typeof(ruleData[1]) === 'object') && (ruleData[1] instanceof Map)) {
                 const styles = ruleData[1];
                 return [
                     key,

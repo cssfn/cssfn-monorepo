@@ -2,8 +2,6 @@
 import type {
     // types:
     OptionalOrBoolean,
-    
-    ValueOf,
 }                           from '@cssfn/types'
 import type {
     // css custom properties:
@@ -17,13 +15,12 @@ import type {
     
     
     // cssfn properties:
-    CssPropsMap,
-    
     CssRule,
-    CssRuleMap,
     CssFinalRuleMap,
     
     CssStyle,
+    CssUnionKey,
+    CssUnionValue,
     CssStyleMap,
     CssFinalStyleMap,
     CssStyleCollection,
@@ -135,8 +132,8 @@ const parseSelectorsFromString = (selectorString: CssSelector): SelectorGroup =>
     if (!selectorGroup) throw Error(`parse selector error: ${selectorString}`);
     return selectorGroup;
 }
-const finalizeSelector = (style: (CssRuleMap & CssFinalRuleMap), symbolProp: symbol): CssFinalSelector|null => {
-    const ruleData = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp); // get existing prop (if any)
+const finalizeSelector = (style: CssStyleMap, symbolProp: symbol): CssFinalSelector|null => {
+    const ruleData = style.get(symbolProp); // get existing prop (if any)
     if (ruleData === undefined) return null;
     const [selector, styles] = ruleData;
     if (isFinalSelector(selector)) return selector;
@@ -177,7 +174,7 @@ const finalizeSelector = (style: (CssRuleMap & CssFinalRuleMap), symbolProp: sym
     if (finalSelector) {
         style.set(symbolProp, [
             finalSelector, // update CssRawSelector to CssFinalSelector
-            styles as any  // still the same styles
+            styles         // still the same styles
         ]);
     }
     else {
@@ -195,7 +192,7 @@ const finalizeSelector = (style: (CssRuleMap & CssFinalRuleMap), symbolProp: sym
     for (const additionalFinalProp of additionalFinalProps) {
         style.set(Symbol(), [
             additionalFinalProp, // update CssRawSelector to CssFinalSelector
-            styles as any        // still the same styles
+            styles               // still the same styles
         ]);
     } // for
     //#endregion update (additional) AtRule|PropRule
@@ -210,7 +207,7 @@ const finalizeSelector = (style: (CssRuleMap & CssFinalRuleMap), symbolProp: sym
 
 
 export const mergeLiteral = (style: CssStyleMap, newStyle: CssStyleMap): void => {
-    for (const [propName, propValue] of (newStyle as Map<keyof CssStyle, ValueOf<CssStyle>>)) {
+    for (const [propName, propValue] of newStyle) {
         // `undefined` => preserves existing prop (if any)
         // `null`      => delete    existing prop (if any)
         if (propValue === undefined) continue;
@@ -290,7 +287,7 @@ export const mergeParent  = (style: CssStyleMap): void => {
                 
                 
                 
-                let [, styles]         = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp)!;
+                let [, styles]         = style.get(symbolProp)!;
                 if (isNotFalsyStyles(styles)) {
                     const parentStyleKeys : Exclude<CssStyleCollection, undefined|null|boolean>[] = [];
                     if (!isFinalStyleMap(styles)) parentStyleKeys.push(styles);
@@ -309,7 +306,7 @@ export const mergeParent  = (style: CssStyleMap): void => {
                     if (isNotFalsyStyles(styles)) {
                         let mergedParentStyles: CssStyleMap|null;
                         if (isFinalStyleMap(styles)) {
-                            mergedParentStyles = styles              as CssStyleMap;            // de-finalize
+                            mergedParentStyles = styles as unknown as CssStyleMap; // de-finalize
                         }
                         else {
                             const cached = mergedParentStylesCache.get(styles);
@@ -317,7 +314,7 @@ export const mergeParent  = (style: CssStyleMap): void => {
                                 mergedParentStyles = cached;
                             }
                             else {
-                                mergedParentStyles = mergeStyles(styles) as (CssStyleMap|null); // de-finalize
+                                mergedParentStyles = mergeStyles(styles) as unknown as (CssStyleMap|null); // de-finalize
                                 
                                 
                                 
@@ -346,16 +343,16 @@ export const mergeParent  = (style: CssStyleMap): void => {
                         } // if
                     } // if
                 } // if
-                style.delete(symbolProp);                            // merged => delete source
+                style.delete(symbolProp);                      // merged => delete source
             }
             else if (needToReorderTheRestSymbolProps) {
                 /* preserve the order of another (nested)Rules */
                 
                 
                 
-                const nestedRuleData = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp)!; // backup
-                style.delete(symbolProp);                                                      // delete
-                style.set(symbolProp, nestedRuleData as any);                                  // restore (re-insert at the last order)
+                const nestedRuleData = style.get(symbolProp)!; // backup
+                style.delete(symbolProp);                      // delete
+                style.set(symbolProp, nestedRuleData);         // restore (re-insert at the last order)
             } // if
         } // for
     }
@@ -427,7 +424,7 @@ export const mergeNested  = (style: CssStyleMap): void => {
         symbolPropGroupByFinalSelector.delete(null); // remove from the Map, so it wouldn't be grouped later
         
         for (const symbolProp of unmergeableSymbolGroup) {
-            const ruleData     = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp)!;
+            const ruleData     = style.get(symbolProp)!;
             const styles       = ruleData[1]; // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection|CssFinalStyleMap
             const mergedStyles = isFinalStyleMap(styles) ? styles : mergeStyles(styles);
             
@@ -435,7 +432,7 @@ export const mergeNested  = (style: CssStyleMap): void => {
             
             if (mergedStyles) {
                 // update:
-                (style as CssFinalRuleMap).set(symbolProp, [
+                (style as unknown as CssFinalRuleMap).set(symbolProp, [
                     // already been finalizeSelector() => CssRawSelector|CssFinalSelector => CssFinalSelector
                     ruleData[0] as CssFinalSelector, // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection|CssFinalStyleMap
                     
@@ -445,11 +442,11 @@ export const mergeNested  = (style: CssStyleMap): void => {
             else if ((ruleData[0] as CssFinalSelector).startsWith('@keyframes ')) {
                 // the @keyframes is allowed to have an empty style
                 // update:
-                (style as CssFinalRuleMap).set(symbolProp, [
+                (style as unknown as CssFinalRuleMap).set(symbolProp, [
                     // already been finalizeSelector() => CssRawSelector|CssFinalSelector => CssFinalSelector
                     ruleData[0] as CssFinalSelector, // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection|CssFinalStyleMap
                     
-                    new Map() as CssFinalStyleMap    // an empty style
+                    new CssStyleMapImpl() as unknown as CssFinalStyleMap // an empty style
                 ]);
             }
             else {
@@ -467,7 +464,7 @@ export const mergeNested  = (style: CssStyleMap): void => {
         const multipleStyles = (
             mergeableSymbolGroup
             .map((symbolProp) => {
-                const ruleData = (style as CssRuleMap|CssFinalRuleMap).get(symbolProp)!;
+                const ruleData = style.get(symbolProp)!;
                 return ruleData[1]; // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection|CssFinalStyleMap
             })
         );
@@ -483,10 +480,10 @@ export const mergeNested  = (style: CssStyleMap): void => {
         
         const lastMember = mergeableSymbolGroup[mergeableSymbolGroup.length - 1];
         if (mergedStyles) {
-            const ruleData = (style as CssRuleMap|CssFinalRuleMap).get(lastMember)!;
+            const ruleData = style.get(lastMember)!;
             
             // update last member:
-            (style as CssFinalRuleMap).set(lastMember, [
+            (style as unknown as CssFinalRuleMap).set(lastMember, [
                 // already been finalizeSelector() => CssRawSelector|CssFinalSelector => CssFinalSelector
                 ruleData[0] as CssFinalSelector, // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection|CssFinalStyleMap
                 
@@ -506,14 +503,147 @@ export const mergeNested  = (style: CssStyleMap): void => {
 
 
 
+const isRuleKey = (key: CssUnionKey) : key is Extract<typeof key, symbol> => typeof(key) === 'symbol';
+const isPropKey = (key: CssUnionKey) : key is Extract<typeof key, string> => typeof(key) === 'string';
+export class CssStyleMapImpl
+    extends
+        Map<keyof CssStyle, CssStyle[keyof CssStyle]>
+    
+    implements
+        CssStyleMap
+{
+    // filtered iterators:
+    _ruleKeysCache      : Array<keyof CssRule>|undefined = undefined
+    get ruleKeys()      : Array<keyof CssRule> {
+        const cached = this._ruleKeysCache;
+        if (cached) return cached;
+        
+        
+        
+        const result = Array.from(super.keys()).filter(isRuleKey);
+        this._ruleKeysCache = result;
+        return result;
+    }
+    
+    _propKeysCache      : Array<keyof CssCustomProps|keyof CssKnownProps>|undefined = undefined
+    get propKeys()      : Array<keyof CssCustomProps|keyof CssKnownProps> {
+        const cached = this._propKeysCache;
+        if (cached) return cached;
+        
+        
+        
+        const result = Array.from(super.keys()).filter(isPropKey);
+        this._propKeysCache = result;
+        return result;
+    }
+    
+    get hasRuleKeys()   : boolean {
+        return !!this.ruleKeys.length;
+    }
+    get hasPropKeys()   : boolean {
+        return !!this.propKeys.length;
+    }
+    
+    
+    
+    // iterators:
+    [Symbol.iterator]() : IterableIterator<[CssUnionKey, CssUnionValue]> {
+        return super[Symbol.iterator]();
+    }
+    entries()           : IterableIterator<[CssUnionKey, CssUnionValue]> {
+        return super.entries();
+    }
+    keys()              : IterableIterator<CssUnionKey> {
+        return super.keys();
+    }
+    values()            : IterableIterator<CssUnionValue> {
+        return super.values();
+    }
+    
+    
+    
+    clear(): void {
+        super.clear();
+        
+        this._ruleKeysCache = []; // zero cache
+        this._propKeysCache = []; // zero cache
+    }
+    
+    
+    
+    delete(key: keyof CssCustomProps): boolean
+    delete(key: keyof CssKnownProps ): boolean
+    delete(key: keyof CssRule       ): boolean
+ // delete(key: keyof CssFinalRule  ): boolean
+    delete(key: CssUnionKey         ): boolean {
+        const hasChanged = super.delete(key);
+        
+        if (hasChanged) {
+            if (typeof(key) === 'symbol') {
+                this._ruleKeysCache = undefined; // clear cache
+            }
+            else {
+                this._propKeysCache = undefined; // clear cache
+            } // if
+        } // if
+        
+        return hasChanged;
+    }
+    
+    
+    
+    forEach(callbackfn: ((value: any, key: any, map: any) => void), thisArg?: any): void {
+        return super.forEach(callbackfn, thisArg);
+    }
+    
+    
+    
+    get(key: keyof CssCustomProps): CssCustomProps[keyof CssCustomProps]
+    get(key: keyof CssKnownProps ): CssKnownProps[keyof CssKnownProps]
+    get(key: keyof CssRule       ): CssRule[keyof CssRule]
+ // get(key: keyof CssFinalRule  ): CssFinalRule[keyof CssFinalRule]
+    get(key: CssUnionKey         ): any {
+        return super.get(key);
+    }
+    
+    
+    
+    has(key: keyof CssCustomProps): boolean
+    has(key: keyof CssKnownProps ): boolean
+    has(key: keyof CssRule       ): boolean
+ // has(key: keyof CssFinalRule  ): boolean
+    has(key: CssUnionKey         ): boolean {
+        return super.has(key);
+    }
+    
+    
+    
+    set(key: keyof CssCustomProps | keyof CssKnownProps, value: CssCustomProps[keyof CssCustomProps] | CssKnownProps[keyof CssKnownProps]): this
+    set(key: keyof CssCustomProps, value: CssCustomProps[keyof CssCustomProps]): this
+    set(key: keyof CssKnownProps , value: CssKnownProps[keyof CssKnownProps]  ): this
+    set(key: keyof CssRule       , value: CssRule[keyof CssRule]              ): this
+ // set(key: keyof CssFinalRule  , value: CssFinalRule[keyof CssFinalRule]    ): this
+    set(key: CssUnionKey         , value: CssUnionValue                       ): this {
+        const _this = super.set(key, value);
+        
+        if (typeof(key) === 'symbol') {
+            this._ruleKeysCache = undefined; // clear cache
+        }
+        else {
+            this._propKeysCache = undefined; // clear cache
+        } // if
+        
+        return _this;
+    }
+}
 const cssStyleToMap = (style: OptionalOrBoolean<CssStyle>): CssStyleMap|null => {
     if (!style || (style === true)) return null;
     
     
     
     // fetch string props:
-    // const map = new Map(Object.entries(style)) as CssStyleMap; // slow!
-    const map = new Map() as CssStyleMap;
+    // const map : CssStyleMap = new CssStyleMapImpl(Object.entries(style)); // slow!
+    const map : CssStyleMap = new CssStyleMapImpl();
     for (const propName in style) { // faster!
         // an empty_string key is a special key => ignore:
         if ((propName as string) === '') continue;
@@ -521,12 +651,12 @@ const cssStyleToMap = (style: OptionalOrBoolean<CssStyle>): CssStyleMap|null => 
         
         
         const propName2 = propName as keyof Omit<CssStyle, symbol>;
-        (map as CssPropsMap).set(propName2 as any, style[propName2]);
+        map.set(propName2, style[propName2]);
     } //
     
     // fetch symbol props:
     for (const propName of Object.getOwnPropertySymbols(style)) {
-        (map as CssRuleMap).set(propName, style[propName]);
+        map.set(propName, style[propName]);
     } // for
     
     
@@ -569,24 +699,24 @@ export const mergeStyles = (styles: CssStyleCollection | (CssStyleCollection|Css
         if (!mergedStyles?.size) return null; // an empty style => return `null`
         
         // return non empty style:
-        return mergedStyles as CssFinalStyleMap;
+        return mergedStyles as unknown as CssFinalStyleMap;
     } // if
     
     
     
-    const mergedStyles = new Map() as CssStyleMap;
+    const mergedStyles : CssStyleMap = new CssStyleMapImpl();
     for (const subStyles of styles) { // shallow iterating array
         const subStyleValue: CssStyleMap|null = (
             Array.isArray(subStyles)
             ?
             // deep iterating array
-            (mergeStyles(subStyles) as (CssStyleMap|null)) // an array of CssFinalStyleMap|ProductOrFactoryDeepArray<OptionalOrBoolean<CssStyle>> => recursively `mergeStyles()`
+            (mergeStyles(subStyles) as unknown as (CssStyleMap|null)) // de-finalize // an array of CssFinalStyleMap|ProductOrFactoryDeepArray<OptionalOrBoolean<CssStyle>> => recursively `mergeStyles()`
             :
             // not an array => CssFinalStyleMap or nullable_object or function => CssFinalStyleMap|ProductOrFactory<OptionalOrBoolean<CssStyle>>
             (
                 isFinalStyleMap(subStyles)
                 ?
-                (subStyles as CssStyleMap)
+                (subStyles as unknown as CssStyleMap) // de-finalize
                 :
                 cssStyleToMap(
                     (typeof(subStyles) === 'function')
@@ -619,5 +749,5 @@ export const mergeStyles = (styles: CssStyleCollection | (CssStyleCollection|Css
     if (!mergedStyles?.size) return null; // an empty style => return `null`
     
     // return non empty style:
-    return mergedStyles as CssFinalStyleMap;
+    return mergedStyles as unknown as CssFinalStyleMap;
 }

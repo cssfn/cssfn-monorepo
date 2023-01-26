@@ -21,19 +21,20 @@ import {
     mergeStyles,
     
     isFinalStyleMap,
+    CssStyleMapImpl,
 } from '../dist/index.js'
 import './jest-custom'
 
 
 
 const cssStyleToMap = (style: OptionalOrBoolean<CssStyle>): CssStyleMap|null => {
-    if (!style || (style === true)) return new Map() as CssStyleMap; // allow empty CssStyleMap for testing purpose
+    if (!style || (style === true)) return new CssStyleMapImpl() as CssStyleMap; // allow empty CssStyleMap for testing purpose
     
     
     
     // fetch string props:
-    // const map = new Map(Object.entries(style)) as CssStyleMap; // slow!
-    const map = new Map() as CssStyleMap;
+    // const map = new CssStyleMapImpl(Object.entries(style)) as CssStyleMap; // slow!
+    const map = new CssStyleMapImpl() as CssStyleMap;
     for (const propName in style) { // faster!
         const propName2 = propName as keyof Omit<CssStyle, symbol>;
         (map as CssPropsMap).set(propName2 as any, style[propName2]);
@@ -62,7 +63,7 @@ const cssMapToStyle = (style: CssStyleMap|CssFinalStyleMap|null): CssStyle|null 
         Array.from(style as Iterable<[string|symbol, CssRuleData|CssFinalRuleData]>)
         .filter(([key]) => (typeof(key) === 'symbol'))
         .map(([key, ruleData]) => {
-            if (ruleData[1] && (typeof(ruleData[1]) === 'object') && (Object.getPrototypeOf(ruleData[1]) === Map.prototype)) {
+            if (ruleData[1] && (typeof(ruleData[1]) === 'object') && (ruleData[1] instanceof Map)) {
                 const styles = ruleData[1];
                 return [
                     key,

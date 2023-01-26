@@ -102,7 +102,7 @@ export const isStyle = (styles: CssStyleCollection|CssFinalStyleMap): styles is 
 export const isFinalStyleMap = (styles: CssStyleCollection|CssFinalStyleMap): styles is CssFinalStyleMap => (
     isNotFalsyStyles(styles)
     &&
-    (Object.getPrototypeOf(styles) === Map.prototype)
+    (styles instanceof Map)
 );
 
 export const normalizeSelectorOptions = <TDefaultOptions extends CssSelectorOptions>(options: CssSelectorOptions|undefined, defaultOptions: TDefaultOptions): TDefaultOptions => {
