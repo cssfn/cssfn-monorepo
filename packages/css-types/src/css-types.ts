@@ -496,9 +496,9 @@ export interface CssStyleMapOverloads
     
     
     // gets:
-    get(key: keyof CssCustomProps): CssCustomProps[keyof CssCustomProps]
-    get(key: keyof CssKnownProps ): CssKnownProps[keyof CssKnownProps]
-    get(key: keyof CssRule       ): CssRule[keyof CssRule]
+    get(key: keyof CssCustomProps): CssCustomProps[keyof CssCustomProps] | undefined
+    get(key: keyof CssKnownProps ): CssKnownProps[keyof CssKnownProps]   | undefined
+    get(key: keyof CssRule       ): CssRule[keyof CssRule]               | undefined
     
     
     
@@ -546,9 +546,9 @@ export interface CssFinalStyleMapOverloads
     
     
     // gets:
-    get(key: keyof CssCustomProps): CssCustomProps[keyof CssCustomProps]
-    get(key: keyof CssKnownProps ): CssKnownProps[keyof CssKnownProps]
-    get(key: keyof CssFinalRule  ): CssFinalRule[keyof CssFinalRule]
+    get(key: keyof CssCustomProps): CssCustomProps[keyof CssCustomProps] | undefined
+    get(key: keyof CssKnownProps ): CssKnownProps[keyof CssKnownProps]   | undefined
+    get(key: keyof CssFinalRule  ): CssFinalRule[keyof CssFinalRule]     | undefined
     
     
     
