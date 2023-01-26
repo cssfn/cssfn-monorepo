@@ -66,13 +66,6 @@ import {
 
 // processors:
 
-export const hasRuleKeys = (keys: IterableIterator<keyof CssCustomProps|keyof CssKnownProps|keyof CssRule>): boolean => {
-    for (const propName of keys) {
-        if (typeof(propName) === 'symbol') return true; // found a symbol prop
-    } // for
-    
-    return false; // not found
-}
 export const hasPropKeys = (keys: IterableIterator<keyof CssCustomProps|keyof CssKnownProps|keyof CssRule>): boolean => {
     for (const propName of keys) {
         if (typeof(propName) !== 'symbol') return true; // found a string prop
@@ -317,7 +310,7 @@ export const mergeParent  = (style: CssStyleMap): void => {
                         if (mergedParentStyles) {
                             if (!needToReorderTheRestSymbolProps) {
                                 /* if mergedParentStyles has any (nested) Rule => all the rest of (nested) Rule need to rearrange to preserve the order */
-                                if (hasRuleKeys(mergedParentStyles.keys())) {
+                                if (mergedParentStyles.hasRuleKeys) {
                                     needToReorderTheRestSymbolProps = true;
                                 } // if
                             } // if
