@@ -66,11 +66,6 @@ import {
 
 // processors:
 
-export function* filterOnlyRuleKeys(keys: IterableIterator<keyof CssCustomProps|keyof CssKnownProps|keyof CssRule>): Generator<keyof CssRule> {
-    for (const propName of keys) {
-        if (typeof(propName) === 'symbol') yield propName; // found a symbol prop
-    } // for
-}
 export function* filterOnlyPropKeys(keys: IterableIterator<keyof CssCustomProps|keyof CssKnownProps|keyof CssRule>): Generator<keyof CssCustomProps|keyof CssKnownProps> {
     for (const propName of keys) {
         if (typeof(propName) !== 'symbol') yield propName; // found a string prop
@@ -223,7 +218,7 @@ export const mergeLiteral = (style: CssStyleMap, newStyle: CssStyleMap): void =>
 
 const ensureSymbolPropsUpdated = (style: CssStyleMap): void => {
     // render CssRawSelector to CssFinalSelector (if any)
-    for (const symbolProp of filterOnlyRuleKeys(style.keys())) {
+    for (const symbolProp of style.ruleKeys) {
         finalizeSelector(style, symbolProp);
     } // for
 }
@@ -273,14 +268,10 @@ const scheduledCleanupMergedParentStylesCache = (): void => {
     mergedParentStylesCache = new WeakMap<Exclude<CssStyleCollection, undefined|null|boolean>, CssStyleMap|null>();
 }
 export const mergeParent  = (style: CssStyleMap): void => {
-    let needToReorderTheRestSymbolProps : symbol|null = null;
+    let needToReorderTheRestSymbolProps              = false;
     let needToScheduleCleanupMergedParentStylesCache = false;
     try {
-        for (const symbolProp of filterOnlyRuleKeys(style.keys())) {
-            if (needToReorderTheRestSymbolProps && (symbolProp === needToReorderTheRestSymbolProps)) break; // found mark_as_STOP => stop loop
-            
-            
-            
+        for (const symbolProp of style.ruleKeys) {
             const finalSelector = finalizeSelector(style, symbolProp);
             if (finalSelector === '&') { // found only_parentSelector
                 /* move the CssProps and (nested)Rules from only_parentSelector to current style */
@@ -332,8 +323,7 @@ export const mergeParent  = (style: CssStyleMap): void => {
                             if (!needToReorderTheRestSymbolProps) {
                                 /* if mergedParentStyles has any (nested) Rule => all the rest of (nested) Rule need to rearrange to preserve the order */
                                 if (hasRuleKeys(mergedParentStyles.keys())) {
-                                    needToReorderTheRestSymbolProps = Symbol();
-                                    style.set(needToReorderTheRestSymbolProps, '' as any); // mark_as_STOP to prevent infinite loop caused by `style.set()`
+                                    needToReorderTheRestSymbolProps = true;
                                 } // if
                             } // if
                             
@@ -357,10 +347,6 @@ export const mergeParent  = (style: CssStyleMap): void => {
         } // for
     }
     finally {
-        if (needToReorderTheRestSymbolProps) {
-            style.delete(needToReorderTheRestSymbolProps); // remove the mark_as_STOP
-        } // if
-        
         if (needToScheduleCleanupMergedParentStylesCache) {
             scheduleCleanupMergedParentStylesCache();
         } // if
@@ -399,7 +385,7 @@ const groupByFinalSelector = (accum: Map<CssFinalSelector|null, symbol[]>, [symb
     return accum;
 }
 export const mergeNested  = (style: CssStyleMap): void => {
-    const symbolProps = Array.from(filterOnlyRuleKeys(style.keys()));
+    const symbolProps = style.ruleKeys;
     if (!symbolProps.length) return; // there's no (nested) Rule => nothing to do
     
     

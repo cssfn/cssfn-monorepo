@@ -55,7 +55,6 @@ import type {
 
 // internals:
 import {
-    filterOnlyRuleKeys,
     filterOnlyPropKeys,
     hasPropKeys,
     CssStyleMapImpl,
@@ -177,7 +176,7 @@ class RenderRule {
     }
     
     #hasPropRule(finalStyle: CssFinalStyleMap): boolean {
-        for (const symbolProp of filterOnlyRuleKeys(finalStyle.keys())) {
+        for (const symbolProp of finalStyle.ruleKeys) {
             const ruleData = finalStyle.get(symbolProp)!;
             const [finalSelector] = ruleData;
             if (finalSelector[0] === ' ') return true; // found a PropRule
@@ -263,7 +262,7 @@ class RenderRule {
     
     #renderFallbacksRules(nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
-        for (const symbolProp of Array.from(filterOnlyRuleKeys(nestedRules.keys())).reverse()) { // reverse the @fallbacks order
+        for (const symbolProp of nestedRules.ruleKeys.slice(0).reverse()) { // reverse the @fallbacks order
             const ruleData = nestedRules.get(symbolProp)!;
             const [finalSelector, finalStyle] = ruleData;
             if (finalSelector !== '@fallbacks') continue; // only interested in @fallbacks
@@ -275,7 +274,7 @@ class RenderRule {
     }
     #renderPropRules(nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
-        for (const symbolProp of filterOnlyRuleKeys(nestedRules.keys())) {
+        for (const symbolProp of nestedRules.ruleKeys) {
             const ruleData = nestedRules.get(symbolProp)!;
             const [finalSelector, finalStyle] = ruleData;
             if (finalSelector[0] !== ' ') continue; // only interested in PropRule
@@ -291,7 +290,7 @@ class RenderRule {
     }
     #renderNestedRules(finalParentSelector: CssFinalSelector|null, nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
-        for (const symbolProp of filterOnlyRuleKeys(nestedRules.keys())) {
+        for (const symbolProp of nestedRules.ruleKeys) {
             const ruleData = nestedRules.get(symbolProp)!;
             const [finalSelector, finalStyle] = ruleData;
             if (finalSelector[0] === ' ') continue; // skip PropRule

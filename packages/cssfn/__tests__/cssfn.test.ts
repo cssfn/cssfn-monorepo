@@ -66,7 +66,6 @@ import {
     camelCase,
     pascalCase,
     
-    filterOnlyRuleKeys,
     mergeStyles,
     
     isFinalSelector,
@@ -116,14 +115,14 @@ const cssMapToStyle = (style: CssStyleMap|CssFinalStyleMap|null): CssStyle|null 
 
 const firstSelectorOf = (style: CssFinalStyleMap|null): string|null => {
     if (!style) return null;
-    const symbolProp = Array.from(filterOnlyRuleKeys(style.keys()))[0];
+    const symbolProp = style.ruleKeys[0];
     if (symbolProp === undefined) return null;
     const [selector] = style.get(symbolProp)!;
     return isFinalSelector(selector) ? selector : null;
 }
 const firstStylesOf = (style: CssFinalStyleMap|null): CssStyle|null => {
     if (!style) return null;
-    const symbolProp = Array.from(filterOnlyRuleKeys(style.keys()))[0];
+    const symbolProp = style.ruleKeys[0];
     if (symbolProp === undefined) return null;
     const [, styles] = style.get(symbolProp)!;
     return cssMapToStyle(styles);
