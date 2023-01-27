@@ -1,6 +1,8 @@
 // cssfn:
 import type {
     // cssfn properties:
+    CssRuleData,
+    
     CssFinalRuleMap,
     
     CssStyleMap,
@@ -9,6 +11,7 @@ import type {
     
     CssSelector,
     
+    CssRawSelector,
     CssFinalSelector,
 }                           from '@cssfn/css-types'
 import {
@@ -89,6 +92,7 @@ const parseSelectorsFromString = (selectorString: CssSelector): SelectorGroup =>
     if (!selectorGroup) throw Error(`parse selector error: ${selectorString}`);
     return selectorGroup;
 }
+
 const finalizeSelector = (style: CssStyleMap, symbolProp: symbol): CssFinalSelector|null => {
     const ruleData = style.get(symbolProp); // get existing prop (if any)
     if (ruleData === undefined) return null;
@@ -97,8 +101,15 @@ const finalizeSelector = (style: CssStyleMap, symbolProp: symbol): CssFinalSelec
     
     
     
+    /*
+        Because `finalizeSelector()` is frequently called and the `selector` is mostly already *finalized*,
+        to improve performance: split the common logic at the above and the complex logic to a separate `finalizeSelectorFurther()` call.
+    */
+    return finalizeSelectorFurther(style, selector, ruleData, symbolProp);
+}
+const finalizeSelectorFurther = (style: CssStyleMap, rawSelector: CssRawSelector|undefined, ruleData: CssRuleData, symbolProp: symbol): CssFinalSelector|null => {
     // extract raw selector:
-    const [selectors, options] = selector ?? ['&', undefined]; // selector of `undefined` is the shortcut of '&' without any options
+    const [selectors, options] = rawSelector ?? ['&', undefined]; // selector of `undefined` is the shortcut of '&' without any options
     
     
     
