@@ -56,6 +56,8 @@ import type {
 // internals:
 import {
     CssStyleMapImpl,
+}                           from './CssStyleMapImpl.js'
+import {
     mergeStyles,
 }                           from './mergeStyles.js'
 import {
