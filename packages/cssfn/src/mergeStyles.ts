@@ -5,6 +5,8 @@ import type {
     
     CssFinalRuleMap,
     
+    CssUnionValue,
+    
     CssStyleMap,
     CssFinalStyleMap,
     CssStyleCollection,
@@ -179,14 +181,17 @@ const finalizeSelectorFurther = (style: CssStyleMap, rawSelector: CssRawSelector
 
 
 export const mergeLiteral = (style: CssStyleMap, newStyle: CssStyleMap): void => {
-    for (const [propName, propValue] of newStyle) {
+    // for (const [propName, propValue] of newStyle) { // show
+    let propValue : CssUnionValue;
+    for (const propName of newStyle.keysAsArray) { // faster & cached, then the cache can be re-use for `CssStyleMap::ruleKeys` and `CssStyleMap::propKeys`
+        propValue = newStyle.get(propName as any);
         // `undefined` => preserves existing prop (if any)
         // `null`      => delete    existing prop (if any)
         if (propValue === undefined) continue;
         
         
         
-        style.delete(propName as any);                // delete the old prop (if any), so the new prop always placed at the end of LiteralObject
+        style.delete(propName as any);                // delete the old prop (if any), so the new prop always placed at the end of CssStyleMap
         style.set(propName as any, propValue as any); // add/overwrite
     } // for
 }
