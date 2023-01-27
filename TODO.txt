@@ -2,6 +2,62 @@ optimized css-vars & css-config [done]
 
 high cpu usage:
 
-export const rule = (selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions)
 
-export const isKnownCssPropInternal = (propName: string) // expensive!
+System Time 623.91 ms
+Self Time 0.52 ms
+    set(key: CssUnionKey         , value: CssUnionValue                       ): this {
+        const _this = super.set(key, value);
+        
+        if (typeof(key) === 'symbol') {
+            this._ruleKeysCache = undefined; // clear cache
+            this._rulesCache    = undefined; // clear cache
+        }
+        else {
+            this._propKeysCache = undefined; // clear cache
+        } // if
+        this._keysCache         = undefined; // clear cache
+        
+        return _this;
+    }
+
+
+Total Time 116.29 ms
+Self Time 116.29 ms
+called freq by get ruleKeys()
+    get keysAsArray()   : Array<CssUnionKey> {
+        this._keysCache = new WeakRef<Array<CssUnionKey>>(result);
+
+
+Self Time 101.74 ms
+called freq by class RenderRule
+    get rules() : Array<CssRuleData> {
+        this._rulesCache = new WeakRef<Array<CssRuleData>>(result);
+
+
+Self Time 79.74 ms
+called freq by ensureSymbolPropsUpdated
+const finalizeSelector = (style: CssStyleMap, symbolProp: symbol): CssFinalSelector|null => {
+    const [selector] = ruleData;
+
+
+Self Time 64.77 ms
+const reduceGetSpecificity = (accum: Specificity, simpleSelector: SimpleSelector): Specificity => {
+
+
+Self Time 49.11 ms
+    #isValidIdentifierChar(): boolean {
+        const char = this.#expression[this.#pos];
+
+
+export const selectorToString       = (selector: Selector): string => {
+            const [
+                selectorToken,
+                selectorName,
+                selectorParams,
+            ] = selectorEntry;
+
+
+    #parseSelector(): Selector|null {
+            if (!selector.length) { // a relative Combinator (a Combinator at the beginning)
+                const combinator = this.#parseCombinator();
+            const simpleSelector = this.#parseSimpleSelector();
