@@ -17,11 +17,32 @@ import type {
     EncodedCssStyle,
     EncodedCssStyleCollection,
 }                           from './cssfn-encoded-types.js'
+import {
+    cssStyleToMap,
+}                           from './CssStyleMapImpl.js'
 
 
 
+const isNativeMap = (style: OptionalOrBoolean<EncodedCssStyle>|Map<keyof CssStyle, CssStyle[keyof CssStyle]>): style is Map<keyof CssStyle, CssStyle[keyof CssStyle]> => {
+    return (Object.getPrototypeOf(style) === Map.prototype);
+}
 export const decodeStyle = (style: OptionalOrBoolean<EncodedCssStyle>): OptionalOrBoolean<CssStyle> => {
     if (!style || (style === true)) return undefined;              // ignore : falsy style
+    
+    
+    
+    if (isNativeMap(style)) {
+        /*
+            A rendered `CssStyleMapImpl` object when transferred to WebWorker causes to reconstructured back as native `Map` object.
+            The `Map` object causes a premature render process.
+            To workaround this problem, the `Map` object need to transformed back to `CssStyleMapImpl` object.
+        */
+        return cssStyleToMap(                                // transform to `CssStyleMapImpl` object
+            decodeStyle(                                     // recursively search for `Map` object
+                Object.fromEntries(style) as EncodedCssStyle // convert `Map` object to literal `{}` object
+            )
+        ) as unknown as CssStyle; // it's okay to have a/some `CssStyleMapImpl` object inside the `CssStyle(Collection)`. The renderer will treat `CssStyleMapImpl` object as `CssFinalStyleMap`
+    } // if
     
     
     
