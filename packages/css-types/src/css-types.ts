@@ -477,6 +477,7 @@ export interface CssStyleMapOverloads
     // iterators:
     [Symbol.iterator]() : IterableIterator<[CssUnionKey, CssUnionValue]>
     entries()           : IterableIterator<[CssUnionKey, CssUnionValue]>
+    get keysAsArray()   : Array<CssUnionKey>
     keys()              : IterableIterator<CssUnionKey>
     values()            : IterableIterator<CssUnionValue>
     
@@ -527,6 +528,7 @@ export interface CssFinalStyleMapOverloads
     // iterators:
     [Symbol.iterator]() : IterableIterator<[CssUnionKey, CssUnionFinalValue]>
     entries()           : IterableIterator<[CssUnionKey, CssUnionFinalValue]>
+    get keysAsArray()   : Array<CssUnionKey>
     keys()              : IterableIterator<CssUnionKey>
     values()            : IterableIterator<CssUnionFinalValue>
     

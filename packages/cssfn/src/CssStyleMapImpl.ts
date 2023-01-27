@@ -43,7 +43,7 @@ export class CssStyleMapImpl
         
         
         
-        const result = Array.from(super.keys()).filter(isRuleKey);
+        const result = this.keysAsArray.filter(isRuleKey);
         this._ruleKeysCache = new WeakRef<Array<keyof CssRule>>(result);
         return result;
     }
@@ -55,7 +55,7 @@ export class CssStyleMapImpl
         
         
         
-        const result = Array.from(super.keys()).filter(isPropKey);
+        const result = this.keysAsArray.filter(isPropKey);
         this._propKeysCache = new WeakRef<Array<keyof CssCustomProps|keyof CssKnownProps>>(result);
         return result;
     }
@@ -83,13 +83,24 @@ export class CssStyleMapImpl
     
     // iterators:
     [Symbol.iterator]() : IterableIterator<[CssUnionKey, CssUnionValue]> {
-        return super[Symbol.iterator]();
+        return this.entries();
     }
     entries()           : IterableIterator<[CssUnionKey, CssUnionValue]> {
         return super.entries();
     }
+    _keysCache          : WeakRef<Array<CssUnionKey>>|undefined = undefined
+    get keysAsArray()   : Array<CssUnionKey> {
+        const cached = this._keysCache?.deref();
+        if (cached) return cached;
+        
+        
+        
+        const result = Array.from(super.keys());
+        this._keysCache = new WeakRef<Array<CssUnionKey>>(result);
+        return result;
+    }
     keys()              : IterableIterator<CssUnionKey> {
-        return super.keys();
+        return this.keysAsArray.values();
     }
     values()            : IterableIterator<CssUnionValue> {
         return super.values();
@@ -103,6 +114,7 @@ export class CssStyleMapImpl
         this._ruleKeysCache = undefined; // clear cache
         this._propKeysCache = undefined; // clear cache
         this._rulesCache    = undefined; // clear cache
+        this._keysCache     = undefined; // clear cache
     }
     
     
@@ -122,6 +134,7 @@ export class CssStyleMapImpl
             else {
                 this._propKeysCache = undefined; // clear cache
             } // if
+            this._keysCache         = undefined; // clear cache
         } // if
         
         return hasChanged;
@@ -170,6 +183,7 @@ export class CssStyleMapImpl
         else {
             this._propKeysCache = undefined; // clear cache
         } // if
+        this._keysCache         = undefined; // clear cache
         
         return _this;
     }
