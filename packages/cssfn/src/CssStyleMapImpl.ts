@@ -60,11 +60,28 @@ export class CssStyleMapImpl
         return result;
     }
     
+    _hasRuleKeysCache   : boolean|undefined = undefined
     get hasRuleKeys()   : boolean {
-        return !!this.ruleKeys.length;
+        const cached = this._hasRuleKeysCache;
+        if (cached !== undefined) return cached;
+        
+        
+        
+        const result = !!this.ruleKeys.length;
+        this._hasRuleKeysCache = result;
+        return result;
     }
+    
+    _hasPropKeysCache   : boolean|undefined = undefined
     get hasPropKeys()   : boolean {
-        return !!this.propKeys.length;
+        const cached = this._hasPropKeysCache;
+        if (cached !== undefined) return cached;
+        
+        
+        
+        const result = !!this.propKeys.length;
+        this._hasPropKeysCache = result;
+        return result;
     }
     
     _rulesCache : WeakRef<Array<CssRuleData>>|undefined = undefined
@@ -89,7 +106,7 @@ export class CssStyleMapImpl
         return super.entries();
     }
     _keysCache          : WeakRef<Array<CssUnionKey>>|undefined = undefined
-    get keysAsArray()   : Array<CssUnionKey> { // non cached enumerator, optimized for enumerating MULTIPLE TIMES
+    get keysAsArray()   : Array<CssUnionKey> {            // do  cached enumerator, optimized for enumerating MULTIPLE TIMES
         const cached = this._keysCache?.deref();
         if (cached) return cached;
         
@@ -116,10 +133,12 @@ export class CssStyleMapImpl
     clear(): void {
         super.clear();
         
-        this._ruleKeysCache = undefined; // clear cache
-        this._propKeysCache = undefined; // clear cache
-        this._rulesCache    = undefined; // clear cache
-        this._keysCache     = undefined; // clear cache
+        this._ruleKeysCache    = undefined; // clear cache
+        this._propKeysCache    = undefined; // clear cache
+        this._rulesCache       = undefined; // clear cache
+        this._keysCache        = undefined; // clear cache
+        this._hasRuleKeysCache = false;     // set cache
+        this._hasPropKeysCache = false;     // set cache
     }
     
     
@@ -133,13 +152,15 @@ export class CssStyleMapImpl
         
         if (hasChanged) {
             if (typeof(key) === 'symbol') {
-                this._ruleKeysCache = undefined; // clear cache
-                this._rulesCache    = undefined; // clear cache
+                this._ruleKeysCache    = undefined; // clear cache
+                this._rulesCache       = undefined; // clear cache
+                this._hasRuleKeysCache = undefined; // clear cache
             }
             else {
-                this._propKeysCache = undefined; // clear cache
+                this._propKeysCache    = undefined; // clear cache
+                this._hasPropKeysCache = undefined; // clear cache
             } // if
-            this._keysCache         = undefined; // clear cache
+            this._keysCache            = undefined; // clear cache
         } // if
         
         return hasChanged;
@@ -182,13 +203,15 @@ export class CssStyleMapImpl
         const _this = super.set(key, value);
         
         if (typeof(key) === 'symbol') {
-            this._ruleKeysCache = undefined; // clear cache
-            this._rulesCache    = undefined; // clear cache
+            this._ruleKeysCache    = undefined; // clear cache
+            this._rulesCache       = undefined; // clear cache
+            this._hasRuleKeysCache = true;      // set cache
         }
         else {
-            this._propKeysCache = undefined; // clear cache
+            this._propKeysCache    = undefined; // clear cache
+            this._hasPropKeysCache = true;      // set cache
         } // if
-        this._keysCache         = undefined; // clear cache
+        this._keysCache            = undefined; // clear cache
         
         return _this;
     }
