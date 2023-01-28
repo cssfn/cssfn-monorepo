@@ -1237,115 +1237,115 @@ export const ungroupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, op
 
 // measures:
 export type Specificity = [number, number, number];
-const reduceGetSpecificity = (accum: Specificity, simpleSelector: SimpleSelector): Specificity => {
-    const [
-        /*
-            selector tokens:
-            '&'  = parent         selector
-            '*'  = universal      selector
-            '['  = attribute      selector
-            ''   = element        selector
-            '#'  = ID             selector
-            '.'  = class          selector
-            ':'  = pseudo class   selector
-            '::' = pseudo element selector
-        */
-        selectorToken,
-        
-        /*
-            selector name:
-            string = the name of [element, ID, class, pseudo class, pseudo element] selector
-        */
-        selectorName,
-        
-        /*
-            selector parameter(s):
-            string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
-            array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
-            SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
-        */
-        selectorParams,
-    ] = simpleSelector;
-    
-    
-    
-    if (selectorToken === ':') {
-        switch (selectorName) {
-            case 'is':
-            case 'not':
-            case 'has': {
-                if (!selectorParams || !isSelectors(selectorParams)) return accum; // no changes
-                const maxSpecificity = (
-                    convertSelectorGroupToPureSelectorGroup(selectorParams) // remove empty Selector(s) in SelectorGroup
-                    .map(calculateSpecificity)             // get the specificities
-                    .reduce(reduceMaxSpecificity, [0,0,0]) // get the highest specificity
-                );
-                return [
-                    accum[0] + maxSpecificity[0],
-                    accum[1] + maxSpecificity[1],
-                    accum[2] + maxSpecificity[2]
-                ] as Specificity;
-            }
-            
-            case 'where':
-                return accum; // no changes
-        } // switch
-    } // if
-    
-    
-    
-    switch(selectorToken) {
-        case '#' : // ID selector
-            return [
-                accum[0] + 1,
-                accum[1],
-                accum[2]
-            ] as Specificity;
-        
-        case '.' : // class selector
-        case '[' : // attribute selector
-        case ':' : // pseudo class selector
-            return [
-                accum[0],
-                accum[1] + 1,
-                accum[2]
-            ] as Specificity;
-        
-        case ''  : // element selector
-        case '::': // pseudo element selector
-            return  [
-                accum[0],
-                accum[1],
-                accum[2] + 1
-            ] as Specificity;
-        
-        case '&' : // parent selector
-        case '*' : // universal selector
-        default:
-            return accum; // no changes
-    } // switch
-};
-const reduceMaxSpecificity = (accum: Specificity, current: Specificity): Specificity => {
-    if (
-        (current[0] > accum[0])
-        ||
-        (current[1] > accum[1])
-        ||
-        (current[2] > accum[2])
-    ) return current; // current is higher than the highest record => replace it
-    
-    return accum; // the highest record
-};
 export const calculateSpecificity = (selector: OptionalOrBoolean<Selector>): Specificity => {
-    if (!isNotEmptySelector(selector)) return [
-        0, 0, 0
-    ]; // empty selector => nothing to calculate => return a zero Specificity
+    // conditions:
+    const result : Specificity = [0, 0, 0];
+    if (!isNotEmptySelector(selector)) return result; // empty selector => nothing to calculate => return a zero Specificity
     
     
     
-    return (
-        selector
-        .filter(isSimpleSelector) // filter out Combinator(s)
-        .reduce(reduceGetSpecificity, [0,0,0])
-    );
+    for (const selectorEntry of selector) {
+        // conditions:
+        if (!isSimpleSelector(selectorEntry)) continue; // falsy or Combinator => skip
+        
+        
+        
+        const [
+            /*
+                selector tokens:
+                '&'  = parent         selector
+                '*'  = universal      selector
+                '['  = attribute      selector
+                ''   = element        selector
+                '#'  = ID             selector
+                '.'  = class          selector
+                ':'  = pseudo class   selector
+                '::' = pseudo element selector
+            */
+            selectorToken,
+            
+            /*
+                selector name:
+                string = the name of [element, ID, class, pseudo class, pseudo element] selector
+            */
+            selectorName,
+            
+            /*
+                selector parameter(s):
+                string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
+                array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
+                SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
+            */
+            selectorParams,
+        ] = selectorEntry; // as SimpleSelector
+        
+        
+        
+        if (selectorToken === ':') {
+            switch (selectorName) {
+                case 'is':
+                case 'not':
+                case 'has': {
+                    if (!selectorParams || !isSelectors(selectorParams)) continue; // no nested Selector(s) => no changes => skip
+                    
+                    
+                    
+                    let maxSpecificity: Specificity = [0, 0, 0]
+                    for (let nestedSpecificity: Specificity, index = 0, maxIndex = selectorParams.length; index < maxIndex; index++) {
+                        // conditions:
+                        if (!isNotEmptySelector(selectorParams[index])) continue;
+                        
+                        
+                        
+                        nestedSpecificity = calculateSpecificity(selectorParams[index]);
+                        if (
+                            (nestedSpecificity[0] > maxSpecificity[0])
+                            ||
+                            (nestedSpecificity[1] > maxSpecificity[1])
+                            ||
+                            (nestedSpecificity[2] > maxSpecificity[2])
+                        ) {
+                            // nestedSpecificity is higher than the highest maxSpecificity => replace it
+                            maxSpecificity = nestedSpecificity;
+                        } // if
+                    } // for
+                    result[0] += maxSpecificity[0];
+                    result[1] += maxSpecificity[1];
+                    result[2] += maxSpecificity[2];
+                    continue; // process next SimpleSelector(s)
+                }
+                
+                case 'where':
+                    continue; // no changes => skip
+            } // switch
+        } // if
+        
+        
+        
+        switch(selectorToken) {
+            case '#' : // ID selector
+                result[0]++;
+                continue; // process next SimpleSelector(s)
+            
+            case '.' : // class selector
+            case '[' : // attribute selector
+            case ':' : // pseudo class selector
+                result[1]++;
+                continue; // process next SimpleSelector(s)
+            
+            case ''  : // element selector
+            case '::': // pseudo element selector
+                result[2]++;
+                continue; // process next SimpleSelector(s)
+            
+            case '&' : // parent selector
+            case '*' : // universal selector
+            default:
+                continue; // no changes => skip
+        } // switch
+    } // for
+    
+    
+    
+    return result;
 }
