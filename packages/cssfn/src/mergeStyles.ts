@@ -429,6 +429,7 @@ export const mergeNested  = (style: CssStyleMap): void => {
                 // delete:
                 style.delete(symbolProp);
             } // if
+            // TODO: prevent the `ruleData` object to GC at time_expensive_moment
         } // for
     } // if
     
@@ -454,12 +455,12 @@ export const mergeNested  = (style: CssStyleMap): void => {
         
         
         
-        const lastMember = mergeableSymbolGroup[mergeableSymbolGroup.length - 1];
+        const lastSymbolProp = mergeableSymbolGroup[mergeableSymbolGroup.length - 1];
         if (mergedStyles) {
-            const ruleData = style.get(lastMember)!;
+            const ruleData = style.get(lastSymbolProp)!;
             
             // update last member:
-            (style as unknown as CssFinalRuleMap).set(lastMember, [
+            (style as unknown as CssFinalRuleMap).set(lastSymbolProp, [
                 // already been finalizeSelector() => undefined|CssRawSelector|CssFinalSelector => CssFinalSelector
                 ruleData[0] as CssFinalSelector, // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
                 
@@ -468,11 +469,13 @@ export const mergeNested  = (style: CssStyleMap): void => {
         }
         else {
             // mergedStyles is empty => delete last member
-            style.delete(lastMember);
+            style.delete(lastSymbolProp);
         } // if
         
         // delete first member to second last member:
         for (const symbolProp of mergeableSymbolGroup.slice(0, -1)) style.delete(symbolProp);
+        // TODO: prevent the `symbolProp(s)` object to GC at time_expensive_moment
+        // for (const symbolProp of mergeableSymbolGroup) { /*defer*/ }
     } // for
     //#endregion merge duplicates (nested) mergeable Rule(s) to unique ones
 }
