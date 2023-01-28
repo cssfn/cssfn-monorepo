@@ -32,6 +32,9 @@ may causes by new WeakRef()
     get keysAsArray()   : Array<CssUnionKey> {
         this._keysCache = new WeakRef<Array<CssUnionKey>>(result);
 
+NO SOLUTION
+
+-------------------------------------------------------------------------------------------------------------------
 
 Self Time 101.74 ms
 called freq by class RenderRule
@@ -39,13 +42,19 @@ may causes by new WeakRef()
     get rules() : Array<CssRuleData> {
         this._rulesCache = new WeakRef<Array<CssRuleData>>(result);
 
+NO SOLUTION
+
+-------------------------------------------------------------------------------------------------------------------
 
 Self Time 79.74 ms
 called freq by ensureSymbolPropsUpdated
 may causes by destructuring array
 const finalizeSelector = (style: CssStyleMap, symbolProp: symbol): CssFinalSelector|null => {
-    const [selector] = ruleData;
+    const selector = ruleData[0];
 
+OPTIMIZED
+
+-------------------------------------------------------------------------------------------------------------------
 
 Self Time 64.77 ms
 const reduceGetSpecificity = (accum: Specificity, simpleSelector: SimpleSelector): Specificity => {
