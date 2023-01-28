@@ -59,6 +59,9 @@ OPTIMIZED
 Self Time 64.77 ms
 const reduceGetSpecificity = (accum: Specificity, simpleSelector: SimpleSelector): Specificity => {
 
+OPTIMIZED
+
+-------------------------------------------------------------------------------------------------------------------
 
 Self Time 49.11 ms
     #isValidIdentifierChar(): boolean {
