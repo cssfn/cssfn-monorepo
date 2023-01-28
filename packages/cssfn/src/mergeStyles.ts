@@ -183,7 +183,6 @@ const finalizeSelectorFurther = (style: CssStyleMap, rawSelector: CssRawSelector
 
 export const mergeLiteral = (style: CssStyleMap, newStyle: CssStyleMap): void => {
     // for (const [propName, propValue] of newStyle) { // slow
-    // for (const propName of newStyle.keysAsArray) { // no need to cache, because the `newStyle` will be discarded after copied
     let propName  : CssUnionKey;
     let propValue : CssUnionValue;
     for (propName of newStyle.keys()) { // non cached enumerator, optimized for enumerating ONE TIMES
