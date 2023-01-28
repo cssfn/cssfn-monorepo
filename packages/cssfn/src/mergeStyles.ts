@@ -140,7 +140,7 @@ const finalizeSelectorFurther = (style: CssStyleMap, rawSelector: CssRawSelector
     
     
     
-    const [, styles] = ruleData;
+    const styles = ruleData[1]; // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
     
     
     
