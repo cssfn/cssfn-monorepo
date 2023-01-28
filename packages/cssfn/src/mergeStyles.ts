@@ -99,7 +99,7 @@ const parseSelectorsFromString = (selectorString: CssSelector): SelectorGroup =>
 const finalizeSelector = (style: CssStyleMap, symbolProp: symbol): CssFinalSelector|null => {
     const ruleData = style.get(symbolProp); // get existing prop (if any)
     if (ruleData === undefined) return null;
-    const [selector] = ruleData;
+    const selector = ruleData[0]; // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
     if (isFinalSelector(selector)) return selector;
     
     
