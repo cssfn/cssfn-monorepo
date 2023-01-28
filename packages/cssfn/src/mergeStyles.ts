@@ -253,19 +253,22 @@ const scheduledCleanupMergedParentStylesCache = (): void => {
     mergedParentStylesCache = new WeakMap<Exclude<CssStyleCollection, undefined|null|boolean>, CssStyleMap|null>();
 }
 export const mergeParent  = (style: CssStyleMap): void => {
-    let needToReorderTheRestSymbolProps              = false;
-    let needToScheduleCleanupMergedParentStylesCache = false;
+    let   needToReorderTheRestSymbolProps              = false;
+    let   needToScheduleCleanupMergedParentStylesCache = false;
+    let   symbolProp                                   : symbol;
+    const parentStyleKeys                              : Exclude<CssStyleCollection, undefined|null|boolean>[] = [];
     try {
-        for (const symbolProp of style.ruleKeys) {
+        for (symbolProp of style.ruleKeys) { // the `style.ruleKeys` is an array, and wouldn't changed even if we mutate the `style` during iteration
             const finalSelector = finalizeSelector(style, symbolProp);
             if (finalSelector === '&') { // found only_parentSelector
                 /* move the CssProps and (nested)Rules from only_parentSelector to current style */
                 
                 
                 
-                let [, styles]         = style.get(symbolProp)!;
+                const parentRuleData = style.get(symbolProp)!;
+                let styles           = parentRuleData[1]; // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
                 if (isNotFalsyStyles(styles)) {
-                    const parentStyleKeys : Exclude<CssStyleCollection, undefined|null|boolean>[] = [];
+                    parentStyleKeys.splice(0); // clear
                     if (!isFinalStyleMap(styles)) parentStyleKeys.push(styles);
                     
                     
@@ -320,7 +323,7 @@ export const mergeParent  = (style: CssStyleMap): void => {
                     } // if
                 } // if
                 style.delete(symbolProp);                      // merged => delete source
-                // TODO: prevent the `style.get(symbolProp)!` object to GC at time_expensive_moment
+                // TODO: prevent the `parentRuleData` object to GC at time_expensive_moment
             }
             else if (needToReorderTheRestSymbolProps) {
                 /* preserve the order of another (nested)Rules */
@@ -398,7 +401,7 @@ export const mergeNested  = (style: CssStyleMap): void => {
         
         for (const symbolProp of unmergeableSymbolGroup) {
             const ruleData     = style.get(symbolProp)!;
-            const styles       = ruleData[1]; // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection|CssFinalStyleMap
+            const styles       = ruleData[1]; // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
             const mergedStyles = isFinalStyleMap(styles) ? styles : mergeStyles(styles);
             
             
@@ -406,8 +409,8 @@ export const mergeNested  = (style: CssStyleMap): void => {
             if (mergedStyles) {
                 // update:
                 (style as unknown as CssFinalRuleMap).set(symbolProp, [
-                    // already been finalizeSelector() => CssRawSelector|CssFinalSelector => CssFinalSelector
-                    ruleData[0] as CssFinalSelector, // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection|CssFinalStyleMap
+                    // already been finalizeSelector() => undefined|CssRawSelector|CssFinalSelector => CssFinalSelector
+                    ruleData[0] as CssFinalSelector, // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
                     
                     mergedStyles // update CssStyleCollection to CssFinalStyleMap
                 ]);
@@ -416,8 +419,8 @@ export const mergeNested  = (style: CssStyleMap): void => {
                 // the @keyframes is allowed to have an empty style
                 // update:
                 (style as unknown as CssFinalRuleMap).set(symbolProp, [
-                    // already been finalizeSelector() => CssRawSelector|CssFinalSelector => CssFinalSelector
-                    ruleData[0] as CssFinalSelector, // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection|CssFinalStyleMap
+                    // already been finalizeSelector() => undefined|CssRawSelector|CssFinalSelector => CssFinalSelector
+                    ruleData[0] as CssFinalSelector, // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
                     
                     new CssStyleMapImpl() as unknown as CssFinalStyleMap // an empty style
                 ]);
@@ -438,7 +441,7 @@ export const mergeNested  = (style: CssStyleMap): void => {
             mergeableSymbolGroup
             .map((symbolProp) => {
                 const ruleData = style.get(symbolProp)!;
-                return ruleData[1]; // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection|CssFinalStyleMap
+                return ruleData[1]; // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
             })
         );
         const mergedStyles = (
@@ -457,8 +460,8 @@ export const mergeNested  = (style: CssStyleMap): void => {
             
             // update last member:
             (style as unknown as CssFinalRuleMap).set(lastMember, [
-                // already been finalizeSelector() => CssRawSelector|CssFinalSelector => CssFinalSelector
-                ruleData[0] as CssFinalSelector, // [0]: CssRawSelector|CssFinalSelector // [1]: CssStyleCollection|CssFinalStyleMap
+                // already been finalizeSelector() => undefined|CssRawSelector|CssFinalSelector => CssFinalSelector
+                ruleData[0] as CssFinalSelector, // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
                 
                 mergedStyles // update CssStyleCollection to CssFinalStyleMap
             ]);
