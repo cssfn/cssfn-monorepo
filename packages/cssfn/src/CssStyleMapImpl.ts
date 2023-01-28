@@ -89,7 +89,7 @@ export class CssStyleMapImpl
         return super.entries();
     }
     _keysCache          : WeakRef<Array<CssUnionKey>>|undefined = undefined
-    get keysAsArray()   : Array<CssUnionKey> {
+    get keysAsArray()   : Array<CssUnionKey> { // non cached enumerator, optimized for enumerating MULTIPLE TIMES
         const cached = this._keysCache?.deref();
         if (cached) return cached;
         
@@ -99,8 +99,13 @@ export class CssStyleMapImpl
         this._keysCache = new WeakRef<Array<CssUnionKey>>(result);
         return result;
     }
-    keys()              : IterableIterator<CssUnionKey> {
-        return this.keysAsArray.values();
+    keys()              : IterableIterator<CssUnionKey> { // non cached enumerator, optimized for enumerating ONE TIMES
+        const cached = this._keysCache?.deref();
+        if (cached) return cached.values();
+        
+        
+        
+        return super.keys();
     }
     values()            : IterableIterator<CssUnionValue> {
         return super.values();

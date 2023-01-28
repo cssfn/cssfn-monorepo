@@ -2,8 +2,9 @@ optimized css-vars & css-config [done]
 
 high cpu usage:
 
+-------------------------------------------------------------------------------------------------------------------
 
-System Time 623.91 ms
+System Time 623.91 ms => NO SOLUTION
 Self Time 0.52 ms
     set(key: CssUnionKey         , value: CssUnionValue                       ): this {
         const _this = super.set(key, value);
@@ -20,6 +21,9 @@ Self Time 0.52 ms
         return _this;
     }
 
+NO SOLUTION
+
+-------------------------------------------------------------------------------------------------------------------
 
 Total Time 116.29 ms
 Self Time 116.29 ms

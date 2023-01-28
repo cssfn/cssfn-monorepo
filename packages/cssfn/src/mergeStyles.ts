@@ -5,6 +5,7 @@ import type {
     
     CssFinalRuleMap,
     
+    CssUnionKey,
     CssUnionValue,
     
     CssStyleMap,
@@ -181,9 +182,11 @@ const finalizeSelectorFurther = (style: CssStyleMap, rawSelector: CssRawSelector
 
 
 export const mergeLiteral = (style: CssStyleMap, newStyle: CssStyleMap): void => {
-    // for (const [propName, propValue] of newStyle) { // show
+    // for (const [propName, propValue] of newStyle) { // slow
+    // for (const propName of newStyle.keysAsArray) { // no need to cache, because the `newStyle` will be discarded after copied
+    let propName  : CssUnionKey;
     let propValue : CssUnionValue;
-    for (const propName of newStyle.keysAsArray) { // faster & cached, then the cache can be re-use for `CssStyleMap::ruleKeys` and `CssStyleMap::propKeys`
+    for (propName of newStyle.keys()) { // non cached enumerator, optimized for enumerating ONE TIMES
         propValue = newStyle.get(propName as any);
         // `undefined` => preserves existing prop (if any)
         // `null`      => delete    existing prop (if any)
@@ -312,10 +315,12 @@ export const mergeParent  = (style: CssStyleMap): void => {
                             
                             
                             mergeLiteral(style, mergedParentStyles); // merge into current style
+                            // TODO: prevent the `mergedParentStyles` object to GC at time_expensive_moment
                         } // if
                     } // if
                 } // if
                 style.delete(symbolProp);                      // merged => delete source
+                // TODO: prevent the `style.get(symbolProp)!` object to GC at time_expensive_moment
             }
             else if (needToReorderTheRestSymbolProps) {
                 /* preserve the order of another (nested)Rules */
@@ -539,9 +544,10 @@ export const mergeStyles = (styles: CssStyleCollection | (CssStyleCollection|Css
         
         // merge current style to single big style (string props + symbol props):
         mergeLiteral(mergedStyles, subStyleValue); // mutate
+        // TODO: prevent the `subStyleValue` object to GC at time_expensive_moment
         
         // to preserve the order sequence of only_parentSelector
-        // we need to unwrap the only_parentSelector before merging with next subStyles
+        // we need to unwrap the only_parentSelector before merging with next `subStyleValue`
         // by calling `mergeParent()`, the only_parentSelector are unwrapped
         mergeParent(mergedStyles);                 // mutate
     } // for
