@@ -97,7 +97,7 @@ export const atRule = (atRule: `@${string}`, styles: CssStyleCollection): CssRul
 
 
 // rule groups:
-const convertOptionalRuleOrFactoryToOptionalRule = (optionalRuleOrFactory: ProductOrFactory<OptionalOrBoolean<CssRule>>): OptionalOrBoolean<CssRule> => {
+const selectOptionalRuleFromOptionalRuleOrFactory = (optionalRuleOrFactory: ProductOrFactory<OptionalOrBoolean<CssRule>>): OptionalOrBoolean<CssRule> => {
     // conditions:
     if (!optionalRuleOrFactory || (optionalRuleOrFactory === true)) return optionalRuleOrFactory;
     
@@ -140,7 +140,7 @@ function selectRuleEntryFromRuleKey(this: CssRule, ruleKey: symbol): readonly [s
         this[ruleKey]
     ];
 }
-function convertRuleEntryToRuleEntryWithOptions(this: CssSelectorOptions, oldRuleEntry: readonly [symbol, CssRuleData]): readonly [symbol, CssRuleData] {
+function selectRuleEntryWithOptionsFromRuleEntry(this: CssSelectorOptions, oldRuleEntry: readonly [symbol, CssRuleData]): readonly [symbol, CssRuleData] {
     const [ruleKey, [selector, styles]] = oldRuleEntry;
     const rawSelector : CssRawSelector = overwriteSelectorOptions(selector, this);
     
@@ -149,17 +149,17 @@ function convertRuleEntryToRuleEntryWithOptions(this: CssSelectorOptions, oldRul
         [rawSelector, styles]
     ];
 }
-function convertRuleToRuleEntriesWithOptions(this: CssSelectorOptions, rule: CssRule): (readonly [symbol, CssRuleData])[] {
+function selectRuleEntriesWithOptionsFromRule(this: CssSelectorOptions, rule: CssRule): (readonly [symbol, CssRuleData])[] {
     return (
         Object.getOwnPropertySymbols(rule)
         .map(selectRuleEntryFromRuleKey.bind(rule))
-        .map(convertRuleEntryToRuleEntryWithOptions.bind(this))
+        .map(selectRuleEntryWithOptionsFromRuleEntry.bind(this))
     );
 }
 export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptions): CssRule => {
     const result = (
         flat(rules)
-        .map(convertOptionalRuleOrFactoryToOptionalRule)
+        .map(selectOptionalRuleFromOptionalRuleOrFactory)
         .filter(isNotFalsyRule)
     );
     if (!options) { // no options => no further mutate, just merge them
@@ -183,7 +183,7 @@ export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptio
         [ '' , undefined ],
         
         ...result
-        .flatMap(convertRuleToRuleEntriesWithOptions.bind(options))
+        .flatMap(selectRuleEntriesWithOptionsFromRule.bind(options))
     ]);
 };
 
@@ -298,7 +298,7 @@ export function keyframes(nameOrItems : string|CssKeyframes, items ?: CssKeyfram
         keyframesRef,
     ];
 }
-const convertCssKeyframesEntryToCssRuleEntry = ([key, frame]: readonly [string, CssStyleCollection]): readonly [symbol, CssRuleData] => [
+const selectCssRuleEntryFromCssKeyframesEntry = ([key, frame]: readonly [string, CssStyleCollection]): readonly [symbol, CssRuleData] => [
     Symbol(),
     [
         ` ${key}`, // add a single space as PropRule token
@@ -310,7 +310,7 @@ const createKeyframesRules = (items: CssKeyframes): CssRuleCollection => Object.
     [ '' , undefined ],
     
     ...Object.entries(items)
-    .map(convertCssKeyframesEntryToCssRuleEntry)
+    .map(selectCssRuleEntryFromCssKeyframesEntry)
 ]) as CssRuleCollection
 
 
@@ -431,7 +431,7 @@ export const ifNotEmpty        = (styles:         CssStyleCollection, options?: 
 
 
 // combinators:
-function convertOptionalSelectorToSelectorWithCombinator(this: Combinator, selector: OptionalOrBoolean<CssSelector>): OptionalOrBoolean<CssSelector> {
+function selectSelectorWithCombinatorFromOptionalSelector(this: Combinator, selector: OptionalOrBoolean<CssSelector>): OptionalOrBoolean<CssSelector> {
     if (!isNotFalsySelector(selector)) return selector;
     
     
@@ -442,25 +442,25 @@ function convertOptionalSelectorToSelectorWithCombinator(this: Combinator, selec
     
     return `&${this}${selector}`;
 };
-const convertOptionalSelectorToSelectorWithCombinators = new Map<Combinator, ((selector: OptionalOrBoolean<CssSelector>) => OptionalOrBoolean<CssSelector>)>();
-const getConvertOptionalSelectorToSelectorWithCombinator = (combinator: Combinator) : ((selector: OptionalOrBoolean<CssSelector>) => OptionalOrBoolean<CssSelector>) => {
-    const cached = convertOptionalSelectorToSelectorWithCombinators.get(combinator);
+const selectSelectorWithCombinatorsFromOptionalSelector = new Map<Combinator, ((selector: OptionalOrBoolean<CssSelector>) => OptionalOrBoolean<CssSelector>)>();
+const getSelectSelectorWithCombinatorFromOptionalSelector = (combinator: Combinator) : ((selector: OptionalOrBoolean<CssSelector>) => OptionalOrBoolean<CssSelector>) => {
+    const cached = selectSelectorWithCombinatorsFromOptionalSelector.get(combinator);
     if (cached) return cached;
     
     
     
-    const result = convertOptionalSelectorToSelectorWithCombinator.bind(combinator);
-    convertOptionalSelectorToSelectorWithCombinators.set(combinator, result);
+    const result = selectSelectorWithCombinatorFromOptionalSelector.bind(combinator);
+    selectSelectorWithCombinatorsFromOptionalSelector.set(combinator, result);
     return result;
 };
 export const combinators  = (combinator: Combinator, selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
     const combiSelectors : CssSelectorCollection = (
         !Array.isArray(selectors)
         ?
-        getConvertOptionalSelectorToSelectorWithCombinator(combinator)(selectors)
+        getSelectSelectorWithCombinatorFromOptionalSelector(combinator)(selectors)
         :
         flat(selectors).map(
-            getConvertOptionalSelectorToSelectorWithCombinator(combinator)
+            getSelectSelectorWithCombinatorFromOptionalSelector(combinator)
         )
     );
     

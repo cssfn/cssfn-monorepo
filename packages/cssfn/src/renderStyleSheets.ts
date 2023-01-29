@@ -44,7 +44,7 @@ const cssPropAutoPrefix = createCssPropAutoPrefix(browserInfo);
 
 
 // processors:
-function convertScopeEntryToCssRule<TCssScopeName extends CssScopeName = CssScopeName>(this: CssScopeMap<TCssScopeName>, [scopeName, styles, options]: CssScopeEntry<TCssScopeName>): CssRule|null {
+function selectCssRuleFromScopeEntry<TCssScopeName extends CssScopeName = CssScopeName>(this: CssScopeMap<TCssScopeName>, [scopeName, styles, options]: CssScopeEntry<TCssScopeName>): CssRule|null {
     if (scopeName === '') { // globalScope => aliased to @global rule
         return atGlobal(
             styles
@@ -74,7 +74,7 @@ export const generateRulesFromStyleSheet = <TCssScopeName extends CssScopeName =
     
     
     const scopeMap   = styleSheet.classes;
-    const scopeRules = scopeList.map(convertScopeEntryToCssRule.bind(scopeMap));
+    const scopeRules = scopeList.map(selectCssRuleFromScopeEntry.bind(scopeMap));
     return scopeRules;
 }
 export const renderStyleSheet = <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): string|null => {

@@ -799,11 +799,11 @@ export const isSelector = (test: OptionalOrBoolean<SelectorEntry|Selector>): tes
 };
 export const isNotEmptySelector   = (selector  : OptionalOrBoolean<Selector     >): selector  is Selector      =>  (!!selector  && (selector  !== true)) &&  selector.some(  isNotEmptySelectorEntry);
 export const isNotEmptySelectors  = (selectors : OptionalOrBoolean<SelectorGroup>): selectors is SelectorGroup =>  (!!selectors && (selectors !== true)) && selectors.some(  isNotEmptySelector     );
-export const countSelectorEntries = (selector  : OptionalOrBoolean<Selector     >): number                     => ((!!selector  && (selector  !== true)) && convertSelectorToPureSelector(selector).length            ) || 0;
-export const countSelectors       = (selectors : OptionalOrBoolean<SelectorGroup>): number                     => ((!!selectors && (selectors !== true)) && convertSelectorGroupToPureSelectorGroup(selectors).length ) || 0;
+export const countSelectorEntries = (selector  : OptionalOrBoolean<Selector     >): number                     => ((!!selector  && (selector  !== true)) && selectPureSelectorFromSelector(selector).length            ) || 0;
+export const countSelectors       = (selectors : OptionalOrBoolean<SelectorGroup>): number                     => ((!!selectors && (selectors !== true)) && selectPureSelectorGroupFromSelectorGroup(selectors).length ) || 0;
 
-export const convertSelectorToPureSelector           = (selector  : Selector     ): PureSelector      =>  selector.filter(isNotEmptySelectorEntry);
-export const convertSelectorGroupToPureSelectorGroup = (selectors : SelectorGroup): PureSelectorGroup => selectors.filter(isNotEmptySelector);
+export const selectPureSelectorFromSelector           = (selector  : Selector     ): PureSelector      =>  selector.filter(isNotEmptySelectorEntry);
+export const selectPureSelectorGroupFromSelectorGroup = (selectors : SelectorGroup): PureSelectorGroup => selectors.filter(isNotEmptySelector);
 
 
 
@@ -921,7 +921,7 @@ export const selectorsToString      = (selectors: SelectorGroup): string => {
 
 // transforms:
 export type ReplaceSelectorCallback = (selectorEntry: SelectorEntry) => OptionalOrBoolean<SelectorEntry|Selector>
-function convertOptionalSelectorEntryToSelectorWithReplacement(this: ReplaceSelectorCallback, optionalSelectorEntry: OptionalOrBoolean<SelectorEntry>): OptionalOrBoolean<Selector> {
+function selectSelectorWithReplacementFromOptionalSelectorEntry(this: ReplaceSelectorCallback, optionalSelectorEntry: OptionalOrBoolean<SelectorEntry>): OptionalOrBoolean<Selector> {
     if (!isNotEmptySelectorEntry(optionalSelectorEntry)) return optionalSelectorEntry; // nullish => ignore
     
     
@@ -956,7 +956,7 @@ function convertOptionalSelectorEntryToSelectorWithReplacement(this: ReplaceSele
     if (!replacement || (replacement === true)) return replacement; // nullish => ignore
     return isSelector(replacement) ? replacement /* as Selector */ : createSelector(replacement) /* createSelector(as SelectorEntry) as Selector */;
 }
-function convertOptionalSelectorToOptionalSelectorWithReplacement(this: ReplaceSelectorCallback, optionalSelector: OptionalOrBoolean<Selector>): OptionalOrBoolean<Selector> {
+function selectOptionalSelectorWithReplacementFromOptionalSelector(this: ReplaceSelectorCallback, optionalSelector: OptionalOrBoolean<Selector>): OptionalOrBoolean<Selector> {
     if (!isNotEmptySelector(optionalSelector)) return optionalSelector; // nullish => ignore
     
     
@@ -964,7 +964,7 @@ function convertOptionalSelectorToOptionalSelectorWithReplacement(this: ReplaceS
     const callbackFn = this;
     return (
         optionalSelector
-        .flatMap(convertOptionalSelectorEntryToSelectorWithReplacement.bind(callbackFn))
+        .flatMap(selectSelectorWithReplacementFromOptionalSelectorEntry.bind(callbackFn))
     );
 }
 /**
@@ -984,7 +984,7 @@ export const replaceSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, ca
     
     return (
         selectors
-        .map(convertOptionalSelectorToOptionalSelectorWithReplacement.bind(callbackFn)) // mutates a `Selector` to another `Selector`
+        .map(selectOptionalSelectorWithReplacementFromOptionalSelector.bind(callbackFn)) // mutates a `Selector` to another `Selector`
     );
 };
 export const replaceSelector  = (selector : OptionalOrBoolean<Selector>     , callbackFn: ReplaceSelectorCallback): Selector => {
@@ -994,7 +994,7 @@ export const replaceSelector  = (selector : OptionalOrBoolean<Selector>     , ca
     
     
     
-    const result = convertOptionalSelectorToOptionalSelectorWithReplacement.bind(callbackFn)(selector);
+    const result = selectOptionalSelectorWithReplacementFromOptionalSelector.bind(callbackFn)(selector);
     if (!result || (result === true)) return createSelector(
         /* an empty Selector */
     ); // nullish => nothing to replace => return an empty Selector
@@ -1152,7 +1152,7 @@ export const ungroupSelector  = (selector : OptionalOrBoolean<Selector>     , op
         // collect:
         if (theOnlySelectorEntry !== undefined) { // multiple selectorEntries detected => unable to ungroup
             return pureSelectorGroup(
-                convertSelectorToPureSelector(selector), // no changes - just cleaned up
+                selectPureSelectorFromSelector(selector), // no changes - just cleaned up
             );
         } // if
         theOnlySelectorEntry = selectorEntry;
@@ -1209,7 +1209,7 @@ export const ungroupSelector  = (selector : OptionalOrBoolean<Selector>     , op
     
     // unable to ungroup:
     return pureSelectorGroup(
-        convertSelectorToPureSelector(selector), // no changes - just cleaned up
+        selectPureSelectorFromSelector(selector), // no changes - just cleaned up
     );
 }
 export const ungroupSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, options: UngroupSelectorOptions = defaultUngroupSelectorOptions): PureSelectorGroup => {

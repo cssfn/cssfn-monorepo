@@ -226,7 +226,7 @@ const iteratePropList = (propKeys: IterableIterator<CssCustomName|symbol>, skipP
     } // for
 }
 
-const convertSrcValueToEntry = (item: Extract<CssCustomValue, Array<any>>[number], index: number) => [index, item] as const;
+const selectObjectEntryFromSrcValue = (item: Extract<CssCustomValue, Array<any>>[number], index: number) => [index, item] as const;
 
 function selectObjectEntryFromRuleKey<TConfigProps extends CssConfigProps>(this: TConfigProps, ruleKey: symbol) {
     return [ ruleKey, this[ruleKey] ] as const;
@@ -615,7 +615,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 
                 // convert the array to Map:
                 const srcNestedProps = new Map(
-                    srcNestedValues.map(convertSrcValueToEntry)
+                    srcNestedValues.map(selectObjectEntryFromSrcValue)
                 );
                 
                 

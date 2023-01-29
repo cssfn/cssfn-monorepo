@@ -29,8 +29,8 @@ import {
     createSelector,
     createSelectorGroup,
     isNotEmptySelector,
-    convertSelectorToPureSelector,
-    convertSelectorGroupToPureSelectorGroup,
+    selectPureSelectorFromSelector,
+    selectPureSelectorGroupFromSelectorGroup,
     
     
     
@@ -192,7 +192,7 @@ const reduceSpecificity = (accum: ReducedSpecificity, selectorEntry: SelectorEnt
     // loop to next selectorEntry:
     return accum;
 }
-const convertSelectorsOrPseudoElmToWhereSelector = (selectorsOrPseudoElm: PureSelector|PseudoElementSelector): Selector => {
+const selectWhereSelectorFromSelectorsOrPseudoElm = (selectorsOrPseudoElm: PureSelector|PseudoElementSelector): Selector => {
     if (selectorsOrPseudoElm[0] === '::') return [selectorsOrPseudoElm as PseudoElementSelector];
     
     
@@ -218,7 +218,7 @@ const decreaseSpecificity = (pureSelector: PureSelector, excessSpecificityWeight
     
     
     
-    const neutralizedSelector : Selector = reducedSpecificity.quarantined.flatMap(convertSelectorsOrPseudoElmToWhereSelector);
+    const neutralizedSelector : Selector = reducedSpecificity.quarantined.flatMap(selectWhereSelectorFromSelectorsOrPseudoElm);
     
     
     
@@ -305,17 +305,17 @@ const increaseSpecificity = (pureSelector: PureSelector, missingSpecificityWeigh
 }
 
 type SpecificityWeightStatusGroup = { selector: PureSelector, specificityWeight: number }
-function convertGroupToSelector(group: SpecificityWeightStatusGroup): Selector {
+function selectSelectorFromGroup(group: SpecificityWeightStatusGroup): Selector {
     return group.selector;
 }
-function convertGroupToIncreasedSpecificitySelector(this: number|null, group: SpecificityWeightStatusGroup): Selector {
+function selectIncreasedSpecificitySelectorFromGroup(this: number|null, group: SpecificityWeightStatusGroup): Selector {
     const minSpecificityWeight = this;
     return increaseSpecificity(
         group.selector,
         ((minSpecificityWeight ?? 1) - group.specificityWeight)
     );
 }
-function convertGroupToDecreasedSpecificitySelector(this: readonly [number|null, number|null], group: SpecificityWeightStatusGroup): Selector {
+function selectDecreasedSpecificitySelectorFromGroup(this: readonly [number|null, number|null], group: SpecificityWeightStatusGroup): Selector {
     const [minSpecificityWeight, maxSpecificityWeight] = this;
     return decreaseSpecificity(
         group.selector,
@@ -345,11 +345,11 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
     
     
     return createSelectorGroup(
-        ...fitSelectors.map(convertGroupToSelector),
+        ...fitSelectors.map(selectSelectorFromGroup),
         
-        ...tooSmallSelectors.map(convertGroupToIncreasedSpecificitySelector.bind(minSpecificityWeight)),
+        ...tooSmallSelectors.map(selectIncreasedSpecificitySelectorFromGroup.bind(minSpecificityWeight)),
         
-        ...tooBigSelectors.map(convertGroupToDecreasedSpecificitySelector.bind([minSpecificityWeight, maxSpecificityWeight])),
+        ...tooBigSelectors.map(selectDecreasedSpecificitySelectorFromGroup.bind([minSpecificityWeight, maxSpecificityWeight])),
     );
 }
 
@@ -566,8 +566,8 @@ const createSuffixedParentSelectorGroup  = (groupByParentSelectorGroup: PureSele
 export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): PureSelector[] => {
     // we need to unwrap the :is(...) and :where(...) before grouping the similarities
     const normalizedSelectorGroup: PureSelector[] = (
-        ungroupSelectors(pureSelectorGroup) // PureSelectorGroup === Selector[] === [ Selector...Selector... ]
-        .map(convertSelectorToPureSelector) // remove undefined|null|false|true => only real SelectorEntry
+        ungroupSelectors(pureSelectorGroup)  // PureSelectorGroup === Selector[] === [ Selector...Selector... ]
+        .map(selectPureSelectorFromSelector) // remove undefined|null|false|true => only real SelectorEntry
     );
     
     
@@ -591,7 +591,7 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
     
     
     
-    return convertSelectorGroupToPureSelectorGroup(createSelectorGroup(
+    return selectPureSelectorGroupFromSelectorGroup(createSelectorGroup(
         // no parent
         // aaa, bbb, ccc
         ...createNoParentSelectorGroup(noParentSelectorGroup),
@@ -628,7 +628,7 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
         // aaa&bbb, aaa&bbb&ccc
         ...randomParentSelectorGroup,
     ))
-    .map(convertSelectorToPureSelector) // remove undefined|null|false|true => only real SelectorEntry
+    .map(selectPureSelectorFromSelector) // remove undefined|null|false|true => only real SelectorEntry
 }
 
 
@@ -655,8 +655,8 @@ export const mergeSelectors = (selectorGroup: SelectorGroup, options?: CssSelect
     // remove empty_selector(s) undefined|null|false|true|Selector(...only_emptySelectorEntry...) from selectorGroup,
     // so we only working with real_selector(s)
     const normalizedSelectorGroup: PureSelector[] = (
-        convertSelectorGroupToPureSelectorGroup(selectorGroup) // remove undefined|null|false|true|Selector(empty) => only real Selector
-        .map(convertSelectorToPureSelector)                    // remove undefined|null|false|true                 => only real SelectorEntry
+        selectPureSelectorGroupFromSelectorGroup(selectorGroup) // remove undefined|null|false|true|Selector(empty) => only real Selector
+        .map(selectPureSelectorFromSelector)                    // remove undefined|null|false|true                 => only real SelectorEntry
     );
     
     
