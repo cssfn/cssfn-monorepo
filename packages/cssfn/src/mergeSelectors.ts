@@ -563,6 +563,7 @@ const createSuffixedParentSelectorGroup  = (groupByParentSelectorGroup: PureSele
         createCommonSuffixedParentSelector,
     );
 }
+const emptySelectorGroup : SelectorGroup = [];
 export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): PureSelector[] => {
     // we need to unwrap the :is(...) and :where(...) before grouping the similarities
     const normalizedSelectorGroup: PureSelector[] = (
@@ -583,18 +584,18 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
         new Map<ParentPosition, PureSelector[]>()
     );
     
-    const noParentSelectorGroup        = selectorGroupByParentPosition.get(ParentPosition.NoParent        ) ?? [];
-    const onlyParentSelectorGroup      = selectorGroupByParentPosition.get(ParentPosition.OnlyParent      ) ?? [];
-    const onlyBeginParentSelectorGroup = selectorGroupByParentPosition.get(ParentPosition.OnlyBeginParent ) ?? [];
-    const onlyEndParentSelectorGroup   = selectorGroupByParentPosition.get(ParentPosition.OnlyEndParent   ) ?? [];
-    const randomParentSelectorGroup    = selectorGroupByParentPosition.get(ParentPosition.RandomParent    ) ?? [];
+    const noParentSelectorGroup        = selectorGroupByParentPosition.get(ParentPosition.NoParent       );
+    const onlyParentSelectorGroup      = selectorGroupByParentPosition.get(ParentPosition.OnlyParent     );
+    const onlyBeginParentSelectorGroup = selectorGroupByParentPosition.get(ParentPosition.OnlyBeginParent);
+    const onlyEndParentSelectorGroup   = selectorGroupByParentPosition.get(ParentPosition.OnlyEndParent  );
+    const randomParentSelectorGroup    = selectorGroupByParentPosition.get(ParentPosition.RandomParent   );
     
     
     
     return selectPureSelectorGroupFromSelectorGroup(createSelectorGroup(
         // no parent
         // aaa, bbb, ccc
-        ...createNoParentSelectorGroup(noParentSelectorGroup),
+        ...(noParentSelectorGroup        ? createNoParentSelectorGroup(noParentSelectorGroup)              : emptySelectorGroup),
         
         
         
@@ -603,7 +604,7 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
         // &>aaa
         // &:is(aaa, bbb, ccc)
         // &>:is(aaa, bbb, ccc)
-        ...createPrefixedParentSelectorGroup(onlyBeginParentSelectorGroup),
+        ...(onlyBeginParentSelectorGroup ? createPrefixedParentSelectorGroup(onlyBeginParentSelectorGroup) : emptySelectorGroup),
         
         
         
@@ -612,13 +613,13 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
         // aaa>&
         // :is(aaa, bbb, ccc)&
         // :is(aaa, bbb, ccc)>&
-        ...createSuffixedParentSelectorGroup(onlyEndParentSelectorGroup),
+        ...(onlyEndParentSelectorGroup   ? createSuffixedParentSelectorGroup(onlyEndParentSelectorGroup)   : emptySelectorGroup),
         
         
         
         // only ParentSelector
         // &
-        !!onlyParentSelectorGroup.length && (
+        !!onlyParentSelectorGroup && (
             onlyParentSelectorGroup[0] // just take the first one, the rest are guaranteed to be the same
         ),
         
@@ -626,7 +627,7 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
         
         // parent at random
         // aaa&bbb, aaa&bbb&ccc
-        ...randomParentSelectorGroup,
+        ...(randomParentSelectorGroup    ? randomParentSelectorGroup                                       : emptySelectorGroup),
     ))
     .map(selectPureSelectorFromSelector) // remove undefined|null|false|true => only real SelectorEntry
 }
