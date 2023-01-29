@@ -47,9 +47,9 @@ NO SOLUTION
 -------------------------------------------------------------------------------------------------------------------
 
 Self Time 79.74 ms
-called freq by ensureSymbolPropsUpdated
+called freq by ensureRulesUpdated
 may causes by destructuring array
-const finalizeSelector = (style: CssStyleMap, symbolProp: symbol): CssFinalSelector|null => {
+const finalizeSelector = (style: CssStyleMap, ruleKey: symbol): CssFinalSelector|null => {
     const selector = ruleData[0];
 
 OPTIMIZED
