@@ -84,7 +84,7 @@ const getRuleType = (selector: CssSelector): RuleType|null => {
     return null;
 }
 const groupSelectorsByRuleType = (selectors: CssSelectorCollection) : Map<RuleType, CssSelector[]> => {
-    const groupedSelectorsByRuleType = new Map<RuleType, CssSelector[]>();
+    const grouped = new Map<RuleType, CssSelector[]>();
     for (let selector of flat(selectors)) {
         // conditions:
         if (!isNotFalsySelector(selector)) continue; // falsy selector => ignore
@@ -111,15 +111,15 @@ const groupSelectorsByRuleType = (selectors: CssSelectorCollection) : Map<RuleTy
         
         
         // grouping:
-        const group = groupedSelectorsByRuleType.get(ruleType);   // get an existing collector (if any)
+        const group = grouped.get(ruleType);   // get an existing collector (if any)
         if (!group) {
-            groupedSelectorsByRuleType.set(ruleType, [selector]); // create a new collector
+            grouped.set(ruleType, [selector]); // create a new collector
         }
         else {
-            group.push(selector);                                 // append to the existing collector
+            group.push(selector);              // append to the existing collector
         } // if
     } // for
-    return groupedSelectorsByRuleType;
+    return grouped;
 }
 
 const parseSelectorsFromString = (selectorString: CssSelector): SelectorGroup => {
@@ -378,137 +378,131 @@ const mergeableNestedAtRules = ['@media', '@supports', '@document', '@global'];
 // const unmergeableNestedAtRules = ['@keyframes', '@font-face', '@fallbacks'];
 export const isMergeableNestedAtRule = (finalSelector: CssFinalSelector) => mergeableNestedAtRules.some((at) => finalSelector.startsWith(at));
 
-type GroupByFinalSelectorEntry = readonly [symbol, CssFinalSelector|null];
-const groupByFinalSelector = (accum: Map<CssFinalSelector|null, symbol[]>, [symbolProp, finalSelector]: GroupByFinalSelectorEntry) => {
-    if (!finalSelector)        return accum; // skip empty entry
-    if (finalSelector === '&') return accum; // ignore only_parentSelector
-    
-    
-    
-    if (
-        // nested rules:
-        finalSelector.includes('&')
-        ||
-        // conditional rules & globals:
-        isMergeableNestedAtRule(finalSelector)
-    ) {
-        // mergeable rules:
-        let group = accum.get(finalSelector);             // get an existing collector
-        if (!group) accum.set(finalSelector, group = []); // create a new collector
-        group.push(symbolProp);
-    }
-    else {
-        // unmergeable rules:
-        let group = accum.get(null);             // get an existing collector
-        if (!group) accum.set(null, group = []); // create a new collector
-        group.push(symbolProp);
-    }
-    return accum;
+type GroupedRules = readonly [symbol, CssFinalSelector, CssStyleCollection]
+const groupRulesByFinalSelector = (style: CssStyleMap) : Map<CssFinalSelector|null, GroupedRules[]> => {
+    const grouped = new Map<CssFinalSelector|null, GroupedRules[]>();
+    for (const ruleKey of style.ruleKeys) {
+        const finalSelector = finalizeSelector(style, ruleKey);
+        if (!finalSelector)        continue; // skip empty finalSelector
+        if (finalSelector === '&') continue; // ignore only_parentSelector
+        
+        
+        
+        const styles = style.get(ruleKey)![1]; // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
+        
+        
+        
+        if (
+            // nested rules:
+            finalSelector.includes('&')
+            ||
+            // conditional rules & globals:
+            isMergeableNestedAtRule(finalSelector)
+        ) {
+            // mergeable rules:
+            const group = grouped.get(finalSelector);                           // get an existing collector (if any)
+            if (!group) {
+                grouped.set(finalSelector, [[ruleKey, finalSelector, styles]]); // create a new collector
+            }
+            else {
+                group.push([ruleKey, finalSelector, styles]);                   // append to the existing collector
+            } // if
+        }
+        else {
+            // unmergeable rules:
+            const group = grouped.get(null);                                    // get an existing collector (if any)
+            if (!group) {
+                grouped.set(null, [[ruleKey, finalSelector, styles]]);          // create a new collector
+            }
+            else {
+                group.push([ruleKey, finalSelector, styles]);                   // append to the existing collector
+            } // if
+        } // if
+    } // for
+    return grouped;
 }
+const selectStylesFromGroupedRules = (mergeableRule: GroupedRules) => mergeableRule[2]; // [0]: ruleKey // [1]: finalSelector // [2]: styles
 export const mergeNested  = (style: CssStyleMap): void => {
-    const symbolProps = style.ruleKeys;
-    if (!symbolProps.length) return; // there's no (nested) Rule => nothing to do
+    if (!style.hasRuleKeys) return; // there's no (nested) Rule => nothing to do
     
     
     
     // group (nested) Rule(s) by final selector:
-    const symbolPropGroupByFinalSelector = (
-        symbolProps
-        .map((symbolProp): GroupByFinalSelectorEntry => [
-            symbolProp,
-            finalizeSelector(style, symbolProp)
-        ])
-        .reduce(
-            groupByFinalSelector,
-            new Map<CssFinalSelector|null, symbol[]>()
-        )
-    );
+    const groupedRulesByFinalSelector = groupRulesByFinalSelector(style);
     
     
     
-    const unmergeableSymbolGroup = symbolPropGroupByFinalSelector.get(null);
-    if (unmergeableSymbolGroup) {
-        symbolPropGroupByFinalSelector.delete(null); // remove from the Map, so it wouldn't be grouped later
+    // simplify un-mergeable Rule(s):
+    const unmergeableRules = groupedRulesByFinalSelector.get(null);
+    if (unmergeableRules) {
+        groupedRulesByFinalSelector.delete(null); // remove from the Map, so it wouldn't be grouped later
         
-        for (const symbolProp of unmergeableSymbolGroup) {
-            const ruleData     = style.get(symbolProp)!;
-            const styles       = ruleData[1]; // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
+        for (const [ruleKey, finalSelector, styles] of unmergeableRules) {
             const mergedStyles = isFinalStyleMap(styles) ? styles : mergeStyles(styles);
             
             
             
+            // TODO: prevent the `style.get(ruleKey)` object to GC at time_expensive_moment
             if (mergedStyles) {
                 // update:
-                (style as unknown as CssFinalRuleMap).set(symbolProp, [
-                    // already been finalizeSelector() => undefined|CssRawSelector|CssFinalSelector => CssFinalSelector
-                    ruleData[0] as CssFinalSelector, // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
-                    
+                (style as unknown as CssFinalRuleMap).set(ruleKey, [
+                    finalSelector,
                     mergedStyles // update CssStyleCollection to CssFinalStyleMap
                 ]);
             }
-            else if ((ruleData[0] as CssFinalSelector).startsWith('@keyframes ')) {
+            else if (finalSelector.startsWith('@keyframes ')) {
                 // the @keyframes is allowed to have an empty style
                 // update:
-                (style as unknown as CssFinalRuleMap).set(symbolProp, [
-                    // already been finalizeSelector() => undefined|CssRawSelector|CssFinalSelector => CssFinalSelector
-                    ruleData[0] as CssFinalSelector, // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
-                    
+                (style as unknown as CssFinalRuleMap).set(ruleKey, [
+                    finalSelector,
                     new CssStyleMapImpl() as unknown as CssFinalStyleMap // an empty style
                 ]);
             }
             else {
                 // delete:
-                style.delete(symbolProp);
+                style.delete(ruleKey);
             } // if
-            // TODO: prevent the `ruleData` object to GC at time_expensive_moment
         } // for
     } // if
     
     
     
-    //#region merge duplicates (nested) mergeable Rule(s) to unique ones
-    for (const mergeableSymbolGroup of symbolPropGroupByFinalSelector.values()) {
-        // merge styles from mergeableSymbolGroup's members to single style:
-        const multipleStyles = (
-            mergeableSymbolGroup
-            .map((symbolProp) => {
-                const ruleData = style.get(symbolProp)!;
-                return ruleData[1]; // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
-            })
+    // simplify & merge some Rule(s) within the same selector to single Rule:
+    for (const mergeableRules of groupedRulesByFinalSelector.values()) {
+        // merge styles from mergeableRules's members to single style:
+        const populatedStyles = (
+            mergeableRules
+            .map(selectStylesFromGroupedRules)
         );
         const mergedStyles = (
-            ((multipleStyles.length === 1) && isFinalStyleMap(multipleStyles[0])) // a singular CssFinalStyleMap
+            ((populatedStyles.length === 1) && isFinalStyleMap(populatedStyles[0])) // a singular CssFinalStyleMap
             ?
-            multipleStyles[0]           // a singular CssFinalStyleMap
+            populatedStyles[0]           // a singular CssFinalStyleMap
             :
-            mergeStyles(multipleStyles) // a multiple (CssStyleCollection|CssFinalStyleMap)
+            mergeStyles(populatedStyles) // a multiple (CssStyleCollection|CssFinalStyleMap)
         );
         
         
         
-        const lastSymbolProp = mergeableSymbolGroup[mergeableSymbolGroup.length - 1];
+        const lastMember  = mergeableRules[mergeableRules.length - 1];
+        const lastRuleKey = lastMember[0]; // [0]: ruleKey // [1]: finalSelector // [2]: styles
         if (mergedStyles) {
-            const ruleData = style.get(lastSymbolProp)!;
-            
             // update last member:
-            (style as unknown as CssFinalRuleMap).set(lastSymbolProp, [
-                // already been finalizeSelector() => undefined|CssRawSelector|CssFinalSelector => CssFinalSelector
-                ruleData[0] as CssFinalSelector, // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
-                
+            (style as unknown as CssFinalRuleMap).set(lastRuleKey, [
+                lastMember[1], // [0]: ruleKey // [1]: finalSelector // [2]: styles
                 mergedStyles // update CssStyleCollection to CssFinalStyleMap
             ]);
         }
         else {
             // mergedStyles is empty => delete last member
-            style.delete(lastSymbolProp);
+            style.delete(lastRuleKey);
         } // if
         
-        // delete first member to second last member:
-        for (const symbolProp of mergeableSymbolGroup.slice(0, -1)) style.delete(symbolProp);
-        // TODO: prevent the `symbolProp(s)` object to GC at time_expensive_moment
-        // for (const symbolProp of mergeableSymbolGroup) { /*defer*/ }
+        // delete first member to second_last_member:
+        for (const [ruleKey] of mergeableRules.slice(0, -1)) style.delete(ruleKey);
+        // TODO: prevent the `ruleKey(s)` object to GC at time_expensive_moment
+        // for (const [ruleKey] of mergeableRules) { /*defer*/ }
     } // for
-    //#endregion merge duplicates (nested) mergeable Rule(s) to unique ones
 }
 
 
