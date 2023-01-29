@@ -134,25 +134,25 @@ const overwriteSelectorOptions = (selector: undefined|CssRawSelector|CssFinalSel
         normalizeSelectorOptions(newOptions, /*defaultOptions: */oldOptions)
     ];
 }
-function convertSymbolPropToRuleEntry(this: CssRule, symbolProp: symbol): readonly [symbol, CssRuleData] {
+function selectRuleEntryFromRuleKey(this: CssRule, ruleKey: symbol): readonly [symbol, CssRuleData] {
     return [
-        symbolProp,
-        this[symbolProp]
+        ruleKey,
+        this[ruleKey]
     ];
 }
 function convertRuleEntryToRuleEntryWithOptions(this: CssSelectorOptions, oldRuleEntry: readonly [symbol, CssRuleData]): readonly [symbol, CssRuleData] {
-    const [symbolProp, [selector, styles]] = oldRuleEntry;
+    const [ruleKey, [selector, styles]] = oldRuleEntry;
     const rawSelector : CssRawSelector = overwriteSelectorOptions(selector, this);
     
     return [
-        symbolProp,
+        ruleKey,
         [rawSelector, styles]
     ];
 }
 function convertRuleToRuleEntriesWithOptions(this: CssSelectorOptions, rule: CssRule): (readonly [symbol, CssRuleData])[] {
     return (
         Object.getOwnPropertySymbols(rule)
-        .map(convertSymbolPropToRuleEntry.bind(rule))
+        .map(selectRuleEntryFromRuleKey.bind(rule))
         .map(convertRuleEntryToRuleEntryWithOptions.bind(this))
     );
 }

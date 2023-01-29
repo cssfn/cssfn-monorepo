@@ -115,16 +115,16 @@ const cssMapToStyle = (style: CssStyleMap|CssFinalStyleMap|null): CssStyle|null 
 
 const firstSelectorOf = (style: CssFinalStyleMap|null): string|null => {
     if (!style) return null;
-    const symbolProp = style.ruleKeys[0];
-    if (symbolProp === undefined) return null;
-    const [selector] = style.get(symbolProp)!;
+    const ruleKey = style.ruleKeys[0];
+    if (ruleKey === undefined) return null;
+    const [selector] = style.get(ruleKey)!;
     return isFinalSelector(selector) ? selector : null;
 }
 const firstStylesOf = (style: CssFinalStyleMap|null): CssStyle|null => {
     if (!style) return null;
-    const symbolProp = style.ruleKeys[0];
-    if (symbolProp === undefined) return null;
-    const [, styles] = style.get(symbolProp)!;
+    const ruleKey = style.ruleKeys[0];
+    if (ruleKey === undefined) return null;
+    const [, styles] = style.get(ruleKey)!;
     return cssMapToStyle(styles);
 }
 
