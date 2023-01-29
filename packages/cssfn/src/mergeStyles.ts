@@ -13,6 +13,7 @@ import type {
     CssStyleCollection,
     
     CssSelector,
+    CssSelectorCollection,
     
     CssRawSelector,
     CssFinalSelector,
@@ -56,50 +57,6 @@ import {
 
 
 
-const enum RuleType {
-    SelectorRule, // &.foo   .boo&   .foo&.boo
-    AtRule,       // for `@media`
-    PropRule,     // for `from`, `to`, `25%`
-}
-const getRuleType = (selector: CssSelector): RuleType|null => {
-    if (selector[0] === '@')    return RuleType.AtRule;
-    if (selector[0] === ' ')    return RuleType.PropRule;
-    if (selector.includes('&')) return RuleType.SelectorRule;
-    return null;
-}
-
-type GroupByRuleType  = Map<RuleType, CssSelector[]>
-const groupByRuleType = (accum: Map<RuleType, CssSelector[]>, selector: CssSelector): GroupByRuleType => {
-    let ruleType = getRuleType(selector);
-    
-    
-    
-    // normalize:
-    switch (ruleType) {
-        case RuleType.PropRule:
-            selector = selector.slice(1);     // remove prefixed space
-            break;
-        
-        case null: // unknown RuleType
-            ruleType = RuleType.SelectorRule; // default to (nested) SelectorRule
-            selector = `&${selector}`;        // :active => &:active
-            break;
-    } // switch
-    
-    
-    
-    let group = accum.get(ruleType);             // get an existing collector
-    if (!group) accum.set(ruleType, group = []); // create a new collector
-    group.push(selector);
-    return accum;
-}
-
-const parseSelectorsFromString = (selectorString: CssSelector): SelectorGroup => {
-    const selectorGroup = parseSelectors(selectorString);
-    if (!selectorGroup) throw Error(`parse selector error: ${selectorString}`);
-    return selectorGroup;
-}
-
 const finalizeSelector = (style: CssStyleMap, symbolProp: symbol): CssFinalSelector|null => {
     const ruleData = style.get(symbolProp); // get existing prop (if any)
     if (ruleData === undefined) return null;
@@ -114,6 +71,63 @@ const finalizeSelector = (style: CssStyleMap, symbolProp: symbol): CssFinalSelec
     */
     return finalizeSelectorFurther(style, selector, ruleData, symbolProp);
 }
+
+const enum RuleType {
+    SelectorRule, // &.foo   .boo&   .foo&.boo
+    AtRule,       // for `@media`
+    PropRule,     // for `from`, `to`, `25%`
+}
+const getRuleType = (selector: CssSelector): RuleType|null => {
+    if (selector[0] === '@')    return RuleType.AtRule;
+    if (selector[0] === ' ')    return RuleType.PropRule;
+    if (selector.includes('&')) return RuleType.SelectorRule;
+    return null;
+}
+const groupSelectorsByRuleType = (selectors: CssSelectorCollection) : Map<RuleType, CssSelector[]> => {
+    const groupedSelectorsByRuleType = new Map<RuleType, CssSelector[]>();
+    for (let selector of flat(selectors)) {
+        // conditions:
+        if (!isNotFalsySelector(selector)) continue; // falsy selector => ignore
+        
+        
+        
+        // determine the type of the selector:
+        let ruleType = getRuleType(selector);
+        
+        
+        
+        // normalize the selector:
+        switch (ruleType) {
+            case RuleType.PropRule:
+                selector = selector.slice(1);     // remove prefixed space
+                break;
+            
+            case null: // unknown RuleType
+                ruleType = RuleType.SelectorRule; // default to (nested) SelectorRule
+                selector = `&${selector}`;        // :active => &:active
+                break;
+        } // switch
+        
+        
+        
+        // grouping:
+        const group = groupedSelectorsByRuleType.get(ruleType);   // get an existing collector (if any)
+        if (!group) {
+            groupedSelectorsByRuleType.set(ruleType, [selector]); // create a new collector
+        }
+        else {
+            group.push(selector);                                 // append to the existing collector
+        } // if
+    } // for
+    return groupedSelectorsByRuleType;
+}
+
+const parseSelectorsFromString = (selectorString: CssSelector): SelectorGroup => {
+    const selectorGroup = parseSelectors(selectorString);
+    if (!selectorGroup) throw Error(`parse selector error: ${selectorString}`);
+    return selectorGroup;
+}
+
 const finalizeSelectorFurther = (style: CssStyleMap, rawSelector: CssRawSelector|undefined, ruleData: CssRuleData, symbolProp: symbol): CssFinalSelector|null => {
     // extract raw selector:
     const [selectors, options] = rawSelector ?? ['&', undefined]; // selector of `undefined` is the shortcut of '&' without any options
@@ -121,38 +135,31 @@ const finalizeSelectorFurther = (style: CssStyleMap, rawSelector: CssRawSelector
     
     
     // group selectors by rule type:
-    const selectorsString : CssSelector[] = (
-        flat(selectors)
-        .filter(isNotFalsySelector)
-    );
-    const selectorGroupByRuleType = selectorsString.reduce(
-        groupByRuleType,
-        new Map<RuleType, CssSelector[]>()
-    );
+    const groupedSelectorsByRuleType = groupSelectorsByRuleType(selectors);
     
     
     
-    // parse selectors:
-    let combinedSelectors: SelectorGroup|null = null;
-    const selectorRules = selectorGroupByRuleType.get(RuleType.SelectorRule);
+    // parse & populate selectors:
+    let populatedSelectors: SelectorGroup|null = null;
+    const selectorRules = groupedSelectorsByRuleType.get(RuleType.SelectorRule);
     if (selectorRules) {
-        selectorGroupByRuleType.delete(RuleType.SelectorRule); // remove from the Map, so it wouldn't be re-finalized later
+        groupedSelectorsByRuleType.delete(RuleType.SelectorRule); // remove from the Map, so it wouldn't be re-finalized later
         
         for (const cssSelectorString of selectorRules) { // take only the SelectorRule(s)
             const selectors = parseSelectorsFromString(cssSelectorString);
-            if (!combinedSelectors) {
-                combinedSelectors = selectors;
+            if (!populatedSelectors) {
+                populatedSelectors = selectors;
             }
             else {
-                combinedSelectors.push(...selectors);
+                populatedSelectors.push(...selectors);
                 // TODO: prevent the `selectors` object to GC at time_expensive_moment
             } // if
         } // for
     } // if
     
     // merge selectors:
-    const mergedSelectors = combinedSelectors ? mergeSelectors(combinedSelectors, options) : null;
-    // TODO: prevent the `combinedSelectors` object to GC at time_expensive_moment
+    const mergedSelectors = populatedSelectors ? mergeSelectors(populatedSelectors, options) : null;
+    // TODO: prevent the `populatedSelectors` object to GC at time_expensive_moment
     
     // render back to string:
     const finalSelector : CssFinalSelector|null = isNotEmptySelectors(mergedSelectors) ? selectorsToString(mergedSelectors) : null;
@@ -160,11 +167,11 @@ const finalizeSelectorFurther = (style: CssStyleMap, rawSelector: CssRawSelector
     
     
     
+    //#region update (mutate) styles
     const styles = ruleData[1]; // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
     
     
     
-    //#region update (mutate) styles
     //#region update (primary) SelectorRule
     if (finalSelector) {
         style.set(symbolProp, [
@@ -185,8 +192,8 @@ const finalizeSelectorFurther = (style: CssStyleMap, rawSelector: CssRawSelector
         AtRule   : eg: @keyframes, @font-face (unmergeable nested @rule)
         PropRule : eg: from, to, 25% (special properties of @keyframes rule)
     */
-    if (selectorGroupByRuleType.size) {
-        for (const additionalFinalProps of (selectorGroupByRuleType.values() as IterableIterator<CssFinalSelector[]>)) {
+    if (groupedSelectorsByRuleType.size) {
+        for (const additionalFinalProps of (groupedSelectorsByRuleType.values() as IterableIterator<CssFinalSelector[]>)) {
             for (const additionalFinalProp of additionalFinalProps) {
                 style.set(Symbol(), [
                     additionalFinalProp, // update CssRawSelector to CssFinalSelector
