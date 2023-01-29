@@ -57,8 +57,8 @@ import {
 
 
 
-const finalizeSelector = (style: CssStyleMap, symbolProp: symbol): CssFinalSelector|null => {
-    const ruleData = style.get(symbolProp); // get existing prop (if any)
+const finalizeSelector = (style: CssStyleMap, ruleKey: symbol): CssFinalSelector|null => {
+    const ruleData = style.get(ruleKey); // get existing prop (if any)
     if (ruleData === undefined) return null;
     const selector = ruleData[0]; // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
     if (isFinalSelector(selector)) return selector;
@@ -69,7 +69,7 @@ const finalizeSelector = (style: CssStyleMap, symbolProp: symbol): CssFinalSelec
         Because `finalizeSelector()` is frequently called and the `selector` is mostly already *finalized*,
         to improve performance: split the common logic at the above and the complex logic to a separate `finalizeSelectorFurther()` call.
     */
-    return finalizeSelectorFurther(style, selector, ruleData, symbolProp);
+    return finalizeSelectorFurther(style, selector, ruleData, ruleKey);
 }
 
 const enum RuleType {
@@ -128,7 +128,7 @@ const parseSelectorsFromString = (selectorString: CssSelector): SelectorGroup =>
     return selectorGroup;
 }
 
-const finalizeSelectorFurther = (style: CssStyleMap, rawSelector: CssRawSelector|undefined, ruleData: CssRuleData, symbolProp: symbol): CssFinalSelector|null => {
+const finalizeSelectorFurther = (style: CssStyleMap, rawSelector: CssRawSelector|undefined, ruleData: CssRuleData, ruleKey: symbol): CssFinalSelector|null => {
     // extract raw selector:
     const [selectors, options] = rawSelector ?? ['&', undefined]; // selector of `undefined` is the shortcut of '&' without any options
     
@@ -174,13 +174,13 @@ const finalizeSelectorFurther = (style: CssStyleMap, rawSelector: CssRawSelector
     
     //#region update (primary) SelectorRule
     if (finalSelector) {
-        style.set(symbolProp, [
+        style.set(ruleKey, [
             finalSelector, // update CssRawSelector to CssFinalSelector
             styles         // still the same styles
         ]);
     }
     else {
-        style.delete(symbolProp); // delete existing CssRawSelector
+        style.delete(ruleKey); // delete existing CssRawSelector
     } // if
     //#endregion update (primary) SelectorRule
     
@@ -232,10 +232,10 @@ export const mergeLiteral = (style: CssStyleMap, newStyle: CssStyleMap): void =>
 
 
 
-const ensureSymbolPropsUpdated = (style: CssStyleMap): void => {
+const ensureRulesUpdated = (style: CssStyleMap): void => {
     // render CssRawSelector to CssFinalSelector (if any)
-    for (const symbolProp of style.ruleKeys) {
-        finalizeSelector(style, symbolProp);
+    for (const ruleKey of style.ruleKeys) {
+        finalizeSelector(style, ruleKey);
     } // for
 }
 const containsOnlyParentSelector = (styles: CssStyleCollection|CssFinalStyleMap): CssStyleCollection => {
@@ -253,13 +253,13 @@ const containsOnlyParentSelector = (styles: CssStyleCollection|CssFinalStyleMap)
     ) {
         return undefined; // ignore
     } // if
-    const symbolProps = Object.getOwnPropertySymbols(styles);
-    if (symbolProps.length !== 1) return undefined; // not exactly one nested_prop => ignore
+    const ruleKeys = Object.getOwnPropertySymbols(styles);
+    if (ruleKeys.length !== 1) return undefined; // not exactly one nested_prop => ignore
     
     
     
-    const symbolProp = symbolProps[0];
-    const [selector, nestedStyles] = styles[symbolProp];
+    const ruleKey = ruleKeys[0];
+    const [selector, nestedStyles] = styles[ruleKey];
     if ((selector !== undefined) && (selector !== '&')) return undefined; // not a parentSelector (`undefined` => a shortcut of '&') => ignore
     return nestedStyles ?? null; // if `undefined` => convert to `null` to make different than *`undefined` means not_found*
 }
@@ -284,19 +284,19 @@ const scheduledCleanupMergedParentStylesCache = (): void => {
     mergedParentStylesCache = new WeakMap<Exclude<CssStyleCollection, undefined|null|boolean>, CssStyleMap|null>();
 }
 export const mergeParent  = (style: CssStyleMap): void => {
-    let   needToReorderTheRestSymbolProps              = false;
+    let   needToReorderTheRestRules                    = false;
     let   needToScheduleCleanupMergedParentStylesCache = false;
-    let   symbolProp                                   : symbol;
+    let   ruleKey                                      : symbol;
     const parentStyleKeys                              : Exclude<CssStyleCollection, undefined|null|boolean>[] = [];
     try {
-        for (symbolProp of style.ruleKeys) { // the `style.ruleKeys` is an array, and wouldn't changed even if we mutate the `style` during iteration
-            const finalSelector = finalizeSelector(style, symbolProp);
+        for (ruleKey of style.ruleKeys) { // the `style.ruleKeys` is an array, and wouldn't changed even if we mutate the `style` during iteration
+            const finalSelector = finalizeSelector(style, ruleKey);
             if (finalSelector === '&') { // found only_parentSelector
                 /* move the CssProps and (nested)Rules from only_parentSelector to current style */
                 
                 
                 
-                const parentRuleData = style.get(symbolProp)!;
+                const parentRuleData = style.get(ruleKey)!;
                 let styles           = parentRuleData[1]; // [0]: undefined|CssRawSelector|CssFinalSelector // [1]: CssStyleCollection
                 if (isNotFalsyStyles(styles)) {
                     parentStyleKeys.splice(0); // clear
@@ -339,10 +339,10 @@ export const mergeParent  = (style: CssStyleMap): void => {
                         
                         
                         if (mergedParentStyles) {
-                            if (!needToReorderTheRestSymbolProps) {
+                            if (!needToReorderTheRestRules) {
                                 /* if mergedParentStyles has any (nested) Rule => all the rest of (nested) Rule need to rearrange to preserve the order */
                                 if (mergedParentStyles.hasRuleKeys) {
-                                    needToReorderTheRestSymbolProps = true;
+                                    needToReorderTheRestRules = true;
                                 } // if
                             } // if
                             
@@ -353,17 +353,17 @@ export const mergeParent  = (style: CssStyleMap): void => {
                         } // if
                     } // if
                 } // if
-                style.delete(symbolProp);                      // merged => delete source
+                style.delete(ruleKey);                      // merged => delete source
                 // TODO: prevent the `parentRuleData` object to GC at time_expensive_moment
             }
-            else if (needToReorderTheRestSymbolProps) {
+            else if (needToReorderTheRestRules) {
                 /* preserve the order of another (nested)Rules */
                 
                 
                 
-                const nestedRuleData = style.get(symbolProp)!; // backup
-                style.delete(symbolProp);                      // delete
-                style.set(symbolProp, nestedRuleData);         // restore (re-insert at the last order)
+                const nestedRuleData = style.get(ruleKey)!; // backup
+                style.delete(ruleKey);                      // delete
+                style.set(ruleKey, nestedRuleData);         // restore (re-insert at the last order)
             } // if
         } // for
     }
@@ -529,7 +529,7 @@ export const mergeStyles = (styles: CssStyleCollection | (CssStyleCollection|Css
         
         
         const mergedStyles = styleValue;
-        ensureSymbolPropsUpdated(mergedStyles); // mutate
+        ensureRulesUpdated(mergedStyles);       // mutate
         mergeParent(mergedStyles);              // mutate
         mergeNested(mergedStyles);              // mutate
         
@@ -571,7 +571,7 @@ export const mergeStyles = (styles: CssStyleCollection | (CssStyleCollection|Css
         
         
         
-        ensureSymbolPropsUpdated(subStyleValue);   // mutate
+        ensureRulesUpdated(subStyleValue);         // mutate
         
         // merge current style to single big style (string props + symbol props):
         mergeLiteral(mergedStyles, subStyleValue); // mutate
