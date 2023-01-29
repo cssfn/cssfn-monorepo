@@ -386,7 +386,7 @@ interface GroupedSelectorsByParentPosition {
     onlyEndParent   : PureSelector[]|undefined
     randomParent    : PureSelector[]|undefined
 }
-const calculateParentPosition  = (pureSelector: PureSelector): keyof GroupedSelectorsByParentPosition => {
+const calculateParentPosition          = (pureSelector: PureSelector): keyof GroupedSelectorsByParentPosition => {
     const hasStartsWithParent  = startsWithParent(pureSelector);
     
     const onlyParent           = hasStartsWithParent && (pureSelector.length === 1);
@@ -406,7 +406,7 @@ const calculateParentPosition  = (pureSelector: PureSelector): keyof GroupedSele
     
     return 'randomParent';
 }
-const groupSelectorsByParentPosition  = (pureSelectors: PureSelector[]): GroupedSelectorsByParentPosition => {
+const groupSelectorsByParentPosition   = (pureSelectors: PureSelector[]): GroupedSelectorsByParentPosition => {
     const grouped : GroupedSelectorsByParentPosition = {
         noParent        : undefined,
         onlyParent      : undefined,
@@ -427,18 +427,22 @@ const groupSelectorsByParentPosition  = (pureSelectors: PureSelector[]): Grouped
     return grouped;
 }
 
-type GroupByCombinator        = Map<Combinator|null, PureSelector[]>
-const createGroupByCombinator = (groupByCombinator: (pureSelector: PureSelector) => Combinator|null) => (accum: GroupByCombinator, pureSelector: PureSelector): GroupByCombinator => {
-    const combinator = groupByCombinator(pureSelector);
-    
-    
-    
-    let group = accum.get(combinator);             // get an existing collector
-    if (!group) accum.set(combinator, group = []); // create a new collector
-    group.push(pureSelector);
-    return accum;
+type GroupedSelectorsByCombinator      = Map<Combinator|null, PureSelector[]>
+const createGroupSelectorsByCombinator = (findCommonCombinator: (pureSelector: PureSelector) => Combinator|null) => (pureSelectors: PureSelector[]): GroupedSelectorsByCombinator => {
+    const grouped : GroupedSelectorsByCombinator = new Map<Combinator|null, PureSelector[]>();
+    for (const pureSelector of pureSelectors) {
+        const combinator = findCommonCombinator(pureSelector);
+        const group = grouped.get(combinator);       // get an existing collector (if any)
+        if (!group) {
+            grouped.set(combinator, [pureSelector]); // create a new collector
+        }
+        else {
+            group.push(pureSelector);                // append to the existing collector
+        } // if
+    } // for
+    return grouped;
 }
-const groupByPrefixCombinator = createGroupByCombinator(/* groupByCombinator: */(pureSelector) => {
+const groupSelectorsByPrefixCombinator = createGroupSelectorsByCombinator(/* findCommonCombinator: */(pureSelector) => {
     if (pureSelector.length >= 2) {                           // at least 2 entry must exist, for the first_parent suffixed by combinator
         const secondSelectorEntry = pureSelector[1];          // take the second_first entry
         if (isCombinator(secondSelectorEntry)) {              // the entry must be Combinator
@@ -448,7 +452,7 @@ const groupByPrefixCombinator = createGroupByCombinator(/* groupByCombinator: */
     
     return null; // parent_selector not suffixed by combinator (&>) => ungroupable
 })
-const groupBySuffixCombinator = createGroupByCombinator(/* groupByCombinator: */(pureSelector) => {
+const groupSelectorsBySuffixCombinator = createGroupSelectorsByCombinator(/* findCommonCombinator: */(pureSelector) => {
     const length = pureSelector.length;
     if (length >= 2) {                                        // at least 2 entry must exist, for the last_parent prefixed by combinator
         const secondSelectorEntry = pureSelector[length - 2]; // take the second_last entry
@@ -480,43 +484,48 @@ const removeCommonSuffixedParentSelectorWithCombinator = (pureSelector: PureSele
         -2 // remove the suffixed Combinator & ParentSelector
     );
 }
-const createCommonPrefixedParentSelector = (isSelector: Selector, combinator: Combinator | null): Selector => {
+const createCommonPrefixedParentSelector               = (isSelector: Selector, combinator: Combinator | null): Selector => {
     return createSelector(
         parentSelector(), // add a ParentSelector      before :is(...)
         combinator,       // add a Combinator (if any) before :is(...)
         ...isSelector,    // :is(...)
     );
 }
-const createCommonSuffixedParentSelector = (isSelector: Selector, combinator: Combinator | null): Selector => {
+const createCommonSuffixedParentSelector               = (isSelector: Selector, combinator: Combinator | null): Selector => {
     return createSelector(
         ...isSelector,    // :is(...)
         combinator,       // add a Combinator (if any) after :is(...)
         parentSelector(), // add a ParentSelector      after :is(...)
     );
 }
-const isNotContainPseudoElement = (selector: PureSelector) => selector.every(isNotPseudoElementSelector);
-const createBaseParentSelectorGroup      = (
+const isNotContainPseudoElement                        = (selector: PureSelector) => selector.every(isNotPseudoElementSelector);
+const createBaseParentSelectorGroup                    = (
         groupByParentSelectorGroup               : PureSelector[],
-        groupByCombinator                        : null | ((accum: GroupByCombinator, pureSelector: PureSelector) => GroupByCombinator),
-        removeCommonParentSelector               : null | ((pureSelector: PureSelector) => PureSelector),
-        removeCommonParentSelectorWithCombinator : null | ((pureSelector: PureSelector) => PureSelector),
-        createCommonParentSelector               : null | ((isSelector: Selector, combinator: Combinator | null) => Selector)
+        groupSelectorsByCombinator               : null | ((pureSelectors : PureSelector[]) => GroupedSelectorsByCombinator),
+        removeCommonParentSelector               : null | ((pureSelector  : PureSelector  ) => PureSelector),
+        removeCommonParentSelectorWithCombinator : null | ((pureSelector  : PureSelector  ) => PureSelector),
+        createCommonParentSelector               : null | ((isSelector    : Selector, combinator: Combinator | null) => Selector)
     ): SelectorGroup => {
     if (groupByParentSelectorGroup.length < 2) return groupByParentSelectorGroup; // must contains at least 2 selectors, if only one/no selector => no need to group
     
     
     
     // group selectors by combinator:
-    const selectorGroupByCombinator = groupByCombinator ? groupByParentSelectorGroup.reduce(
-        groupByCombinator,
-        new Map<Combinator|null, PureSelector[]>()
-    ) : new Map<Combinator|null, PureSelector[]>([[ null, groupByParentSelectorGroup ]]);
+    const groupedSelectorsByCombinator = (
+        groupSelectorsByCombinator?.(groupByParentSelectorGroup)
+        ??
+        new Map<Combinator|null, PureSelector[]>([
+            [ null, groupByParentSelectorGroup ] // ungroupable
+        ])
+    );
     
     
     
-    return Array.from(selectorGroupByCombinator.entries()).flatMap(([combinator, selectors]) => {
-        if (selectors.length < 2) return selectors; // must contains at least 2 selectors, if only one/no selector => no need to group
+    return Array.from(groupedSelectorsByCombinator.entries()).flatMap(([combinator, selectors]) => {
+        // conditions:
+        if (selectors.length < 2)                                   return selectors; // must contains at least 2 selectors, if only one/no selector => no need to group
         if (selectors.filter(isNotContainPseudoElement).length < 2) return selectors; // must contains at least 2 selectors which without ::pseudo-element, if only one/no selector => no need to group
+        
         
         
         const conditionalRemoveCommonParentSelector = combinator ? removeCommonParentSelectorWithCombinator : removeCommonParentSelector;
@@ -535,17 +544,15 @@ const createBaseParentSelectorGroup      = (
         );
         return createSelectorGroup(
             isNotEmptySelector(isSelector) && ( // grouped selectors (if any), might be empty if the original only contains ::pseudo-element(s)
-                createCommonParentSelector
-                ?
-                createCommonParentSelector(isSelector, combinator)
-                :
+                createCommonParentSelector?.(isSelector, combinator)
+                ??
                 isSelector
             ),
             ...selectorsWithPseudoElm, // ungroupable ::pseudo-element (if any)
         );
     });
 }
-const createNoParentSelectorGroup        = (groupByParentSelectorGroup: PureSelector[]): SelectorGroup => {
+const createNoParentSelectorGroup                      = (groupByParentSelectorGroup: PureSelector[]): SelectorGroup => {
     return createBaseParentSelectorGroup(
         groupByParentSelectorGroup,
         null,
@@ -554,26 +561,26 @@ const createNoParentSelectorGroup        = (groupByParentSelectorGroup: PureSele
         null,
     );
 }
-const createPrefixedParentSelectorGroup  = (groupByParentSelectorGroup: PureSelector[]): SelectorGroup => {
+const createPrefixedParentSelectorGroup                = (groupByParentSelectorGroup: PureSelector[]): SelectorGroup => {
     return createBaseParentSelectorGroup(
         groupByParentSelectorGroup,
-        groupByPrefixCombinator,
+        groupSelectorsByPrefixCombinator,
         removeCommonPrefixedParentSelector,
         removeCommonPrefixedParentSelectorWithCombinator,
         createCommonPrefixedParentSelector,
     );
 }
-const createSuffixedParentSelectorGroup  = (groupByParentSelectorGroup: PureSelector[]): SelectorGroup => {
+const createSuffixedParentSelectorGroup                = (groupByParentSelectorGroup: PureSelector[]): SelectorGroup => {
     return createBaseParentSelectorGroup(
         groupByParentSelectorGroup,
-        groupBySuffixCombinator,
+        groupSelectorsBySuffixCombinator,
         removeCommonSuffixedParentSelector,
         removeCommonSuffixedParentSelectorWithCombinator,
         createCommonSuffixedParentSelector,
     );
 }
-const emptySelectorGroup : SelectorGroup = [];
-export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): PureSelector[] => {
+const emptySelectorGroup : SelectorGroup               = [];
+export const groupSimilarSelectors                     = (pureSelectorGroup: PureSelector[]): PureSelector[] => {
     // we need to unwrap the :is(...) and :where(...) before grouping the similarities
     const normalizedSelectorGroup: PureSelector[] = (
         ungroupSelectors(pureSelectorGroup)  // PureSelectorGroup === Selector[] === [ Selector...Selector... ]
