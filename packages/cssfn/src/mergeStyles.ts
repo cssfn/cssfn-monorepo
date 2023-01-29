@@ -62,18 +62,22 @@ const enum RuleType {
     PropRule,     // for `from`, `to`, `25%`
 }
 const getRuleType = (selector: CssSelector): RuleType|null => {
-    if (selector.startsWith('@')) return RuleType.AtRule;
-    if (selector.startsWith(' ')) return RuleType.PropRule;
-    if (selector.includes('&'))   return RuleType.SelectorRule;
+    if (selector[0] === '@')    return RuleType.AtRule;
+    if (selector[0] === ' ')    return RuleType.PropRule;
+    if (selector.includes('&')) return RuleType.SelectorRule;
     return null;
 }
 
 type GroupByRuleType  = Map<RuleType, CssSelector[]>
 const groupByRuleType = (accum: Map<RuleType, CssSelector[]>, selector: CssSelector): GroupByRuleType => {
     let ruleType = getRuleType(selector);
+    
+    
+    
+    // normalize:
     switch (ruleType) {
         case RuleType.PropRule:
-            selector = selector.slice(1); // remove prefixed space
+            selector = selector.slice(1);     // remove prefixed space
             break;
         
         case null: // unknown RuleType
@@ -129,14 +133,30 @@ const finalizeSelectorFurther = (style: CssStyleMap, rawSelector: CssRawSelector
     
     
     // parse selectors:
-    const selectorGroup : SelectorGroup = (
-        (selectorGroupByRuleType.get(RuleType.SelectorRule) ?? []) // take only the SelectorRule(s)
-        .flatMap(parseSelectorsFromString)
-    );
+    let combinedSelectors: SelectorGroup|null = null;
+    const selectorRules = selectorGroupByRuleType.get(RuleType.SelectorRule);
+    if (selectorRules) {
+        selectorGroupByRuleType.delete(RuleType.SelectorRule); // remove from the Map, so it wouldn't be re-finalized later
+        
+        for (const cssSelectorString of selectorRules) { // take only the SelectorRule(s)
+            const selectors = parseSelectorsFromString(cssSelectorString);
+            if (!combinedSelectors) {
+                combinedSelectors = selectors;
+            }
+            else {
+                combinedSelectors.push(...selectors);
+                // TODO: prevent the `selectors` object to GC at time_expensive_moment
+            } // if
+        } // for
+    } // if
+    
     // merge selectors:
-    const mergedSelectors = mergeSelectors(selectorGroup, options);
+    const mergedSelectors = combinedSelectors ? mergeSelectors(combinedSelectors, options) : null;
+    // TODO: prevent the `combinedSelectors` object to GC at time_expensive_moment
+    
     // render back to string:
     const finalSelector : CssFinalSelector|null = isNotEmptySelectors(mergedSelectors) ? selectorsToString(mergedSelectors) : null;
+    // TODO: prevent the `mergedSelectors` object to GC at time_expensive_moment
     
     
     
@@ -160,16 +180,21 @@ const finalizeSelectorFurther = (style: CssStyleMap, rawSelector: CssRawSelector
     
     
     //#region update (additional) AtRule|PropRule
-    const additionalFinalProps : CssFinalSelector[] = [ // take all rules except SelectorRule(s):
-        ...(selectorGroupByRuleType.get(RuleType.AtRule   ) ?? []), // eg: @keyframes, @font-face (unmergeable nested @rule)
-        ...(selectorGroupByRuleType.get(RuleType.PropRule ) ?? []), // eg: from, to, 25% (special properties of @keyframes rule)
-    ];
-    for (const additionalFinalProp of additionalFinalProps) {
-        style.set(Symbol(), [
-            additionalFinalProp, // update CssRawSelector to CssFinalSelector
-            styles               // still the same styles
-        ]);
-    } // for
+    /*
+        Take all rules except SelectorRule(s):
+        AtRule   : eg: @keyframes, @font-face (unmergeable nested @rule)
+        PropRule : eg: from, to, 25% (special properties of @keyframes rule)
+    */
+    if (selectorGroupByRuleType.size) {
+        for (const additionalFinalProps of (selectorGroupByRuleType.values() as IterableIterator<CssFinalSelector[]>)) {
+            for (const additionalFinalProp of additionalFinalProps) {
+                style.set(Symbol(), [
+                    additionalFinalProp, // update CssRawSelector to CssFinalSelector
+                    styles               // still the same styles
+                ]);
+            } // for
+        } // for
+    } // if
     //#endregion update (additional) AtRule|PropRule
     //#endregion update (mutate) styles
     
