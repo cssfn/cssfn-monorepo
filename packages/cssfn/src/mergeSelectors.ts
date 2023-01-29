@@ -378,44 +378,53 @@ const endsWithParent    = (pureSelector: PureSelector): boolean => {
     const lastSelectorEntry = pureSelector[length - 1];         // take the last entry
     return isParentSelector(lastSelectorEntry);                 // the entry must be ParentSelector
 }
-const enum ParentPosition {
-    NoParent,
-    OnlyParent,
-    OnlyBeginParent,
-    OnlyEndParent,
-    RandomParent,
+
+interface GroupedSelectorsByParentPosition {
+    noParent        : PureSelector[]|undefined
+    onlyParent      : PureSelector[]|undefined
+    onlyBeginParent : PureSelector[]|undefined
+    onlyEndParent   : PureSelector[]|undefined
+    randomParent    : PureSelector[]|undefined
 }
-const calculateParentPosition  = (pureSelector: PureSelector): ParentPosition => {
+const calculateParentPosition  = (pureSelector: PureSelector): keyof GroupedSelectorsByParentPosition => {
     const hasStartsWithParent  = startsWithParent(pureSelector);
     
     const onlyParent           = hasStartsWithParent && (pureSelector.length === 1);
-    if (onlyParent)      return ParentPosition.OnlyParent;
+    if (onlyParent)      return 'onlyParent';
     
     const hasMiddlesWithParent = middlesWithParent(pureSelector);
     const hasEndsWithParent    = endsWithParent(pureSelector);
     
     const onlyBeginParent      = hasStartsWithParent && !hasMiddlesWithParent && !hasEndsWithParent;
-    if (onlyBeginParent) return ParentPosition.OnlyBeginParent;
+    if (onlyBeginParent) return 'onlyBeginParent';
     
     const onlyEndParent        = !hasStartsWithParent && !hasMiddlesWithParent && hasEndsWithParent;
-    if (onlyEndParent)   return ParentPosition.OnlyEndParent;
+    if (onlyEndParent)   return 'onlyEndParent';
     
     const noParent             = !hasStartsWithParent && !hasMiddlesWithParent && !hasEndsWithParent;
-    if (noParent)        return ParentPosition.NoParent;
+    if (noParent)        return 'noParent';
     
-    return ParentPosition.RandomParent;
+    return 'randomParent';
 }
-
-type GroupByParentPosition     = Map<ParentPosition, PureSelector[]>
-const groupByParentPosition    = (accum: Map<ParentPosition, PureSelector[]>, pureSelector: PureSelector): GroupByParentPosition => {
-    const position = calculateParentPosition(pureSelector);
-    
-    
-    
-    let group = accum.get(position);             // get an existing collector
-    if (!group) accum.set(position, group = []); // create a new collector
-    group.push(pureSelector);
-    return accum;
+const groupSelectorsByParentPosition  = (pureSelectors: PureSelector[]): GroupedSelectorsByParentPosition => {
+    const grouped : GroupedSelectorsByParentPosition = {
+        noParent        : undefined,
+        onlyParent      : undefined,
+        onlyBeginParent : undefined,
+        onlyEndParent   : undefined,
+        randomParent    : undefined,
+    };
+    for (const pureSelector of pureSelectors) {
+        const parentPosition = calculateParentPosition(pureSelector);
+        const group = grouped[parentPosition];
+        if (!group) {
+            grouped[parentPosition] = [pureSelector];
+        }
+        else {
+            group.push(pureSelector);
+        } // if
+    } // for
+    return grouped;
 }
 
 type GroupByCombinator        = Map<Combinator|null, PureSelector[]>
@@ -579,23 +588,20 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
     
     
     // group selectors by parent position:
-    const selectorGroupByParentPosition = normalizedSelectorGroup.reduce(
-        groupByParentPosition,
-        new Map<ParentPosition, PureSelector[]>()
-    );
-    
-    const noParentSelectorGroup        = selectorGroupByParentPosition.get(ParentPosition.NoParent       );
-    const onlyParentSelectorGroup      = selectorGroupByParentPosition.get(ParentPosition.OnlyParent     );
-    const onlyBeginParentSelectorGroup = selectorGroupByParentPosition.get(ParentPosition.OnlyBeginParent);
-    const onlyEndParentSelectorGroup   = selectorGroupByParentPosition.get(ParentPosition.OnlyEndParent  );
-    const randomParentSelectorGroup    = selectorGroupByParentPosition.get(ParentPosition.RandomParent   );
+    const {
+        noParent        : noParentSelectors,
+        onlyParent      : onlyParentSelectors,
+        onlyBeginParent : onlyBeginParentSelectors,
+        onlyEndParent   : onlyEndParentSelectors,
+        randomParent    : randomParentSelectors,
+    } = groupSelectorsByParentPosition(normalizedSelectorGroup);
     
     
     
     return selectPureSelectorGroupFromSelectorGroup(createSelectorGroup(
         // no parent
         // aaa, bbb, ccc
-        ...(noParentSelectorGroup        ? createNoParentSelectorGroup(noParentSelectorGroup)              : emptySelectorGroup),
+        ...(noParentSelectors        ? createNoParentSelectorGroup(noParentSelectors)              : emptySelectorGroup),
         
         
         
@@ -604,7 +610,7 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
         // &>aaa
         // &:is(aaa, bbb, ccc)
         // &>:is(aaa, bbb, ccc)
-        ...(onlyBeginParentSelectorGroup ? createPrefixedParentSelectorGroup(onlyBeginParentSelectorGroup) : emptySelectorGroup),
+        ...(onlyBeginParentSelectors ? createPrefixedParentSelectorGroup(onlyBeginParentSelectors) : emptySelectorGroup),
         
         
         
@@ -613,21 +619,21 @@ export const groupSimilarSelectors       = (pureSelectorGroup: PureSelector[]): 
         // aaa>&
         // :is(aaa, bbb, ccc)&
         // :is(aaa, bbb, ccc)>&
-        ...(onlyEndParentSelectorGroup   ? createSuffixedParentSelectorGroup(onlyEndParentSelectorGroup)   : emptySelectorGroup),
+        ...(onlyEndParentSelectors   ? createSuffixedParentSelectorGroup(onlyEndParentSelectors)   : emptySelectorGroup),
         
         
         
         // only ParentSelector
         // &
-        !!onlyParentSelectorGroup && (
-            onlyParentSelectorGroup[0] // just take the first one, the rest are guaranteed to be the same
+        !!onlyParentSelectors && (
+            onlyParentSelectors[0] // just take the first one, the rest are guaranteed to be the same
         ),
         
         
         
         // parent at random
         // aaa&bbb, aaa&bbb&ccc
-        ...(randomParentSelectorGroup    ? randomParentSelectorGroup                                       : emptySelectorGroup),
+        ...(randomParentSelectors    ? randomParentSelectors                                       : emptySelectorGroup),
     ))
     .map(selectPureSelectorFromSelector) // remove undefined|null|false|true => only real SelectorEntry
 }
