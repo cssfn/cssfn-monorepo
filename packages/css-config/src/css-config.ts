@@ -228,8 +228,8 @@ const iteratePropList = (propKeys: IterableIterator<CssCustomName|symbol>, skipP
 
 const convertSrcValueToEntry = (item: Extract<CssCustomValue, Array<any>>[number], index: number) => [index, item] as const;
 
-function convertSymbolPropToEntry<TConfigProps extends CssConfigProps>(this: TConfigProps, symbolProp: symbol) {
-    return [ symbolProp, this[symbolProp] ] as const;
+function selectObjectEntryFromRuleKey<TConfigProps extends CssConfigProps>(this: TConfigProps, ruleKey: symbol) {
+    return [ ruleKey, this[ruleKey] ] as const;
 }
 
 
@@ -812,7 +812,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
                 // convert props to propsMap:
                 this.#_propsMapSource = new Map<keyof TConfigProps, ValueOf<TConfigProps>>([
                     ...Object.entries(props) as [keyof TConfigProps, ValueOf<TConfigProps>][],
-                    ...Object.getOwnPropertySymbols(props).map(convertSymbolPropToEntry.bind(props)) as [keyof TConfigProps, ValueOf<TConfigProps>][],
+                    ...Object.getOwnPropertySymbols(props).map(selectObjectEntryFromRuleKey.bind(props)) as [keyof TConfigProps, ValueOf<TConfigProps>][],
                 ]);
             } // if
             
