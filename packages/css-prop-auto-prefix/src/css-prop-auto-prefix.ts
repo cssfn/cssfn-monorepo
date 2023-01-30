@@ -51,7 +51,7 @@ export const createCssPropAutoPrefix = (browserInfo: BrowserInfo): ((propName: k
         
         
         
-        const needPrefix = prefixedPropList.find(isPropName.bind(propName))?.prefix;
+        const needPrefix = prefixedPropList.find(isPropName, propName)?.prefix;
         if (!needPrefix) {
             cache.set(propName, propName);
             return propName;
