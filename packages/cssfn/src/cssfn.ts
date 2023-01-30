@@ -442,25 +442,15 @@ function selectSelectorWithCombinatorFromOptionalSelector(this: Combinator, sele
     
     return `&${this}${selector}`;
 };
-const selectSelectorWithCombinatorsFromOptionalSelector = new Map<Combinator, ((selector: OptionalOrBoolean<CssSelector>) => OptionalOrBoolean<CssSelector>)>();
-const getSelectSelectorWithCombinatorFromOptionalSelector = (combinator: Combinator) : ((selector: OptionalOrBoolean<CssSelector>) => OptionalOrBoolean<CssSelector>) => {
-    const cached = selectSelectorWithCombinatorsFromOptionalSelector.get(combinator);
-    if (cached) return cached;
-    
-    
-    
-    const result = selectSelectorWithCombinatorFromOptionalSelector.bind(combinator);
-    selectSelectorWithCombinatorsFromOptionalSelector.set(combinator, result);
-    return result;
-};
 export const combinators  = (combinator: Combinator, selectors: CssSelectorCollection, styles: CssStyleCollection, options?: CssSelectorOptions): CssRule => {
     const combiSelectors : CssSelectorCollection = (
         !Array.isArray(selectors)
         ?
-        getSelectSelectorWithCombinatorFromOptionalSelector(combinator)(selectors)
+        selectSelectorWithCombinatorFromOptionalSelector.call(combinator, selectors)
         :
         flat(selectors).map(
-            getSelectSelectorWithCombinatorFromOptionalSelector(combinator)
+            selectSelectorWithCombinatorFromOptionalSelector,
+            combinator
         )
     );
     
