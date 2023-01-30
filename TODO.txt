@@ -67,6 +67,9 @@ Self Time 49.11 ms
     #isValidIdentifierChar(): boolean {
         const char = this.#expression[this.#pos];
 
+NO SOLUTION
+
+-------------------------------------------------------------------------------------------------------------------
 
 Self Time 18.46 ms
     #parseSelector(): Selector|null {
@@ -74,10 +77,6 @@ Self Time 18.46 ms
                 const combinator = this.#parseCombinator();
             const simpleSelector = this.#parseSimpleSelector();
 
+NO SOLUTION
 
-export const selectorToString       = (selector: Selector): string => {
-            const [
-                selectorToken,
-                selectorName,
-                selectorParams,
-            ] = selectorEntry;
+-------------------------------------------------------------------------------------------------------------------
