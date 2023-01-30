@@ -52,47 +52,57 @@ import {
 
 
 
+// utilities:
+const emptySelectorGroup : SelectorGroup = [];
+
+
+
 // processors:
 
-const enum SpecificityWeightStatus {
-    Fit,
-    TooBig,
-    TooSmall,
+interface SelectorInfo { selector: PureSelector, specificityWeight: number }
+interface GroupedSelectorInfoBySpecificityStatus {
+    fit      : SelectorInfo[]|undefined
+    tooBig   : SelectorInfo[]|undefined
+    tooSmall : SelectorInfo[]|undefined
 }
-const calculateSpecificityWeightStatus = (pureSelector: PureSelector, minSpecificityWeight: number|null, maxSpecificityWeight: number|null): readonly [number, SpecificityWeightStatus] => {
+const calculateSpecificityWeightStatus     = (pureSelector: PureSelector, minSpecificityWeight: number|null, maxSpecificityWeight: number|null): readonly [keyof GroupedSelectorInfoBySpecificityStatus, number] => {
     const specificityWeightParts = calculateSpecificity(pureSelector);
     const specificityWeight = (specificityWeightParts[0] === 0) ? specificityWeightParts[1] : Infinity;
     
     
     
     if ((minSpecificityWeight !== null) && (specificityWeight < minSpecificityWeight)) {
-        return [specificityWeight, SpecificityWeightStatus.TooSmall];
+        return ['tooSmall', specificityWeight];
     } // if
     
     
     
     if ((maxSpecificityWeight !== null) && (specificityWeight > maxSpecificityWeight)) {
-        return [specificityWeight, SpecificityWeightStatus.TooBig];
+        return ['tooBig', specificityWeight];
     } // if
     
     
     
-    return [specificityWeight, SpecificityWeightStatus.Fit];
+    return ['fit', specificityWeight];
 }
-
-type GroupBySpecificityWeightStatus        = Map<SpecificityWeightStatus, { selector: PureSelector, specificityWeight: number }[]>
-const createGroupBySpecificityWeightStatus = (minSpecificityWeight: number|null, maxSpecificityWeight: number|null) => (accum: Map<SpecificityWeightStatus, {
-    selector          : PureSelector
-    specificityWeight : number
-}[]>, pureSelector: PureSelector): GroupBySpecificityWeightStatus => {
-    const [specificityWeight, weightStatus] = calculateSpecificityWeightStatus(pureSelector, minSpecificityWeight, maxSpecificityWeight);
-    
-    
-    
-    let group = accum.get(weightStatus);             // get an existing collector
-    if (!group) accum.set(weightStatus, group = []); // create a new collector
-    group.push({ selector: pureSelector, specificityWeight });
-    return accum;
+const groupSelectorInfoBySpecificityStatus = (selectors: PureSelector[], minSpecificityWeight: number|null, maxSpecificityWeight: number|null): GroupedSelectorInfoBySpecificityStatus => {
+    const grouped : GroupedSelectorInfoBySpecificityStatus = { fit: undefined, tooBig: undefined, tooSmall: undefined };
+    let status            : keyof GroupedSelectorInfoBySpecificityStatus;
+    let specificityWeight : number
+    for (const selector of selectors) {
+        [status, specificityWeight] = calculateSpecificityWeightStatus(selector, minSpecificityWeight, maxSpecificityWeight);
+        
+        
+        
+        const group = grouped[status];
+        if (!group) {
+            grouped[status] = [{ selector, specificityWeight }]; // create a new collector
+        }
+        else {
+            group.push({ selector, specificityWeight });         // append to the existing collector
+        } // if
+    } // for
+    return grouped;
 }
 
 const nthChildNSelector = pseudoClassSelector('nth-child', 'n');
@@ -304,22 +314,21 @@ const increaseSpecificity = (pureSelector: PureSelector, missingSpecificityWeigh
     );
 }
 
-type SpecificityWeightStatusGroup = { selector: PureSelector, specificityWeight: number }
-function selectSelectorFromGroup(group: SpecificityWeightStatusGroup): Selector {
-    return group.selector;
+function selectSelectorFromSelectorInfo(selectorInfo: SelectorInfo): Selector {
+    return selectorInfo.selector;
 }
-function selectIncreasedSpecificitySelectorFromGroup(this: number|null, group: SpecificityWeightStatusGroup): Selector {
+function selectIncreasedSpecificitySelectorFromSelectorInfo(this: number|null, selectorInfo: SelectorInfo): Selector {
     const minSpecificityWeight = this;
     return increaseSpecificity(
-        group.selector,
-        ((minSpecificityWeight ?? 1) - group.specificityWeight)
+        selectorInfo.selector,
+        ((minSpecificityWeight ?? 1) - selectorInfo.specificityWeight)
     );
 }
-function selectDecreasedSpecificitySelectorFromGroup(this: readonly [number|null, number|null], group: SpecificityWeightStatusGroup): Selector {
+function selectDecreasedSpecificitySelectorFromSelectorInfo(this: readonly [number|null, number|null], selectorInfo: SelectorInfo): Selector {
     const [minSpecificityWeight, maxSpecificityWeight] = this;
     return decreaseSpecificity(
-        group.selector,
-        (group.specificityWeight - (maxSpecificityWeight ?? group.specificityWeight)),
+        selectorInfo.selector,
+        (selectorInfo.specificityWeight - (maxSpecificityWeight ?? selectorInfo.specificityWeight)),
         minSpecificityWeight
     );
 }
@@ -333,23 +342,20 @@ export const adjustSpecificityWeight = (pureSelectorGroup: PureSelector[], minSp
     
     
     // group selectors by specificity weight status:
-    const selectorGroupBySpecificityWeightStatus = pureSelectorGroup.reduce(
-        createGroupBySpecificityWeightStatus(minSpecificityWeight, maxSpecificityWeight),
-        new Map<SpecificityWeightStatus, SpecificityWeightStatusGroup[]>()
-    );
-    
-    const fitSelectors      = selectorGroupBySpecificityWeightStatus.get(SpecificityWeightStatus.Fit     ) ?? [];
-    const tooSmallSelectors = selectorGroupBySpecificityWeightStatus.get(SpecificityWeightStatus.TooSmall) ?? [];
-    const tooBigSelectors   = selectorGroupBySpecificityWeightStatus.get(SpecificityWeightStatus.TooBig  ) ?? [];
+    const {
+        fit      : fitSelectors,
+        tooSmall : tooSmallSelectors,
+        tooBig   : tooBigSelectors,
+    } = groupSelectorInfoBySpecificityStatus(pureSelectorGroup, minSpecificityWeight, maxSpecificityWeight);
     
     
     
     return createSelectorGroup(
-        ...fitSelectors.map(selectSelectorFromGroup),
+        ...(fitSelectors?.map(selectSelectorFromSelectorInfo                                                                        ) ?? emptySelectorGroup),
         
-        ...tooSmallSelectors.map(selectIncreasedSpecificitySelectorFromGroup.bind(minSpecificityWeight)),
+        ...(tooSmallSelectors?.map(selectIncreasedSpecificitySelectorFromSelectorInfo ,  minSpecificityWeight                       ) ?? emptySelectorGroup),
         
-        ...tooBigSelectors.map(selectDecreasedSpecificitySelectorFromGroup.bind([minSpecificityWeight, maxSpecificityWeight])),
+        ...(tooBigSelectors?.map(selectDecreasedSpecificitySelectorFromSelectorInfo   , [minSpecificityWeight, maxSpecificityWeight]) ?? emptySelectorGroup),
     );
 }
 
@@ -579,7 +585,6 @@ const createSuffixedParentSelectorGroup                = (groupByParentSelectorG
         createCommonSuffixedParentSelector,
     );
 }
-const emptySelectorGroup : SelectorGroup               = [];
 export const groupSimilarSelectors                     = (pureSelectorGroup: PureSelector[]): PureSelector[] => {
     // we need to unwrap the :is(...) and :where(...) before grouping the similarities
     const normalizedSelectorGroup: PureSelector[] = (
