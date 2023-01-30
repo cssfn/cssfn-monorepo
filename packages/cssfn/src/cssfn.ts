@@ -134,15 +134,9 @@ const overwriteSelectorOptions = (selector: undefined|CssRawSelector|CssFinalSel
         normalizeSelectorOptions(newOptions, /*defaultOptions: */oldOptions)
     ];
 }
-function selectRuleEntryFromRuleKey(this: CssRule, ruleKey: symbol): readonly [symbol, CssRuleData] {
-    return [
-        ruleKey,
-        this[ruleKey]
-    ];
-}
-function selectRuleEntryWithOptionsFromRuleEntry(this: CssSelectorOptions, oldRuleEntry: readonly [symbol, CssRuleData]): readonly [symbol, CssRuleData] {
-    const [ruleKey, [selector, styles]] = oldRuleEntry;
-    const rawSelector : CssRawSelector = overwriteSelectorOptions(selector, this);
+function selectRuleEntryWithOptionsFromRuleKey(this: [CssRule, CssSelectorOptions], ruleKey: symbol): readonly [symbol, CssRuleData] {
+    const [selector, styles] = this[0][ruleKey];
+    const rawSelector        = overwriteSelectorOptions(selector, this[1]);
     
     return [
         ruleKey,
@@ -152,8 +146,7 @@ function selectRuleEntryWithOptionsFromRuleEntry(this: CssSelectorOptions, oldRu
 function selectRuleEntriesWithOptionsFromRule(this: CssSelectorOptions, rule: CssRule): (readonly [symbol, CssRuleData])[] {
     return (
         Object.getOwnPropertySymbols(rule)
-        .map(selectRuleEntryFromRuleKey, rule)
-        .map(selectRuleEntryWithOptionsFromRuleEntry, this)
+        .map(selectRuleEntryWithOptionsFromRuleKey, [rule, this])
     );
 }
 export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptions): CssRule => {
@@ -182,8 +175,7 @@ export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptio
         // reserved! an empty string key is a special property for storing (nested) rules at rendering phase-1:
         [ '' , undefined ],
         
-        ...result
-        .flatMap(selectRuleEntriesWithOptionsFromRule, options)
+        ...result.flatMap(selectRuleEntriesWithOptionsFromRule, options)
     ]);
 };
 
