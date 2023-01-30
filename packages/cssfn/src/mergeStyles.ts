@@ -121,23 +121,19 @@ const groupSelectorsByRuleType = (selectors: CssSelectorCollection) : GroupedSel
         
         
         // grouping:
-        if (ruleType === RuleType.SelectorRule) { // &.foo  .boo&  .foo&.boo
-            const group = grouped.selectors;
-            if (!group) {
-                grouped.selectors = [selector]; // create a new collector
-            }
-            else {
-                group.push(selector);           // append to the existing collector
-            } // if
+        const groupKey : keyof GroupedSelectorsByRuleType = (
+            (ruleType === RuleType.SelectorRule)
+            ?
+            'selectors' // &.foo  .boo&  .foo&.boo
+            :
+            'others'    // `@media` // `from`, `to`, `25%`
+        );
+        const group = grouped[groupKey];
+        if (!group) {
+            grouped[groupKey] = [selector]; // create a new collector
         }
-        else { // `@media` // `from`, `to`, `25%`
-            const group = grouped.others;
-            if (!group) {
-                grouped.others = [selector];    // create a new collector
-            }
-            else {
-                group.push(selector);           // append to the existing collector
-            } // if
+        else {
+            group.push(selector);           // append to the existing collector
         } // if
     } // for
     return grouped;
