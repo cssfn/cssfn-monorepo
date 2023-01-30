@@ -128,7 +128,7 @@ const groupSelectorsByRuleType = (selectors: CssSelectorCollection) : GroupedSel
             :
             'others'    // `@media` // `from`, `to`, `25%`
         );
-        const group = grouped[groupKey];
+        const group = grouped[groupKey];    // get an existing collector (if any)
         if (!group) {
             grouped[groupKey] = [selector]; // create a new collector
         }
@@ -391,6 +391,7 @@ type GroupedRules = readonly [symbol, CssFinalSelector, CssStyleCollection]
 const groupRulesByFinalSelector = (style: CssStyleMap) : Map<CssFinalSelector|null, GroupedRules[]> => {
     const grouped = new Map<CssFinalSelector|null, GroupedRules[]>();
     for (const ruleKey of style.ruleKeys) {
+        // conditions:
         const finalSelector = finalizeSelector(style, ruleKey);
         if (!finalSelector)        continue; // skip empty finalSelector
         if (finalSelector === '&') continue; // ignore only_parentSelector
@@ -415,12 +416,12 @@ const groupRulesByFinalSelector = (style: CssStyleMap) : Map<CssFinalSelector|nu
             :
             null          // unmergeable rules
         );
-        const group = grouped.get(groupKey);                                // get an existing collector (if any)
+        const group = grouped.get(groupKey);                           // get an existing collector (if any)
         if (!group) {
-            grouped.set(groupKey, [[ruleKey, finalSelector, styles]]);      // create a new collector
+            grouped.set(groupKey, [[ruleKey, finalSelector, styles]]); // create a new collector
         }
         else {
-            group.push([ruleKey, finalSelector, styles]);                   // append to the existing collector
+            group.push([ruleKey, finalSelector, styles]);              // append to the existing collector
         } // if
     } // for
     return grouped;
