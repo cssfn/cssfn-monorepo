@@ -36,7 +36,7 @@ const getPrefixedPropList = ({prefix, browserType} : BrowserInfo) : PrefixedProp
 
 
 
-function isPropName(this: keyof CssProps, prefixedProp: PrefixedProp) {
+function isMatchPropName(this: keyof CssProps, prefixedProp: PrefixedProp) {
     return this.match(prefixedProp.prop);
 }
 export const createCssPropAutoPrefix = (browserInfo: BrowserInfo): ((propName: keyof CssProps) => keyof CssProps) => {
@@ -51,7 +51,7 @@ export const createCssPropAutoPrefix = (browserInfo: BrowserInfo): ((propName: k
         
         
         
-        const needPrefix = prefixedPropList.find(isPropName, propName)?.prefix;
+        const needPrefix = prefixedPropList.find(isMatchPropName, propName)?.prefix;
         if (!needPrefix) {
             cache.set(propName, propName);
             return propName;
