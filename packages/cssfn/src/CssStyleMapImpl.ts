@@ -91,7 +91,7 @@ export class CssStyleMapImpl
         
         
         
-        const result = this.ruleKeys.map(this.get.bind(this)) as CssRuleData[];
+        const result = this.ruleKeys.map(this.get, this) as CssRuleData[];
         this._rulesCache = new WeakRef<Array<CssRuleData>>(result);
         return result;
     }
