@@ -152,8 +152,8 @@ function selectRuleEntryWithOptionsFromRuleEntry(this: CssSelectorOptions, oldRu
 function selectRuleEntriesWithOptionsFromRule(this: CssSelectorOptions, rule: CssRule): (readonly [symbol, CssRuleData])[] {
     return (
         Object.getOwnPropertySymbols(rule)
-        .map(selectRuleEntryFromRuleKey.bind(rule))
-        .map(selectRuleEntryWithOptionsFromRuleEntry.bind(this))
+        .map(selectRuleEntryFromRuleKey, rule)
+        .map(selectRuleEntryWithOptionsFromRuleEntry, this)
     );
 }
 export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptions): CssRule => {
@@ -183,7 +183,7 @@ export const rules    = (rules   : CssRuleCollection, options?: CssSelectorOptio
         [ '' , undefined ],
         
         ...result
-        .flatMap(selectRuleEntriesWithOptionsFromRule.bind(options))
+        .flatMap(selectRuleEntriesWithOptionsFromRule, options)
     ]);
 };
 
