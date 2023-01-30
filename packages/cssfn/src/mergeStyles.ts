@@ -401,31 +401,26 @@ const groupRulesByFinalSelector = (style: CssStyleMap) : Map<CssFinalSelector|nu
         
         
         
-        if (
-            // nested rules:
-            finalSelector.includes('&')
-            ||
-            // conditional rules & globals:
-            isMergeableNestedAtRule(finalSelector)
-        ) {
-            // mergeable rules:
-            const group = grouped.get(finalSelector);                           // get an existing collector (if any)
-            if (!group) {
-                grouped.set(finalSelector, [[ruleKey, finalSelector, styles]]); // create a new collector
-            }
-            else {
-                group.push([ruleKey, finalSelector, styles]);                   // append to the existing collector
-            } // if
+        // grouping:
+        const groupKey : CssFinalSelector|null = (
+            (
+                // nested rules:
+                finalSelector.includes('&')
+                ||
+                // conditional rules & globals:
+                isMergeableNestedAtRule(finalSelector)
+            )
+            ?
+            finalSelector // mergeable rules
+            :
+            null          // unmergeable rules
+        );
+        const group = grouped.get(groupKey);                                // get an existing collector (if any)
+        if (!group) {
+            grouped.set(groupKey, [[ruleKey, finalSelector, styles]]);      // create a new collector
         }
         else {
-            // unmergeable rules:
-            const group = grouped.get(null);                                    // get an existing collector (if any)
-            if (!group) {
-                grouped.set(null, [[ruleKey, finalSelector, styles]]);          // create a new collector
-            }
-            else {
-                group.push([ruleKey, finalSelector, styles]);                   // append to the existing collector
-            } // if
+            group.push([ruleKey, finalSelector, styles]);                   // append to the existing collector
         } // if
     } // for
     return grouped;
