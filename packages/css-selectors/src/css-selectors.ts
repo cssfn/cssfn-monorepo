@@ -964,7 +964,7 @@ function selectOptionalSelectorWithReplacementFromOptionalSelector(this: Replace
     const callbackFn = this;
     return (
         optionalSelector
-        .flatMap(selectSelectorWithReplacementFromOptionalSelectorEntry.bind(callbackFn))
+        .flatMap(selectSelectorWithReplacementFromOptionalSelectorEntry, callbackFn)
     );
 }
 /**
@@ -984,7 +984,7 @@ export const replaceSelectors = (selectors: OptionalOrBoolean<SelectorGroup>, ca
     
     return (
         selectors
-        .map(selectOptionalSelectorWithReplacementFromOptionalSelector.bind(callbackFn)) // mutates a `Selector` to another `Selector`
+        .map(selectOptionalSelectorWithReplacementFromOptionalSelector, callbackFn) // mutates a `Selector` to another `Selector`
     );
 };
 export const replaceSelector  = (selector : OptionalOrBoolean<Selector>     , callbackFn: ReplaceSelectorCallback): Selector => {
@@ -994,7 +994,7 @@ export const replaceSelector  = (selector : OptionalOrBoolean<Selector>     , ca
     
     
     
-    const result = selectOptionalSelectorWithReplacementFromOptionalSelector.bind(callbackFn)(selector);
+    const result = selectOptionalSelectorWithReplacementFromOptionalSelector.call(callbackFn, selector);
     if (!result || (result === true)) return createSelector(
         /* an empty Selector */
     ); // nullish => nothing to replace => return an empty Selector
