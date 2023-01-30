@@ -103,111 +103,15 @@ const groupSelectorInfoBySpecificityStatus = (selectors: PureSelector[], minSpec
     return grouped;
 }
 
-const nthChildNSelector = pseudoClassSelector('nth-child', 'n');
-type ReducedSpecificity = { excess: number, unchanged: PureSelector, quarantined: (PureSelector|PseudoElementSelector)[], buffered: PureSelector }
-const reduceSpecificity = (accum: ReducedSpecificity, selectorEntry: SelectorEntry): ReducedSpecificity => {
-    if (accum.excess <= 0) {
-        accum.unchanged.unshift(selectorEntry);
-        
-        
-        
-        // loop to next selectorEntry:
-        return accum;
-    } // if
-    
-    
-    
-    if (isPseudoElementSelector(selectorEntry)) {
-        //#region flush & reset the buffer
-        if (accum.buffered.length) {
-            accum.quarantined.unshift(accum.buffered);
-            accum.buffered = [];
-        } // if
-        //#endregion flush & reset the buffer
-        
-        
-        
-        // collect the ::pseudoElm to quarantined, so the PureSelector structure is preserved
-        accum.quarantined.unshift(selectorEntry);
-        
-        
-        
-        // loop to next selectorEntry:
-        return accum;
-    } // if
-    
-    
-    
-    // eat the selectorEntry:
-    accum.buffered.unshift(selectorEntry);
-    
-    
-    
-    //#region calculate the eaten specificity & update the (counter) excess
-    if (isSimpleSelector(selectorEntry)) { // only interested of SimpleSelector, ignore the Combinator
-        const [
-            /*
-                selector tokens:
-                '&'  = parent         selector
-                '*'  = universal      selector
-                '['  = attribute      selector
-                ''   = element        selector
-                '#'  = ID             selector
-                '.'  = class          selector
-                ':'  = pseudo class   selector
-                '::' = pseudo element selector
-            */
-            selectorToken,
-            
-            /*
-                selector name:
-                string = the name of [element, ID, class, pseudo class, pseudo element] selector
-            */
-            selectorName,
-            
-            /*
-                selector parameter(s):
-                string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
-                array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
-                SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
-            */
-            // selectorParams,
-        ] = selectorEntry;
-        if (selectorToken === ':') { // pseudo class selector
-            switch (selectorName) {
-                case 'is':
-                case 'not':
-                case 'has':
-                    const specificityWeight = calculateSpecificity([selectorEntry])[1];
-                    accum.excess -= specificityWeight; // reduce the counter (might be a negative value if `specificityWeight` > `accum.excess`)
-                    break;
-                
-                case 'where':
-                    break; // don't reduce the counter
-                
-                default:
-                    accum.excess--; // reduce the counter
-            } // switch
-        }
-        else if (['.', '[',].includes(selectorToken)) { // class selector or attribute selector
-            accum.excess--; // reduce the counter
-        } // if
-    } // if
-    //#endregion calculate the eaten specificity & update the (counter) excess
-    
-    
-    
-    // loop to next selectorEntry:
-    return accum;
-}
-const selectWhereSelectorFromSelectorsOrPseudoElm = (selectorsOrPseudoElm: PureSelector|PseudoElementSelector): Selector => {
+const nthChildNSelector            = pseudoClassSelector('nth-child', 'n');
+const neutralizeSelector           = (selectorsOrPseudoElm: PureSelector|PseudoElementSelector): Selector => {
     if (selectorsOrPseudoElm[0] === '::') return [selectorsOrPseudoElm as PseudoElementSelector];
     
     
     
     // group the selector with :where(), so the specificity is zero:
     const [
-        whereSelector,            // grouped selectorEntries inside :where()
+        whereSelector,               // grouped selectorEntries inside :where()
         // ...selectorsWithPseudoElm // ungroupable ::pseudoElement selectorEntries => always empty because we've filtered the ::pseudoElement
     ] = groupSelectors(
         ungroupSelector(          // if wrapped with :is() or :where() => unwrap
@@ -218,27 +122,121 @@ const selectWhereSelectorFromSelectorsOrPseudoElm = (selectorsOrPseudoElm: PureS
     
     return whereSelector;
 }
-const decreaseSpecificity = (pureSelector: PureSelector, excessSpecificityWeight: number, minSpecificityWeight: number|null): Selector => {
-    const reducedSpecificity = pureSelector.reduceRight(reduceSpecificity, { excess: excessSpecificityWeight, unchanged: [], quarantined: [], buffered: [] });
-    if (reducedSpecificity.buffered.length) {
-        reducedSpecificity.quarantined.unshift(reducedSpecificity.buffered);
+const decreaseSpecificity          = (pureSelector: PureSelector, excessSpecificityWeight: number, minSpecificityWeight: number|null): Selector => {
+    let   bufferedSelector    : PureSelector = [];
+    const unchangedSelector   : PureSelector = [];
+    const neutralizedSelector : Selector     = [];
+    for (let index = pureSelector.length - 1, selectorEntry: SelectorEntry, specificityWeight: number; index >= 0; index--) {
+        selectorEntry = pureSelector[index];
+        
+        
+        
+        // nothing to decrease further => collect the entry to unchangedSelector:
+        if (excessSpecificityWeight <= 0) {
+            unchangedSelector.unshift(selectorEntry);
+            continue; // loop to next selectorEntry:
+        } // if
+        
+        
+        
+        if (isPseudoElementSelector(selectorEntry)) {
+            // flush & reset the buffer:
+            if (bufferedSelector.length) {
+                neutralizedSelector.unshift( // flush
+                    ...neutralizeSelector(bufferedSelector)
+                );
+                bufferedSelector = [];       // reset
+            } // if
+            
+            
+            
+            // collect the ::pseudoElm to neutralizedSelector, so the PureSelector structure is preserved
+            neutralizedSelector.unshift(
+                ...neutralizeSelector(selectorEntry)
+            );
+            
+            
+            
+            continue; // loop to next selectorEntry:
+        } // if
+        
+        
+        
+        // eat the selectorEntry:
+        bufferedSelector.unshift(selectorEntry);
+        
+        
+        
+        // calculate the eaten specificity & update the counter:
+        if (isSimpleSelector(selectorEntry)) { // only interested of SimpleSelector, ignore the Combinator
+            const [
+                /*
+                    selector tokens:
+                    '&'  = parent         selector
+                    '*'  = universal      selector
+                    '['  = attribute      selector
+                    ''   = element        selector
+                    '#'  = ID             selector
+                    '.'  = class          selector
+                    ':'  = pseudo class   selector
+                    '::' = pseudo element selector
+                */
+                selectorToken,
+                
+                /*
+                    selector name:
+                    string = the name of [element, ID, class, pseudo class, pseudo element] selector
+                */
+                selectorName,
+                
+                /*
+                    selector parameter(s):
+                    string        = the parameter of pseudo class selector, eg: nth-child(2n+3) => '2n+3'
+                    array         = [name, operator, value, options] of attribute selector, eg: [data-msg*="you & me" i] => ['data-msg', '*=', 'you & me', 'i']
+                    SelectorGroup = nested selector(s) of pseudo class [:is(...), :where(...), :not(...)]
+                */
+                // selectorParams,
+            ] = selectorEntry;
+            if (selectorToken === ':') { // pseudo class selector
+                switch (selectorName) {
+                    case 'is':
+                    case 'not':
+                    case 'has':
+                        specificityWeight        = calculateSpecificity([selectorEntry])[1];
+                        excessSpecificityWeight -= specificityWeight; // reduce the counter (might be a negative value if `specificityWeight` > `excessSpecificityWeight`)
+                        break;
+                    
+                    case 'where':
+                        break; // don't reduce the counter
+                    
+                    default:
+                        excessSpecificityWeight--; // reduce the counter
+                } // switch
+            }
+            else if (['.', '[',].includes(selectorToken)) { // class selector or attribute selector
+                excessSpecificityWeight--; // reduce the counter
+            } // if
+        } // if
+    } // for
+    
+    // flush the buffer:
+    if (bufferedSelector.length) {
+        neutralizedSelector.unshift( // flush
+            ...neutralizeSelector(bufferedSelector)
+        );
     } // if
     
     
     
-    const neutralizedSelector : Selector = reducedSpecificity.quarantined.flatMap(selectWhereSelectorFromSelectorsOrPseudoElm);
-    
-    
-    
     const missingSpecificityWeight : number = (
-        ((reducedSpecificity.excess === Infinity) || (reducedSpecificity.excess < 0))
+        ((excessSpecificityWeight === Infinity) || (excessSpecificityWeight < 0))
         ?
         (
-            (reducedSpecificity.excess === Infinity)
+            (excessSpecificityWeight === Infinity)
             ?
             (minSpecificityWeight ?? 0) // eat all => zero specificity => might less than minSpecificityWeight => fix by assigning minSpecificityWeight
             :
-            -reducedSpecificity.excess
+            -excessSpecificityWeight
         )
         :
         0
@@ -251,7 +249,7 @@ const decreaseSpecificity = (pureSelector: PureSelector, excessSpecificityWeight
     
     // done:
     return createSelector(
-        ...reducedSpecificity.unchanged,
+        ...unchangedSelector,
         ...neutralizedSelector,
         ...adjustSpecificitySelector,
     );
@@ -294,7 +292,7 @@ const isClassSelectorWithoutParams = (selectorEntry: SelectorEntry): selectorEnt
     
     return (selectorParams === undefined);
 }
-const increaseSpecificity = (pureSelector: PureSelector, missingSpecificityWeight: number): Selector => {
+const increaseSpecificity          = (pureSelector: PureSelector, missingSpecificityWeight: number): Selector => {
     const adjustSpecificitySelector : Selector = new Array<SimpleSelector>(missingSpecificityWeight).fill(
         pureSelector
         .filter(isClassSelectorWithoutParams) // class selector -or- pseudo class selector without parameters
