@@ -74,7 +74,7 @@ export const generateRulesFromStyleSheet = <TCssScopeName extends CssScopeName =
     
     
     const scopeMap   = styleSheet.classes;
-    const scopeRules = scopeList.map(selectCssRuleFromScopeEntry.bind(scopeMap));
+    const scopeRules = scopeList.map(selectCssRuleFromScopeEntry, scopeMap);
     return scopeRules;
 }
 export const renderStyleSheet = <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): string|null => {
