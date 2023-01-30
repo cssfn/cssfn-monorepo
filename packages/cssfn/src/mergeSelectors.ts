@@ -86,20 +86,18 @@ const calculateSpecificityWeightStatus     = (pureSelector: PureSelector, minSpe
     return ['fit', specificityWeight];
 }
 const groupSelectorInfoBySpecificityStatus = (selectors: PureSelector[], minSpecificityWeight: number|null, maxSpecificityWeight: number|null): GroupedSelectorInfoBySpecificityStatus => {
-    const grouped : GroupedSelectorInfoBySpecificityStatus = { fit: undefined, tooBig: undefined, tooSmall: undefined };
-    let status            : keyof GroupedSelectorInfoBySpecificityStatus;
+    const grouped         : GroupedSelectorInfoBySpecificityStatus = { fit: undefined, tooBig: undefined, tooSmall: undefined };
+    let groupKey          : keyof GroupedSelectorInfoBySpecificityStatus;
     let specificityWeight : number
     for (const selector of selectors) {
-        [status, specificityWeight] = calculateSpecificityWeightStatus(selector, minSpecificityWeight, maxSpecificityWeight);
-        
-        
-        
-        const group = grouped[status];
+        // grouping:
+        [groupKey, specificityWeight] = calculateSpecificityWeightStatus(selector, minSpecificityWeight, maxSpecificityWeight);
+        const group = grouped[groupKey];                           // get an existing collector (if any)
         if (!group) {
-            grouped[status] = [{ selector, specificityWeight }]; // create a new collector
+            grouped[groupKey] = [{ selector, specificityWeight }]; // create a new collector
         }
         else {
-            group.push({ selector, specificityWeight });         // append to the existing collector
+            group.push({ selector, specificityWeight });           // append to the existing collector
         } // if
     } // for
     return grouped;
@@ -421,13 +419,14 @@ const groupSelectorsByParentPosition   = (pureSelectors: PureSelector[]): Groupe
         randomParent    : undefined,
     };
     for (const pureSelector of pureSelectors) {
-        const parentPosition = calculateParentPosition(pureSelector);
-        const group = grouped[parentPosition];
+        // grouping:
+        const groupKey = calculateParentPosition(pureSelector);
+        const group = grouped[groupKey];        // get an existing collector (if any)
         if (!group) {
-            grouped[parentPosition] = [pureSelector];
+            grouped[groupKey] = [pureSelector]; // create a new collector
         }
         else {
-            group.push(pureSelector);
+            group.push(pureSelector);           // append to the existing collector
         } // if
     } // for
     return grouped;
@@ -437,13 +436,14 @@ type GroupedSelectorsByCombinator      = Map<Combinator|null, PureSelector[]>
 const createGroupSelectorsByCombinator = (findCommonCombinator: (pureSelector: PureSelector) => Combinator|null) => (pureSelectors: PureSelector[]): GroupedSelectorsByCombinator => {
     const grouped : GroupedSelectorsByCombinator = new Map<Combinator|null, PureSelector[]>();
     for (const pureSelector of pureSelectors) {
-        const combinator = findCommonCombinator(pureSelector);
-        const group = grouped.get(combinator);       // get an existing collector (if any)
+        // grouping:
+        const groupKey = findCommonCombinator(pureSelector);
+        const group = grouped.get(groupKey);       // get an existing collector (if any)
         if (!group) {
-            grouped.set(combinator, [pureSelector]); // create a new collector
+            grouped.set(groupKey, [pureSelector]); // create a new collector
         }
         else {
-            group.push(pureSelector);                // append to the existing collector
+            group.push(pureSelector);              // append to the existing collector
         } // if
     } // for
     return grouped;
