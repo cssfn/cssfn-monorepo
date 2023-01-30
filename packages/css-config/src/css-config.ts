@@ -812,7 +812,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
                 // convert props to propsMap:
                 this.#_propsMapSource = new Map<keyof TConfigProps, ValueOf<TConfigProps>>([
                     ...Object.entries(props) as [keyof TConfigProps, ValueOf<TConfigProps>][],
-                    ...Object.getOwnPropertySymbols(props).map(selectObjectEntryFromRuleKey.bind(props)) as [keyof TConfigProps, ValueOf<TConfigProps>][],
+                    ...Object.getOwnPropertySymbols(props).map(selectObjectEntryFromRuleKey, props) as [keyof TConfigProps, ValueOf<TConfigProps>][],
                 ]);
             } // if
             
