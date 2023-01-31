@@ -1,82 +1,16 @@
-optimized css-vars & css-config [done]
-
 high cpu usage:
 
--------------------------------------------------------------------------------------------------------------------
+export const selectPureSelectorGroupFromSelectorGroup = (selectors : SelectorGroup): PureSelectorGroup => selectors.filter(isNotEmptySelector);
 
-System Time 623.91 ms => NO SOLUTION
-Self Time 0.52 ms
-    set(key: CssUnionKey         , value: CssUnionValue                       ): this {
-        const _this = super.set(key, value);
-        
-        if (typeof(key) === 'symbol') {
-            this._ruleKeysCache = undefined; // clear cache
-            this._rulesCache    = undefined; // clear cache
-        }
-        else {
-            this._propKeysCache = undefined; // clear cache
-        } // if
-        this._keysCache         = undefined; // clear cache
-        
-        return _this;
-    }
+function selectOptionalSelectorWithReplacementFromOptionalSelector(this: ReplaceSelectorCallback, optionalSelector: OptionalOrBoolean<Selector>): OptionalOrBoolean<Selector> {
+        .flatMap(selectSelectorWithReplacementFromOptionalSelectorEntry, callbackFn) // bottleneck
 
-NO SOLUTION
+function isMatchPropName(this: keyof CssProps, prefixedProp: PrefixedProp) {
 
--------------------------------------------------------------------------------------------------------------------
-
-Total Time 116.29 ms
-Self Time 116.29 ms
-called freq by get ruleKeys()
-may causes by new WeakRef()
-    get keysAsArray()   : Array<CssUnionKey> {
-        this._keysCache = new WeakRef<Array<CssUnionKey>>(result);
-
-NO SOLUTION
-
--------------------------------------------------------------------------------------------------------------------
-
-Self Time 101.74 ms
-called freq by class RenderRule
-may causes by new WeakRef()
-    get rules() : Array<CssRuleData> {
-        this._rulesCache = new WeakRef<Array<CssRuleData>>(result);
-
-NO SOLUTION
-
--------------------------------------------------------------------------------------------------------------------
-
-Self Time 79.74 ms
-called freq by ensureRulesUpdated
-may causes by destructuring array
-const finalizeSelector = (style: CssStyleMap, ruleKey: symbol): CssFinalSelector|null => {
-    const selector = ruleData[0];
-
-OPTIMIZED
-
--------------------------------------------------------------------------------------------------------------------
-
-Self Time 64.77 ms
-const reduceGetSpecificity = (accum: Specificity, simpleSelector: SimpleSelector): Specificity => {
-
-OPTIMIZED
-
--------------------------------------------------------------------------------------------------------------------
-
-Self Time 49.11 ms
     #isValidIdentifierChar(): boolean {
-        const char = this.#expression[this.#pos];
 
-NO SOLUTION
+export const selectorsToString      = (selectors: SelectorGroup): string => {
 
--------------------------------------------------------------------------------------------------------------------
+export const mergeSelectors = (selectorGroup: SelectorGroup, options?: CssSelectorOptions): SelectorGroup => {
 
-Self Time 18.46 ms
-    #parseSelector(): Selector|null {
-            if (!selector.length) { // a relative Combinator (a Combinator at the beginning)
-                const combinator = this.#parseCombinator();
-            const simpleSelector = this.#parseSimpleSelector();
 
-NO SOLUTION
-
--------------------------------------------------------------------------------------------------------------------
