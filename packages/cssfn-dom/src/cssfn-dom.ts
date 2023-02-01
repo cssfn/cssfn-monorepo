@@ -59,7 +59,7 @@ export const config = { concurrentRender: true };
 
 
 // dom:
-let styleGroupElm : DocumentFragment|null = null;
+const headElement = isClientSide ? document.head : undefined;
 const styleElms = new WeakMap<StyleSheet, HTMLStyleElement>(); // uses WeakMap to indirectly append a related HTMLStyleElement into StyleSheet object, without preventing the StyleSheet object to garbage collected
 
 
@@ -88,7 +88,7 @@ const batchCommit = () => {
                 styleElms.get(styleSheet)
                 ??
                 // find the SSR generated element (if any):
-                (styleSheet.id ? ((document.head.querySelector(`style[data-cssfn-id="${styleSheet.id}"]`) ?? undefined) as HTMLStyleElement|undefined) : undefined)
+                (styleSheet.id ? ((headElement?.querySelector(`style[data-cssfn-id="${styleSheet.id}"]`) ?? undefined) as HTMLStyleElement|undefined) : undefined)
             );
             if (styleElm) {
                 styleElm.parentElement?.removeChild(styleElm);
@@ -103,7 +103,7 @@ const batchCommit = () => {
                 // add the styleSheet:
                 
                 // find the SSR generated element (if any):
-                const existingStyleElm = (styleSheet.id ? ((document.head.querySelector(`style[data-cssfn-id="${styleSheet.id}"]`) ?? undefined) as HTMLStyleElement|undefined) : undefined);
+                const existingStyleElm = (styleSheet.id ? ((headElement?.querySelector(`style[data-cssfn-id="${styleSheet.id}"]`) ?? undefined) as HTMLStyleElement|undefined) : undefined);
                 
                 styleElm = (
                     // re-use the existing <style> element (if any):
@@ -138,27 +138,13 @@ const batchCommit = () => {
     
     //#region efficiently append bulk styleElms
     if (batchAppendChildren.length) {
-        if (!styleGroupElm) {
-            styleGroupElm = document.createDocumentFragment();
-            
-            /*
-                insert the <div data-cssfn-dom-styles> after the `batchCommit()` function has returned,
-                so insertion of bulk <style>(s) is efficient
-            */
-            Promise.resolve(styleGroupElm).then((styleGroupElm) => {
-                document.head.appendChild(styleGroupElm);
-            });
-        } // if
-        
-        
-        
         if (batchAppendChildren.length === 1) {
-            styleGroupElm.appendChild(batchAppendChildren[0]);
+            headElement?.appendChild(batchAppendChildren[0]);
         }
         else {
             const childrenGroup = document.createDocumentFragment();
             for (const styleElm of batchAppendChildren) childrenGroup.appendChild(styleElm);
-            styleGroupElm.appendChild(childrenGroup);
+            headElement?.appendChild(childrenGroup);
         } // if
     } // if
     //#endregion efficiently append bulk styleElms
