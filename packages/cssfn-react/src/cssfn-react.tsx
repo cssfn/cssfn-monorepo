@@ -99,9 +99,9 @@ const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ content, id }:
 });
 
 export interface StylesProps {
-    concurrentRender ?: boolean
+    asyncRender ?: boolean
 }
-export const Styles = ({ concurrentRender = true }: StylesProps): JSX.Element|null => {
+export const Styles = ({ asyncRender = false }: StylesProps): JSX.Element|null => {
     // states:
     //#region local storages without causing to (re)render
     /**
@@ -123,7 +123,13 @@ export const Styles = ({ concurrentRender = true }: StylesProps): JSX.Element|nu
         const renderedCss = (
             (styleSheet.enabled || null)
             &&
-            (!concurrentRender ? renderStyleSheet(styleSheet) : await renderStyleSheetAsync(styleSheet))
+            (
+                asyncRender
+                ?
+                await renderStyleSheetAsync(styleSheet)
+                :
+                renderStyleSheet(styleSheet)
+            )
         );
         if (!renderedCss) {
             // remove the <Style>:
