@@ -1186,7 +1186,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         this.#liveStyleSheet = new Subject<CssStyle|null>();
-        styleSheet(this.#liveStyleSheet);
+        styleSheet(this.#liveStyleSheet, { id: `${this.#options.prefix}-cfg` });
         
         
         
