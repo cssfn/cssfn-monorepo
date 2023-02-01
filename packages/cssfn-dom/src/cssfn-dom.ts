@@ -205,7 +205,7 @@ if (isClientSide) styleSheetRegistry.subscribe(handleUpdate);
 // SSR cleanups:
 if (headElement) { // === if (isClientSide)
     // register a callback just BEFORE the first_paint occured:
-    requestAnimationFrame(() => {
+    isomorphicRequestAnimationFrame(() => {
         // register a callback on the next macro_task (just AFTER the first_paint occured):
         const messageChannel = new MessageChannel();
         messageChannel.port1.onmessage = () => {
