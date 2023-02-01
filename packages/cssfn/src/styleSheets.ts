@@ -235,14 +235,16 @@ class StyleSheetRegistry {
         
         const newStyleSheet = new StyleSheet<TCssScopeName>(
             scopes,
-            this.#styleSheetUpdated,           // listen for future updates
+            this.#styleSheetUpdated,               // listen for future updates
             options
         );
-        this.#styleSheets.push(newStyleSheet); // register to collection
+        this.#styleSheets.push(newStyleSheet);     // register to collection
         
         
         
-        this.#subscribers.next(newStyleSheet); // notify a StyleSheet added
+        if (newStyleSheet.enabled) {               // skip disabled styleSheet
+            this.#subscribers.next(newStyleSheet); // notify a StyleSheet added
+        } // if
         
         
         
@@ -254,6 +256,7 @@ class StyleSheetRegistry {
         const styleSheets = this.#styleSheets;
         for (let i = 0; i < styleSheets.length; i++) {
             const styleSheet = styleSheets[i];
+            if (!styleSheet.enabled) continue;     // skip disabled styleSheet
             
             subscriber(styleSheet);
         } // for
