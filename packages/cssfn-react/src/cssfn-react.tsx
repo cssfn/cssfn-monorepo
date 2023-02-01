@@ -91,7 +91,6 @@ const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ content, id }:
     content.renderedCss    = null;                // de-reference the `renderedCss` from `props`
     
     // jsx:
-    // console.log(`<Style> render!`);
     if (!localRenderedCss) return null;
     return (
         <style data-cssfn-id={id || ''} dangerouslySetInnerHTML={{ __html: localRenderedCss }} />
@@ -133,15 +132,11 @@ export const Styles = ({ asyncRender = false }: StylesProps): JSX.Element|null =
         );
         if (!renderedCss) {
             // remove the <Style>:
-            // console.log('');
-            // console.log(`<Style> removed!`);
             // styles.delete(styleSheet); // do not delete an item in collection
             styles.set(styleSheet, null); // instead assign to `null` to mark as deleted, so we can un-delete it later in the same prev order
         }
         else {
             // add/update the <Style>:
-            // console.log('');
-            // console.log(`<Style> mutated!`);
             styles.set(styleSheet,
                 /**
                  * <Style> is a pure static component and will never re-render by itself.
@@ -192,8 +187,6 @@ export const Styles = ({ asyncRender = false }: StylesProps): JSX.Element|null =
         
         
         
-        // console.log('');
-        // console.log(`<Styles> render!`);
         return (
             <>
                 {
