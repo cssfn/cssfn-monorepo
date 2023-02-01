@@ -59,7 +59,7 @@ export const config = { concurrentRender: true };
 
 
 // dom:
-let styleGroupElm : HTMLDivElement|null = null;
+let styleGroupElm : DocumentFragment|null = null;
 const styleElms = new WeakMap<StyleSheet, HTMLStyleElement>(); // uses WeakMap to indirectly append a related HTMLStyleElement into StyleSheet object, without preventing the StyleSheet object to garbage collected
 
 
@@ -83,7 +83,13 @@ const batchCommit = () => {
     for (const [styleSheet, rendered] of changes) {
         if (!rendered) {
             // remove the styleSheet:
-            const styleElm = styleElms.get(styleSheet);
+            
+            const styleElm = (
+                styleElms.get(styleSheet)
+                ??
+                // find the SSR generated element (if any):
+                (styleSheet.id ? ((document.head.querySelector(`style[data-cssfn-id="${styleSheet.id}"]`) ?? undefined) as HTMLStyleElement|undefined) : undefined)
+            );
             if (styleElm) {
                 styleElm.parentElement?.removeChild(styleElm);
                 styleElms.delete(styleSheet);
@@ -91,19 +97,38 @@ const batchCommit = () => {
         }
         else {
             // add/update the styleSheet:
+            
             let styleElm = styleElms.get(styleSheet);
             if (!styleElm) {
                 // add the styleSheet:
-                styleElm = document.createElement('style');
-                styleElm.textContent = rendered;
+                
+                // find the SSR generated element (if any):
+                const existingStyleElm = (styleSheet.id ? ((document.head.querySelector(`style[data-cssfn-id="${styleSheet.id}"]`) ?? undefined) as HTMLStyleElement|undefined) : undefined);
+                
+                styleElm = (
+                    // re-use the existing <style> element (if any):
+                    existingStyleElm
+                    ??
+                    // create a new <style> element:
+                    document.createElement('style')
+                );
                 styleElms.set(styleSheet, styleElm); // make a relationship between StyleSheet object <==> HTMLStyleElement
                 
                 
                 
-                batchAppendChildren.push(styleElm);
+                // update the styleSheet:
+                styleElm.textContent = rendered;
+                
+                
+                
+                if (!existingStyleElm) {
+                    styleElm.dataset.cssfnId = styleSheet.id || '';
+                    batchAppendChildren.push(styleElm)
+                };
             }
             else {
                 // update the styleSheet:
+                
                 styleElm.textContent = rendered;
             } // if
         } // if
@@ -114,8 +139,7 @@ const batchCommit = () => {
     //#region efficiently append bulk styleElms
     if (batchAppendChildren.length) {
         if (!styleGroupElm) {
-            styleGroupElm = document.createElement('div');
-            styleGroupElm.dataset.cssfnDomStyles = ''; // an identifier this <div> is a special container for generated HTMLStyleElement(s)
+            styleGroupElm = document.createDocumentFragment();
             
             /*
                 insert the <div data-cssfn-dom-styles> after the `batchCommit()` function has returned,

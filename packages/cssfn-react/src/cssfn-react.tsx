@@ -82,9 +82,10 @@ interface StyleContent {
     renderedCss : string|null
 }
 interface StyleProps {
-    content : StyleContent
+    content  : StyleContent
+    id      ?: string
 }
-const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ content }: StyleProps): JSX.Element|null => {
+const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ content, id }: StyleProps): JSX.Element|null => {
     // because the `renderedCss` may be a_huge_string, we need to *unreference* it:
     const localRenderedCss = content.renderedCss; // copy         the `renderedCss` to local variable
     content.renderedCss    = null;                // de-reference the `renderedCss` from `props`
@@ -93,7 +94,7 @@ const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ content }: Sty
     // console.log(`<Style> render!`);
     if (!localRenderedCss) return null;
     return (
-        <style dangerouslySetInnerHTML={{ __html: localRenderedCss }} />
+        <style data-cssfn-id={id || ''} dangerouslySetInnerHTML={{ __html: localRenderedCss }} />
     );
 });
 
@@ -141,6 +142,8 @@ export const Styles = ({ concurrentRender = true }: StylesProps): JSX.Element|nu
                  * To update <Style>, we need to re-create a new <Style>.
                  */
                 <Style
+                    id={styleSheet.id}
+                    
                     content={
                         { renderedCss } as StyleContent
                     }
