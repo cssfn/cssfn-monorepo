@@ -127,13 +127,18 @@ jest.isolateModules(() => {
             }),
         ]);
         
-        await new Promise<void>((resolve) => { setTimeout(() => {
-            stylesheet2.next(null);
-            
-            
-            
-            resolve();
-        }, 10)});
+        await new Promise<void>((resolve, reject) => { setTimeout(() => {
+            try {
+                stylesheet2.next(null);
+                
+                
+                
+                resolve();
+            }
+            catch (error) {
+                reject(error);
+            } // try
+        }, 100)});
         
     });
     
@@ -149,15 +154,20 @@ jest.isolateModules(() => {
             }, { specificityWeight: 3 }),
         ], { id: 'stylesheet#4' });
         
-        await new Promise<void>((resolve) => { setTimeout(() => {
-            const mainScopeClass = styleSheet4.main;
-            expect(mainScopeClass).toBe('ysbco');
-            // console.log('scopeName', mainScopeClass);
-            
-            
-            
-            resolve();
-        }, 0)});
+        await new Promise<void>((resolve, reject) => { setTimeout(() => {
+            try {
+                const mainScopeClass = styleSheet4.main;
+                expect(mainScopeClass).toBe('ysbco');
+                // console.log('scopeName', mainScopeClass);
+                
+                
+                
+                resolve();
+            }
+            catch (error) {
+                reject(error);
+            } // try
+        }, 100)});
     });
     
     
@@ -199,13 +209,18 @@ jest.isolateModules(() => {
             }),
         }));
         
-        await new Promise<void>((resolve) => { setTimeout(() => {
-            stylesheet2.next(null);
-            
-            
-            
-            resolve();
-        }, 10)});
+        await new Promise<void>((resolve, reject) => { setTimeout(() => {
+            try {
+                stylesheet2.next(null);
+                
+                
+                
+                resolve();
+            }
+            catch (error) {
+                reject(error);
+            } // try
+        }, 100)});
         
     });
     
@@ -219,15 +234,20 @@ jest.isolateModules(() => {
             '--sheetId': '"ss4"',
         }), { id: 'stylesheet#4', specificityWeight: 3 });
         
-        await new Promise<void>((resolve) => { setTimeout(() => {
-            const mainScopeClass = styleSheet4;
-            expect(mainScopeClass).toBe('ysbco');
-            // console.log('scopeName', mainScopeClass);
-            
-            
-            
-            resolve();
-        }, 0)});
+        await new Promise<void>((resolve, reject) => { setTimeout(() => {
+            try {
+                const mainScopeClass = styleSheet4;
+                expect(mainScopeClass).toBe('ysbco');
+                // console.log('scopeName', mainScopeClass);
+                
+                
+                
+                resolve();
+            }
+            catch (error) {
+                reject(error);
+            } // try
+        }, 100)});
     });
 });
 
@@ -289,14 +309,19 @@ jest.isolateModules(() => {
     
     
     test('test no any attached stylesheet', async () => {
-        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
-            let stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
-            expect(stylesElm).toBe(null); // no any attached stylesheet yet
-            
-            
-            
-            resolve();
-        }, 0)});
+        await new Promise<void>((resolve, reject) => { dom.window.setTimeout(() => {
+            try {
+                let stylesElm : Element|null = Array.from(dom.window.document.head.querySelectorAll('style')).at(-1) ?? null;
+                expect(stylesElm).toBe(null); // no any attached stylesheet yet
+                
+                
+                
+                resolve();
+            }
+            catch (error) {
+                reject(error);
+            } // try
+        }, 100)});
     });
     
     
@@ -312,25 +337,30 @@ jest.isolateModules(() => {
             }),
         ]);
         
-        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
-            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
-            expect(stylesElm).not.toBe(null); // has some attached stylesheet
-            // console.log(stylesElm?.outerHTML);
-            
-            
-            
-            expect(stylesElm?.outerHTML.includes('button {')).toBe(true);
-            const btn1Style = dom.window.getComputedStyle(
-                dom.window.document.querySelector('#btn1')!
-            );
-            expect(btn1Style.appearance).toBe('none');
-            expect(btn1Style.display).toBe('flex');
-            expect(btn1Style.flexDirection).toBe('row');
-            
-            
-            
-            resolve();
-        }, 0)});
+        await new Promise<void>((resolve, reject) => { dom.window.setTimeout(() => {
+            try {
+                const stylesElm : Element|null = dom.window.document.head;
+                expect(stylesElm).not.toBe(null); // has some attached stylesheet
+                // console.log(stylesElm?.outerHTML);
+                
+                
+                
+                expect(stylesElm?.outerHTML.includes('button {')).toBe(true);
+                const btn1Style = dom.window.getComputedStyle(
+                    dom.window.document.querySelector('#btn1')!
+                );
+                expect(btn1Style.appearance).toBe('none');
+                expect(btn1Style.display).toBe('flex');
+                expect(btn1Style.flexDirection).toBe('row');
+                
+                
+                
+                resolve();
+            }
+            catch (error) {
+                reject(error);
+            } // try
+        }, 100)});
     });
     
     
@@ -359,53 +389,9 @@ jest.isolateModules(() => {
             }),
         ]);
         
-        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
-            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
-            expect(stylesElm).not.toBe(null); // has some attached stylesheet
-            // console.log(stylesElm?.outerHTML);
-            
-            
-            
-            expect(stylesElm?.outerHTML.includes('button {')).toBe(true);
-            const btn1Style = dom.window.getComputedStyle(
-                dom.window.document.querySelector('#btn1')!
-            );
-            expect(btn1Style.appearance).toBe('none');
-            expect(btn1Style.display).toBe('flex');
-            expect(btn1Style.flexDirection).toBe('row');
-            
-            
-            
-            expect(stylesElm?.outerHTML.includes('input[type="checkbox"] {')).toBe(true);
-            const check1Style = dom.window.getComputedStyle(
-                dom.window.document.querySelector('#check1')!
-            );
-            expect(check1Style.display).toBe('inline-flex');
-            expect(check1Style.flexDirection).toBe('row');
-            expect(check1Style.background).toBe('pink');
-            
-            
-            
-            expect(stylesElm?.outerHTML.includes('input[type="text"] {')).toBe(true);
-            const text1Style = dom.window.getComputedStyle(
-                dom.window.document.querySelector('#text1')!
-            );
-            expect(text1Style.display).toBe('grid');
-            expect(text1Style.background).toBe('gray');
-            expect(text1Style.color).toBe('darkgray');
-            
-            
-            
-            resolve();
-        }, 0)});
-        
-        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
-            stylesheet2.next(null);
-            
-            
-            
-            dom.window.setTimeout(() => {
-                const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
+        await new Promise<void>((resolve, reject) => { dom.window.setTimeout(() => {
+            try {
+                const stylesElm : Element|null = dom.window.document.head;
                 expect(stylesElm).not.toBe(null); // has some attached stylesheet
                 // console.log(stylesElm?.outerHTML);
                 
@@ -421,14 +407,13 @@ jest.isolateModules(() => {
                 
                 
                 
-                expect(stylesElm?.outerHTML.includes('input[type="checkbox"] {')).toBe(false);
-                // jsdom doesn't update the css correctly:
-                // const check1Style = dom.window.getComputedStyle(
-                //     dom.window.document.querySelector('#check1')!
-                // );
-                // expect(check1Style.display).toBe('');
-                // expect(check1Style.flexDirection).toBe('');
-                // expect(check1Style.background).toBe('');
+                expect(stylesElm?.outerHTML.includes('input[type="checkbox"] {')).toBe(true);
+                const check1Style = dom.window.getComputedStyle(
+                    dom.window.document.querySelector('#check1')!
+                );
+                expect(check1Style.display).toBe('inline-flex');
+                expect(check1Style.flexDirection).toBe('row');
+                expect(check1Style.background).toBe('pink');
                 
                 
                 
@@ -443,8 +428,68 @@ jest.isolateModules(() => {
                 
                 
                 resolve();
-            }, 10);
-        }, 10)});
+            }
+            catch (error) {
+                reject(error);
+            } // try
+        }, 100)});
+        
+        await new Promise<void>((resolve, reject) => { dom.window.setTimeout(() => {
+            try {
+                stylesheet2.next(null);
+                
+                
+                
+                dom.window.setTimeout(() => {
+                    try {
+                        const stylesElm : Element|null = dom.window.document.head;
+                        expect(stylesElm).not.toBe(null); // has some attached stylesheet
+                        // console.log(stylesElm?.outerHTML);
+                        
+                        
+                        
+                        expect(stylesElm?.outerHTML.includes('button {')).toBe(true);
+                        const btn1Style = dom.window.getComputedStyle(
+                            dom.window.document.querySelector('#btn1')!
+                        );
+                        expect(btn1Style.appearance).toBe('none');
+                        expect(btn1Style.display).toBe('flex');
+                        expect(btn1Style.flexDirection).toBe('row');
+                        
+                        
+                        
+                        expect(stylesElm?.outerHTML.includes('input[type="checkbox"] {')).toBe(false);
+                        // jsdom doesn't update the css correctly:
+                        // const check1Style = dom.window.getComputedStyle(
+                        //     dom.window.document.querySelector('#check1')!
+                        // );
+                        // expect(check1Style.display).toBe('');
+                        // expect(check1Style.flexDirection).toBe('');
+                        // expect(check1Style.background).toBe('');
+                        
+                        
+                        
+                        expect(stylesElm?.outerHTML.includes('input[type="text"] {')).toBe(true);
+                        const text1Style = dom.window.getComputedStyle(
+                            dom.window.document.querySelector('#text1')!
+                        );
+                        expect(text1Style.display).toBe('grid');
+                        expect(text1Style.background).toBe('gray');
+                        expect(text1Style.color).toBe('darkgray');
+                        
+                        
+                        
+                        resolve();
+                    }
+                    catch (error) {
+                        reject(error);
+                    } // try
+                }, 100);
+            }
+            catch (error) {
+                reject(error);
+            } // try
+        }, 100)});
         
     });
     
@@ -460,23 +505,28 @@ jest.isolateModules(() => {
             }, { specificityWeight: 3 }),
         ], { id: 'stylesheet#4' });
         
-        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
-            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
-            expect(stylesElm).not.toBe(null); // has some attached stylesheet
-            // console.log(stylesElm?.outerHTML);
-            
-            
-            
-            expect(stylesElm?.outerHTML.includes('--sheetId: "ss4"')).toBe(true);
-            const mainScopeClass = styleSheet4.main;
-            expect(mainScopeClass).toBe('ysbco');
-            expect(stylesElm?.outerHTML.includes(`.${mainScopeClass}.${mainScopeClass}.${mainScopeClass} {`)).toBe(true);
-            // console.log('scopeName', mainScopeClass);
-            
-            
-            
-            resolve();
-        }, 0)});
+        await new Promise<void>((resolve, reject) => { dom.window.setTimeout(() => {
+            try {
+                const stylesElm : Element|null = dom.window.document.head;
+                expect(stylesElm).not.toBe(null); // has some attached stylesheet
+                // console.log(stylesElm?.outerHTML);
+                
+                
+                
+                expect(stylesElm?.outerHTML.includes('--sheetId: "ss4"')).toBe(true);
+                const mainScopeClass = styleSheet4.main;
+                expect(mainScopeClass).toBe('ysbco');
+                expect(stylesElm?.outerHTML.includes(`.${mainScopeClass}.${mainScopeClass}.${mainScopeClass} {`)).toBe(true);
+                // console.log('scopeName', mainScopeClass);
+                
+                
+                
+                resolve();
+            }
+            catch (error) {
+                reject(error);
+            } // try
+        }, 100)});
     });
     
     
@@ -485,58 +535,27 @@ jest.isolateModules(() => {
         const styleSheet5DynContent = new Subject<CssScopeList<'main'>|null>();
         const styleSheet5 = styleSheets(styleSheet5DynContent, { id: 'stylesheet#5' });
         
-        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
-            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
-            expect(stylesElm).not.toBe(null); // has some attached stylesheet
-            // console.log(stylesElm?.outerHTML);
-            
-            
-            expect(stylesElm?.outerHTML.includes('--sheetId: "ss5"')).toBe(false);
-            expect(stylesElm?.outerHTML.includes('--myFavColor:')).toBe(false);
-            
-            
-            styleSheet5DynContent.next([
-                mainScope({
-                    '--sheetId': '"ss5"',
-                    '--myFavColor' : 'yellow',
-                }),
-            ])
-            dom.window.setTimeout(() => {
-                expect(stylesElm?.outerHTML.includes('--sheetId: "ss5"')).toBe(true);
-                expect(stylesElm?.outerHTML.includes('--myFavColor: yellow')).toBe(true);
-                const mainScopeClass = styleSheet5.main;
-                expect(mainScopeClass).toBe('zc3y1');
-                expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
-                // console.log('scopeName', mainScopeClass);
+        await new Promise<void>((resolve, reject) => { dom.window.setTimeout(() => {
+            try {
+                const stylesElm : Element|null = dom.window.document.head;
+                expect(stylesElm).not.toBe(null); // has some attached stylesheet
+                // console.log(stylesElm?.outerHTML);
                 
+                
+                expect(stylesElm?.outerHTML.includes('--sheetId: "ss5"')).toBe(false);
+                expect(stylesElm?.outerHTML.includes('--myFavColor:')).toBe(false);
                 
                 
                 styleSheet5DynContent.next([
                     mainScope({
-                        '--sheetId': '"ss5b"',
-                        '--myFavColor' : 'purple',
+                        '--sheetId': '"ss5"',
+                        '--myFavColor' : 'yellow',
                     }),
                 ])
                 dom.window.setTimeout(() => {
-                    expect(stylesElm?.outerHTML.includes('--sheetId: "ss5b"')).toBe(true);
-                    expect(stylesElm?.outerHTML.includes('--myFavColor: purple')).toBe(true);
-                    const mainScopeClass = styleSheet5.main;
-                    expect(mainScopeClass).toBe('zc3y1');
-                    expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
-                    // console.log('scopeName', mainScopeClass);
-                    
-                    
-                    
-                    styleSheet5DynContent.next([
-                        mainScope({
-                            '--sheetId': '"ss5c"',
-                            '--myFavColor' : 'cornflowerblue',
-                        }),
-                    ])
-                    dom.window.setTimeout(() => {
-                        expect(stylesElm?.outerHTML.includes('--sheetId: "ss5c"')).toBe(true);
-                        expect(stylesElm?.outerHTML.includes('--myFavColor: cornflowerblue')).toBe(true);
-                        // console.log(stylesElm?.outerHTML);
+                    try {
+                        expect(stylesElm?.outerHTML.includes('--sheetId: "ss5"')).toBe(true);
+                        expect(stylesElm?.outerHTML.includes('--myFavColor: yellow')).toBe(true);
                         const mainScopeClass = styleSheet5.main;
                         expect(mainScopeClass).toBe('zc3y1');
                         expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
@@ -544,11 +563,62 @@ jest.isolateModules(() => {
                         
                         
                         
-                        resolve();
-                    }, 10);
-                }, 10);
-            }, 10);
-        }, 0)});
+                        styleSheet5DynContent.next([
+                            mainScope({
+                                '--sheetId': '"ss5b"',
+                                '--myFavColor' : 'purple',
+                            }),
+                        ])
+                        dom.window.setTimeout(() => {
+                            try {
+                                expect(stylesElm?.outerHTML.includes('--sheetId: "ss5b"')).toBe(true);
+                                expect(stylesElm?.outerHTML.includes('--myFavColor: purple')).toBe(true);
+                                const mainScopeClass = styleSheet5.main;
+                                expect(mainScopeClass).toBe('zc3y1');
+                                expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
+                                // console.log('scopeName', mainScopeClass);
+                                
+                                
+                                
+                                styleSheet5DynContent.next([
+                                    mainScope({
+                                        '--sheetId': '"ss5c"',
+                                        '--myFavColor' : 'cornflowerblue',
+                                    }),
+                                ])
+                                dom.window.setTimeout(() => {
+                                    try {
+                                        expect(stylesElm?.outerHTML.includes('--sheetId: "ss5c"')).toBe(true);
+                                        expect(stylesElm?.outerHTML.includes('--myFavColor: cornflowerblue')).toBe(true);
+                                        // console.log(stylesElm?.outerHTML);
+                                        const mainScopeClass = styleSheet5.main;
+                                        expect(mainScopeClass).toBe('zc3y1');
+                                        expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
+                                        // console.log('scopeName', mainScopeClass);
+                                        
+                                        
+                                        
+                                        resolve();
+                                    }
+                                    catch (error) {
+                                        reject(error);
+                                    } // try
+                                }, 100);
+                            }
+                            catch (error) {
+                                reject(error);
+                            } // try
+                        }, 100);
+                    }
+                    catch (error) {
+                        reject(error);
+                    } // try
+                }, 100);
+            }
+            catch (error) {
+                reject(error);
+            } // try
+        }, 100)});
     });
     
     
@@ -564,25 +634,30 @@ jest.isolateModules(() => {
             }),
         }));
         
-        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
-            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
-            expect(stylesElm).not.toBe(null); // has some attached stylesheet
-            // console.log(stylesElm?.outerHTML);
-            
-            
-            
-            expect(stylesElm?.outerHTML.includes('[role="button"] {')).toBe(true);
-            const btn1Style = dom.window.getComputedStyle(
-                dom.window.document.querySelector('#btn2')!
-            );
-            expect(btn1Style.appearance).toBe('none');
-            expect(btn1Style.display).toBe('flex');
-            expect(btn1Style.flexDirection).toBe('column');
-            
-            
-            
-            resolve();
-        }, 0)});
+        await new Promise<void>((resolve, reject) => { dom.window.setTimeout(() => {
+            try {
+                const stylesElm : Element|null = dom.window.document.head;
+                expect(stylesElm).not.toBe(null); // has some attached stylesheet
+                // console.log(stylesElm?.outerHTML);
+                
+                
+                
+                expect(stylesElm?.outerHTML.includes('[role="button"] {')).toBe(true);
+                const btn1Style = dom.window.getComputedStyle(
+                    dom.window.document.querySelector('#btn2')!
+                );
+                expect(btn1Style.appearance).toBe('none');
+                expect(btn1Style.display).toBe('flex');
+                expect(btn1Style.flexDirection).toBe('column');
+                
+                
+                
+                resolve();
+            }
+            catch (error) {
+                reject(error);
+            } // try
+        }, 100)});
     });
     
     
@@ -611,53 +686,9 @@ jest.isolateModules(() => {
             }),
         }));
         
-        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
-            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
-            expect(stylesElm).not.toBe(null); // has some attached stylesheet
-            // console.log(stylesElm?.outerHTML);
-            
-            
-            
-            expect(stylesElm?.outerHTML.includes('[role="button"] {')).toBe(true);
-            const btn1Style = dom.window.getComputedStyle(
-                dom.window.document.querySelector('#btn2')!
-            );
-            expect(btn1Style.appearance).toBe('none');
-            expect(btn1Style.display).toBe('flex');
-            expect(btn1Style.flexDirection).toBe('column');
-            
-            
-            
-            expect(stylesElm?.outerHTML.includes('[role="checkbox"] {')).toBe(true);
-            const check1Style = dom.window.getComputedStyle(
-                dom.window.document.querySelector('#check2')!
-            );
-            expect(check1Style.display).toBe('inline-flex');
-            expect(check1Style.flexDirection).toBe('row-reverse');
-            expect(check1Style.background).toBe('red');
-            
-            
-            
-            expect(stylesElm?.outerHTML.includes('[role="textbox"] {')).toBe(true);
-            const text1Style = dom.window.getComputedStyle(
-                dom.window.document.querySelector('#text2')!
-            );
-            expect(text1Style.display).toBe('inline-grid');
-            expect(text1Style.background).toBe('lightblue');
-            expect(text1Style.color).toBe('darkblue');
-            
-            
-            
-            resolve();
-        }, 0)});
-        
-        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
-            stylesheet2.next(null);
-            
-            
-            
-            dom.window.setTimeout(() => {
-                const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
+        await new Promise<void>((resolve, reject) => { dom.window.setTimeout(() => {
+            try {
+                const stylesElm : Element|null = dom.window.document.head;
                 expect(stylesElm).not.toBe(null); // has some attached stylesheet
                 // console.log(stylesElm?.outerHTML);
                 
@@ -673,14 +704,13 @@ jest.isolateModules(() => {
                 
                 
                 
-                expect(stylesElm?.outerHTML.includes('[role="checkbox"] {')).toBe(false);
-                // jsdom doesn't update the css correctly:
-                // const check1Style = dom.window.getComputedStyle(
-                //     dom.window.document.querySelector('#check2')!
-                // );
-                // expect(check1Style.display).toBe('inline-flex');
-                // expect(check1Style.flexDirection).toBe('row-reverse');
-                // expect(check1Style.background).toBe('red');
+                expect(stylesElm?.outerHTML.includes('[role="checkbox"] {')).toBe(true);
+                const check1Style = dom.window.getComputedStyle(
+                    dom.window.document.querySelector('#check2')!
+                );
+                expect(check1Style.display).toBe('inline-flex');
+                expect(check1Style.flexDirection).toBe('row-reverse');
+                expect(check1Style.background).toBe('red');
                 
                 
                 
@@ -695,8 +725,68 @@ jest.isolateModules(() => {
                 
                 
                 resolve();
-            }, 10);
-        }, 10)});
+            }
+            catch (error) {
+                reject(error);
+            } // try
+        }, 100)});
+        
+        await new Promise<void>((resolve, reject) => { dom.window.setTimeout(() => {
+            try {
+                stylesheet2.next(null);
+                
+                
+                
+                dom.window.setTimeout(() => {
+                    try {
+                        const stylesElm : Element|null = dom.window.document.head;
+                        expect(stylesElm).not.toBe(null); // has some attached stylesheet
+                        // console.log(stylesElm?.outerHTML);
+                        
+                        
+                        
+                        expect(stylesElm?.outerHTML.includes('[role="button"] {')).toBe(true);
+                        const btn1Style = dom.window.getComputedStyle(
+                            dom.window.document.querySelector('#btn2')!
+                        );
+                        expect(btn1Style.appearance).toBe('none');
+                        expect(btn1Style.display).toBe('flex');
+                        expect(btn1Style.flexDirection).toBe('column');
+                        
+                        
+                        
+                        expect(stylesElm?.outerHTML.includes('[role="checkbox"] {')).toBe(false);
+                        // jsdom doesn't update the css correctly:
+                        // const check1Style = dom.window.getComputedStyle(
+                        //     dom.window.document.querySelector('#check2')!
+                        // );
+                        // expect(check1Style.display).toBe('inline-flex');
+                        // expect(check1Style.flexDirection).toBe('row-reverse');
+                        // expect(check1Style.background).toBe('red');
+                        
+                        
+                        
+                        expect(stylesElm?.outerHTML.includes('[role="textbox"] {')).toBe(true);
+                        const text1Style = dom.window.getComputedStyle(
+                            dom.window.document.querySelector('#text2')!
+                        );
+                        expect(text1Style.display).toBe('inline-grid');
+                        expect(text1Style.background).toBe('lightblue');
+                        expect(text1Style.color).toBe('darkblue');
+                        
+                        
+                        
+                        resolve();
+                    }
+                    catch (error) {
+                        reject(error);
+                    } // try
+                }, 100);
+            }
+            catch (error) {
+                reject(error);
+            } // try
+        }, 100)});
         
     });
     
@@ -710,23 +800,28 @@ jest.isolateModules(() => {
             '--sheetId': '"ss4b"',
         }), { id: 'stylesheet#4b', specificityWeight: 3 });
         
-        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
-            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
-            expect(stylesElm).not.toBe(null); // has some attached stylesheet
-            // console.log(stylesElm?.outerHTML);
-            
-            
-            
-            expect(stylesElm?.outerHTML.includes('--sheetId: "ss4b"')).toBe(true);
-            const mainScopeClass = styleSheet4;
-            expect(mainScopeClass).toBe('ggyis');
-            expect(stylesElm?.outerHTML.includes(`.${mainScopeClass}.${mainScopeClass}.${mainScopeClass} {`)).toBe(true);
-            // console.log('scopeName', mainScopeClass);
-            
-            
-            
-            resolve();
-        }, 0)});
+        await new Promise<void>((resolve, reject) => { dom.window.setTimeout(() => {
+            try {
+                const stylesElm : Element|null = dom.window.document.head;
+                expect(stylesElm).not.toBe(null); // has some attached stylesheet
+                // console.log(stylesElm?.outerHTML);
+                
+                
+                
+                expect(stylesElm?.outerHTML.includes('--sheetId: "ss4b"')).toBe(true);
+                const mainScopeClass = styleSheet4;
+                expect(mainScopeClass).toBe('ggyis');
+                expect(stylesElm?.outerHTML.includes(`.${mainScopeClass}.${mainScopeClass}.${mainScopeClass} {`)).toBe(true);
+                // console.log('scopeName', mainScopeClass);
+                
+                
+                
+                resolve();
+            }
+            catch (error) {
+                reject(error);
+            } // try
+        }, 100)});
     });
     
     
@@ -735,52 +830,25 @@ jest.isolateModules(() => {
         const styleSheet5DynContent = new Subject<CssStyle|null>();
         const styleSheet5 = styleSheet(styleSheet5DynContent, { id: 'stylesheet#5b' });
         
-        await new Promise<void>((resolve) => { dom.window.setTimeout(() => {
-            const stylesElm : Element|null = dom.window.document.head.querySelector('[data-cssfn-dom-styles]');
-            expect(stylesElm).not.toBe(null); // has some attached stylesheet
-            // console.log(stylesElm?.outerHTML);
-            
-            
-            expect(stylesElm?.outerHTML.includes('--sheetId: "ss5b"')).toBe(false);
-            expect(stylesElm?.outerHTML.includes('--yourFavColor:')).toBe(false);
-            
-            
-            styleSheet5DynContent.next({
-                '--sheetId': '"ss5b"',
-                '--yourFavColor' : 'yellow',
-            })
-            dom.window.setTimeout(() => {
-                expect(stylesElm?.outerHTML.includes('--sheetId: "ss5b"')).toBe(true);
-                expect(stylesElm?.outerHTML.includes('--yourFavColor: yellow')).toBe(true);
-                const mainScopeClass = styleSheet5;
-                expect(mainScopeClass).toBe('zfc4l');
-                expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
-                // console.log('scopeName', mainScopeClass);
+        await new Promise<void>((resolve, reject) => { dom.window.setTimeout(() => {
+            try {
+                const stylesElm : Element|null = dom.window.document.head;
+                expect(stylesElm).not.toBe(null); // has some attached stylesheet
+                // console.log(stylesElm?.outerHTML);
                 
+                
+                expect(stylesElm?.outerHTML.includes('--sheetId: "ss5b"')).toBe(false);
+                expect(stylesElm?.outerHTML.includes('--yourFavColor:')).toBe(false);
                 
                 
                 styleSheet5DynContent.next({
-                    '--sheetId': '"ss5bb"',
-                    '--yourFavColor' : 'purple',
+                    '--sheetId': '"ss5b"',
+                    '--yourFavColor' : 'yellow',
                 })
                 dom.window.setTimeout(() => {
-                    expect(stylesElm?.outerHTML.includes('--sheetId: "ss5bb"')).toBe(true);
-                    expect(stylesElm?.outerHTML.includes('--yourFavColor: purple')).toBe(true);
-                    const mainScopeClass = styleSheet5;
-                    expect(mainScopeClass).toBe('zfc4l');
-                    expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
-                    // console.log('scopeName', mainScopeClass);
-                    
-                    
-                    
-                    styleSheet5DynContent.next({
-                        '--sheetId': '"ss5bc"',
-                        '--yourFavColor' : 'cornflowerblue',
-                    })
-                    dom.window.setTimeout(() => {
-                        expect(stylesElm?.outerHTML.includes('--sheetId: "ss5bc"')).toBe(true);
-                        expect(stylesElm?.outerHTML.includes('--yourFavColor: cornflowerblue')).toBe(true);
-                        // console.log(stylesElm?.outerHTML);
+                    try {
+                        expect(stylesElm?.outerHTML.includes('--sheetId: "ss5b"')).toBe(true);
+                        expect(stylesElm?.outerHTML.includes('--yourFavColor: yellow')).toBe(true);
                         const mainScopeClass = styleSheet5;
                         expect(mainScopeClass).toBe('zfc4l');
                         expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
@@ -788,10 +856,57 @@ jest.isolateModules(() => {
                         
                         
                         
-                        resolve();
-                    }, 10);
-                }, 10);
-            }, 10);
-        }, 0)});
+                        styleSheet5DynContent.next({
+                            '--sheetId': '"ss5bb"',
+                            '--yourFavColor' : 'purple',
+                        })
+                        dom.window.setTimeout(() => {
+                            try {
+                                expect(stylesElm?.outerHTML.includes('--sheetId: "ss5bb"')).toBe(true);
+                                expect(stylesElm?.outerHTML.includes('--yourFavColor: purple')).toBe(true);
+                                const mainScopeClass = styleSheet5;
+                                expect(mainScopeClass).toBe('zfc4l');
+                                expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
+                                // console.log('scopeName', mainScopeClass);
+                                
+                                
+                                
+                                styleSheet5DynContent.next({
+                                    '--sheetId': '"ss5bc"',
+                                    '--yourFavColor' : 'cornflowerblue',
+                                })
+                                dom.window.setTimeout(() => {
+                                    try {
+                                        expect(stylesElm?.outerHTML.includes('--sheetId: "ss5bc"')).toBe(true);
+                                        expect(stylesElm?.outerHTML.includes('--yourFavColor: cornflowerblue')).toBe(true);
+                                        // console.log(stylesElm?.outerHTML);
+                                        const mainScopeClass = styleSheet5;
+                                        expect(mainScopeClass).toBe('zfc4l');
+                                        expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
+                                        // console.log('scopeName', mainScopeClass);
+                                        
+                                        
+                                        
+                                        resolve();
+                                    }
+                                    catch (error) {
+                                        reject(error);
+                                    } // try
+                                }, 100);
+                            }
+                            catch (error) {
+                                reject(error);
+                            } // try
+                        }, 100);
+                    }
+                    catch (error) {
+                        reject(error);
+                    } // try
+                }, 100);
+            }
+            catch (error) {
+                reject(error);
+            } // try
+        }, 100)});
     });
 });

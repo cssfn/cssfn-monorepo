@@ -99,7 +99,7 @@ jest.isolateModules(() => {
         .toBe(0);
     });
     
-    test('[server] test registered styleSheets = 0', () => {
+    test('[server] test registered styleSheets = 2', () => {
         const sheet1 = styleSheets(() => [
             mainScope({ color: 'red', }),
             scopeOf('menuBar', { background: 'blue', }),
@@ -133,10 +133,15 @@ jest.isolateModules(() => {
         });
         
         expect(activeSheets.length)
-        .toBe(0);
+        .toBe(2); // 'sheet2' is disabled, active: ['sheet1', 'sheet3']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([
+            'sheet1', 'sheet3', // 'sheet2' is disabled, active: ['sheet1', 'sheet3']
+        ]);
     });
     
-    test('[server] test registered styleSheets = 0', () => {
+    test('[server] test registered styleSheets = 4', () => {
         styleSheets(() => [
             mainScope([]),
         ], { id: 'sheet4' });
@@ -157,10 +162,16 @@ jest.isolateModules(() => {
         });
         
         expect(activeSheets.length)
-        .toBe(0);
+        .toBe(4); // 'sheet2' is disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // 'sheet2' is disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+        ]);
     });
     
-    test('[server] test registered styleSheets = 0', () => {
+    test('[server] test registered styleSheets = 6', () => {
         const sheet6 = new Subject<CssScopeList<'main'>|null>();
         styleSheets(sheet6, { id: 'sheet6' });
         sheet6.next([
@@ -198,37 +209,75 @@ jest.isolateModules(() => {
         });
         
         expect(activeSheets.length)
-        .toBe(0);
+        .toBe(7); // ['sheet2', 'sheet8'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet7', 'sheet9']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet8'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet7', 'sheet9']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6', 'sheet7', 'sheet9',
+        ]);
         
         sheet8.next([
             mainScope([]),
         ]);
         
         expect(activeSheets.length)
-        .toBe(0);
+        .toBe(8); // 'sheet2' is disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet7', 'sheet9', 'sheet8']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // 'sheet2' is disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet7', 'sheet9', 'sheet8']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6', 'sheet7', 'sheet9',
+            'sheet8',
+        ]);
         
         sheet6.next(null);
         sheet9.next(null);
         
         expect(activeSheets.length)
-        .toBe(0);
+        .toBe(6); // ['sheet2', 'sheet6', 'sheet9'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet7', 'sheet8']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet6', 'sheet9'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet7', 'sheet8']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet7',
+            'sheet8',
+        ]);
         
         sheet7.next(null);
         
         expect(activeSheets.length)
-        .toBe(0);
+        .toBe(5); // ['sheet2', 'sheet6', 'sheet7', 'sheet9'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet8']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet6', 'sheet7', 'sheet9'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet8']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet8',
+        ]);
         
         sheet6.next([
             mainScope([]),
         ]);
         
         expect(activeSheets.length)
-        .toBe(0);
+        .toBe(6); // ['sheet2', 'sheet7', 'sheet9'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet8', 'sheet6']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet7', 'sheet9'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet8', 'sheet6']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet8',
+            'sheet6',
+        ]);
     });
     
     
     
-    test('[server] test registered styleSheets = 0', () => {
+    test('[server] test registered styleSheets = 6', () => {
         const activeSheets : StyleSheet[] = [];
         styleSheetRegistry.subscribe((styleSheet) => {
             if (styleSheet.enabled) {
@@ -240,13 +289,13 @@ jest.isolateModules(() => {
         });
         
         expect(activeSheets.length)
-        .toBe(0);
+        .toBe(6);
     });
     
-    test('[server] test registered styleSheets = 0', () => {
-        const mainClass = styleSheet({ color: 'red', }, { id: 'sheet1' });
-        styleSheet({ background: 'blue', }, { id: 'sheet2', enabled: false });
-        styleSheet({ opacity: 0.5, }, { id: 'sheet3' });
+    test('[server] test registered styleSheets = 8', () => {
+        const mainClass = styleSheet({ color: 'red', }, { id: 'sheet10' });
+        styleSheet({ background: 'blue', }, { id: 'sheet11', enabled: false });
+        styleSheet({ opacity: 0.5, }, { id: 'sheet12' });
         
         expect(typeof(mainClass)).toBe('string');
         expect(mainClass.length).toBeGreaterThanOrEqual(1);
@@ -263,12 +312,22 @@ jest.isolateModules(() => {
         });
         
         expect(activeSheets.length)
-        .toBe(0);
+        .toBe(8); // ['sheet2', 'sheet7', 'sheet9', 'sheet11'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6',
+            'sheet8',
+            
+            'sheet10', 'sheet12', // ['sheet2', 'sheet7', 'sheet9', 'sheet11'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12']
+        ]);
     });
     
-    test('[server] test registered styleSheets = 0', () => {
-        styleSheet({ color: 'red', }, { id: 'sheet4' });
-        styleSheet({ background: 'blue', }, { id: 'sheet5' });
+    test('[server] test registered styleSheets = 10', () => {
+        styleSheet({ color: 'red', }, { id: 'sheet13' });
+        styleSheet({ background: 'blue', }, { id: 'sheet14' });
         
         
         
@@ -283,24 +342,35 @@ jest.isolateModules(() => {
         });
         
         expect(activeSheets.length)
-        .toBe(0);
+        .toBe(10); // ['sheet2', 'sheet7', 'sheet9', 'sheet11'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet7', 'sheet9', 'sheet11'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6',
+            'sheet8',
+            
+            'sheet10', 'sheet12',
+            'sheet13', 'sheet14',
+        ]);
     });
     
-    test('[server] test registered styleSheets = 0', () => {
+    test('[server] test registered styleSheets = 12', () => {
         const sheet6 = new Subject<CssStyle|null>();
-        styleSheet(sheet6, { id: 'sheet6' });
+        styleSheet(sheet6, { id: 'sheet15' });
         sheet6.next({ color: 'red', });
         
         const sheet7 = new Subject<CssStyle|null>();
-        styleSheet(sheet7, { id: 'sheet7' });
+        styleSheet(sheet7, { id: 'sheet16' });
         sheet7.next({ color: 'red', });
         
         const sheet8 = new Subject<CssStyle|null>();
-        styleSheet(sheet8, { id: 'sheet8' });
+        styleSheet(sheet8, { id: 'sheet17' });
         // sheet8.next({ color: 'red', });
         
         const sheet9 = new Subject<CssStyle|null>();
-        styleSheet(sheet9, { id: 'sheet9' });
+        styleSheet(sheet9, { id: 'sheet18' });
         sheet9.next({ color: 'red', });
         
         
@@ -316,28 +386,91 @@ jest.isolateModules(() => {
         });
         
         expect(activeSheets.length)
-        .toBe(0);
+        .toBe(13); // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet17'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet15', 'sheet16', 'sheet18']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet17'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet15', 'sheet16', 'sheet18']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6',
+            'sheet8',
+            
+            'sheet10', 'sheet12',
+            'sheet13', 'sheet14',
+            'sheet15', 'sheet16', 'sheet18',
+        ]);
         
         sheet8.next({ color: 'red', });
         
         expect(activeSheets.length)
-        .toBe(0);
+        .toBe(14); // ['sheet2', 'sheet7', 'sheet9', 'sheet11' ] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet15', 'sheet16', 'sheet18', 'sheet17']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet7', 'sheet9', 'sheet11' ] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet15', 'sheet16', 'sheet18', 'sheet17']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6',
+            'sheet8',
+            
+            'sheet10', 'sheet12',
+            'sheet13', 'sheet14',
+            'sheet15', 'sheet16', 'sheet18',
+            'sheet17',
+        ]);
         
         sheet6.next(null);
         sheet9.next(null);
         
         expect(activeSheets.length)
-        .toBe(0);
+        .toBe(12); // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet15', 'sheet18'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet16', 'sheet17']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet15', 'sheet18'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet16', 'sheet17']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6',
+            'sheet8',
+
+            'sheet10', 'sheet12',
+            'sheet13', 'sheet14',
+            'sheet16',
+            'sheet17',
+        ]);
         
         sheet7.next(null);
         
         expect(activeSheets.length)
-        .toBe(0);
+        .toBe(11); // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet15', 'sheet16', 'sheet18'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet17']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet15', 'sheet16', 'sheet18'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6',, 'sheet8' 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet17']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6',
+            'sheet8',
+
+            'sheet10', 'sheet12',
+            'sheet13', 'sheet14',
+            'sheet17',
+        ]);
         
         sheet6.next({ color: 'red', });
         
         expect(activeSheets.length)
-        .toBe(0);
+        .toBe(12); // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet16', 'sheet18'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet17', 'sheet15']
+        
+        expect(activeSheets.map((sheet) => sheet.id))
+        .toEqual([ // ['sheet2', 'sheet7', 'sheet9', 'sheet11', 'sheet16', 'sheet18'] are disabled, active: ['sheet1', 'sheet3', 'sheet4', 'sheet5', 'sheet6', 'sheet8', 'sheet10', 'sheet12', 'sheet13', 'sheet14', 'sheet17', 'sheet15']
+            'sheet1', 'sheet3',
+            'sheet4', 'sheet5',
+            'sheet6',
+            'sheet8',
+
+            'sheet10', 'sheet12',
+            'sheet13', 'sheet14',
+            'sheet17',
+            'sheet15',
+        ]);
     });
 });
 
