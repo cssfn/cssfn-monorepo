@@ -54,7 +54,7 @@ const isClientSide : boolean = isBrowser || isJsDom;
 
 
 // config:
-export const config = { concurrentRender: true };
+export const config = { asyncRender: true };
 
 
 
@@ -177,12 +177,12 @@ const scheduleBatchCommit = () => {
 
 // handlers:
 const handleUpdate = async (styleSheet: StyleSheet): Promise<void> => {
-    const rendered = await (
-        !config.concurrentRender
+    const rendered = (
+        config.asyncRender
         ?
-        Promise.resolve(renderStyleSheet(styleSheet))
+        await renderStyleSheetAsync(styleSheet)
         :
-        renderStyleSheetAsync(styleSheet)
+        renderStyleSheet(styleSheet)
     );
     
     
@@ -199,3 +199,21 @@ const handleUpdate = async (styleSheet: StyleSheet): Promise<void> => {
     scheduleBatchCommit();
 }
 if (isClientSide) styleSheetRegistry.subscribe(handleUpdate);
+
+
+
+// SSR cleanups:
+if (headElement) { // === if (isClientSide)
+    // register a callback just BEFORE the first_paint occured:
+    requestAnimationFrame(() => {
+        // register a callback on the next macro_task (just AFTER the first_paint occured):
+        const messageChannel = new MessageChannel();
+        messageChannel.port1.onmessage = () => {
+            // remove all <style> elements with blank data-cssfn-id property:
+            for (const noIdStyleElm of headElement.querySelectorAll('style[data-cssfn-id=""]')) {
+                noIdStyleElm.parentElement?.removeChild(noIdStyleElm);
+            } // for
+        };
+        messageChannel.port2.postMessage(undefined);
+    });
+} // if
