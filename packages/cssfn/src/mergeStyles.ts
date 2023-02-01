@@ -167,18 +167,18 @@ const finalizeSelectorFurther = (style: CssStyleMap, rawSelector: CssRawSelector
             }
             else {
                 populatedSelectors.push(...selectors);
-                // TODO: prevent the `selectors` object to GC at time_expensive_moment
+                // HINT: prevent the `selectors` object to GC at time_expensive_moment
             } // if
         } // for
     } // if
     
     // merge selectors & adjust specificityWeight, performGrouping, etc:
     const mergedSelectors = populatedSelectors ? mergeSelectors(populatedSelectors, options) : null;
-    // TODO: prevent the `populatedSelectors` object to GC at time_expensive_moment
+    // HINT: prevent the `populatedSelectors` object to GC at time_expensive_moment
     
     // render back to string:
     const finalSelector : CssFinalSelector|null = isNotEmptySelectors(mergedSelectors) ? selectorsToString(mergedSelectors) : null;
-    // TODO: prevent the `mergedSelectors` object to GC at time_expensive_moment
+    // HINT: prevent the `mergedSelectors` object to GC at time_expensive_moment
     
     
     
@@ -358,12 +358,12 @@ export const mergeParent  = (style: CssStyleMap): void => {
                             
                             
                             mergeLiteral(style, mergedParentStyles); // merge into current style
-                            // TODO: prevent the `mergedParentStyles` object to GC at time_expensive_moment
+                            // HINT: prevent the `mergedParentStyles` object to GC at time_expensive_moment
                         } // if
                     } // if
                 } // if
                 style.delete(ruleKey);                      // merged => delete source
-                // TODO: prevent the `parentRuleData` object to GC at time_expensive_moment
+                // HINT: prevent the `parentRuleData` object to GC at time_expensive_moment
             }
             else if (needToReorderTheRestRules) {
                 /* preserve the order of another (nested)Rules */
@@ -447,7 +447,7 @@ export const mergeNested  = (style: CssStyleMap): void => {
             
             
             
-            // TODO: prevent the `style.get(ruleKey)` object to GC at time_expensive_moment
+            // HINT: prevent the `style.get(ruleKey)` object to GC at time_expensive_moment
             if (mergedStyles) {
                 // update:
                 (style as unknown as CssFinalRuleMap).set(ruleKey, [
@@ -505,7 +505,7 @@ export const mergeNested  = (style: CssStyleMap): void => {
         
         // delete first member to second_last_member:
         for (const [ruleKey] of mergeableRules.slice(0, -1)) style.delete(ruleKey);
-        // TODO: prevent the `ruleKey(s)` object to GC at time_expensive_moment
+        // HINT: prevent the `ruleKey(s)` object to GC at time_expensive_moment
         // for (const [ruleKey] of mergeableRules) { /*defer*/ }
     } // for
 }
@@ -580,7 +580,7 @@ export const mergeStyles = (styles: CssStyleCollection | (CssStyleCollection|Css
         
         // merge current style to single big style (string props + symbol props):
         mergeLiteral(mergedStyles, subStyleValue); // mutate
-        // TODO: prevent the `subStyleValue` object to GC at time_expensive_moment
+        // HINT: prevent the `subStyleValue` object to GC at time_expensive_moment
         
         // to preserve the order sequence of only_parentSelector
         // we need to unwrap the only_parentSelector before merging with next `subStyleValue`
