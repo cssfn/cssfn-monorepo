@@ -53,17 +53,6 @@ import {
     normalizeSelectorOptions,
 }                           from './utilities.js'
 
-// other libs:
-import {
-    // tests:
-    isBrowser,
-    isJsDom,
-}                           from 'is-in-browser'
-
-
-
-const isClientSide : boolean = isBrowser || isJsDom;
-
 
 
 // rules:
@@ -200,7 +189,7 @@ export const states   = (states  : CssRuleCollection, options?: CssSelectorOptio
 
 
 // keyframes:
-const globalAutoKeyframesIdRegistry = new Map<CssCustomKeyframesRefImpl, string>(); // should not be added on server side
+const globalAutoKeyframesIdRegistry = new Map<CssCustomKeyframesRefImpl, string>();
 class CssCustomKeyframesRefImpl implements CssCustomKeyframesRef {
     //#region private properties
     #value         : string|null;
@@ -242,16 +231,23 @@ class CssCustomKeyframesRefImpl implements CssCustomKeyframesRef {
         
         
         
-        // prevents the `globalAutoKeyframesIdRegistry` to grow on server side:
-        if (!isClientSide) return 'k0';
-        
-        
-        
         let autoValue = globalAutoKeyframesIdRegistry.get(this);
         if (autoValue) return autoValue;
         
         
         
+        /*
+            The `autoValue` may increase on the first call of `keyframes() => toString()`.
+            In practice, the `keyframes()` is always be called inside the callback initiator of `cssConfig(() => { })`, in which the `cssConfig()` is always be called on *top-level-module*.
+            So, when the (component) modules are RE_LOADED, the `cssVars()` WON'T be re-called.
+            So, the MEMORY_LEAK is NEVER occured.
+        */
+        /*
+            In a rare cases, the `keyframes()` may be called inside the callback of `[dynamic]StyleSheet[s]()`.
+            When the corresponding components are RE_MOUNTED, the styleSheet may be re-created and the `autoValue` increases.
+            So, the MEMORY_LEAK is OCCURED but in SLOWLY_RATE at client_side.
+            At server_side, the interaction of components are NEVER_HAPPENED, so the MEMORY_LEAK is NEVER occured.
+        */
         autoValue = `k${globalAutoKeyframesIdRegistry.size + 1}`;
         globalAutoKeyframesIdRegistry.set(this, autoValue);
         return autoValue;

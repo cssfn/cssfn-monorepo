@@ -91,10 +91,9 @@ const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ content }: Sty
     
     // jsx:
     // console.log(`<Style> render!`);
+    if (!localRenderedCss) return null;
     return (
-        <style>
-            { localRenderedCss }
-        </style>
+        <style dangerouslySetInnerHTML={{ __html: localRenderedCss }} />
     );
 });
 

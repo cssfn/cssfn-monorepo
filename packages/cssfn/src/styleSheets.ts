@@ -20,18 +20,9 @@ import {
 
 // other libs:
 import {
-    // tests:
-    isBrowser,
-    isJsDom,
-}                           from 'is-in-browser'
-import {
     Observable,
     Subject,
 }                           from 'rxjs'
-
-
-
-const isClientSide : boolean = isBrowser || isJsDom;
 
 
 
@@ -233,13 +224,12 @@ class StyleSheetRegistry {
     
     //#region public methods
     add<TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions) {
-        if (!isClientSide) { // on server side => just pass a StyleSheet object
-            return new StyleSheet<TCssScopeName>(
-                scopes,
-                null, // not listen for future updates
-                options
-            );
-        } // if
+        /*
+            The `StyleSheetRegistry::add()` always be called every call of `styleSheet()`, `styleSheets()`, dynamicStyleSheet()`, and `dynamicStyleSheets()`.
+            In practice, these 4 functions are always be called on *top-level-module*.
+            So, when the (component) modules are RE_LOADED, the `StyleSheetRegistry::add()` WON'T be re-called.
+            So, the MEMORY_LEAK is NEVER occured.
+        */
         
         
         
@@ -262,10 +252,6 @@ class StyleSheetRegistry {
     }
     
     subscribe(subscriber: (styleSheet: StyleSheet<CssScopeName>) => void) {
-        if (!isClientSide) return; // client side only
-        
-        
-        
         //#region notify previously registered StyleSheet(s)
         const styleSheets = this.#styleSheets;
         for (let i = 0; i < styleSheets.length; i++) {

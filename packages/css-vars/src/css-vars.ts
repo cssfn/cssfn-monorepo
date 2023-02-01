@@ -15,21 +15,6 @@ import {
     renderValue,
 }                           from '@cssfn/cssfn'
 
-// other libs:
-import {
-    // tests:
-    isBrowser,
-    isJsDom,
-}                           from 'is-in-browser'
-import {
-    // tests:
-    default as warning,
-}                           from 'tiny-warning'
-
-
-
-const isClientSide : boolean = isBrowser || isJsDom;
-
 
 
 // types:
@@ -128,7 +113,7 @@ const cssVarsProxyHandler : ProxyHandler<Dictionary<CssCustomSimpleRef>> = {
 
 
 
-let globalIdCounter = 0; // should not be incremented on server side
+let globalIdCounter = 0;
 
 
 
@@ -162,18 +147,6 @@ export const cssVars = <TCssCustomProps extends {}>(options?: CssVarsOptions): C
      * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName`.
      */
     const ref = (propName: string): CssCustomSimpleRef => {
-        if (process.env.NODE_ENV === 'dev') {
-            warning(
-                isClientSide        // on client_side => can use static_id and/or auto_counter_id
-                ||                  // or
-                !liveOptions.minify // not minified => static_id => no auto_counter_id is used => can be run both on client_side or server_side
-                ,
-                '`css-vars` with option `minify = true (default)` is not supported to be fetched on server side. Assign an option `{ minify: false }` to fix it.'
-            )
-        } // if
-        
-        
-        
         const cached = propRefsCache.get(propName);
         if (cached !== undefined) return cached;
         
@@ -190,6 +163,12 @@ export const cssVars = <TCssCustomProps extends {}>(options?: CssVarsOptions): C
         
         
         
+        /*
+            The `globalIdCounter` increases on every call of `cssVars()` -- if the `CssVarsOptions` set to `minify = true (default)`.
+            In practice, the `cssVars()` is always be called on *top-level-module*.
+            So, when the (component) modules are RE_LOADED, the `cssVars()` WON'T be re-called.
+            So, the MEMORY_LEAK is NEVER occured.
+        */
         const newAutoId = `v${++globalIdCounter}`; // the global counter is always incremented, so it's guaranteed to be unique
         takenIdRegistry.set(propName, newAutoId);  // register the newAutoId to be re-use later (when the cache get invalidated)
         return updateRef(propName, /*auto_id: */ newAutoId);
