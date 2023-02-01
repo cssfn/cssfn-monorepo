@@ -60,7 +60,7 @@ export const config = { asyncRender: true };
 
 // dom:
 const headElement = isClientSide ? document.head : undefined;
-const styleElms = new WeakMap<StyleSheet, HTMLStyleElement>(); // uses WeakMap to indirectly append a related HTMLStyleElement into StyleSheet object, without preventing the StyleSheet object to garbage collected
+const styleElms = new WeakMap<StyleSheet, HTMLStyleElement>(); // uses WeakMap to make a relationship between StyleSheet_object => HTMLStyleElement, without preventing the StyleSheet_object to garbage collected
 
 
 
@@ -112,20 +112,18 @@ const batchCommit = () => {
                     // create a new <style> element:
                     document.createElement('style')
                 );
-                styleElms.set(styleSheet, styleElm); // make a relationship between StyleSheet object <==> HTMLStyleElement
+                styleElms.set(styleSheet, styleElm); // make a relationship between StyleSheet_object => HTMLStyleElement
+                
+                if (!existingStyleElm) {
+                    styleElm.dataset.cssfnId = styleSheet.id || '';
+                    batchAppendChildren.push(styleElm);
+                };
                 
                 
                 
                 // update the styleSheet:
                 styleElm.textContent = rendered;
                 styleElm.dataset.cssfnCsr = ''; // mark as client-side-rendered
-                
-                
-                
-                if (!existingStyleElm) {
-                    styleElm.dataset.cssfnId = styleSheet.id || '';
-                    batchAppendChildren.push(styleElm);
-                };
             }
             else {
                 // update the styleSheet:
