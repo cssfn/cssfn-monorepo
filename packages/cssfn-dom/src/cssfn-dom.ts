@@ -217,7 +217,7 @@ if (headElement) { // === if (isClientSide)
             // wait for 10 seconds to remove all <style>(s) having [data-cssfn-id] attr that not having [data-cssfn-csr] attr:
             setTimeout(() => {
                 // remove all <style>(s) having [data-cssfn-id] attr that not having [data-cssfn-csr] attr:
-                for (const noIdStyleElm of headElement.querySelectorAll('style[data-cssfn-id]:not(data-cssfn-csr)')) {
+                for (const noIdStyleElm of headElement.querySelectorAll('style[data-cssfn-id]:not([data-cssfn-csr])')) {
                     noIdStyleElm.parentElement?.removeChild(noIdStyleElm);
                 } // for
             }, 10 * 1000);
