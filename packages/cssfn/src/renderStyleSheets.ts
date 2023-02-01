@@ -78,10 +78,6 @@ export const generateRulesFromStyleSheet = <TCssScopeName extends CssScopeName =
     return scopeRules;
 }
 export const renderStyleSheet = <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): string|null => {
-    if (!styleSheet.enabled) return null;
-    
-    
-    
     // generate (scope) Rule(s) from styleSheet:
     const scopeRules = generateRulesFromStyleSheet(styleSheet);
     

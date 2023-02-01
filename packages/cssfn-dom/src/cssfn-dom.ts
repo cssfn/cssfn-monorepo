@@ -177,12 +177,16 @@ const scheduleBatchCommit = () => {
 
 // handlers:
 const handleUpdate = async (styleSheet: StyleSheet): Promise<void> => {
-    const rendered = (
-        config.asyncRender
-        ?
-        await renderStyleSheetAsync(styleSheet)
-        :
-        renderStyleSheet(styleSheet)
+    const renderedCss = (
+        (styleSheet.enabled || null) // if the styleSheet is disabled => no need to render
+        &&
+        (
+            config.asyncRender
+            ?
+            await renderStyleSheetAsync(styleSheet)
+            :
+            renderStyleSheet(styleSheet)
+        )
     );
     
     
@@ -193,7 +197,7 @@ const handleUpdate = async (styleSheet: StyleSheet): Promise<void> => {
         Note:
         if there's a rendered_styleSheet that has not_been_applied, it will be canceled (lost) because a newer rendered_styleSheet is exist
     */
-    pendingCommit.set(styleSheet, rendered || null);
+    pendingCommit.set(styleSheet, renderedCss || null);
     
     // schedule to `batchCommit()` the rendered css in the future BEFORE browser repaint:
     scheduleBatchCommit();

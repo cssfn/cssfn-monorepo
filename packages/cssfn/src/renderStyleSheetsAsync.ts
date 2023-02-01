@@ -99,8 +99,7 @@ for (let addWorker = 0; addWorker < maxPreloadWorkers; addWorker++) {
 // processors:
 export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName = CssScopeName>(styleSheet: StyleSheet<TCssScopeName>): Promise<ReturnType<typeof renderStyleSheet>> => {
     // conditions:
-    if (!styleSheet.enabled) return null; // the styleSheet is disabled => no need to render
-    if (renderPool.isError)  return renderStyleSheet(styleSheet); // not_support_worker => fallback to sync mode
+    if (renderPool.isError) return renderStyleSheet(styleSheet); // not_support_worker => fallback to sync mode
     
     
     

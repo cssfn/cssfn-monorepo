@@ -120,7 +120,7 @@ export const Styles = ({ asyncRender = false }: StylesProps): JSX.Element|null =
     // dom effects:
     const [unsubscribe] = useState(() => styleSheetRegistry.subscribe(async (styleSheet: StyleSheet): Promise<void> => {
         const renderedCss = (
-            (styleSheet.enabled || null)
+            (styleSheet.enabled || null) // if the styleSheet is disabled => no need to render
             &&
             (
                 asyncRender
