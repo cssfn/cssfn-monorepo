@@ -122,8 +122,8 @@ const batchCommit = () => {
                 
                 
                 if (!existingStyleElm) {
-                    styleElm.dataset.cssfnId = styleSheet.id || '';
-                    batchAppendChildren.push(styleElm)
+                    if (styleSheet.id) styleElm.dataset.cssfnId = styleSheet.id; // set [data-cssfn-id="xxx"] attr -- if has `styleSheet.id`, otherwise don't set blank [data-cssfn-id=""] to avoid being removed by *SSR cleanups*
+                    batchAppendChildren.push(styleElm);
                 };
             }
             else {
