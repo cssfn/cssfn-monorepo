@@ -118,11 +118,12 @@ const batchCommit = () => {
                 
                 // update the styleSheet:
                 styleElm.textContent = rendered;
+                styleElm.dataset.cssfnCsr = ''; // mark as client-side-rendered
                 
                 
                 
                 if (!existingStyleElm) {
-                    if (styleSheet.id) styleElm.dataset.cssfnId = styleSheet.id; // set [data-cssfn-id="xxx"] attr -- if has `styleSheet.id`, otherwise don't set blank [data-cssfn-id=""] to avoid being removed by *SSR cleanups*
+                    styleElm.dataset.cssfnId = styleSheet.id || '';
                     batchAppendChildren.push(styleElm);
                 };
             }
@@ -213,10 +214,13 @@ if (headElement) { // === if (isClientSide)
         // register a callback on the next macro_task (just AFTER the first_paint occured):
         const messageChannel = new MessageChannel();
         messageChannel.port1.onmessage = () => {
-            // remove all <style> elements with blank data-cssfn-id property:
-            for (const noIdStyleElm of headElement.querySelectorAll('style[data-cssfn-id=""]')) {
-                noIdStyleElm.parentElement?.removeChild(noIdStyleElm);
-            } // for
+            // wait for 10 seconds to remove all <style>(s) having [data-cssfn-id] attr that not having [data-cssfn-csr] attr:
+            setTimeout(() => {
+                // remove all <style>(s) having [data-cssfn-id] attr that not having [data-cssfn-csr] attr:
+                for (const noIdStyleElm of headElement.querySelectorAll('style[data-cssfn-id]:not(data-cssfn-csr)')) {
+                    noIdStyleElm.parentElement?.removeChild(noIdStyleElm);
+                } // for
+            }, 10 * 1000);
         };
         messageChannel.port2.postMessage(undefined);
     });
