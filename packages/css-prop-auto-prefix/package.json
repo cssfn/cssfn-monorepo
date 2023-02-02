@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/css-prop-auto-prefix",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Adds vendor prefixes in the browser.",
   "keywords": [
     "css",
@@ -28,10 +28,10 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
-    "@cssfn/css-types": "^2.0.7",
+    "@cssfn/css-types": "^2.1.0",
     "is-in-browser": "^2.0.0"
   },
   "devDependencies": {
-    "@cssfn/css-prop-list": "^2.0.9"
+    "@cssfn/css-prop-list": "^2.1.0"
   }
 }
