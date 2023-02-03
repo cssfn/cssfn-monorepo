@@ -47,12 +47,18 @@ export const isObservableStyles = (styles: CssStyleCollection | Observable<CssSt
 // style sheets:
 
 export interface StyleSheetOptions {
-    enabled ?: boolean
-    id      ?: string
+    enabled   ?: boolean
+    id        ?: string
+    
+    ssr       ?: boolean
+    greedyCsr ?: boolean
 }
 const defaultStyleSheetOptions : Required<StyleSheetOptions> = {
-    enabled  : true,
-    id       : '',
+    enabled    : true,
+    id         : '',
+    
+    ssr        : true,
+    greedyCsr  : false,
 }
 
 type StyleSheetUpdatedCallback<in TCssScopeName extends CssScopeName> = (styleSheet: StyleSheet<TCssScopeName>) => void;
@@ -76,8 +82,11 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
     constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
         const styleSheetOptions : Required<StyleSheetOptions> = {
             ...(options ?? {}),
-            enabled : options?.enabled ?? defaultStyleSheetOptions.enabled,
-            id      : options?.id      ?? defaultStyleSheetOptions.id,
+            enabled   : options?.enabled   ?? defaultStyleSheetOptions.enabled,
+            id        : options?.id        ?? defaultStyleSheetOptions.id,
+            
+            ssr       : options?.ssr       ?? defaultStyleSheetOptions.ssr,
+            greedyCsr : options?.greedyCsr ?? defaultStyleSheetOptions.greedyCsr,
         };
         this.#options = styleSheetOptions;
         this.#updatedCallback = updatedCallback;
@@ -190,6 +199,14 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
     
     get id() {
         return this.#options.id;
+    }
+    
+    get ssr() {
+        return this.#options.ssr;
+    }
+    
+    get greedyCsr() {
+        return this.#options.greedyCsr;
     }
     
     get scopes() {
