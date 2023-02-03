@@ -216,7 +216,7 @@ if (headElement) { // === if (isClientSide)
                 // remove all <style>(s) having [data-cssfn-id] attr in which not listed in `styleElms`:
                 const cssfnStyles           = Array.from(headElement.querySelectorAll('style[data-cssfn-id]')) as HTMLStyleElement[];
                 const registeredCssfnStyles = new Set<HTMLStyleElement>(styleElms.values());
-                const unusedCssfnStyles     = cssfnStyles.filter((cssfnStyle) => !registeredCssfnStyles.has(cssfnStyle))
+                const unusedCssfnStyles     = cssfnStyles.filter((cssfnStyle) => !registeredCssfnStyles.has(cssfnStyle));
                 for (const unusedCssfnStyle of unusedCssfnStyles) {
                     unusedCssfnStyle.parentElement?.removeChild(unusedCssfnStyle);
                 } // for
