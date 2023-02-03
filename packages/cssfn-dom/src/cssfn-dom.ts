@@ -60,7 +60,12 @@ export const config = { asyncRender: true };
 
 // dom:
 const headElement = isClientSide ? document.head : undefined;
-const styleElms = new Map<StyleSheet, HTMLStyleElement>(); // map a relationship between StyleSheet_object => HTMLStyleElement
+const styleElms = new Map<StyleSheet, HTMLStyleElement|null>(); // map a relationship between StyleSheet_object => (SSR|CSR) HTMLStyleElement
+
+const findCssfnStyleElmById = (cssfnId: string): HTMLStyleElement|null => {
+    if (!cssfnId) return null; // empty string => return null
+    return (headElement?.querySelector(`style[data-cssfn-id="${cssfnId}"]`) ?? null) as HTMLStyleElement|null;
+}
 
 
 
@@ -88,11 +93,11 @@ const batchCommit = () => {
                 styleElms.get(styleSheet)
                 ??
                 // find the SSR generated element (if any):
-                (styleSheet.id ? ((headElement?.querySelector(`style[data-cssfn-id="${styleSheet.id}"]`) ?? undefined) as HTMLStyleElement|undefined) : undefined)
+                findCssfnStyleElmById(styleSheet.id)
             );
             if (styleElm) {
                 styleElm.parentElement?.removeChild(styleElm); // delete the HTMLStyleElement from DOM tree
-                styleElms.delete(styleSheet);                  // delete the StyleSheet_object and the related HTMLStyleElement, so the HTMLStyleElement will go to GC
+                styleElms.set(styleSheet, null); // MARK the related HTMLStyleElement as DELETED, so we still have information that the styleSheet EVER CSR generated
             } // if
         }
         else {
@@ -103,7 +108,7 @@ const batchCommit = () => {
                 // add the styleSheet:
                 
                 // find the SSR generated element (if any):
-                const existingStyleElm = (styleSheet.id ? ((headElement?.querySelector(`style[data-cssfn-id="${styleSheet.id}"]`) ?? undefined) as HTMLStyleElement|undefined) : undefined);
+                const existingStyleElm = findCssfnStyleElmById(styleSheet.id);
                 
                 styleElm = (
                     // re-use the existing <style> element (if any):
@@ -112,7 +117,7 @@ const batchCommit = () => {
                     // create a new <style> element:
                     document.createElement('style')
                 );
-                styleElms.set(styleSheet, styleElm); // make a relationship between StyleSheet_object => HTMLStyleElement
+                styleElms.set(styleSheet, styleElm); // make a relationship between StyleSheet_object => CSR HTMLStyleElement
                 
                 if (!existingStyleElm) {
                     styleElm.dataset.cssfnId = styleSheet.id || '';
@@ -122,12 +127,12 @@ const batchCommit = () => {
                 
                 
                 // update the styleSheet:
-                styleElm.textContent = rendered;
+                styleElm.textContent = rendered; // CSR generated
             }
             else {
                 // update the styleSheet:
                 
-                styleElm.textContent = rendered;
+                styleElm.textContent = rendered; // CSR generated
             } // if
         } // if
     } // for
@@ -175,6 +180,22 @@ const scheduleBatchCommit = () => {
 
 // handlers:
 const handleUpdate = async (styleSheet: StyleSheet): Promise<void> => {
+    if (!styleSheet.greedyCsr) {          // if possible, skip the first_render when the SSR <style> is available
+        if (!styleElms.has(styleSheet)) { // if the styleSheet NEVER CSR generated => find the SSR generated (if any)
+            // find the SSR generated element (if any):
+            const existingStyleElm = findCssfnStyleElmById(styleSheet.id);
+            if (existingStyleElm) {
+                styleElms.set(styleSheet, existingStyleElm); // make a relationship between StyleSheet_object => SSR HTMLStyleElement
+                
+                
+                
+                return; // no need further CSR generated
+            } // if
+        } // if
+    } // if
+    
+    
+    
     const renderedCss = (
         (styleSheet.enabled || null) // if the styleSheet is disabled => no need to render
         &&
@@ -215,7 +236,7 @@ if (headElement) { // === if (isClientSide)
             setTimeout(() => {
                 // remove all <style>(s) having [data-cssfn-id] attr in which not listed in `styleElms`:
                 const cssfnStyles           = Array.from(headElement.querySelectorAll('style[data-cssfn-id]')) as HTMLStyleElement[];
-                const registeredCssfnStyles = new Set<HTMLStyleElement>(styleElms.values());
+                const registeredCssfnStyles = new Set<HTMLStyleElement|null>(styleElms.values());
                 const unusedCssfnStyles     = cssfnStyles.filter((cssfnStyle) => !registeredCssfnStyles.has(cssfnStyle));
                 for (const unusedCssfnStyle of unusedCssfnStyles) {
                     unusedCssfnStyle.parentElement?.removeChild(unusedCssfnStyle);
