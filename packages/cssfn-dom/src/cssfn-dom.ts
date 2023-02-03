@@ -60,7 +60,7 @@ export const config = { asyncRender: true };
 
 // dom:
 const headElement = isClientSide ? document.head : undefined;
-const styleElms = new WeakMap<StyleSheet, HTMLStyleElement>(); // uses WeakMap to make a relationship between StyleSheet_object => HTMLStyleElement, without preventing the StyleSheet_object to garbage collected
+const styleElms = new Map<StyleSheet, HTMLStyleElement>(); // map a relationship between StyleSheet_object => HTMLStyleElement
 
 
 
@@ -91,8 +91,8 @@ const batchCommit = () => {
                 (styleSheet.id ? ((headElement?.querySelector(`style[data-cssfn-id="${styleSheet.id}"]`) ?? undefined) as HTMLStyleElement|undefined) : undefined)
             );
             if (styleElm) {
-                styleElm.parentElement?.removeChild(styleElm);
-                styleElms.delete(styleSheet);
+                styleElm.parentElement?.removeChild(styleElm); // delete the HTMLStyleElement from DOM tree
+                styleElms.delete(styleSheet);                  // delete the StyleSheet_object and the related HTMLStyleElement, so the HTMLStyleElement will go to GC
             } // if
         }
         else {
@@ -123,7 +123,6 @@ const batchCommit = () => {
                 
                 // update the styleSheet:
                 styleElm.textContent = rendered;
-                styleElm.dataset.cssfnCsr = ''; // mark as client-side-rendered
             }
             else {
                 // update the styleSheet:
@@ -135,7 +134,7 @@ const batchCommit = () => {
     
     
     
-    //#region efficiently append bulk styleElms
+    //#region efficiently append bulk batchAppendChildren
     if (batchAppendChildren.length) {
         if (batchAppendChildren.length === 1) {
             headElement?.appendChild(batchAppendChildren[0]);
@@ -146,7 +145,7 @@ const batchCommit = () => {
             headElement?.appendChild(childrenGroup);
         } // if
     } // if
-    //#endregion efficiently append bulk styleElms
+    //#endregion efficiently append bulk batchAppendChildren
 }
 
 
@@ -212,11 +211,14 @@ if (headElement) { // === if (isClientSide)
         // register a callback on the next macro_task (just AFTER the first_paint occured):
         const messageChannel = new MessageChannel();
         messageChannel.port1.onmessage = () => {
-            // wait for 10 seconds to remove all <style>(s) having [data-cssfn-id] attr that not having [data-cssfn-csr] attr:
+            // wait for 10 seconds to remove all <style>(s) having [data-cssfn-id] attr in which not listed in `styleElms`:
             setTimeout(() => {
-                // remove all <style>(s) having [data-cssfn-id] attr that not having [data-cssfn-csr] attr:
-                for (const noIdStyleElm of headElement.querySelectorAll('style[data-cssfn-id]:not([data-cssfn-csr])')) {
-                    noIdStyleElm.parentElement?.removeChild(noIdStyleElm);
+                // remove all <style>(s) having [data-cssfn-id] attr in which not listed in `styleElms`:
+                const cssfnStyles           = Array.from(headElement.querySelectorAll('style[data-cssfn-id]')) as HTMLStyleElement[];
+                const registeredCssfnStyles = new Set<HTMLStyleElement>(styleElms.values());
+                const unusedCssfnStyles     = cssfnStyles.filter((cssfnStyle) => !registeredCssfnStyles.has(cssfnStyle))
+                for (const unusedCssfnStyle of unusedCssfnStyles) {
+                    unusedCssfnStyle.parentElement?.removeChild(unusedCssfnStyle);
                 } // for
             }, 10 * 1000);
         };
