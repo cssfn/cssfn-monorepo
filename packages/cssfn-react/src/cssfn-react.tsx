@@ -99,8 +99,9 @@ const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ content, id }:
 
 export interface StylesProps {
     asyncRender ?: boolean
+    onlySsr     ?: boolean
 }
-export const Styles = ({ asyncRender = false }: StylesProps): JSX.Element|null => {
+export const Styles = ({ asyncRender = false, onlySsr = true }: StylesProps): JSX.Element|null => {
     // states:
     //#region local storages without causing to (re)render
     /**
@@ -120,7 +121,9 @@ export const Styles = ({ asyncRender = false }: StylesProps): JSX.Element|null =
     // dom effects:
     const [unsubscribe] = useState(() => styleSheetRegistry.subscribe(async (styleSheet: StyleSheet): Promise<void> => {
         const renderedCss = (
-            (styleSheet.enabled || null) // if the styleSheet is disabled => no need to render
+            styleSheet.enabled           // if the styleSheet is disabled         => no need to render
+            &&
+            (!onlySsr || styleSheet.ssr) // if onlySsr -and- SSR_mode is disabled => no need to render
             &&
             (
                 asyncRender
@@ -129,7 +132,7 @@ export const Styles = ({ asyncRender = false }: StylesProps): JSX.Element|null =
                 :
                 renderStyleSheet(styleSheet)
             )
-        );
+        ) || null; // if false|empty_string => null
         if (!renderedCss) {
             // remove the <Style>:
             // styles.delete(styleSheet); // do not delete an item in collection
