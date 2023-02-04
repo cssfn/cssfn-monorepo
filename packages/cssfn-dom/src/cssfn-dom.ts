@@ -85,6 +85,7 @@ const batchCommit = () => {
     
     // apply the changes:
     const batchAppendChildren : HTMLStyleElement[] = [];
+    const batchDeleteChildren : HTMLStyleElement[] = [];
     for (const [styleSheet, rendered] of changes) {
         if (!rendered) {
             // remove the styleSheet:
@@ -96,8 +97,9 @@ const batchCommit = () => {
                 findCssfnStyleElmById(styleSheet.id)
             );
             if (styleElm) {
-                styleElm.parentElement?.removeChild(styleElm); // delete the HTMLStyleElement from DOM tree
                 styleElms.set(styleSheet, null); // MARK the related HTMLStyleElement as DELETED, so we still have information that the styleSheet EVER CSR generated
+                
+                batchDeleteChildren.push(styleElm);
             } // if
         }
         else {
@@ -139,18 +141,28 @@ const batchCommit = () => {
     
     
     
-    //#region efficiently append bulk batchAppendChildren
+    //#region efficiently mutate(s) the head
+    // add children:
     if (batchAppendChildren.length) {
         if (batchAppendChildren.length === 1) {
             headElement?.appendChild(batchAppendChildren[0]);
         }
         else {
             const childrenGroup = document.createDocumentFragment();
-            for (const styleElm of batchAppendChildren) childrenGroup.appendChild(styleElm);
+            for (const styleElm of batchAppendChildren) {
+                childrenGroup.appendChild(styleElm);
+            } // for
             headElement?.appendChild(childrenGroup);
         } // if
     } // if
-    //#endregion efficiently append bulk batchAppendChildren
+    
+    
+    
+    // delete children:
+    for (const styleElm of batchDeleteChildren) {
+        styleElm.parentElement?.removeChild(styleElm);
+    } // for
+    //#endregion efficiently mutate(s) the head
 }
 
 
