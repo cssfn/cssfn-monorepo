@@ -38,6 +38,7 @@ import type {
 }                           from '@cssfn/css-types'
 import {
     // types:
+    StyleSheetsFactoryBase,
     StyleSheetsFactory,
     StyleSheetFactory,
     
@@ -58,6 +59,8 @@ import {
     
     
     // utilities:
+    isPromise,
+    isModuleDefault,
     isObservableScopes,
     isObservableStyles,
 }                           from '@cssfn/cssfn'
@@ -249,18 +252,9 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
         this.#dynamicStyleSheet = new Subject<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>();
         this.#scopeMap = styleSheets(
             this.#dynamicStyleSheet,
-            this.#options
+            this.#options /* as StyleSheetOptions */
         );
-        if (isObservableScopes(scopes)) {
-            scopes.subscribe((newScopesOrEnabled) => {
-                this.#dynamicStyleSheet.next(newScopesOrEnabled); // forwards dynamically
-            });
-        }
-        else {
-            this.#dynamicStyleSheet.next(
-                scopes // forward once
-            );
-        } // if
+        this.#resolveScopes(scopes);
         //#endregion setup dynamic styleSheet
         
         
@@ -273,6 +267,31 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     
     
     //#region private methods
+    #resolveScopes(scopes: StyleSheetsFactory<TCssScopeName>): void {
+        if (!isPromise(scopes)) {
+            this.#forwardScopes(!isModuleDefault(scopes) ? scopes : scopes.default);
+        }
+        else {
+            scopes.then((resolvedScopes) => {
+                this.#forwardScopes(!isModuleDefault(resolvedScopes) ? resolvedScopes : resolvedScopes.default);
+            });
+        } // if
+    }
+    #forwardScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
+        if (isObservableScopes(scopes)) {
+            scopes.subscribe((newScopesOrEnabled) => {
+                this.#dynamicStyleSheet.next(newScopesOrEnabled); // forwards dynamically
+            });
+        }
+        else {
+            this.#dynamicStyleSheet.next(
+                scopes // forward once
+            );
+        } // if
+    }
+    
+    
+    
     #cancelDelayedDisableStyleSheet() {
         // conditions:
         if (!this.#cancelDisable) return; // nothing to cancel => ignore
