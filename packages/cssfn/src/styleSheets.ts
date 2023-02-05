@@ -1,6 +1,9 @@
 // cssfn:
 import type {
     // types:
+    MaybePromise,
+    ModuleDefault,
+    MaybeModuleDefault,
     ProductOrFactory,
 }                           from '@cssfn/types'
 import type {
@@ -27,25 +30,53 @@ import {
 
 
 // types:
-export type StyleSheetsFactory<TCssScopeName extends CssScopeName> = ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>
-export type StyleSheetFactory                                      = CssStyleCollection | Observable<CssStyleCollection|boolean>
+export type StyleSheetsFactoryBase<TCssScopeName extends CssScopeName> = ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>
+export type StyleSheetFactoryBase                                      = CssStyleCollection | Observable<CssStyleCollection|boolean>
+export type StyleSheetsFactory<TCssScopeName extends CssScopeName>     = MaybePromise<MaybeModuleDefault<StyleSheetsFactoryBase<TCssScopeName>>>
+export type StyleSheetFactory                                          = MaybePromise<MaybeModuleDefault<StyleSheetFactoryBase>>
 
 
 
 // utilities:
-export const isObservableScopes = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactory<TCssScopeName>): scopes is Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean> => (
+export const isPromise          = <T>(test: MaybePromise<T>): test is Promise<T> => (
+    !!test
+    &&
+    (test instanceof Promise<T>)
+)
+export const isModuleDefault    = <T>(test: MaybeModuleDefault<T>): test is ModuleDefault<T> => (
+    !!test
+    &&
+    test instanceof Object
+    &&
+    (Object.getPrototypeOf(test) === Object.prototype) // must be a literal object -- object of Array|Function|Observable|Promise are not accepted
+    &&
+    ('default' in test)                                // the literal object must have [default] prop -- a literal object of `CssStyle` is guaranteed to never have a [default] prop if written correctly
+)
+export const isObservableScopes = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactoryBase<TCssScopeName>): scopes is Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean> => (
     !!scopes
     &&
+    /*
+        we cannot simple use `scopes instanceof Observable`
+        because the `Observable class` may be refer to *different module instance* of 'rxjs'
+        so a several tests must be performed
+    */
     (typeof(scopes) === 'object')
     &&
-    !Array.isArray(scopes)
+    !Array.isArray(scopes) // not object of Array of CssScopeList<TCssScopeName>
 )
-export const isObservableStyles = (styles: StyleSheetFactory): styles is Observable<CssStyleCollection|boolean> => (
+export const isObservableStyles = (styles: StyleSheetFactoryBase): styles is Observable<CssStyleCollection|boolean> => (
     !!styles
     &&
+    /*
+        we cannot simple use `scopes instanceof Observable`
+        because the `Observable class` may be refer to *different module instance* of 'rxjs'
+        so a several tests must be performed
+    */
     (typeof(styles) === 'object')
     &&
-    (styles.constructor !== {}.constructor)
+    !Array.isArray(styles) // not object of Array of ProductOrFactoryDeepArray<OptionalOrBoolean<CssStyle>>[]
+    &&
+    (Object.getPrototypeOf(styles) !== Object.prototype) // `CssStyle` object is guaranteed to be a literal object
 )
 
 
@@ -99,7 +130,7 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
         
         this.#scopes = null;  // initial
         this.#loaded = false; // initial
-        this.#updateScopes(scopes);
+        this.#resolveScopes(scopes);
         
         const scopeMap = {} as CssScopeMap<TCssScopeName>;
         this.#classes  = new Proxy<CssScopeMap<TCssScopeName>>(scopeMap, {
@@ -130,7 +161,17 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
     
     
     //#region private methods
-    #updateScopes(scopes: StyleSheetsFactory<TCssScopeName>) {
+    #resolveScopes(scopes: StyleSheetsFactory<TCssScopeName>): void {
+        if (!isPromise(scopes)) {
+            this.#updateScopes(!isModuleDefault(scopes) ? scopes : scopes.default);
+        }
+        else {
+            scopes.then((resolvedScopes) => {
+                this.#updateScopes(!isModuleDefault(resolvedScopes) ? resolvedScopes : resolvedScopes.default);
+            });
+        } // if
+    }
+    #updateScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
         if (isObservableScopes(scopes)) {
             this.#scopes     = null;  // initially empty scope, until the Observable gives the first update
             this.#loaded     = false; // partially initialized => not ready to render for the first time, waiting until the Observable giving __the_first_CssScopeList__
