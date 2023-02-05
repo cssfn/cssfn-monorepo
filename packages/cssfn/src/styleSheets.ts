@@ -26,15 +26,21 @@ import {
 
 
 
+// types:
+export type StyleSheetsFactory<TCssScopeName extends CssScopeName> = ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>
+export type StyleSheetFactory                                      = CssStyleCollection | Observable<CssStyleCollection|boolean>
+
+
+
 // utilities:
-export const isObservableScopes = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>): scopes is Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean> => (
+export const isObservableScopes = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactory<TCssScopeName>): scopes is Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean> => (
     !!scopes
     &&
     (typeof(scopes) === 'object')
     &&
     !Array.isArray(scopes)
 )
-export const isObservableStyles = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>): styles is Observable<CssStyleCollection|boolean> => (
+export const isObservableStyles = (styles: StyleSheetFactory): styles is Observable<CssStyleCollection|boolean> => (
     !!styles
     &&
     (typeof(styles) === 'object')
@@ -79,7 +85,7 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
     
     
     //#region constructors
-    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
+    constructor(scopes: StyleSheetsFactory<TCssScopeName>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
         const styleSheetOptions : Required<StyleSheetOptions> = {
             ...(options ?? {}),
             enabled : options?.enabled ?? defaultStyleSheetOptions.enabled,
@@ -124,7 +130,7 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
     
     
     //#region private methods
-    #updateScopes(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>) {
+    #updateScopes(scopes: StyleSheetsFactory<TCssScopeName>) {
         if (isObservableScopes(scopes)) {
             this.#scopes     = null;  // initially empty scope, until the Observable gives the first update
             this.#loaded     = false; // partially initialized => not ready to render for the first time, waiting until the Observable giving __the_first_CssScopeList__
@@ -240,7 +246,7 @@ class StyleSheetRegistry {
     
     
     //#region public methods
-    add<TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions) {
+    add<TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactory<TCssScopeName>, options?: StyleSheetOptions) {
         /*
             The `StyleSheetRegistry::add()` always be called every call of `styleSheet()`, `styleSheets()`, dynamicStyleSheet()`, and `dynamicStyleSheets()`.
             In practice, these 4 functions are always be called on *top-level-module*.
@@ -296,11 +302,11 @@ export type { StyleSheetRegistry } // only export the type but not the actual cl
 
 
 export const styleSheetRegistry = new StyleSheetRegistry();
-export const styleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: StyleSheetOptions): CssScopeMap<TCssScopeName> => {
+export const styleSheets = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactory<TCssScopeName>, options?: StyleSheetOptions): CssScopeMap<TCssScopeName> => {
     const sheet = styleSheetRegistry.add(scopes, options);
     return sheet.classes;
 }
-export const styleSheet  = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
+export const styleSheet  = (styles: StyleSheetFactory, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
     if (!styles || (styles === true)) {
         const classes = styleSheets<'main'>(
             null,   // empty scope

@@ -29,8 +29,6 @@ import type {
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
-    CssStyleCollection,
-    
     CssClassName,
     
     CssScopeName,
@@ -39,6 +37,12 @@ import type {
     CssScopeMap,
 }                           from '@cssfn/css-types'
 import {
+    // types:
+    StyleSheetsFactory,
+    StyleSheetFactory,
+    
+    
+    
     // style sheets:
     StyleSheetOptions,
     StyleSheet,
@@ -60,7 +64,6 @@ import {
 
 // other libs:
 import {
-    Observable,
     Subject,
 }                           from 'rxjs'
 
@@ -236,7 +239,7 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     
     
     //#region constructors
-    constructor(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: DynamicStyleSheetOptions) {
+    constructor(scopes: StyleSheetsFactory<TCssScopeName>, options?: DynamicStyleSheetOptions) {
         //#region setup dynamic styleSheet
         this.#options = {
             ...options,
@@ -361,7 +364,7 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     }
     //#endregion public methods
 }
-export const dynamicStyleSheets = <TCssScopeName extends CssScopeName>(scopes: ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>, options?: DynamicStyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
+export const dynamicStyleSheets = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactory<TCssScopeName>, options?: DynamicStyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
     // a single builder for creating many hooks:
     const builder = new StyleSheetsHookBuilder(scopes, options);
     
@@ -372,7 +375,7 @@ export const dynamicStyleSheets = <TCssScopeName extends CssScopeName>(scopes: P
     );
 };
 export { dynamicStyleSheets as createUseStyleSheets }
-export const dynamicStyleSheet  = (styles: CssStyleCollection | Observable<CssStyleCollection|boolean>, options?: DynamicStyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
+export const dynamicStyleSheet  = (styles: StyleSheetFactory, options?: DynamicStyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
     if (!styles || (styles === true)) {
         return dynamicStyleSheets<'main'>(
             null,   // empty scope
