@@ -348,19 +348,40 @@ export const styleSheets = <TCssScopeName extends CssScopeName>(scopes: StyleShe
     return sheet.classes;
 }
 export const styleSheet  = (styles: StyleSheetFactory, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
-    if (!styles || (styles === true)) {
+    if (isPromise(styles)) {
         const classes = styleSheets<'main'>(
-            null,   // empty scope
-            options // styleSheet options
+            new Promise<MaybeModuleDefault<StyleSheetsFactoryBase<'main'>>>((resolve) => {
+                styles.then((resolvedStyles) => {
+                    resolve(
+                        createMainScope(
+                            !isModuleDefault(resolvedStyles) ? resolvedStyles : resolvedStyles.default,
+                            options /* as CssScopeOptions   */
+                        )
+                    );
+                });
+            }),
+            options     /* as StyleSheetOptions */
         );
         return classes.main;
+    } // if
+    
+    
+    
+    const classes = styleSheets<'main'>(
+        createMainScope(
+            styles,
+            options /* as CssScopeOptions   */
+        ),
+        options     /* as StyleSheetOptions */
+    );
+    return classes.main;
+}
+const createMainScope    = (styles: StyleSheetFactoryBase, options: CssScopeOptions|undefined): StyleSheetsFactoryBase<'main'> => {
+    if (!styles || (styles === true)) {
+        return null; // empty scope
     }
-    else if (isObservableStyles(styles)) {
-        const dynamicStyleSheet = new Subject<CssScopeList<'main'>|null|boolean>();
-        const classes = styleSheets(
-            dynamicStyleSheet,
-            options  // styleSheet options
-        );
+    else if (isObservableStyles(styles)) { // styles: Observable<CssStyleCollection>
+        const dynamicStyleSheet = new Subject<ProductOrFactory<CssScopeList<'main'>|null>|boolean>();
         styles.subscribe((newStylesOrEnabled) => {
             if (typeof(newStylesOrEnabled) === 'boolean') {
                 // update prop `enabled`:
@@ -379,13 +400,9 @@ export const styleSheet  = (styles: StyleSheetFactory, options?: StyleSheetOptio
                 );
             } // if
         });
-        return classes.main;
+        return dynamicStyleSheet; // as Observable<ProductOrFactory<CssScopeList<'main'>|null>|boolean>
     }
     else {
-        const classes = styleSheets(
-            [['main', styles, options]], // scopeOf('main', styles, options)
-            options                      // styleSheet options
-        );
-        return classes.main;
+        return [['main', styles, options]]; // scopeOf('main', styles, options)
     } // if
 }
