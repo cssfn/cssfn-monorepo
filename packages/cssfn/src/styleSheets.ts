@@ -343,11 +343,11 @@ export type { StyleSheetRegistry } // only export the type but not the actual cl
 
 
 export const styleSheetRegistry = new StyleSheetRegistry();
-export const styleSheets = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactory<TCssScopeName>, options?: StyleSheetOptions): CssScopeMap<TCssScopeName> => {
+export const styleSheets     = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactory<TCssScopeName>, options?: StyleSheetOptions): CssScopeMap<TCssScopeName> => {
     const sheet = styleSheetRegistry.add(scopes, options);
     return sheet.classes;
 }
-export const styleSheet  = (styles: StyleSheetFactory, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
+export const styleSheet      = (styles: StyleSheetFactory, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
     if (isPromise(styles)) {
         const classes = styleSheets<'main'>(
             new Promise<MaybeModuleDefault<StyleSheetsFactoryBase<'main'>>>((resolve) => {
@@ -376,7 +376,7 @@ export const styleSheet  = (styles: StyleSheetFactory, options?: StyleSheetOptio
     );
     return classes.main;
 }
-const createMainScope    = (styles: StyleSheetFactoryBase, options: CssScopeOptions|undefined): StyleSheetsFactoryBase<'main'> => {
+export const createMainScope = (styles: StyleSheetFactoryBase, options: CssScopeOptions|undefined): StyleSheetsFactoryBase<'main'> => {
     if (!styles || (styles === true)) {
         return null; // empty scope
     }
