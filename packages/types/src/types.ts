@@ -6,6 +6,7 @@ export type DeepArray<T>                   = (T|DeepArray<T>)[] // ===       T[]
 export type SingleOrDeepArray<T>           = T|DeepArray<T>     // === T  |  T[]  |  T[][]  |  T[][][]  |  ...
 
 export type MaybePromise<T>                = T|Promise<T>
+export type MaybeModule<T>                 = T|{ default: T }
 export type Factory<T>                     = () => T
 export type ProductOrFactory<T>            = T|Factory<T>
 export type ProductOrFactoryDeepArray<T>   = (ProductOrFactory<T> | ProductOrFactoryDeepArray<T>)[] // ===         T[]|F[]  |  T[][]|F[][]  |  T[][][]|F[][][]  |  ...
