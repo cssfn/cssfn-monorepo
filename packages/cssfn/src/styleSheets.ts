@@ -177,7 +177,7 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
             this.#scopesLive = scopes; // update once
         }
         else {
-            let asyncUpdate = false;
+            let subsequentUpdate = false;
             scopes.subscribe((newScopesOrEnabled) => {
                 if (typeof(newScopesOrEnabled) === 'boolean') {
                     // update prop `enabled`:
@@ -197,11 +197,12 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
                 
                 
                 
-                if (asyncUpdate) {
-                    this.#notifyUpdated(); // notify a StyleSheet updated
+                // notify a StyleSheet updated ONLY on SUBSEQUENT update:
+                if (subsequentUpdate) {
+                    this.#notifyUpdated();
                 } // if
             });
-            asyncUpdate = true; // any updates after this mark is async update
+            subsequentUpdate = true; // any updates AFTER calling `scopes.subscribe` is considered as SUBSEQUENT update
         } // if
     }
     
@@ -214,20 +215,7 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
     
     //#region public properties
     get enabled() {
-        return (
-            this.#options.enabled
-            &&
-            // prevents unnecessary render by checking `#scopesLive`'s value
-            (
-                !!this.#scopesLive                            // no value    => treat as disabled
-                &&
-                (
-                    (typeof(this.#scopesLive) === 'function') // function    => treat as enabled because we cannot check its value without invoking it
-                    ||
-                    !!this.#scopesLive.length                 // empty array => treat as disabled
-                )
-            )
-        );
+        return this.#options.enabled;
     }
     
     get id() {
