@@ -13,7 +13,7 @@ import type {
     
     // factories:
     Factory,
-    ProductOrFactory,
+    MaybeFactory,
 }                           from '@cssfn/types'
 import type {
     CssRule,
@@ -90,7 +90,7 @@ export const isFinalSelector = (selector: undefined|CssRawSelector|CssFinalSelec
 export const isNotFalsySelector = (selector: OptionalOrBoolean<CssSelector>): selector is CssSelector => {
     return (!!selector && (selector !== true));
 };
-export const isNotFalsyRuleOrFactory = (ruleOrFactory: ProductOrFactory<OptionalOrBoolean<CssRule>>): ruleOrFactory is CssRule|Factory<OptionalOrBoolean<CssRule>> => {
+export const isNotFalsyRuleOrFactory = (ruleOrFactory: MaybeFactory<OptionalOrBoolean<CssRule>>): ruleOrFactory is CssRule|Factory<OptionalOrBoolean<CssRule>> => {
     return (!!ruleOrFactory && (ruleOrFactory !== true));
 };
 export const isNotFalsyRule = (rule: OptionalOrBoolean<CssRule>): rule is CssRule => {

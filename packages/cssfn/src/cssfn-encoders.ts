@@ -1,8 +1,12 @@
 // cssfn:
 import type {
+    // optionals:
     OptionalOrBoolean,
     
-    ProductOrFactory,
+    
+    
+    // factories:
+    MaybeFactory,
 }                           from '@cssfn/types'
 import type {
     // css custom properties:
@@ -45,7 +49,7 @@ const isTransferablePrimitive = <TPropValue extends CssCustomValue|undefined|nul
             return true;                 // any primitive    => *transferable*
     } // switch
 }
-export const encodeStyle = (style: ProductOrFactory<OptionalOrBoolean<CssStyle>>): OptionalOrBoolean<EncodedCssStyle> => {
+export const encodeStyle = (style: MaybeFactory<OptionalOrBoolean<CssStyle>>): OptionalOrBoolean<EncodedCssStyle> => {
     if (!style || (style === true))           return undefined;                 // ignore : falsy style
     const styleValue = (typeof(style) === 'function') ? style() : style;
     if (!styleValue || (styleValue === true)) return undefined;                 // ignore : falsy style

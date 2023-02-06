@@ -1,10 +1,18 @@
 // cssfn:
 import type {
-    // types:
+    // promises:
     MaybePromise,
+    
+    
+    
+    // factories:
+    MaybeFactory,
+    
+    
+    
+    // modules:
     ModuleDefault,
     MaybeModuleDefault,
-    ProductOrFactory,
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
@@ -30,7 +38,7 @@ import {
 
 
 // types:
-export type StyleSheetsFactoryBase<TCssScopeName extends CssScopeName> = ProductOrFactory<CssScopeList<TCssScopeName>|null> | Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>
+export type StyleSheetsFactoryBase<TCssScopeName extends CssScopeName> = MaybeFactory<CssScopeList<TCssScopeName>|null> | Observable<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
 export type StyleSheetFactoryBase                                      = CssStyleCollection | Observable<CssStyleCollection|boolean>
 export type StyleSheetsFactory<TCssScopeName extends CssScopeName>     = MaybePromise<MaybeModuleDefault<StyleSheetsFactoryBase<TCssScopeName>>>
 export type StyleSheetFactory                                          = MaybePromise<MaybeModuleDefault<StyleSheetFactoryBase>>
@@ -52,7 +60,7 @@ export const isModuleDefault    = <T>(test: MaybeModuleDefault<T>): test is Modu
     &&
     ('default' in test)                                // the literal object must have [default] prop -- a literal object of `CssStyle` is guaranteed to never have a [default] prop if written correctly
 )
-export const isObservableScopes = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactoryBase<TCssScopeName>): scopes is Observable<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean> => (
+export const isObservableScopes = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactoryBase<TCssScopeName>): scopes is Observable<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean> => (
     !!scopes
     &&
     /*
@@ -104,7 +112,7 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
     readonly #options         : Required<StyleSheetOptions>
     readonly #updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>|null
     
-             #scopes          : ProductOrFactory<CssScopeList<TCssScopeName>|null>
+             #scopes          : MaybeFactory<CssScopeList<TCssScopeName>|null>
     readonly #classes         : CssScopeMap<TCssScopeName>
              
              /**
@@ -378,7 +386,7 @@ export const createMainScope = (styles: StyleSheetFactoryBase, options: CssScope
         return null; // empty scope
     }
     else if (isObservableStyles(styles)) { // styles: Observable<CssStyleCollection>
-        const dynamicStyleSheet = new Subject<ProductOrFactory<CssScopeList<'main'>|null>|boolean>();
+        const dynamicStyleSheet = new Subject<MaybeFactory<CssScopeList<'main'>|null>|boolean>();
         styles.subscribe((newStylesOrEnabled) => {
             if (typeof(newStylesOrEnabled) === 'boolean') {
                 // update prop `enabled`:
@@ -397,7 +405,7 @@ export const createMainScope = (styles: StyleSheetFactoryBase, options: CssScope
                 );
             } // if
         });
-        return dynamicStyleSheet; // as Observable<ProductOrFactory<CssScopeList<'main'>|null>|boolean>
+        return dynamicStyleSheet; // as Observable<MaybeFactory<CssScopeList<'main'>|null>|boolean>
     }
     else {
         return [['main', styles, options]]; // scopeOf('main', styles, options)

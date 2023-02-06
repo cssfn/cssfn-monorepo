@@ -520,7 +520,7 @@ export const mergeNested  = (style: CssStyleMap): void => {
  */
 export const mergeStyles = (styles: CssStyleCollection | (CssStyleCollection|CssFinalStyleMap)[]): CssFinalStyleMap|null => {
     if (!Array.isArray(styles)) {
-        // nullable_object or function => ProductOrFactory<OptionalOrBoolean<CssStyle>>
+        // nullable_object or function => MaybeFactory<OptionalOrBoolean<CssStyle>>
         
         const styleValue: CssStyleMap|null = cssStyleToMap(
             (typeof(styles) === 'function')
@@ -557,7 +557,7 @@ export const mergeStyles = (styles: CssStyleCollection | (CssStyleCollection|Css
             // deep iterating array
             (mergeStyles(subStyles) as unknown as (CssStyleMap|null)) // de-finalize // an array of CssFinalStyleMap|ProductOrFactoryDeepArray<OptionalOrBoolean<CssStyle>> => recursively `mergeStyles()`
             :
-            // not an array => CssFinalStyleMap or nullable_object or function => CssFinalStyleMap|ProductOrFactory<OptionalOrBoolean<CssStyle>>
+            // not an array => CssFinalStyleMap or nullable_object or function => CssFinalStyleMap|MaybeFactory<OptionalOrBoolean<CssStyle>>
             (
                 isFinalStyleMap(subStyles)
                 ?

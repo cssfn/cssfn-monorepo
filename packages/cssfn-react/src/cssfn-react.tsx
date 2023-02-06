@@ -24,8 +24,8 @@ import {
 
 // cssfn:
 import type {
-    // types:
-    ProductOrFactory,
+    // factories:
+    MaybeFactory,
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
@@ -234,7 +234,7 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     readonly    #options                   : DynamicStyleSheetOptions
     /*mutable*/ #cancelDisable             : ReturnType<typeof setTimeout>|undefined
     
-    readonly    #dynamicStyleSheet         : Subject<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>
+    readonly    #dynamicStyleSheet         : Subject<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
     readonly    #scopeMap                  : CssScopeMap<TCssScopeName>
     /*mutable*/ #registeredUsingStyleSheet : number
     //#endregion private properties
@@ -249,7 +249,7 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
             enabled      : options?.enabled      ?? false, // the default is initially disabled, will be re-enabled/re-disabled at runtime
             disableDelay : options?.disableDelay ?? 1000,
         };
-        this.#dynamicStyleSheet = new Subject<ProductOrFactory<CssScopeList<TCssScopeName>|null>|boolean>();
+        this.#dynamicStyleSheet = new Subject<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>();
         this.#scopeMap = styleSheets(
             this.#dynamicStyleSheet,
             this.#options /* as StyleSheetOptions */

@@ -1,12 +1,14 @@
 // cssfn:
 import type {
-    ProductOrFactory,
+    // factories:
+    MaybeFactory,
     
+    
+    
+    // dictionaries/maps:
     PartialNullish,
     RequiredNotNullish,
-    
     ValueOf,
-    
     MapOf,
 }                           from '@cssfn/types'
 import type {
@@ -738,7 +740,7 @@ class TransformCssConfigDuplicatesBuilder
 
 class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     //#region private properties
-    readonly #propsFactory : ProductOrFactory<TConfigProps>
+    readonly #propsFactory : MaybeFactory<TConfigProps>
     
     
     
@@ -1135,7 +1137,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     
     //#region constructors
-    constructor(initialProps: ProductOrFactory<TConfigProps>, options?: CssConfigOptions) {
+    constructor(initialProps: MaybeFactory<TConfigProps>, options?: CssConfigOptions) {
         this.#propsFactory = initialProps;
         this.#options = new LiveCssConfigOptions((prevPrefix: string) => {
             this.#_propsMapSource = (() => {
@@ -1219,7 +1221,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
 /**
  * A configurable css variables (css custom properties).  
  */
-const cssConfig = <TConfigProps extends CssConfigProps>(initialProps: ProductOrFactory<TConfigProps>, options?: CssConfigOptions): CssConfig<TConfigProps> => {
+const cssConfig = <TConfigProps extends CssConfigProps>(initialProps: MaybeFactory<TConfigProps>, options?: CssConfigOptions): CssConfig<TConfigProps> => {
     const cssConfig = new CssConfigBuilder<TConfigProps>(initialProps, options);
     return [
         cssConfig.refs,

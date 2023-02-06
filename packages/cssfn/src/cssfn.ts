@@ -1,10 +1,16 @@
 // cssfn:
 import type {
-    // types:
+    // optionals:
     OptionalOrBoolean,
     
-    ProductOrFactory,
     
+    
+    // factories:
+    MaybeFactory,
+    
+    
+    
+    // dictionaries/maps:
     Dictionary,
 }                           from '@cssfn/types'
 import type {
@@ -86,7 +92,7 @@ export const atRule = (atRule: `@${string}`, styles: CssStyleCollection): CssRul
 
 
 // rule groups:
-const selectOptionalRuleFromOptionalRuleOrFactory = (optionalRuleOrFactory: ProductOrFactory<OptionalOrBoolean<CssRule>>): OptionalOrBoolean<CssRule> => {
+const selectOptionalRuleFromOptionalRuleOrFactory = (optionalRuleOrFactory: MaybeFactory<OptionalOrBoolean<CssRule>>): OptionalOrBoolean<CssRule> => {
     // conditions:
     if (!optionalRuleOrFactory || (optionalRuleOrFactory === true)) return optionalRuleOrFactory;
     
