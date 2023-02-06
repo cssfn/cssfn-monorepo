@@ -11,7 +11,7 @@ import type {
     
     
     // factories:
-    ProductOrFactoryOrDeepArray,
+    MaybeFactoryMaybeDeepArray,
     
     
     
@@ -429,7 +429,7 @@ export type CssFinalRule               = {
 }
 export type CssRuleMap                 = MapOf<CssRule>
 export type CssFinalRuleMap            = MapOf<CssFinalRule>
-export type CssRuleCollection          = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssRule>>
+export type CssRuleCollection          = MaybeFactoryMaybeDeepArray<OptionalOrBoolean<CssRule>>
 
 export type CssStyle                   = CssProps & CssRule
 export type CssFinalStyle              = CssProps & CssFinalRule
@@ -580,8 +580,8 @@ export interface CssFinalStyleMapOverloads
 }
 export type CssStyleMap                = CssStyleMapFilteredKeys & CssStyleMapOverloads      & Omit<CssPropsMap & CssRuleMap & CssFinalRuleMap, CssStyleMapExcludeMembers>
 export type CssFinalStyleMap           = CssStyleMapFilteredKeys & CssFinalStyleMapOverloads & Omit<CssPropsMap              & CssFinalRuleMap, CssStyleMapExcludeMembers>
-export type CssStyleCollection         = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssStyle>>
-export type CssFontFaceStyleCollection = ProductOrFactoryOrDeepArray<OptionalOrBoolean<CssFontFaceProps>>
+export type CssStyleCollection         = MaybeFactoryMaybeDeepArray<OptionalOrBoolean<CssStyle>>
+export type CssFontFaceStyleCollection = MaybeFactoryMaybeDeepArray<OptionalOrBoolean<CssFontFaceProps>>
 
 export interface CssCustomKeyframesRef {
     value      : string|null
