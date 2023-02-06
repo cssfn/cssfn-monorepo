@@ -25,12 +25,6 @@ export type MaybePromise<T>                = T|Promise<T>
 
 
 
-// modules:
-export type ModuleDefault<T>               = { default: T } // only accept the default export, ignores named exports
-export type MaybeModuleDefault<T>          = T|ModuleDefault<T>
-
-
-
 // factories:
 export type Factory<T>                     = () => T
 export type MaybeFactory<T>                = T|Factory<T>
@@ -50,6 +44,13 @@ export type MaybeFactoryMaybeDeepArray<T>  = MaybeFactory<T> | MaybeFactoryDeepA
  * @deprecated renamed to `MaybeFactoryMaybeDeepArray<T>`
  */
 export type ProductOrFactoryOrDeepArray<T> = MaybeFactoryMaybeDeepArray<T>
+
+
+
+// modules:
+export type ModuleDefault<T>               = { default: T } // only accept the default export, ignores named exports
+export type MaybeModuleDefault<T>          = T|ModuleDefault<T>
+export type MaybeLazyModuleDefault<T>      = T|Factory<ModuleDefault<T>>
 
 
 
