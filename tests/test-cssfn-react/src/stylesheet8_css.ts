@@ -4,7 +4,6 @@ import {
 
 
 
-export const useStyleSheet8 = dynamicStyleSheet(() => ({
-    display: 'inline',
-    border: [['dashed', '1px', 'black']],
-}), { id: 'styleSheet-8'});
+export const useStyleSheet8 = dynamicStyleSheet(
+    import(/* webpackChunkName: "stylesheet8_css_dyn" */ './stylesheet8_css_dyn')
+, { id: 'styleSheet-8'});
