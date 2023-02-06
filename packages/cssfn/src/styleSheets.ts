@@ -92,13 +92,15 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
     readonly #options         : Required<StyleSheetOptions>
     readonly #updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>|null
     
-             #scopes          : MaybeFactory<CssScopeList<TCssScopeName>|null>
+    
+    
     readonly #classes         : CssScopeMap<TCssScopeName>
-             
-             /**
-             * Prevents unecessary firing `#updatedCallback` until the first time of renderable StyleSheet is constructed
-             */
-             #loaded          : boolean
+    
+    
+    
+    readonly #scopesFactory   : StyleSheetsFactory<TCssScopeName>
+             #scopesInvoked   : boolean
+             #scopesLive      : MaybeFactory<CssScopeList<TCssScopeName>|null>
     //#endregion private properties
     
     
@@ -113,12 +115,10 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
             ssr     : options?.ssr     ?? defaultStyleSheetOptions.ssr,
             lazyCsr : options?.lazyCsr ?? defaultStyleSheetOptions.lazyCsr,
         };
-        this.#options = styleSheetOptions;
-        this.#updatedCallback = updatedCallback;
+        this.#options           = styleSheetOptions;
+        this.#updatedCallback   = updatedCallback;
         
-        this.#scopes = null;  // initial
-        this.#loaded = false; // initial
-        this.#resolveScopes(scopes);
+        
         
         const scopeMap = {} as CssScopeMap<TCssScopeName>;
         this.#classes  = new Proxy<CssScopeMap<TCssScopeName>>(scopeMap, {
@@ -143,17 +143,25 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
                 return uniqueClass;
             },
         });
+        
+        
+        
+        this.#scopesFactory = scopes;
+        this.#scopesInvoked = false;
+        this.#scopesLive    = null;
     }
     //#endregion constructors
     
     
     
     //#region private methods
-    #resolveScopes(scopes: StyleSheetsFactory<TCssScopeName>): void {
-        const scopesValue = (typeof(scopes) !== 'function') ? scopes : scopes();
+    #invokeScopesIfNeeded(): void {
+        // conditions:
+        if (this.#scopesInvoked) return; // already (successfully) invoked => no need to re-invoke
         
         
         
+        const scopesValue = (typeof(this.#scopesFactory) !== 'function') ? this.#scopesFactory : this.#scopesFactory();
         if (!(scopesValue instanceof Promise)) {
             this.#updateScopes(scopesValue);
         }
@@ -162,12 +170,13 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
                 this.#updateScopes(resolvedScopes.default);
             });
         } // if
+        this.#scopesInvoked = true; // mark as successfully invoked
     }
     #updateScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
-        if (isObservableScopes(scopes)) {
-            this.#scopes     = null;  // initially empty scope, until the Observable gives the first update
-            this.#loaded     = false; // partially initialized => not ready to render for the first time, waiting until the Observable giving __the_first_CssScopeList__
-            
+        if (!isObservableScopes(scopes)) {
+            this.#scopesLive = scopes; // update once
+        }
+        else {
             let asyncUpdate = false;
             scopes.subscribe((newScopesOrEnabled) => {
                 if (typeof(newScopesOrEnabled) === 'boolean') {
@@ -180,16 +189,10 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
                 else {
                     // update prop `scopes`:
                     
-                    if ((this.#scopes === null) && (newScopesOrEnabled === null)) return; // still null => no change => no need to update
+                    if ((this.#scopesLive === null) && (newScopesOrEnabled === null)) return; // still null => no change => no need to update
                     // CssScopeList is always treated as unique object even though it's equal by ref, no deep comparison for performance reason
                     
-                    this.#scopes = newScopesOrEnabled; // update
-                } // if
-                
-                
-                
-                if (this.#options.enabled && this.#scopes) {
-                    this.#loaded = true; // fully initialized => ready to render for the first time
+                    this.#scopesLive = newScopesOrEnabled; // live update
                 } // if
                 
                 
@@ -199,18 +202,10 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
                 } // if
             });
             asyncUpdate = true; // any updates after this mark is async update
-        }
-        else {
-            this.#scopes     = scopes;
-            this.#loaded     = true;  // fully initialized => ready
         } // if
     }
     
     #notifyUpdated(): void {
-        if (!this.#loaded) return; // partially initialized => not ready to render for the first time
-        
-        
-        
         this.#updatedCallback?.(this); // notify a StyleSheet updated
     }
     //#endregion private methods
@@ -222,15 +217,14 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
         return (
             this.#options.enabled
             &&
-            this.#loaded
-            &&
+            // prevents unnecessary render by checking `#scopesLive`'s value
             (
-                !!this.#scopes
+                !!this.#scopesLive                            // no value    => treat as disabled
                 &&
                 (
-                    (typeof(this.#scopes) === 'function')
+                    (typeof(this.#scopesLive) === 'function') // function    => treat as enabled because we cannot check its value without invoking it
                     ||
-                    !!this.#scopes.length
+                    !!this.#scopesLive.length                 // empty array => treat as disabled
                 )
             )
         );
@@ -249,7 +243,8 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
     }
     
     get scopes() {
-        return this.#scopes;
+        this.#invokeScopesIfNeeded();
+        return this.#scopesLive;
     }
     
     get classes() {
