@@ -555,7 +555,7 @@ export const mergeStyles = (styles: CssStyleCollection | (CssStyleCollection|Css
             Array.isArray(subStyles)
             ?
             // deep iterating array
-            (mergeStyles(subStyles) as unknown as (CssStyleMap|null)) // de-finalize // an array of CssFinalStyleMap|ProductOrFactoryDeepArray<OptionalOrBoolean<CssStyle>> => recursively `mergeStyles()`
+            (mergeStyles(subStyles) as unknown as (CssStyleMap|null)) // de-finalize // an array of CssFinalStyleMap|MaybeFactoryDeepArray<OptionalOrBoolean<CssStyle>> => recursively `mergeStyles()`
             :
             // not an array => CssFinalStyleMap or nullable_object or function => CssFinalStyleMap|MaybeFactory<OptionalOrBoolean<CssStyle>>
             (
