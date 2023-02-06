@@ -25,6 +25,7 @@ import {
 // cssfn:
 import type {
     // types:
+    MaybeModuleDefault,
     ProductOrFactory,
 }                           from '@cssfn/types'
 import type {
@@ -49,6 +50,7 @@ import {
     StyleSheet,
     styleSheetRegistry,
     styleSheets,
+    createMainScope,
     
     
     
@@ -62,7 +64,6 @@ import {
     isPromise,
     isModuleDefault,
     isObservableScopes,
-    isObservableStyles,
 }                           from '@cssfn/cssfn'
 
 // other libs:
@@ -395,42 +396,28 @@ export const dynamicStyleSheets = <TCssScopeName extends CssScopeName>(scopes: S
 };
 export { dynamicStyleSheets as createUseStyleSheets }
 export const dynamicStyleSheet  = (styles: StyleSheetFactory, options?: DynamicStyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
-    if (!styles || (styles === true)) {
+    if (!isPromise(styles)) {
         return dynamicStyleSheets<'main'>(
-            null,   // empty scope
-            options // styleSheet options
+            createMainScope(
+                styles,
+                options /* as CssScopeOptions   */
+            ),
+            options     /* as StyleSheetOptions */
         );
-    }
-    else if (isObservableStyles(styles)) {
-        const dynamicStyleSheet = new Subject<CssScopeList<'main'>|null|boolean>();
-        const scopeMapHook = dynamicStyleSheets(
-            dynamicStyleSheet,
-            options  // styleSheet options
-        );
-        styles.subscribe((newStylesOrEnabled) => {
-            if (typeof(newStylesOrEnabled) === 'boolean') {
-                // update prop `enabled`:
-                
-                dynamicStyleSheet.next(newStylesOrEnabled);
-            }
-            else {
-                // update prop `scopes`:
-                
-                dynamicStyleSheet.next(
-                    (!newStylesOrEnabled /* || (newStyles === true)*/)
-                    ?
-                    null                                    // empty scope
-                    :
-                    [['main', newStylesOrEnabled, options]] // scopeOf('main', styles, options)
-                );
-            } // if
-        });
-        return scopeMapHook;
     }
     else {
-        return dynamicStyleSheets(
-            [['main', styles, options]], // scopeOf('main', styles, options)
-            options                      // styleSheet options
+        return dynamicStyleSheets<'main'>(
+            new Promise<MaybeModuleDefault<StyleSheetsFactoryBase<'main'>>>((resolve) => {
+                styles.then((resolvedStyles) => {
+                    resolve(
+                        createMainScope(
+                            !isModuleDefault(resolvedStyles) ? resolvedStyles : resolvedStyles.default,
+                            options /* as CssScopeOptions   */
+                        )
+                    );
+                });
+            }),
+            options     /* as StyleSheetOptions */
         );
     } // if
 };
