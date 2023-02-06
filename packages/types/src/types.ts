@@ -53,7 +53,7 @@ export type ModuleDefault<T>               = { default: T } // only accept the d
  * @deprecated please upgrade to `MaybeLazyModuleDefault<T>`, because non_lazy of dynamic_module doesn't make sense
  */
 export type MaybeModuleDefault<T>          = T|ModuleDefault<T>
-export type MaybeLazyModuleDefault<T>      = T|Factory<ModuleDefault<T>>
+export type MaybeLazyModuleDefault<T>      = T|Factory<Promise<ModuleDefault<T>>>
 
 
 
