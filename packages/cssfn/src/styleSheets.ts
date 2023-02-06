@@ -359,7 +359,7 @@ export const styleSheet      = (styles: StyleSheetFactory, options?: StyleSheetO
     }
     else {
         return styleSheets<'main'>(
-            new Promise<MaybeModuleDefault<StyleSheetsFactoryBase<'main'>>>((resolve) => {
+            new Promise<StyleSheetsFactoryBase<'main'>>((resolve) => {
                 styles.then((resolvedStyles) => {
                     resolve(
                         createMainScope(

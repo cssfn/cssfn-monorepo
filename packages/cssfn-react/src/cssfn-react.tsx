@@ -25,7 +25,6 @@ import {
 // cssfn:
 import type {
     // types:
-    MaybeModuleDefault,
     ProductOrFactory,
 }                           from '@cssfn/types'
 import type {
@@ -407,7 +406,7 @@ export const dynamicStyleSheet  = (styles: StyleSheetFactory, options?: DynamicS
     }
     else {
         return dynamicStyleSheets<'main'>(
-            new Promise<MaybeModuleDefault<StyleSheetsFactoryBase<'main'>>>((resolve) => {
+            new Promise<StyleSheetsFactoryBase<'main'>>((resolve) => {
                 styles.then((resolvedStyles) => {
                     resolve(
                         createMainScope(
