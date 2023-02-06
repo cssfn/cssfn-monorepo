@@ -49,6 +49,9 @@ export type ProductOrFactoryOrDeepArray<T> = MaybeFactoryMaybeDeepArray<T>
 
 // modules:
 export type ModuleDefault<T>               = { default: T } // only accept the default export, ignores named exports
+/**
+ * @deprecated please upgrade to `MaybeLazyModuleDefault<T>`, because non_lazy of dynamic_module doesn't make sense
+ */
 export type MaybeModuleDefault<T>          = T|ModuleDefault<T>
 export type MaybeLazyModuleDefault<T>      = T|Factory<ModuleDefault<T>>
 
