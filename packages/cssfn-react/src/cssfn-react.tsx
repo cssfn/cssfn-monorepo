@@ -399,7 +399,7 @@ export const dynamicStyleSheet  = (styles: StyleSheetFactory, options?: DynamicS
     if (!isPromise(styles)) {
         return dynamicStyleSheets<'main'>(
             createMainScope(
-                styles,
+                !isModuleDefault(styles) ? styles : styles.default,
                 options /* as CssScopeOptions   */
             ),
             options     /* as DynamicStyleSheetOptions */

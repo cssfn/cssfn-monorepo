@@ -351,7 +351,7 @@ export const styleSheet      = (styles: StyleSheetFactory, options?: StyleSheetO
     if (!isPromise(styles)) {
         return styleSheets<'main'>(
             createMainScope(
-                styles,
+                !isModuleDefault(styles) ? styles : styles.default,
                 options /* as CssScopeOptions   */
             ),
             options     /* as StyleSheetOptions */
