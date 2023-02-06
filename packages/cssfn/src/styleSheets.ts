@@ -61,9 +61,8 @@ export const isObservableStyles = (styles: StyleSheetFactoryBase): styles is Obs
         so a several tests must be performed
     */
     (typeof(styles) === 'object')
-    // checking as literal object implicitly guarantees never being an array
-    // &&
-    // !Array.isArray(styles) // not object of Array of MaybeFactoryDeepArray<OptionalOrBoolean<CssStyle>>[]
+    &&
+    !Array.isArray(styles) // not object of Array of MaybeFactoryDeepArray<OptionalOrBoolean<CssStyle>>[]
     &&
     (Object.getPrototypeOf(styles) !== Object.prototype) // `CssStyle` object is guaranteed to be a literal object
 )
