@@ -1,18 +1,12 @@
 // cssfn:
 import type {
-    // promises:
-    MaybePromise,
-    
-    
-    
     // factories:
     MaybeFactory,
     
     
     
     // modules:
-    ModuleDefault,
-    MaybeModuleDefault,
+    MaybeLazyModuleDefault,
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
@@ -40,26 +34,12 @@ import {
 // types:
 export type StyleSheetsFactoryBase<TCssScopeName extends CssScopeName> = MaybeFactory<CssScopeList<TCssScopeName>|null> | Observable<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
 export type StyleSheetFactoryBase                                      = CssStyleCollection | Observable<CssStyleCollection|boolean>
-export type StyleSheetsFactory<TCssScopeName extends CssScopeName>     = MaybePromise<MaybeModuleDefault<StyleSheetsFactoryBase<TCssScopeName>>>
-export type StyleSheetFactory                                          = MaybePromise<MaybeModuleDefault<StyleSheetFactoryBase>>
+export type StyleSheetsFactory<TCssScopeName extends CssScopeName>     = MaybeLazyModuleDefault<StyleSheetsFactoryBase<TCssScopeName>>
+export type StyleSheetFactory                                          = MaybeLazyModuleDefault<StyleSheetFactoryBase>
 
 
 
 // utilities:
-export const isPromise          = <T>(test: MaybePromise<T>): test is Promise<T> => (
-    !!test
-    &&
-    (test instanceof Promise<T>)
-)
-export const isModuleDefault    = <T>(test: MaybeModuleDefault<T>): test is ModuleDefault<T> => (
-    !!test
-    &&
-    test instanceof Object
-    &&
-    (Object.getPrototypeOf(test) === Object.prototype) // must be a literal object -- object of Array|Function|Observable|Promise are not accepted
-    &&
-    ('default' in test)                                // the literal object must have [default] prop -- a literal object of `CssStyle` is guaranteed to never have a [default] prop if written correctly
-)
 export const isObservableScopes = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactoryBase<TCssScopeName>): scopes is Observable<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean> => (
     !!scopes
     &&
@@ -170,12 +150,16 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
     
     //#region private methods
     #resolveScopes(scopes: StyleSheetsFactory<TCssScopeName>): void {
-        if (!isPromise(scopes)) {
-            this.#updateScopes(!isModuleDefault(scopes) ? scopes : scopes.default);
+        const scopesValue = (typeof(scopes) !== 'function') ? scopes : scopes();
+        
+        
+        
+        if (!(scopesValue instanceof Promise)) {
+            this.#updateScopes(scopesValue);
         }
         else {
-            scopes.then((resolvedScopes) => {
-                this.#updateScopes(!isModuleDefault(resolvedScopes) ? resolvedScopes : resolvedScopes.default);
+            scopesValue.then((resolvedScopes) => {
+                this.#updateScopes(resolvedScopes.default);
             });
         } // if
     }
@@ -356,10 +340,14 @@ export const styleSheets     = <TCssScopeName extends CssScopeName>(scopes: Styl
     return sheet.classes;
 }
 export const styleSheet      = (styles: StyleSheetFactory, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
-    if (!isPromise(styles)) {
+    const stylesValue = (typeof(styles) !== 'function') ? styles : styles();
+    
+    
+    
+    if (!(stylesValue instanceof Promise)) {
         return styleSheets<'main'>(
             createMainScope(
-                !isModuleDefault(styles) ? styles : styles.default,
+                stylesValue,
                 options /* as CssScopeOptions   */
             ),
             options     /* as StyleSheetOptions */
@@ -367,14 +355,15 @@ export const styleSheet      = (styles: StyleSheetFactory, options?: StyleSheetO
     }
     else {
         return styleSheets<'main'>(
-            new Promise<StyleSheetsFactoryBase<'main'>>((resolve) => {
-                styles.then((resolvedStyles) => {
-                    resolve(
-                        createMainScope(
-                            !isModuleDefault(resolvedStyles) ? resolvedStyles : resolvedStyles.default,
+            // Factory => Promise => ModuleDefault => StyleSheetsFactoryBase<'main'> :
+            () => new Promise<{ default: StyleSheetsFactoryBase<'main'> }>((resolve) => {
+                stylesValue.then((resolvedStyles) => {
+                    resolve({
+                        default: createMainScope(
+                            resolvedStyles.default,
                             options /* as CssScopeOptions   */
                         )
-                    );
+                    });
                 });
             }),
             options     /* as StyleSheetOptions */
