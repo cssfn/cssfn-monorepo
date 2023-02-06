@@ -1,6 +1,6 @@
 // cssfn:
 import type {
-    // types:
+    // optionals:
     OptionalOrBoolean,
 }                           from '@cssfn/types'
 import type {

@@ -1,7 +1,11 @@
 // cssfn:
 import type {
-    // types:
+    // optionals:
     OptionalOrBoolean,
+    
+    
+    
+    // dictionaries/maps:
     Dictionary,
 }                           from '@cssfn/types'
 import type {
