@@ -1,7 +1,7 @@
 // cssfn:
 import type {
     OptionalOrBoolean,
-    SingleOrArray,
+    MaybeArray,
     DeepArray,
     SingleOrDeepArray,
 }                           from '@cssfn/types'
@@ -736,14 +736,14 @@ export const isNotClassOrPseudoClassSelector     = (selectorEntry: OptionalOrBoo
 export const isNotPseudoElementSelector          = (selectorEntry: OptionalOrBoolean<SelectorEntry>) => !isPseudoElementSelector(selectorEntry);
 export const isNotElementOrPseudoElementSelector = (selectorEntry: OptionalOrBoolean<SelectorEntry>) => !isElementOrPseudoElementSelector(selectorEntry);
 
-export const isAttrSelectorOf                    = (selectorEntry: OptionalOrBoolean<SelectorEntry>, attrName  : SingleOrArray<string>)     : boolean => isAttrSelector(selectorEntry)                   && [attrName  ].flat().includes(selectorEntry?.[2]?.[0]); // [ '['     , null      , [ attrName , op , value , opt ] ]
-export const isElementSelectorOf                 = (selectorEntry: OptionalOrBoolean<SelectorEntry>, elmName   : SingleOrArray<string>)     : boolean => isElementSelector(selectorEntry)                && [elmName   ].flat().includes(selectorEntry?.[1]);      // [ ''      , elmName   ]
-export const isIdSelectorOf                      = (selectorEntry: OptionalOrBoolean<SelectorEntry>, id        : SingleOrArray<string>)     : boolean => isIdSelector(selectorEntry)                     && [id        ].flat().includes(selectorEntry?.[1]);      // [ '#'     , id        ]
-export const isClassSelectorOf                   = (selectorEntry: OptionalOrBoolean<SelectorEntry>, className : SingleOrArray<string>)     : boolean => isClassSelector(selectorEntry)                  && [className ].flat().includes(selectorEntry?.[1]);      // [ '.'     , className ]
-export const isPseudoClassSelectorOf             = (selectorEntry: OptionalOrBoolean<SelectorEntry>, className : SingleOrArray<string>)     : boolean => isPseudoClassSelector(selectorEntry)            && [className ].flat().includes(selectorEntry?.[1]);      // [ ':'     , className ]
-export const isClassOrPseudoClassSelectorOf      = (selectorEntry: OptionalOrBoolean<SelectorEntry>, className : SingleOrArray<string>)     : boolean => isClassOrPseudoClassSelector(selectorEntry)     && [className ].flat().includes(selectorEntry?.[1]);      // [ '.'|':' , className ]
-export const isPseudoElementSelectorOf           = (selectorEntry: OptionalOrBoolean<SelectorEntry>, elmName   : SingleOrArray<string>)     : boolean => isPseudoElementSelector(selectorEntry)          && [elmName   ].flat().includes(selectorEntry?.[1]);      // [ '::'    , elmName   ]
-export const isElementOrPseudoElementSelectorOf  = (selectorEntry: OptionalOrBoolean<SelectorEntry>, elmName   : SingleOrArray<string>)     : boolean => isElementOrPseudoElementSelector(selectorEntry) && [elmName   ].flat().includes(selectorEntry?.[1]);      // [ ''|'::' , elmName   ]
+export const isAttrSelectorOf                    = (selectorEntry: OptionalOrBoolean<SelectorEntry>, attrName  : MaybeArray<string>)     : boolean => isAttrSelector(selectorEntry)                   && [attrName  ].flat().includes(selectorEntry?.[2]?.[0]); // [ '['     , null      , [ attrName , op , value , opt ] ]
+export const isElementSelectorOf                 = (selectorEntry: OptionalOrBoolean<SelectorEntry>, elmName   : MaybeArray<string>)     : boolean => isElementSelector(selectorEntry)                && [elmName   ].flat().includes(selectorEntry?.[1]);      // [ ''      , elmName   ]
+export const isIdSelectorOf                      = (selectorEntry: OptionalOrBoolean<SelectorEntry>, id        : MaybeArray<string>)     : boolean => isIdSelector(selectorEntry)                     && [id        ].flat().includes(selectorEntry?.[1]);      // [ '#'     , id        ]
+export const isClassSelectorOf                   = (selectorEntry: OptionalOrBoolean<SelectorEntry>, className : MaybeArray<string>)     : boolean => isClassSelector(selectorEntry)                  && [className ].flat().includes(selectorEntry?.[1]);      // [ '.'     , className ]
+export const isPseudoClassSelectorOf             = (selectorEntry: OptionalOrBoolean<SelectorEntry>, className : MaybeArray<string>)     : boolean => isPseudoClassSelector(selectorEntry)            && [className ].flat().includes(selectorEntry?.[1]);      // [ ':'     , className ]
+export const isClassOrPseudoClassSelectorOf      = (selectorEntry: OptionalOrBoolean<SelectorEntry>, className : MaybeArray<string>)     : boolean => isClassOrPseudoClassSelector(selectorEntry)     && [className ].flat().includes(selectorEntry?.[1]);      // [ '.'|':' , className ]
+export const isPseudoElementSelectorOf           = (selectorEntry: OptionalOrBoolean<SelectorEntry>, elmName   : MaybeArray<string>)     : boolean => isPseudoElementSelector(selectorEntry)          && [elmName   ].flat().includes(selectorEntry?.[1]);      // [ '::'    , elmName   ]
+export const isElementOrPseudoElementSelectorOf  = (selectorEntry: OptionalOrBoolean<SelectorEntry>, elmName   : MaybeArray<string>)     : boolean => isElementOrPseudoElementSelector(selectorEntry) && [elmName   ].flat().includes(selectorEntry?.[1]);      // [ ''|'::' , elmName   ]
 
 export const combinator = (combinator: Combinator): Combinator => combinator;
 //#region aliases
@@ -753,7 +753,7 @@ export {
 //#endregion aliases
 
 export const isCombinator                        = (selectorEntry: OptionalOrBoolean<SelectorEntry>): selectorEntry is Combinator => (typeof(selectorEntry) === 'string');
-export const isCombinatorOf                      = (selectorEntry: OptionalOrBoolean<SelectorEntry>, combinator: SingleOrArray<Combinator>) : boolean => isCombinator(selectorEntry)                     && [combinator].flat().includes(selectorEntry);
+export const isCombinatorOf                      = (selectorEntry: OptionalOrBoolean<SelectorEntry>, combinator: MaybeArray<Combinator>) : boolean => isCombinator(selectorEntry)                     && [combinator].flat().includes(selectorEntry);
 
 // SimpleSelector & Selector creates & tests:
 export const selector          = <TSelector          extends Selector          = Selector         >(...selectorEntries : TSelector         ): TSelector          => selectorEntries;
