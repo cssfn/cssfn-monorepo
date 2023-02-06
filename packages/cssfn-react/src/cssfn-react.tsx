@@ -402,7 +402,7 @@ export const dynamicStyleSheet  = (styles: StyleSheetFactory, options?: DynamicS
                 styles,
                 options /* as CssScopeOptions   */
             ),
-            options     /* as StyleSheetOptions */
+            options     /* as DynamicStyleSheetOptions */
         );
     }
     else {
@@ -417,7 +417,7 @@ export const dynamicStyleSheet  = (styles: StyleSheetFactory, options?: DynamicS
                     );
                 });
             }),
-            options     /* as StyleSheetOptions */
+            options     /* as DynamicStyleSheetOptions */
         );
     } // if
 };
