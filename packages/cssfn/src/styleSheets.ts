@@ -349,17 +349,16 @@ export const styleSheets     = <TCssScopeName extends CssScopeName>(scopes: Styl
 }
 export const styleSheet      = (styles: StyleSheetFactory, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
     if (!isPromise(styles)) {
-        const classes = styleSheets<'main'>(
+        return styleSheets<'main'>(
             createMainScope(
                 styles,
                 options /* as CssScopeOptions   */
             ),
             options     /* as StyleSheetOptions */
-        );
-        return classes.main;
+        ).main;
     }
     else {
-        const classes = styleSheets<'main'>(
+        return styleSheets<'main'>(
             new Promise<MaybeModuleDefault<StyleSheetsFactoryBase<'main'>>>((resolve) => {
                 styles.then((resolvedStyles) => {
                     resolve(
@@ -371,8 +370,7 @@ export const styleSheet      = (styles: StyleSheetFactory, options?: StyleSheetO
                 });
             }),
             options     /* as StyleSheetOptions */
-        );
-        return classes.main;
+        ).main;
     } // if
 }
 export const createMainScope = (styles: StyleSheetFactoryBase, options: CssScopeOptions|undefined): StyleSheetsFactoryBase<'main'> => {
