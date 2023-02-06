@@ -60,8 +60,6 @@ import {
     
     
     // utilities:
-    isPromise,
-    isModuleDefault,
     isObservableScopes,
 }                           from '@cssfn/cssfn'
 
@@ -268,12 +266,16 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     
     //#region private methods
     #resolveScopes(scopes: StyleSheetsFactory<TCssScopeName>): void {
-        if (!isPromise(scopes)) {
-            this.#forwardScopes(!isModuleDefault(scopes) ? scopes : scopes.default);
+        const scopesValue = (typeof(scopes) !== 'function') ? scopes : scopes();
+        
+        
+        
+        if (!(scopesValue instanceof Promise)) {
+            this.#forwardScopes(scopesValue);
         }
         else {
-            scopes.then((resolvedScopes) => {
-                this.#forwardScopes(!isModuleDefault(resolvedScopes) ? resolvedScopes : resolvedScopes.default);
+            scopesValue.then((resolvedScopes) => {
+                this.#forwardScopes(resolvedScopes.default);
             });
         } // if
     }
@@ -395,25 +397,30 @@ export const dynamicStyleSheets = <TCssScopeName extends CssScopeName>(scopes: S
 };
 export { dynamicStyleSheets as createUseStyleSheets }
 export const dynamicStyleSheet  = (styles: StyleSheetFactory, options?: DynamicStyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
-    if (!isPromise(styles)) {
+    const stylesValue = (typeof(styles) !== 'function') ? styles : styles();
+    
+    
+    
+    if (!(stylesValue instanceof Promise)) {
         return dynamicStyleSheets<'main'>(
             createMainScope(
-                !isModuleDefault(styles) ? styles : styles.default,
-                options /* as CssScopeOptions   */
+                stylesValue,
+                options /* as CssScopeOptions */
             ),
             options     /* as DynamicStyleSheetOptions */
         );
     }
     else {
         return dynamicStyleSheets<'main'>(
-            new Promise<StyleSheetsFactoryBase<'main'>>((resolve) => {
-                styles.then((resolvedStyles) => {
-                    resolve(
-                        createMainScope(
-                            !isModuleDefault(resolvedStyles) ? resolvedStyles : resolvedStyles.default,
-                            options /* as CssScopeOptions   */
+            // Factory => Promise => ModuleDefault => StyleSheetsFactoryBase<'main'> :
+            () => new Promise<{ default: StyleSheetsFactoryBase<'main'> }>((resolve) => {
+                stylesValue.then((resolvedStyles) => {
+                    resolve({
+                        default: createMainScope(
+                            resolvedStyles.default,
+                            options /* as CssScopeOptions */
                         )
-                    );
+                    });
                 });
             }),
             options     /* as DynamicStyleSheetOptions */
