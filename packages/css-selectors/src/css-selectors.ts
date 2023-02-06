@@ -1,9 +1,14 @@
 // cssfn:
 import type {
+    // optionals:
     OptionalOrBoolean,
+    
+    
+    
+    // arrays:
     MaybeArray,
     DeepArray,
-    SingleOrDeepArray,
+    MaybeDeepArray,
 }                           from '@cssfn/types'
 
 
@@ -100,7 +105,7 @@ function unwrapExpressions(expressions: DeepArray<OptionalOrBoolean<string>>, re
         unwrapExpressions(expression, result);
     } // for
 }
-const joinExpressions = (expressions: SingleOrDeepArray<OptionalOrBoolean<string>>): string => {
+const joinExpressions = (expressions: MaybeDeepArray<OptionalOrBoolean<string>>): string => {
     // statically handle single item:
     if (!Array.isArray(expressions)) {
         if (!isNotEmptyExpression(expressions)) return ''; // falsy or empty string => empty result
@@ -557,7 +562,7 @@ class SelectorsParser {
     
     
     
-    process(expressions: SingleOrDeepArray<OptionalOrBoolean<string>>): SelectorGroup|null {
+    process(expressions: MaybeDeepArray<OptionalOrBoolean<string>>): SelectorGroup|null {
         // configure:
         this.#expression       = joinExpressions(expressions);
         this.#expressionLength = this.#expression.length;
@@ -591,7 +596,7 @@ class SelectorsParser {
     }
 }
 const selectorsParser : SelectorsParser = new SelectorsParser();
-export const parseSelectors = (expressions: SingleOrDeepArray<OptionalOrBoolean<string>>): SelectorGroup|null => {
+export const parseSelectors = (expressions: MaybeDeepArray<OptionalOrBoolean<string>>): SelectorGroup|null => {
     return selectorsParser.process(expressions);
 };
 

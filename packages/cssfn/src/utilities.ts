@@ -1,11 +1,17 @@
 // cssfn:
 import type {
-    // types:
+    // optionals:
     OptionalOrBoolean,
     
-    DeepArray,
-    SingleOrDeepArray,
     
+    
+    // arrays:
+    DeepArray,
+    MaybeDeepArray,
+    
+    
+    
+    // factories:
     Factory,
     ProductOrFactory,
 }                           from '@cssfn/types'
@@ -58,10 +64,10 @@ function unwrap<T>(collection: DeepArray<T>, result: T[]): void {
  * @param collection An element -or- an array of element -or- a recursive array of element
  * @returns A new array with all sub-array elements concatenated into it.
  */
-export const flat = <T,>(collection: SingleOrDeepArray<T>): T[] => {
+export const flat = <T,>(collection: MaybeDeepArray<T>): T[] => {
     /*
-        SingleOrDeepArray<T> =       T      | DeepArray<T>
-        typeof               = not an array | is an array
+        MaybeDeepArray<T> =       T      | DeepArray<T>
+        typeof            = not an array | is an array
     */
     
     

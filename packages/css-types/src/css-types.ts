@@ -1,11 +1,22 @@
 // cssfn:
 import type {
+    // optionals:
     OptionalOrBoolean,
-    SingleOrDeepArray,
+    
+    
+    
+    // arrays:
+    MaybeDeepArray,
+    
+    
+    
+    // factories:
     ProductOrFactoryOrDeepArray,
     
-    PartialNullish,
     
+    
+    // dictionaries/maps:
+    PartialNullish,
     MapOf,
 }                           from '@cssfn/types'
 
@@ -588,7 +599,7 @@ export type CssKeyframesRuleMap        = MapOf<CssKeyframesRule>
 
 
 export type CssSelector           = (string & {})
-export type CssSelectorCollection = SingleOrDeepArray<OptionalOrBoolean<CssSelector>>
+export type CssSelectorCollection = MaybeDeepArray<OptionalOrBoolean<CssSelector>>
 
 export interface CssSelectorOptions {
     performGrouping      ?: boolean

@@ -1,8 +1,16 @@
 // cssfn:
 import type {
+    // optionals:
     OptionalOrBoolean,
-    SingleOrDeepArray,
     
+    
+    
+    // arrays:
+    MaybeDeepArray,
+    
+    
+    
+    // dictionaries/maps:
     PartialNullish,
 }                           from '@cssfn/types'
 
@@ -60,4 +68,4 @@ export type EncodedCssRule            = {
 }
 
 export type EncodedCssStyle           = EncodedCssProps & EncodedCssRule
-export type EncodedCssStyleCollection = SingleOrDeepArray<OptionalOrBoolean<EncodedCssStyle>>
+export type EncodedCssStyleCollection = MaybeDeepArray<OptionalOrBoolean<EncodedCssStyle>>
