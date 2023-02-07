@@ -87,7 +87,7 @@ const defaultStyleSheetOptions : Required<StyleSheetOptions> = {
 }
 
 type StyleSheetUpdatedCallback<in TCssScopeName extends CssScopeName> = (styleSheet: StyleSheet<TCssScopeName>) => void;
-class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implements Required<StyleSheetOptions> {
+export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implements Required<StyleSheetOptions> {
     //#region private properties
     // configs:
     readonly    #options         : Required<StyleSheetOptions>
@@ -261,7 +261,6 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
     }
     //#endregion public properties
 }
-export type { StyleSheet } // only export the type but not the actual class
 
 
 
