@@ -335,12 +335,11 @@ export type { StyleSheetRegistry } // only export the type but not the actual cl
 
 export const styleSheetRegistry = new StyleSheetRegistry();
 export const styleSheets     = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactory<TCssScopeName>, options?: StyleSheetOptions): CssScopeMap<TCssScopeName> => {
-    const sheet = styleSheetRegistry.add(new StyleSheet<TCssScopeName>(
+    return styleSheetRegistry.add(new StyleSheet<TCssScopeName>(
         scopes,
         styleSheetRegistry.handleStyleSheetUpdated, // listen for future updates
         options
-    ));
-    return sheet.classes;
+    )).classes;
 }
 export const styleSheet      = (styles: StyleSheetFactory, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
     const stylesValue = (typeof(styles) !== 'function') ? styles : styles();
