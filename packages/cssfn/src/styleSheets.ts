@@ -283,7 +283,7 @@ class StyleSheetRegistry {
     
     
     //#region public methods
-    add<TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactory<TCssScopeName>, options?: StyleSheetOptions) {
+    add(newStyleSheet: StyleSheet<CssScopeName>) {
         /*
             The `StyleSheetRegistry::add()` always be called every call of `styleSheet()`, `styleSheets()`, dynamicStyleSheet()`, and `dynamicStyleSheets()`.
             In practice, these 4 functions are always be called on *top-level-module*.
@@ -293,11 +293,6 @@ class StyleSheetRegistry {
         
         
         
-        const newStyleSheet = new StyleSheet<TCssScopeName>(
-            scopes,
-            this.#styleSheetUpdated,               // listen for future updates
-            options
-        );
         this.#styleSheets.push(newStyleSheet);     // register to collection
         
         
@@ -329,7 +324,7 @@ class StyleSheetRegistry {
     
     
     //#region private callbacks
-    #styleSheetUpdated = (styleSheet: StyleSheet<CssScopeName>): void => {
+    handleStyleSheetUpdated = (styleSheet: StyleSheet<CssScopeName>): void => {
         this.#subscribers.next(styleSheet); // notify a StyleSheet updated
     }
     //#endregion private callbacks
@@ -340,7 +335,11 @@ export type { StyleSheetRegistry } // only export the type but not the actual cl
 
 export const styleSheetRegistry = new StyleSheetRegistry();
 export const styleSheets     = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactory<TCssScopeName>, options?: StyleSheetOptions): CssScopeMap<TCssScopeName> => {
-    const sheet = styleSheetRegistry.add(scopes, options);
+    const sheet = styleSheetRegistry.add(new StyleSheet<TCssScopeName>(
+        scopes,
+        styleSheetRegistry.handleStyleSheetUpdated, // listen for future updates
+        options
+    ));
     return sheet.classes;
 }
 export const styleSheet      = (styles: StyleSheetFactory, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
