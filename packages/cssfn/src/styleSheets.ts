@@ -416,7 +416,7 @@ export const singularStyleSheet = <TBaseStyleSheetsReturn>(baseStyleSheets: ((sc
         );
     } // if
 }
-const createMainScope = (styles: StyleSheetFactoryBase, options: CssScopeOptions|undefined): StyleSheetsFactoryBase<'main'> => {
+const createMainScope           = (styles: StyleSheetFactoryBase, options: CssScopeOptions|undefined): StyleSheetsFactoryBase<'main'> => {
     if (!styles || (styles === true)) {
         return null; // empty scope
     }
