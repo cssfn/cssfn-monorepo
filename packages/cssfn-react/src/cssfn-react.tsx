@@ -235,6 +235,9 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     
     
     // states:
+    readonly    #scopesFactory             : StyleSheetsFactory<TCssScopeName>
+    /*mutable*/ #scopesActivated           : boolean
+    
     /*mutable*/ #cancelDisable             : ReturnType<typeof setTimeout>|undefined
     /*mutable*/ #registeredUsingStyleSheet : number
     
@@ -259,6 +262,9 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
         
         
         // states:
+        this.#scopesFactory             = scopesFactory;
+        this.#scopesActivated           = false;
+        
         this.#cancelDisable             = undefined;
         this.#registeredUsingStyleSheet = 0; // initially no user using this styleSheet
         
@@ -275,16 +281,21 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
         
         // activate the scope immediately if the given `scopesFactory` is an `Observable` object,
         // so we can `subscribe()` -- aka `log()` for update requests as soon as possible
-        if ((typeof(scopesFactory) !== 'function') && isObservableScopes(scopesFactory)) this.#activateScopesIfNeeded(scopesFactory);
+        if ((typeof(scopesFactory) !== 'function') && isObservableScopes(scopesFactory)) this.#activateScopesIfNeeded();
     }
     //#endregion constructors
     
     
     
     //#region private methods
-    #activateScopesIfNeeded(scopesFactory: StyleSheetsFactory<TCssScopeName>): void {
+    #activateScopesIfNeeded(): void {
+        // conditions:
+        if (this.#scopesActivated) return; // already (successfully) activated => no need to re-activate
+        
+        
+        
         // activate (call the callback function -- if the given scopeFactory is a function):
-        const scopesValue = (typeof(scopesFactory) !== 'function') ? scopesFactory : scopesFactory();
+        const scopesValue = (typeof(this.#scopesFactory) !== 'function') ? this.#scopesFactory : this.#scopesFactory();
         
         
         
@@ -297,6 +308,11 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
                 this.#forwardScopes(resolvedScopes.default);
             });
         } // if
+        
+        
+        
+        // marks:
+        this.#scopesActivated = true; // mark as successfully activated (without any throw)
     }
     #forwardScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
         if (!isObservableScopes(scopes)) {
