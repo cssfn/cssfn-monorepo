@@ -11,6 +11,7 @@ import {
     useRef,
     useMemo,
     useInsertionEffect,
+    useInsertionEffect as _useInsertionEffect,
     
     
     
@@ -46,9 +47,9 @@ import {
     
     // style sheets:
     StyleSheetOptions,
+    StyleSheetUpdatedCallback,
     StyleSheet,
     styleSheetRegistry,
-    styleSheets,
     createMainScope,
     
     
@@ -223,11 +224,13 @@ export const HeadPortal = ({ children }: React.PropsWithChildren<{}>): JSX.Eleme
 
 
 
-// hooks:
+// style sheets:
+
 export interface DynamicStyleSheetOptions extends StyleSheetOptions {
     disableDelay ?: number
 }
-class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
+
+export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName> extends StyleSheet<TCssScopeName> {
     //#region private properties
     // configs:
     readonly    #options                   : DynamicStyleSheetOptions
@@ -245,19 +248,26 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     
     // css classes:
     readonly    #dynamicStyleSheet         : Subject<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
-    readonly    #scopeMap                  : CssScopeMap<TCssScopeName>
     //#endregion private properties
     
     
     
     //#region constructors
-    constructor(scopesFactory: StyleSheetsFactory<TCssScopeName>, options?: DynamicStyleSheetOptions) {
+    constructor(scopesFactory: StyleSheetsFactory<TCssScopeName>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>, options?: DynamicStyleSheetOptions) {
         // configs:
-        this.#options = {
+        const styleSheetOptions : DynamicStyleSheetOptions = {
             ...options,
+            
             enabled      : options?.enabled      ?? false, // the default is initially disabled, will be re-enabled/re-disabled at runtime
             disableDelay : options?.disableDelay ?? 1000,
         };
+        
+        
+        
+        // init base:
+        const dynamicStyleSheet         = new Subject<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>();
+        super(dynamicStyleSheet, updatedCallback, styleSheetOptions);
+        this.#options                   = styleSheetOptions;
         
         
         
@@ -271,24 +281,20 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
         
         
         // css classes:
-        this.#dynamicStyleSheet = new Subject<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>();
-        this.#scopeMap = styleSheets(
-            this.#dynamicStyleSheet,
-            this.#options /* as StyleSheetOptions */
-        );
+        this.#dynamicStyleSheet         = dynamicStyleSheet;
         
         
         
         // activate the scope immediately if the given `scopesFactory` is an `Observable` object,
         // so we can `subscribe()` -- aka `log()` for update requests as soon as possible
-        if ((typeof(scopesFactory) !== 'function') && isObservableScopes(scopesFactory)) this.#activateScopesIfNeeded();
+        if ((typeof(scopesFactory) !== 'function') && isObservableScopes(scopesFactory)) this.activateDynamicScopesIfNeeded();
     }
     //#endregion constructors
     
     
     
-    //#region private methods
-    #activateScopesIfNeeded(): void {
+    //#region protected methods
+    protected activateDynamicScopesIfNeeded(): void {
         // conditions:
         if (this.#scopesActivated) return; // already (successfully) activated => no need to re-activate
         
@@ -301,11 +307,11 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
         
         // update scope:
         if (!(scopesValue instanceof Promise)) {
-            this.#forwardScopes(scopesValue);
+            this.forwardScopes(scopesValue);
         }
         else {
             scopesValue.then((resolvedScopes) => {
-                this.#forwardScopes(resolvedScopes.default);
+                this.forwardScopes(resolvedScopes.default);
             });
         } // if
         
@@ -314,7 +320,7 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
         // marks:
         this.#scopesActivated = true; // mark as successfully activated (without any throw)
     }
-    #forwardScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
+    protected forwardScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
         if (!isObservableScopes(scopes)) {
             this.#dynamicStyleSheet.next(
                 scopes // forward once
@@ -329,7 +335,7 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     
     
     
-    #cancelDelayedDisableStyleSheet() {
+    protected cancelDelayedDisableStyleSheet() {
         // conditions:
         if (!this.#cancelDisable) return; // nothing to cancel => ignore
         
@@ -340,24 +346,24 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
         this.#cancelDisable = undefined;
     }
     
-    #registerUsingStyleSheet() {
+    protected registerUsingStyleSheet() {
         this.#registeredUsingStyleSheet++;
         
         if (this.#registeredUsingStyleSheet === 1) { // first user
             // cancel previously delayed disable styleSheet (if any):
-            this.#cancelDelayedDisableStyleSheet();
+            this.cancelDelayedDisableStyleSheet();
             
             
             
             this.#dynamicStyleSheet.next(true); // first user => enable styleSheet
         } // if
     }
-    #unregisterUsingStyleSheet() {
+    protected unregisterUsingStyleSheet() {
         this.#registeredUsingStyleSheet--;
         
         if (this.#registeredUsingStyleSheet === 0) { // no user
             // cancel previously delayed disable styleSheet (if any):
-            this.#cancelDelayedDisableStyleSheet();
+            this.cancelDelayedDisableStyleSheet();
             
             
             
@@ -379,20 +385,33 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
             } // if
         } // if
     }
-    //#endregion private methods
+    //#endregion protected methods
+    
+    
+    
+    //#region public properties
+    get scopes() {
+        this.activateDynamicScopesIfNeeded();
+        return super.scopes;
+    }
+    //#endregion public properties
     
     
     
     //#region public methods
-    createStyleSheetsHook(): CssScopeMap<TCssScopeName> {
+    createDynamicStyleSheetsHook(): CssScopeMap<TCssScopeName> {
+        // states:
+        const isDynamicStyleSheetsHookInUse = useRef(false);
+        
+        
+        
         // dom effects:
-        const isStyleSheetInUse = useRef(false);
-        useInsertionEffect(() => {
+        _useInsertionEffect(() => {
             // cleanups:
             return () => {
-                if (isStyleSheetInUse.current) {
-                    isStyleSheetInUse.current = false; // mark the styleSheet as not_in_use
-                    this.#unregisterUsingStyleSheet();
+                if (isDynamicStyleSheetsHookInUse.current) {
+                    isDynamicStyleSheetsHookInUse.current = false; // mark the styleSheet as not_in_use
+                    this.unregisterUsingStyleSheet();
                 } // if
             }
         }, []); // runs once on startup
@@ -400,16 +419,16 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
         
         
         // dynamically enabled:
-        return new Proxy<CssScopeMap<TCssScopeName>>(this.#scopeMap, {
-            get: (scopeMap: CssScopeMap<TCssScopeName>, scopeName: CssScopeName): CssClassName|undefined => {
-                const className = scopeMap[scopeName as keyof CssScopeMap<TCssScopeName>];
+        return new Proxy<CssScopeMap<TCssScopeName>>(this.classes, {
+            get: (classes: CssScopeMap<TCssScopeName>, scopeName: CssScopeName): CssClassName|undefined => {
+                const className = classes[scopeName as keyof CssScopeMap<TCssScopeName>];
                 if (className === undefined) return undefined; // not found => return undefined
                 
                 
                 
-                if (!isStyleSheetInUse.current) {
-                    isStyleSheetInUse.current = true; // mark the styleSheet as in_use
-                    this.#registerUsingStyleSheet();
+                if (!isDynamicStyleSheetsHookInUse.current) {
+                    isDynamicStyleSheetsHookInUse.current = true; // mark the styleSheet as in_use
+                    this.registerUsingStyleSheet();
                 } // if
                 
                 
@@ -420,14 +439,25 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     }
     //#endregion public methods
 }
+
+
+
+// hooks:
 export const dynamicStyleSheets = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactory<TCssScopeName>, options?: DynamicStyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
-    // a single builder for creating many hooks:
-    const builder = new StyleSheetsHookBuilder(scopes, options);
+    // a single `DynamicStyleSheet` instance for creating many hooks:
+    const dynamicStyleSheet = new DynamicStyleSheet<TCssScopeName>(
+        scopes,
+        styleSheetRegistry.handleStyleSheetUpdated, // listen for future updates
+        options
+    );
+    styleSheetRegistry.add(dynamicStyleSheet);
+    
+    
     
     // the hook:
-    return () => ( // wrap with arrow func so the `this` in `createStyleSheetsHook` preserved
-        builder
-        .createStyleSheetsHook()
+    return () => ( // wrap with arrow func so the `this` in `createDynamicStyleSheetsHook` preserved
+        dynamicStyleSheet
+        .createDynamicStyleSheetsHook()
     );
 };
 export { dynamicStyleSheets as createUseStyleSheets }
