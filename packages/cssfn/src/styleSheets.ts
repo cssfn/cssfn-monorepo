@@ -112,7 +112,8 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     constructor(scopesFactory: StyleSheetsFactory<TCssScopeName>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>, options?: StyleSheetOptions) {
         // configs:
         const styleSheetOptions : Required<StyleSheetOptions> = {
-            ...(options ?? {}),
+            ...options,
+            
             enabled : options?.enabled ?? defaultStyleSheetOptions.enabled,
             id      : options?.id      ?? defaultStyleSheetOptions.id,
             
@@ -160,14 +161,14 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         
         // activate the scope immediately if the given `scopesFactory` is an `Observable` object,
         // so we can `subscribe()` -- aka `log()` for update requests as soon as possible
-        if ((typeof(scopesFactory) !== 'function') && isObservableScopes(scopesFactory)) this.#activateScopesIfNeeded();
+        if ((typeof(scopesFactory) !== 'function') && isObservableScopes(scopesFactory)) this.activateScopesIfNeeded();
     }
     //#endregion constructors
     
     
     
-    //#region private methods
-    #activateScopesIfNeeded(): void {
+    //#region protected methods
+    protected activateScopesIfNeeded(): void {
         // conditions:
         if (this.#scopesActivated) return; // already (successfully) activated => no need to re-activate
         
@@ -193,6 +194,11 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         // marks:
         this.#scopesActivated = true; // mark as successfully activated (without any throw)
     }
+    //#endregion protected methods
+    
+    
+    
+    //#region private methods
     #updateScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
         if (!isObservableScopes(scopes)) {
             this.#scopesLive = scopes; // update once
@@ -252,7 +258,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     }
     
     get scopes() {
-        this.#activateScopesIfNeeded();
+        this.activateScopesIfNeeded();
         return this.#scopesLive;
     }
     
