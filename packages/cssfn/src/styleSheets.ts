@@ -120,8 +120,8 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
             ssr     : options?.ssr     ?? defaultStyleSheetOptions.ssr,
             lazyCsr : options?.lazyCsr ?? defaultStyleSheetOptions.lazyCsr,
         };
-        this.#options           = styleSheetOptions;
-        this.#updatedCallback   = updatedCallback;
+        this.#options         = styleSheetOptions;
+        this.#updatedCallback = updatedCallback;
         
         
         
