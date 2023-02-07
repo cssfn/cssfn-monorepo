@@ -27,11 +27,6 @@ import {
 import type {
     // factories:
     MaybeFactory,
-    
-    
-    
-    // modules:
-    ModuleDefault,
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
@@ -55,7 +50,7 @@ import {
     StyleSheetUpdatedCallback,
     StyleSheet,
     styleSheetRegistry,
-    createMainScope,
+    singularStyleSheet,
     
     
     
@@ -479,62 +474,15 @@ export const dynamicStyleSheets = <TCssScopeName extends CssScopeName>(scopes: S
         .createDynamicStyleSheetsHook()
     );
 };
-export { dynamicStyleSheets as createUseStyleSheets }
 export const dynamicStyleSheet  = (styles: StyleSheetFactory, options?: DynamicStyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
-    if (typeof(styles) !== 'function') {
-        /*
-            The `styles` is NOT a function => resolved immediately without to CALL the the callback function.
-        */
-        return dynamicStyleSheets<'main'>(
-            createMainScope(
-                styles,
-                options /* as CssScopeOptions */
-            ),
-            options     /* as DynamicStyleSheetOptions */
-        );
-    }
-    else {
-        /*
-            The `styles` is a FUNCTION.
-            To preserve the LAZINESS, we cannot CALL the function now.
-            Instead we returning a Factory for promising the resolved `styles()`
-        */
-        return dynamicStyleSheets<'main'>(
-            // Factory => Promise => ModuleDefault => StyleSheetsFactoryBase<'main'>
-            async (): Promise<ModuleDefault<StyleSheetsFactoryBase<'main'>>> => {
-                const stylesValue = styles();
-                
-                
-                
-                if (!(stylesValue instanceof Promise)) {
-                    /*
-                        The `stylesValue` is NOT a Promise => resolved immediately.
-                    */
-                    return {
-                        default: createMainScope(
-                            stylesValue,
-                            options /* as CssScopeOptions */
-                        ),
-                    };
-                }
-                else {
-                    /*
-                        The `stylesValue` is a PROMISE => create another Promise for waiting the `stylesValue` already resolved.
-                    */
-                    return new Promise<{ default: StyleSheetsFactoryBase<'main'> }>((resolve) => {
-                        stylesValue.then((resolvedStyles) => {
-                            resolve({
-                                default: createMainScope(
-                                    resolvedStyles.default,
-                                    options /* as CssScopeOptions */
-                                ),
-                            });
-                        });
-                    });
-                } // if
-            },
-            options     /* as DynamicStyleSheetOptions */
-        );
-    } // if
+    return singularStyleSheet(dynamicStyleSheets, styles, options);
 };
-export { dynamicStyleSheet as createUseStyleSheet }
+
+/**
+ * @deprecated renamed to `dynamicStyleSheets`
+ */
+export const createUseStyleSheets = dynamicStyleSheets;
+/**
+ * @deprecated renamed to `dynamicStyleSheet`
+ */
+export const createUseStyleSheet  = dynamicStyleSheet;

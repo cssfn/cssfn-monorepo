@@ -349,25 +349,28 @@ export type { StyleSheetRegistry } // only export the type but not the actual cl
 
 
 export const styleSheetRegistry = new StyleSheetRegistry();
-export const styleSheets     = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactory<TCssScopeName>, options?: StyleSheetOptions): CssScopeMap<TCssScopeName> => {
+export const styleSheets        = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactory<TCssScopeName>, options?: StyleSheetOptions): CssScopeMap<TCssScopeName> => {
     return styleSheetRegistry.add(new StyleSheet<TCssScopeName>(
         scopes,
         styleSheetRegistry.handleStyleSheetUpdated, // listen for future updates
         options
     )).classes;
 }
-export const styleSheet      = (styles: StyleSheetFactory, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
+export const styleSheet         = (styles: StyleSheetFactory, options?: StyleSheetOptions & CssScopeOptions): CssClassName => {
+    return singularStyleSheet(styleSheets, styles, options).main;
+}
+export const singularStyleSheet = <TBaseStyleSheetsReturn>(baseStyleSheets: ((scopes: StyleSheetsFactory<'main'>, options?: StyleSheetOptions) => TBaseStyleSheetsReturn), styles: StyleSheetFactory, options?: StyleSheetOptions & CssScopeOptions): TBaseStyleSheetsReturn => {
     if (typeof(styles) !== 'function') {
         /*
             The `styles` is NOT a function => resolved immediately without to CALL the the callback function.
         */
-        return styleSheets<'main'>(
+        return baseStyleSheets(
             createMainScope(
                 styles,
                 options /* as CssScopeOptions   */
             ),
             options     /* as StyleSheetOptions */
-        ).main;
+        );
     }
     else {
         /*
@@ -375,7 +378,7 @@ export const styleSheet      = (styles: StyleSheetFactory, options?: StyleSheetO
             To preserve the LAZINESS, we cannot CALL the function now.
             Instead we returning a Factory for promising the resolved `styles()`
         */
-        return styleSheets<'main'>(
+        return baseStyleSheets(
             // Factory => Promise => ModuleDefault => StyleSheetsFactoryBase<'main'>
             async (): Promise<ModuleDefault<StyleSheetsFactoryBase<'main'>>> => {
                 const stylesValue = styles();
@@ -410,10 +413,10 @@ export const styleSheet      = (styles: StyleSheetFactory, options?: StyleSheetO
                 } // if
             },
             options     /* as StyleSheetOptions */
-        ).main;
+        );
     } // if
 }
-export const createMainScope = (styles: StyleSheetFactoryBase, options: CssScopeOptions|undefined): StyleSheetsFactoryBase<'main'> => {
+const createMainScope = (styles: StyleSheetFactoryBase, options: CssScopeOptions|undefined): StyleSheetsFactoryBase<'main'> => {
     if (!styles || (styles === true)) {
         return null; // empty scope
     }
