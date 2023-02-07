@@ -278,7 +278,7 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     
     //#region private methods
     #resolveScopes(scopesFactory: StyleSheetsFactory<TCssScopeName>): void {
-        // invoke:
+        // activate (call the callback function -- if the given scopeFactory is a function):
         const scopesValue = (typeof(scopesFactory) !== 'function') ? scopesFactory : scopesFactory();
         
         

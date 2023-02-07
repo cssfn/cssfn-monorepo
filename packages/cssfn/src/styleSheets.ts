@@ -97,7 +97,7 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
     
     // states:
     readonly    #scopesFactory   : StyleSheetsFactory<TCssScopeName>
-    /*mutable*/ #scopesInvoked   : boolean
+    /*mutable*/ #scopesActivated : boolean
     /*mutable*/ #scopesLive      : MaybeFactory<CssScopeList<TCssScopeName>|null>
     
     
@@ -125,9 +125,9 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
         
         
         // states:
-        this.#scopesFactory = scopesFactory;
-        this.#scopesInvoked = false;
-        this.#scopesLive    = null;
+        this.#scopesFactory   = scopesFactory;
+        this.#scopesActivated = false;
+        this.#scopesLive      = null;
         
         
         
@@ -161,13 +161,13 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
     
     
     //#region private methods
-    #invokeScopesIfNeeded(): void {
+    #activateScopesIfNeeded(): void {
         // conditions:
-        if (this.#scopesInvoked) return; // already (successfully) invoked => no need to re-invoke
+        if (this.#scopesActivated) return; // already (successfully) activated => no need to re-activate
         
         
         
-        // invoke:
+        // activate (call the callback function -- if the given scopeFactory is a function):
         const scopesValue = (typeof(this.#scopesFactory) !== 'function') ? this.#scopesFactory : this.#scopesFactory();
         
         
@@ -185,7 +185,7 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
         
         
         // marks:
-        this.#scopesInvoked = true; // mark as successfully invoked (without any throw)
+        this.#scopesActivated = true; // mark as successfully activated (without any throw)
     }
     #updateScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
         if (!isObservableScopes(scopes)) {
@@ -246,7 +246,7 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
     }
     
     get scopes() {
-        this.#invokeScopesIfNeeded();
+        this.#activateScopesIfNeeded();
         return this.#scopesLive;
     }
     
