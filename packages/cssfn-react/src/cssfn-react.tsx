@@ -229,36 +229,48 @@ export interface DynamicStyleSheetOptions extends StyleSheetOptions {
 }
 class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     //#region private properties
+    // configs:
     readonly    #options                   : DynamicStyleSheetOptions
-    /*mutable*/ #cancelDisable             : ReturnType<typeof setTimeout>|undefined
     
+    
+    
+    // states:
+    /*mutable*/ #cancelDisable             : ReturnType<typeof setTimeout>|undefined
+    /*mutable*/ #registeredUsingStyleSheet : number
+    
+    
+    
+    // css classes:
     readonly    #dynamicStyleSheet         : Subject<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
     readonly    #scopeMap                  : CssScopeMap<TCssScopeName>
-    /*mutable*/ #registeredUsingStyleSheet : number
     //#endregion private properties
     
     
     
     //#region constructors
     constructor(scopes: StyleSheetsFactory<TCssScopeName>, options?: DynamicStyleSheetOptions) {
-        //#region setup dynamic styleSheet
+        // configs:
         this.#options = {
             ...options,
             enabled      : options?.enabled      ?? false, // the default is initially disabled, will be re-enabled/re-disabled at runtime
             disableDelay : options?.disableDelay ?? 1000,
         };
+        
+        
+        
+        // states:
+        this.#cancelDisable             = undefined;
+        this.#registeredUsingStyleSheet = 0; // initially no user using this styleSheet
+        
+        
+        
+        // css classes:
         this.#dynamicStyleSheet = new Subject<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>();
         this.#scopeMap = styleSheets(
             this.#dynamicStyleSheet,
             this.#options /* as StyleSheetOptions */
         );
         this.#resolveScopes(scopes);
-        //#endregion setup dynamic styleSheet
-        
-        
-        
-        // reset the user counter:
-        this.#registeredUsingStyleSheet = 0; // initially no user using this styleSheet
     }
     //#endregion constructors
     

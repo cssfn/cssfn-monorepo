@@ -89,24 +89,28 @@ const defaultStyleSheetOptions : Required<StyleSheetOptions> = {
 type StyleSheetUpdatedCallback<in TCssScopeName extends CssScopeName> = (styleSheet: StyleSheet<TCssScopeName>) => void;
 class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implements Required<StyleSheetOptions> {
     //#region private properties
-    readonly #options         : Required<StyleSheetOptions>
-    readonly #updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>|null
+    // configs:
+    readonly    #options         : Required<StyleSheetOptions>
+    readonly    #updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>|null
     
     
     
-    readonly #classes         : CssScopeMap<TCssScopeName>
+    // states:
+    readonly    #scopesFactory   : StyleSheetsFactory<TCssScopeName>
+    /*mutable*/ #scopesInvoked   : boolean
+    /*mutable*/ #scopesLive      : MaybeFactory<CssScopeList<TCssScopeName>|null>
     
     
     
-    readonly #scopesFactory   : StyleSheetsFactory<TCssScopeName>
-             #scopesInvoked   : boolean
-             #scopesLive      : MaybeFactory<CssScopeList<TCssScopeName>|null>
+    // css classes:
+    readonly    #classes         : CssScopeMap<TCssScopeName>
     //#endregion private properties
     
     
     
     //#region constructors
     constructor(scopes: StyleSheetsFactory<TCssScopeName>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
+        // configs:
         const styleSheetOptions : Required<StyleSheetOptions> = {
             ...(options ?? {}),
             enabled : options?.enabled ?? defaultStyleSheetOptions.enabled,
@@ -120,6 +124,14 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
         
         
         
+        // states:
+        this.#scopesFactory = scopes;
+        this.#scopesInvoked = false;
+        this.#scopesLive    = null;
+        
+        
+        
+        // css classes:
         const scopeMap = {} as CssScopeMap<TCssScopeName>;
         this.#classes  = new Proxy<CssScopeMap<TCssScopeName>>(scopeMap, {
             get(scopeMap: CssScopeMap<TCssScopeName>, scopeName: TCssScopeName|symbol): CssClassName|undefined {
@@ -143,12 +155,6 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
                 return uniqueClass;
             },
         });
-        
-        
-        
-        this.#scopesFactory = scopes;
-        this.#scopesInvoked = false;
-        this.#scopesLive    = null;
     }
     //#endregion constructors
     
