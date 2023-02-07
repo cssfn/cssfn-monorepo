@@ -270,14 +270,19 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
             this.#dynamicStyleSheet,
             this.#options /* as StyleSheetOptions */
         );
-        this.#resolveScopes(scopesFactory);
+        
+        
+        
+        // activate the scope immediately if the given `scopesFactory` is an `Observable` object,
+        // so we can `subscribe()` -- aka `log()` for update requests as soon as possible
+        if ((typeof(scopesFactory) !== 'function') && isObservableScopes(scopesFactory)) this.#activateScopesIfNeeded(scopesFactory);
     }
     //#endregion constructors
     
     
     
     //#region private methods
-    #resolveScopes(scopesFactory: StyleSheetsFactory<TCssScopeName>): void {
+    #activateScopesIfNeeded(scopesFactory: StyleSheetsFactory<TCssScopeName>): void {
         // activate (call the callback function -- if the given scopeFactory is a function):
         const scopesValue = (typeof(scopesFactory) !== 'function') ? scopesFactory : scopesFactory();
         

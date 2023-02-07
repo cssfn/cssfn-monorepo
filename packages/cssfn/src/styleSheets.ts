@@ -159,7 +159,7 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
         
         
         // activate the scope immediately if the given `scopesFactory` is an `Observable` object,
-        // so we can `subscribe()` -- aka `log()` for update request as soon as possible
+        // so we can `subscribe()` -- aka `log()` for update requests as soon as possible
         if ((typeof(scopesFactory) !== 'function') && isObservableScopes(scopesFactory)) this.#activateScopesIfNeeded();
     }
     //#endregion constructors
