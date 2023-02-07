@@ -181,11 +181,11 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         
         // update scope:
         if (!(scopesValue instanceof Promise)) {
-            this.#updateScopes(scopesValue);
+            this.updateScopes(scopesValue);
         }
         else {
             scopesValue.then((resolvedScopes) => {
-                this.#updateScopes(resolvedScopes.default);
+                this.updateScopes(resolvedScopes.default);
             });
         } // if
         
@@ -194,12 +194,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         // marks:
         this.#scopesActivated = true; // mark as successfully activated (without any throw)
     }
-    //#endregion protected methods
-    
-    
-    
-    //#region private methods
-    #updateScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
+    protected updateScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
         if (!isObservableScopes(scopes)) {
             this.#scopesLive = scopes; // update once
         }
@@ -226,17 +221,17 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
                 
                 // notify a StyleSheet updated ONLY on SUBSEQUENT update:
                 if (subsequentUpdate) {
-                    this.#notifyUpdated();
+                    this.notifyUpdated();
                 } // if
             });
             subsequentUpdate = true; // any updates AFTER calling `scopes.subscribe` is considered as SUBSEQUENT update
         } // if
     }
     
-    #notifyUpdated(): void {
+    protected notifyUpdated(): void {
         this.#updatedCallback(this); // notify a StyleSheet updated
     }
-    //#endregion private methods
+    //#endregion protected methods
     
     
     
