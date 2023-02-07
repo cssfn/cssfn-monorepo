@@ -109,7 +109,7 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
     
     
     //#region constructors
-    constructor(scopes: StyleSheetsFactory<TCssScopeName>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
+    constructor(scopesFactory: StyleSheetsFactory<TCssScopeName>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
         // configs:
         const styleSheetOptions : Required<StyleSheetOptions> = {
             ...(options ?? {}),
@@ -125,7 +125,7 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
         
         
         // states:
-        this.#scopesFactory = scopes;
+        this.#scopesFactory = scopesFactory;
         this.#scopesInvoked = false;
         this.#scopesLive    = null;
         
@@ -167,7 +167,12 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
         
         
         
+        // invoke:
         const scopesValue = (typeof(this.#scopesFactory) !== 'function') ? this.#scopesFactory : this.#scopesFactory();
+        
+        
+        
+        // update scope:
         if (!(scopesValue instanceof Promise)) {
             this.#updateScopes(scopesValue);
         }
@@ -176,7 +181,11 @@ class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implemen
                 this.#updateScopes(resolvedScopes.default);
             });
         } // if
-        this.#scopesInvoked = true; // mark as successfully invoked
+        
+        
+        
+        // marks:
+        this.#scopesInvoked = true; // mark as successfully invoked (without any throw)
     }
     #updateScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
         if (!isObservableScopes(scopes)) {

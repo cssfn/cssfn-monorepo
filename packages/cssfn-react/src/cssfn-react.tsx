@@ -248,7 +248,7 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
     
     
     //#region constructors
-    constructor(scopes: StyleSheetsFactory<TCssScopeName>, options?: DynamicStyleSheetOptions) {
+    constructor(scopesFactory: StyleSheetsFactory<TCssScopeName>, options?: DynamicStyleSheetOptions) {
         // configs:
         this.#options = {
             ...options,
@@ -270,18 +270,20 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
             this.#dynamicStyleSheet,
             this.#options /* as StyleSheetOptions */
         );
-        this.#resolveScopes(scopes);
+        this.#resolveScopes(scopesFactory);
     }
     //#endregion constructors
     
     
     
     //#region private methods
-    #resolveScopes(scopes: StyleSheetsFactory<TCssScopeName>): void {
-        const scopesValue = (typeof(scopes) !== 'function') ? scopes : scopes();
+    #resolveScopes(scopesFactory: StyleSheetsFactory<TCssScopeName>): void {
+        // invoke:
+        const scopesValue = (typeof(scopesFactory) !== 'function') ? scopesFactory : scopesFactory();
         
         
         
+        // update scope:
         if (!(scopesValue instanceof Promise)) {
             this.#forwardScopes(scopesValue);
         }
