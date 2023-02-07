@@ -296,10 +296,11 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
     //#region protected methods
     protected activateDynamicScopesIfNeeded(): void {
         // conditions:
-        if (this.#scopesActivated) return; // already (successfully) activated => no need to re-activate
+        if (this.#scopesActivated) return;
         
         
         
+        // activation:
         // activate (call the callback function -- if the given scopeFactory is a function):
         const scopesValue = (typeof(this.#scopesFactory) !== 'function') ? this.#scopesFactory : this.#scopesFactory();
         
@@ -307,18 +308,31 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
         
         // update scope:
         if (!(scopesValue instanceof Promise)) {
+            /*
+                make sure this function is only executed ONCE -or NEVER,
+                don't twice, three times, so on.
+                Except: an error occured during activation. Eg: a network error during dynamic import().
+            */
+            this.#scopesActivated = true;
+            
+            
+            
             this.forwardScopes(scopesValue);
         }
         else {
             scopesValue.then((resolvedScopes) => {
+                /*
+                    make sure this function is only executed ONCE -or NEVER,
+                    don't twice, three times, so on.
+                    Except: an error occured during activation. Eg: a network error during dynamic import().
+                */
+                this.#scopesActivated = true;
+                
+                
+                
                 this.forwardScopes(resolvedScopes.default);
             });
         } // if
-        
-        
-        
-        // marks:
-        this.#scopesActivated = true; // mark as successfully activated (without any throw)
     }
     protected forwardScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
         if (!isObservableScopes(scopes)) {
