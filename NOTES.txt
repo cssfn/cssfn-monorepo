@@ -1,0 +1,26 @@
+static scopes:
+    null|CssScopeList<TCssScopeName>
+    Observable<
+        boolean
+        MaybeFactory<
+            null|CssScopeList<TCssScopeName>
+        >
+    >
+
+
+
+factory scopes:
+    null|CssScopeList<TCssScopeName>
+    Promise<
+        ModuleDefault<
+            MaybeFactory<
+                null|CssScopeList<TCssScopeName>
+            >
+            Observable<
+                boolean
+                MaybeFactory<
+                    null|CssScopeList<TCssScopeName>
+                >
+            >
+        >
+    >
