@@ -292,16 +292,16 @@ class StyleSheetsHookBuilder<TCssScopeName extends CssScopeName> {
         } // if
     }
     #forwardScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
-        if (isObservableScopes(scopes)) {
-            scopes.subscribe((newScopesOrEnabled) => {
-                this.#dynamicStyleSheet.next(newScopesOrEnabled); // forwards dynamically
-            });
-        }
-        else {
+        if (!isObservableScopes(scopes)) {
             this.#dynamicStyleSheet.next(
                 scopes // forward once
             );
         } // if
+        else {
+            scopes.subscribe((newScopesOrEnabled) => {
+                this.#dynamicStyleSheet.next(newScopesOrEnabled); // live forward
+            });
+        }
     }
     
     
