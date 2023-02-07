@@ -86,12 +86,12 @@ const defaultStyleSheetOptions : Required<StyleSheetOptions> = {
     lazyCsr  : true,
 }
 
-type StyleSheetUpdatedCallback<in TCssScopeName extends CssScopeName> = (styleSheet: StyleSheet<TCssScopeName>) => void;
+export type StyleSheetUpdatedCallback<in TCssScopeName extends CssScopeName> = (styleSheet: StyleSheet<TCssScopeName>) => void;
 export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implements Required<StyleSheetOptions> {
     //#region private properties
     // configs:
     readonly    #options         : Required<StyleSheetOptions>
-    readonly    #updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>|null
+    readonly    #updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>
     
     
     
@@ -109,7 +109,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     
     
     //#region constructors
-    constructor(scopesFactory: StyleSheetsFactory<TCssScopeName>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>|null, options?: StyleSheetOptions) {
+    constructor(scopesFactory: StyleSheetsFactory<TCssScopeName>, updatedCallback: StyleSheetUpdatedCallback<TCssScopeName>, options?: StyleSheetOptions) {
         // configs:
         const styleSheetOptions : Required<StyleSheetOptions> = {
             ...(options ?? {}),
@@ -228,7 +228,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     }
     
     #notifyUpdated(): void {
-        this.#updatedCallback?.(this); // notify a StyleSheet updated
+        this.#updatedCallback(this); // notify a StyleSheet updated
     }
     //#endregion private methods
     
