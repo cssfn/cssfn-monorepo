@@ -176,13 +176,13 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         
         
         // activation:
-        // activate (call the callback function -- if the given scopeFactory is a function):
+        // activate (call the callback function -- if the given scopesFactory is a function):
         const scopesValue = (typeof(this.#scopesFactory) !== 'function') ? this.#scopesFactory : this.#scopesFactory();
         
         
         
         // update scope:
-        if (!(scopesValue instanceof Promise)) {
+        if (!(scopesValue instanceof Promise)) { // scopesValue is CssScopeList<TCssScopeName> | null | Observable<MaybeFactory<CssScopeList<TCssScopeName>|null> | boolean>
             /*
                 make sure this function is only executed ONCE -or- NEVER,
                 don't twice, three times, so on.
@@ -194,7 +194,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
             
             this.updateScopes(scopesValue);
         }
-        else {
+        else { // scopesValue is Promise<ModuleDefault<MaybeFactory<CssScopeList<TCssScopeName> | null>>>
             scopesValue.then((resolvedScopes) => {
                 /*
                     make sure this function is only executed ONCE -or- NEVER,

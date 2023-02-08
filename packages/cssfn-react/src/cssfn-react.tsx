@@ -301,13 +301,13 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
         
         
         // activation:
-        // activate (call the callback function -- if the given scopeFactory is a function):
+        // activate (call the callback function -- if the given scopesFactory is a function):
         const scopesValue = (typeof(this.#scopesFactory) !== 'function') ? this.#scopesFactory : this.#scopesFactory();
         
         
         
         // update scope:
-        if (!(scopesValue instanceof Promise)) {
+        if (!(scopesValue instanceof Promise)) { // scopesValue is CssScopeList<TCssScopeName> | null | Observable<MaybeFactory<CssScopeList<TCssScopeName>|null> | boolean>
             /*
                 make sure this function is only executed ONCE -or- NEVER,
                 don't twice, three times, so on.
@@ -319,7 +319,7 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
             
             this.forwardScopes(scopesValue);
         }
-        else {
+        else { // scopesValue is Promise<ModuleDefault<MaybeFactory<CssScopeList<TCssScopeName> | null>>>
             scopesValue.then((resolvedScopes) => {
                 /*
                     make sure this function is only executed ONCE -or- NEVER,
@@ -342,7 +342,9 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
         } // if
         else { // scopes is Observable<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
             scopes.subscribe((newScopesOrEnabled) => {
-                this.#dynamicStyleSheet.next(newScopesOrEnabled); // live forward
+                this.#dynamicStyleSheet.next(
+                    newScopesOrEnabled // live forward
+                );
             });
         }
     }
@@ -361,21 +363,21 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
     }
     
     protected registerUsingStyleSheet() {
-        this.#registeredUsingStyleSheet++;
+        this.#registeredUsingStyleSheet++; // increase the counter
         
-        if (this.#registeredUsingStyleSheet === 1) { // first user
+        if (this.#registeredUsingStyleSheet === 1) { // at the moment of the first user => enabling the styleSheet
             // cancel previously delayed disable styleSheet (if any):
             this.cancelDelayedDisableStyleSheet();
             
             
             
-            this.#dynamicStyleSheet.next(true); // first user => enable styleSheet
+            this.#dynamicStyleSheet.next(true); // the first user => enable styleSheet
         } // if
     }
     protected unregisterUsingStyleSheet() {
-        this.#registeredUsingStyleSheet--;
+        this.#registeredUsingStyleSheet--; // decrease the counter
         
-        if (this.#registeredUsingStyleSheet === 0) { // no user
+        if (this.#registeredUsingStyleSheet === 0) { // at the moment of no user => disabling the styleSheet
             // cancel previously delayed disable styleSheet (if any):
             this.cancelDelayedDisableStyleSheet();
             
@@ -419,7 +421,7 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
         
         
         
-        // dom effects:
+        // dynamically disabled by unmounting the <Component/>:
         _useInsertionEffect(() => {
             // cleanups:
             return () => {
@@ -427,12 +429,12 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
                     isDynamicStyleSheetsHookInUse.current = false; // mark the styleSheet as not_in_use
                     this.unregisterUsingStyleSheet();
                 } // if
-            }
+            };
         }, []); // runs once on startup
         
         
         
-        // dynamically enabled:
+        // dynamically enabled by accessing the `classes.someClass`:
         return new Proxy<CssScopeMap<TCssScopeName>>(this.classes, {
             get: (classes: CssScopeMap<TCssScopeName>, scopeName: CssScopeName): CssClassName|undefined => {
                 const className = classes[scopeName as keyof CssScopeMap<TCssScopeName>];
