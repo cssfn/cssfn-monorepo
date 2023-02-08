@@ -376,11 +376,13 @@ export const singularStyleSheet = <TBaseStyleSheetsReturn>(baseStyleSheets: ((sc
         /*
             The `styles` is a FUNCTION.
             To preserve the LAZINESS, we cannot CALL the function now.
-            Instead we are returning a Factory for promising the resolved `styles()`
+            Instead we are returning a Factory for (maybe promising) the resolved `styles()`
         */
         return baseStyleSheets(
-            // Factory => Promise => ModuleDefault => Exclude<StyleSheetsFactoryBase<'main'>, Observable<any>>
-            async (): Promise<ModuleDefault<Exclude<StyleSheetsFactoryBase<'main'>, Observable<any>>>> => {
+            // Factory => Promise<ModuleDefault<Exclude<StyleSheetsFactoryBase<'main'>, Observable<any>>>>
+            // -or-
+            // Factory => CssScopeList<'main'>|null
+            ((): CssScopeList<'main'>|null | Promise<ModuleDefault<Exclude<StyleSheetsFactoryBase<'main'>, Observable<any>>>> => {
                 const stylesValue = styles();
                 
                 
@@ -389,18 +391,16 @@ export const singularStyleSheet = <TBaseStyleSheetsReturn>(baseStyleSheets: ((sc
                     /*
                         The `stylesValue` is NOT a Promise => resolved immediately.
                     */
-                    return {
-                        default: createMainScope(
-                            stylesValue,
-                            options /* as CssScopeOptions   */
-                        ),
-                    };
+                    return createMainScope(
+                        stylesValue,
+                        options /* as CssScopeOptions   */
+                    );
                 }
                 else {
                     /*
                         The `stylesValue` is a PROMISE => create another Promise for waiting the `stylesValue` already resolved.
                     */
-                    return new Promise<{ default: Exclude<StyleSheetsFactoryBase<'main'>, Observable<any>> }>((resolve) => {
+                    return new Promise<ModuleDefault<Exclude<StyleSheetsFactoryBase<'main'>, Observable<any>>>>((resolve) => {
                         stylesValue.then((resolvedStyles) => {
                             resolve({
                                 default: createMainScope(
@@ -411,14 +411,14 @@ export const singularStyleSheet = <TBaseStyleSheetsReturn>(baseStyleSheets: ((sc
                         });
                     });
                 } // if
-            },
+            }) as StyleSheetsFactory<'main'>,
             options     /* as StyleSheetOptions */
         );
     } // if
 }
-function createMainScope (styles: Exclude<StyleSheetFactoryBase, Observable<any>>, options: CssScopeOptions|undefined): Exclude<StyleSheetsFactoryBase<'main'>, Observable<any>>;
-function createMainScope (styles: StyleSheetFactoryBase, options: CssScopeOptions|undefined): StyleSheetsFactoryBase<'main'>;
-function createMainScope (styles: StyleSheetFactoryBase, options: CssScopeOptions|undefined): StyleSheetsFactoryBase<'main'> {
+function createMainScope (styles: Exclude<StyleSheetFactoryBase, Observable<any>> , options: CssScopeOptions|undefined) : CssScopeList<'main'>|null ;
+function createMainScope (styles:         StyleSheetFactoryBase                   , options: CssScopeOptions|undefined) : CssScopeList<'main'>|null | Observable<MaybeFactory<CssScopeList<'main'>|null> | boolean>;
+function createMainScope (styles:         StyleSheetFactoryBase                   , options: CssScopeOptions|undefined) : CssScopeList<'main'>|null | Observable<MaybeFactory<CssScopeList<'main'>|null> | boolean> {
     if (!styles || (styles === true)) {
         return null; // empty scope
     }
