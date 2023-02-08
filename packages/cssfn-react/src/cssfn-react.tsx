@@ -335,12 +335,12 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
         } // if
     }
     protected forwardScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
-        if (!isObservableScopes(scopes)) {
+        if (!isObservableScopes(scopes)) { // scopes is MaybeFactory<CssScopeList<TCssScopeName>|null>
             this.#dynamicStyleSheet.next(
                 scopes // forward once
             );
         } // if
-        else {
+        else { // scopes is Observable<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
             scopes.subscribe((newScopesOrEnabled) => {
                 this.#dynamicStyleSheet.next(newScopesOrEnabled); // live forward
             });

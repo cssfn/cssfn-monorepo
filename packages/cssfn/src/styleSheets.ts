@@ -210,20 +210,20 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         } // if
     }
     protected updateScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
-        if (!isObservableScopes(scopes)) {
+        if (!isObservableScopes(scopes)) { // scopes is MaybeFactory<CssScopeList<TCssScopeName>|null>
             this.#scopesLive = scopes; // update once
         }
-        else {
+        else { // scopes is Observable<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
             let subsequentUpdate = false;
             scopes.subscribe((newScopesOrEnabled) => {
-                if (typeof(newScopesOrEnabled) === 'boolean') {
+                if (typeof(newScopesOrEnabled) === 'boolean') { // newScopesOrEnabled is boolean
                     // update prop `enabled`:
                     
                     if (this.#options.enabled === newScopesOrEnabled) return; // no change => no need to update
                     
                     this.#options.enabled = newScopesOrEnabled; // update
                 }
-                else {
+                else { // newScopesOrEnabled is MaybeFactory<CssScopeList<TCssScopeName>|null>
                     // update prop `scopes`:
                     
                     if ((this.#scopesLive === null) && (newScopesOrEnabled === null)) return; // still null => no change => no need to update
