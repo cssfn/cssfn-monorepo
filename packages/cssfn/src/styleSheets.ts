@@ -362,7 +362,7 @@ export const styleSheet         = (styles: StyleSheetFactory, options?: StyleShe
 export const singularStyleSheet = <TBaseStyleSheetsReturn>(baseStyleSheets: ((scopes: StyleSheetsFactory<'main'>, options?: StyleSheetOptions) => TBaseStyleSheetsReturn), styles: StyleSheetFactory, options?: StyleSheetOptions & CssScopeOptions): TBaseStyleSheetsReturn => {
     if (typeof(styles) !== 'function') {
         /*
-            The `styles` is NOT a function => resolved immediately without to CALL the the callback function.
+            The `styles` is NOT a function => resolved immediately without to CALL the callback function.
         */
         return baseStyleSheets(
             createMainScope(
@@ -376,7 +376,7 @@ export const singularStyleSheet = <TBaseStyleSheetsReturn>(baseStyleSheets: ((sc
         /*
             The `styles` is a FUNCTION.
             To preserve the LAZINESS, we cannot CALL the function now.
-            Instead we returning a Factory for promising the resolved `styles()`
+            Instead we are returning a Factory for promising the resolved `styles()`
         */
         return baseStyleSheets(
             // Factory => Promise => ModuleDefault => StyleSheetsFactoryBase<'main'>
@@ -420,15 +420,18 @@ const createMainScope           = (styles: StyleSheetFactoryBase, options: CssSc
     if (!styles || (styles === true)) {
         return null; // empty scope
     }
-    else if (isObservableStyles(styles)) { // styles: Observable<CssStyleCollection>
+    else if (!isObservableStyles(styles)) { // styles is CssStyleCollection
+        return [['main', styles, options]]; // scopeOf('main', styles, options)
+    }
+    else { // styles is Observable<CssStyleCollection|boolean>
         const dynamicStyleSheet = new Subject<MaybeFactory<CssScopeList<'main'>|null>|boolean>();
         styles.subscribe((newStylesOrEnabled) => {
-            if (typeof(newStylesOrEnabled) === 'boolean') {
+            if (typeof(newStylesOrEnabled) === 'boolean') { // newStylesOrEnabled is boolean
                 // update prop `enabled`:
                 
                 dynamicStyleSheet.next(newStylesOrEnabled);
             }
-            else {
+            else { // newStylesOrEnabled is CssStyleCollection
                 // update prop `scopes`:
                 
                 dynamicStyleSheet.next(
@@ -441,8 +444,5 @@ const createMainScope           = (styles: StyleSheetFactoryBase, options: CssSc
             } // if
         });
         return dynamicStyleSheet; // as Observable<MaybeFactory<CssScopeList<'main'>|null>|boolean>
-    }
-    else {
-        return [['main', styles, options]]; // scopeOf('main', styles, options)
     } // if
 }
