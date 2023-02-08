@@ -171,7 +171,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     //#region protected methods
     protected activateScopesIfNeeded(): void {
         // conditions:
-        if (this.#scopesActivated) return;
+        if (this.#scopesActivated) return; // stop execution if already activated
         
         
         
@@ -184,7 +184,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         // update scope:
         if (!(scopesValue instanceof Promise)) {
             /*
-                make sure this function is only executed ONCE -or NEVER,
+                make sure this function is only executed ONCE -or- NEVER,
                 don't twice, three times, so on.
                 Except: an error occured during activation. Eg: a network error during dynamic import().
             */
@@ -197,7 +197,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         else {
             scopesValue.then((resolvedScopes) => {
                 /*
-                    make sure this function is only executed ONCE -or NEVER,
+                    make sure this function is only executed ONCE -or- NEVER,
                     don't twice, three times, so on.
                     Except: an error occured during activation. Eg: a network error during dynamic import().
                 */

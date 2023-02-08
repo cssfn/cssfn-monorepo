@@ -296,7 +296,7 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
     //#region protected methods
     protected activateDynamicScopesIfNeeded(): void {
         // conditions:
-        if (this.#scopesActivated) return;
+        if (this.#scopesActivated) return; // stop execution if already activated
         
         
         
@@ -309,7 +309,7 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
         // update scope:
         if (!(scopesValue instanceof Promise)) {
             /*
-                make sure this function is only executed ONCE -or NEVER,
+                make sure this function is only executed ONCE -or- NEVER,
                 don't twice, three times, so on.
                 Except: an error occured during activation. Eg: a network error during dynamic import().
             */
@@ -322,7 +322,7 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
         else {
             scopesValue.then((resolvedScopes) => {
                 /*
-                    make sure this function is only executed ONCE -or NEVER,
+                    make sure this function is only executed ONCE -or- NEVER,
                     don't twice, three times, so on.
                     Except: an error occured during activation. Eg: a network error during dynamic import().
                 */
