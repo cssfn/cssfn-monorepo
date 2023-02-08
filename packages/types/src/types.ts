@@ -26,7 +26,7 @@ export type MaybePromise<T>                = T|Promise<T>
 
 
 // factories:
-export type Factory<T>                     = () => T
+export type Factory<out T>                 = () => T
 export type MaybeFactory<T>                = T|Factory<T>
 /**
  * @deprecated renamed to `MaybeFactory<T>`
@@ -48,12 +48,12 @@ export type ProductOrFactoryOrDeepArray<T> = MaybeFactoryMaybeDeepArray<T>
 
 
 // modules:
-export type ModuleDefault<T>               = { default: T } // only accept the default export, ignores named exports
+export type ModuleDefault<out T>           = { default: T } // only accept the default export, ignores named exports
 /**
  * @deprecated please upgrade to `MaybeLazyModuleDefault<T>`, because non_lazy of dynamic_module doesn't make sense
  */
 export type MaybeModuleDefault<T>          = T|ModuleDefault<T>
-export type LazyModuleDefault<T>           = Factory<Promise<ModuleDefault<T>>>
+export type LazyModuleDefault<out T>       = Factory<Promise<ModuleDefault<T>>>
 export type MaybeLazyModuleDefault<T>      = T|LazyModuleDefault<T>
 
 
