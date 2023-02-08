@@ -257,9 +257,17 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
             &&
             // if no content => assumes as disabled because nothing to render
             (
-                !this.#scopesActivated // if not (yet) activated => assumes as MAY enabled
+                !this.#scopesActivated // if not (yet) activated               => assumes as MAY enabled
                 ||
-                !!this.#scopesLive     // otherwise              => check the existance of the content
+                (
+                    !!this.#scopesLive // otherwise => check the existance of the content
+                    &&
+                    (
+                        !Array.isArray(this.#scopesLive) // Factory            => assumes as MAY enabled
+                        ||
+                        !!this.#scopesLive.length // if the array is not empty => assumes as MAY enabled
+                    )
+                )
             )
         );
     }
