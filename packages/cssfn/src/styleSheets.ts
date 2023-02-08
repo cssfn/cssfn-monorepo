@@ -252,7 +252,16 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     
     //#region public properties
     get enabled() {
-        return this.#options.enabled;
+        return (
+            this.#options.enabled
+            &&
+            // if no content => assumes as disabled because nothing to render
+            (
+                !this.#scopesActivated     // if not (yet) activated => assumes as MAY enabled
+                ||
+                !!this.#scopesLive?.length // otherwise              => check the existance of the content
+            )
+        );
     }
     
     get id() {
@@ -338,11 +347,11 @@ class StyleSheetRegistry {
     
     
     
-    //#region private callbacks
+    //#region public callbacks
     handleStyleSheetUpdated = (styleSheet: StyleSheet<CssScopeName>): void => {
         this.#subscribers.next(styleSheet); // notify a StyleSheet updated
     }
-    //#endregion private callbacks
+    //#endregion public callbacks
 }
 export type { StyleSheetRegistry } // only export the type but not the actual class
 
