@@ -29,6 +29,16 @@ import {
     Observable,
     Subject,
 }                           from 'rxjs'
+import {
+    // tests:
+    isBrowser,
+    isJsDom,
+}                           from 'is-in-browser'
+
+
+
+// utilities:
+const isClientSide : boolean = isBrowser || isJsDom;
 
 
 
@@ -162,7 +172,17 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         
         // activate the scope immediately if the given `scopesFactory` is an `Observable` object,
         // so we can `subscribe()` -- aka `log()` for update requests as soon as possible
-        if ((typeof(scopesFactory) !== 'function') && isObservableScopes(scopesFactory)) this.activateScopesIfNeeded();
+        if (
+            // server side:
+            // always activate the scopeFactory as soon as possible (before SSR render happened)
+            !isClientSide
+            ||
+            // client side:
+            // only activate the scopeFactory if the CSR is needed to be rendered
+            ((typeof(scopesFactory) !== 'function') && isObservableScopes(scopesFactory))
+        ) {
+            this.activateScopesIfNeeded();
+        } // if
     }
     //#endregion constructors
     

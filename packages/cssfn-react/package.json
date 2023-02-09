@@ -32,7 +32,8 @@
     "@cssfn/css-types": "^2.2.0",
     "@cssfn/types": "^2.2.0",
     "@types/react": "^18.0.27",
-    "@types/react-dom": "^18.0.10"
+    "@types/react-dom": "^18.0.10",
+    "is-in-browser": "^2.0.0"
   },
   "peerDependencies": {
     "@cssfn/cssfn": "^2.2.0",
