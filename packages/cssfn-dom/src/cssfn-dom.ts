@@ -228,7 +228,11 @@ const scheduleBatchCommit = () => {
 
 // handlers:
 const handleUpdate = async (styleSheet: StyleSheet): Promise<void> => {
-    if (styleSheet.lazyCsr) {
+    const styleSheetEnabled = styleSheet.enabled;
+    
+    
+    
+    if (styleSheetEnabled && styleSheet.lazyCsr) {
         /* ***** [lazyCsr]: if possible, skip the first_render by re-use SSR generated <style> element ***** */
         
         
@@ -250,7 +254,7 @@ const handleUpdate = async (styleSheet: StyleSheet): Promise<void> => {
     
     
     const renderedCss = (
-        (styleSheet.enabled || null) // if the styleSheet is disabled => no need to render
+        (styleSheetEnabled || null) // if the styleSheet is disabled => no need to render
         &&
         (
             config.asyncRender
