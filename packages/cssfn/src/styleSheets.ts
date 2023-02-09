@@ -174,7 +174,9 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         // so we can `subscribe()` -- aka `log()` for update requests as soon as possible
         if (
             // server side:
-            // always activate the scopeFactory as soon as possible (before SSR render happened)
+            // always activate the scopeFactory as soon as possible,
+            // usually activated during module load -- when a styleSheet(s) is registered,
+            // before the SSR render gets a chance to run
             !isClientSide
             ||
             // client side:
