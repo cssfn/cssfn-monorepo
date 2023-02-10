@@ -36,6 +36,8 @@ import {
 // types:
 export type MixinDefs = {
     [key in string] : Function
+} & {
+    styleSheet      : Function
 }
 
 export type StylePackOptions<TName extends string, TPlural extends string, TConfigProps extends CssConfigProps, TMixinDefs extends MixinDefs> = {
@@ -63,7 +65,7 @@ export type StylePackConfig<TName extends string, TPlural extends string, TConfi
     [key in `${TName}Config`] : LiveCssConfigOptions
 }
 export type StylePackMixins<TName extends string, TMixinDefs extends MixinDefs> = {
-    [key in keyof TMixinDefs as `${TName}${Capitalize<key & string>}`] : TMixinDefs[key] extends Function ? TMixinDefs[key] : never
+    [key in keyof TMixinDefs as `${TName}${Capitalize<key & string>}`] : TMixinDefs[key]
 }
 
 
@@ -142,6 +144,7 @@ const result = createStylePack({
     name   : 'basic',
     plural : 'basics',
     prefix : 'bsc',
+    
     
     
     config : () => ({
