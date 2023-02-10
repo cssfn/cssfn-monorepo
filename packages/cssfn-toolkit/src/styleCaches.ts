@@ -6,17 +6,21 @@ import type {
 import type {
     // cssfn properties:
     CssStyle,
+    CssProps,
 }                           from '@cssfn/css-types'
 
 // other libs:
 import type {
     Observable,
 }                           from 'rxjs'
+import {
+    style,
+    rule,
+}                           from '@cssfn/cssfn'
 
 
 
-export type StyleFunction<TParams extends Array<any>, TReturn extends CssStyle> = (...params: TParams) => TReturn
-export const memorizeStyle = <TParams extends Array<any>, TReturn extends CssStyle>(factory: StyleFunction<TParams, TReturn>, deps ?: MaybeArray<Observable<void>>): StyleFunction<TParams, TReturn> => {
+export const memorizeStyle = <TFunction extends (...params: any) => TReturn, TReturn extends CssStyle>(factory: TFunction, deps ?: MaybeArray<Observable<void>>): TFunction => {
     // caches:
     let cache : WeakRef<TReturn>|undefined = undefined;
     const clearCache = (): void => {
@@ -31,7 +35,7 @@ export const memorizeStyle = <TParams extends Array<any>, TReturn extends CssSty
     
     
     // cached function:
-    const cachedFactory : typeof factory = (...params) => {
+    const cachedFactory : TFunction = ((...params: any) => {
         const cached = cache?.deref();
         if (cached !== undefined) return cached;
         
@@ -40,9 +44,23 @@ export const memorizeStyle = <TParams extends Array<any>, TReturn extends CssSty
         const result = factory(...params);
         cache = new WeakRef<TReturn>(result);
         return result;
-    };
+    }) as any;
     
     
     
     return cachedFactory;
 };
+
+
+
+export const test1 = memorizeStyle(() => style({}));
+export const test2 = memorizeStyle((num: 123, flip: boolean) => style({}));
+
+export const test3 = memorizeStyle(() => rule('button', {}));
+export const test4 = memorizeStyle((num: 123, flip: boolean) => rule('button', {}));
+
+export const test5 = memorizeStyle((): CssStyle => ({}));
+export const test6 = memorizeStyle((num: 123, flip: boolean): CssStyle => ({}));
+
+export const test7 = memorizeStyle((): CssProps => ({}));
+export const test8 = memorizeStyle((num: 123, flip: boolean): CssProps => ({}));
