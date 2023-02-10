@@ -52,10 +52,8 @@ export type StylePackConfig<TName extends string, TPlural extends string, TConfi
     [key in `${TName}Config`] : LiveCssConfigOptions
 }
 export type StylePackMixins<TName extends string, TMixinDefs extends MixinDefs> = {
-    // [key in `${TName}${Capitalize}`] : TMixinDefs
-    [key in keyof TMixinDefs] : TMixinDefs[key] extends Function ? TMixinDefs[key] : never
+    [key in keyof TMixinDefs as `${TName}${Capitalize<key & string>}`] : TMixinDefs[key] extends Function ? TMixinDefs[key] : never
 }
-// export type StylePackMixins<TName extends string, TMixinDefs extends MixinDefs> = TMixinDefs
 
 
 
@@ -136,8 +134,8 @@ const result = createStylePack({
             display: 'block',
         }),
         styleSheet : () => style({
-            ...layout(123, true),
-            // ...variants(),
+            ...basicLayout(123, true),
+            ...basicVariants(),
         }),
     },
 });
@@ -146,7 +144,8 @@ export const {
     basicValues,
     basicConfig,
     
-    layout,
+    basicLayout,
+    basicVariants,
 } = result;
 
-layout(123, true);
+basicLayout(123, true);
