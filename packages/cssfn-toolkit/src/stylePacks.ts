@@ -118,9 +118,9 @@ export const createStylePack = <
         Object.entries(
             (typeof(mixinsFactory) !== 'function') ? mixinsFactory : mixinsFactory()
         )
-        .map(([mixinName, mixinDef]) => {
-            const cachedMixinDef : typeof mixinDef = (...params: any[]) => {
-                if (params.length) return mixinDef(...params);
+        .map(([mixinName, mixinFactory]) => {
+            const cachedMixinDef : typeof mixinFactory = (...params: any[]) => {
+                if (params.length) return mixinFactory(...params);
                 
                 
                 
@@ -129,7 +129,7 @@ export const createStylePack = <
                 
                 
                 
-                const mixinValue = mixinDef();
+                const mixinValue = mixinFactory();
                 mixinsCache.set(mixinName, new WeakRef<CssStyle>(mixinValue));
                 return mixinValue;
             };
