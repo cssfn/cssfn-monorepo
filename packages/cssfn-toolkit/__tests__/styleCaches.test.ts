@@ -319,11 +319,11 @@ const stunningStyle = memorizeStyle((opacity?: number) => {
         opacity: opacity ?? 0.55,
     };
 }, [invalidate4]);
-test(`test memorizeStyle - 2-1`, () => {
+test(`test memorizeStyle - 4-1`, () => {
     expect(counter4)
     .toBe(0);
 });
-test(`test memorizeStyle - 2-2`, () => {
+test(`test memorizeStyle - 4-2`, () => {
     const val = stunningStyle();
     
     expect(counter4)
@@ -336,7 +336,7 @@ test(`test memorizeStyle - 2-2`, () => {
         opacity: 0.55,
     });
 });
-test(`test memorizeStyle - 2-3`, () => {
+test(`test memorizeStyle - 4-3`, () => {
     const val = stunningStyle();
     
     expect(counter4)
@@ -349,7 +349,7 @@ test(`test memorizeStyle - 2-3`, () => {
         opacity: 0.55,
     });
 });
-test(`test memorizeStyle - 2-4`, () => {
+test(`test memorizeStyle - 4-4`, () => {
     const val = stunningStyle();
     
     expect(counter4)
@@ -362,7 +362,7 @@ test(`test memorizeStyle - 2-4`, () => {
         opacity: 0.55,
     });
 });
-test(`test memorizeStyle - 2-5`, () => {
+test(`test memorizeStyle - 4-5`, () => {
     const val = stunningStyle(0.33);
     
     expect(counter4)
@@ -375,7 +375,7 @@ test(`test memorizeStyle - 2-5`, () => {
         opacity: 0.33,
     });
 });
-test(`test memorizeStyle - 2-5`, () => {
+test(`test memorizeStyle - 4-5`, () => {
     const val = stunningStyle(0.1);
     
     expect(counter4)
@@ -388,7 +388,7 @@ test(`test memorizeStyle - 2-5`, () => {
         opacity: 0.1,
     });
 });
-test(`test memorizeStyle - 2-5`, () => {
+test(`test memorizeStyle - 4-5`, () => {
     const val = stunningStyle(0.1);
     
     expect(counter4)
@@ -401,7 +401,7 @@ test(`test memorizeStyle - 2-5`, () => {
         opacity: 0.1,
     });
 });
-test(`test memorizeStyle - 2-5`, () => {
+test(`test memorizeStyle - 4-5`, () => {
     const val = stunningStyle(0.1);
     
     expect(counter4)
@@ -414,7 +414,7 @@ test(`test memorizeStyle - 2-5`, () => {
         opacity: 0.1,
     });
 });
-test(`test memorizeStyle - 2-5`, () => {
+test(`test memorizeStyle - 4-5`, () => {
     const val = stunningStyle(0.4);
     
     expect(counter4)
@@ -428,7 +428,7 @@ test(`test memorizeStyle - 2-5`, () => {
     });
 });
 
-test(`test memorizeStyle - 2-6`, () => {
+test(`test memorizeStyle - 4-6`, () => {
     const val = stunningStyle();
     
     expect(counter4)
@@ -441,7 +441,7 @@ test(`test memorizeStyle - 2-6`, () => {
         opacity: 0.55,
     });
 });
-test(`test memorizeStyle - 2-7`, () => {
+test(`test memorizeStyle - 4-7`, () => {
     const val = stunningStyle();
     
     expect(counter4)
@@ -454,7 +454,7 @@ test(`test memorizeStyle - 2-7`, () => {
         opacity: 0.55,
     });
 });
-test(`test memorizeStyle - 2-8`, () => {
+test(`test memorizeStyle - 4-8`, () => {
     invalidate4.next();
     const val = stunningStyle();
     
@@ -468,7 +468,7 @@ test(`test memorizeStyle - 2-8`, () => {
         opacity: 0.55,
     });
 });
-test(`test memorizeStyle - 2-9`, () => {
+test(`test memorizeStyle - 4-9`, () => {
     const val = stunningStyle();
     
     expect(counter4)
@@ -481,7 +481,7 @@ test(`test memorizeStyle - 2-9`, () => {
         opacity: 0.55,
     });
 });
-test(`test memorizeStyle - 2-10`, () => {
+test(`test memorizeStyle - 4-10`, () => {
     invalidate4.next();
     const val = stunningStyle();
     
@@ -495,7 +495,7 @@ test(`test memorizeStyle - 2-10`, () => {
         opacity: 0.55,
     });
 });
-test(`test memorizeStyle - 2-11`, () => {
+test(`test memorizeStyle - 4-11`, () => {
     invalidate4.next();
     const val = stunningStyle();
     
@@ -509,7 +509,7 @@ test(`test memorizeStyle - 2-11`, () => {
         opacity: 0.55,
     });
 });
-test(`test memorizeStyle - 2-12`, () => {
+test(`test memorizeStyle - 4-12`, () => {
     const val = stunningStyle();
     
     expect(counter4)
