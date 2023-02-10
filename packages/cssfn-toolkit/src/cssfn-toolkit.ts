@@ -13,11 +13,6 @@ import type {
     CssRule,
 }                           from '@cssfn/css-types'
 import {
-    // styles:
-    style,
-    
-    
-    
     // utilities:
     startsCapitalized,
 }                           from '@cssfn/cssfn'
@@ -33,7 +28,6 @@ import {
     
     // utilities:
     cssConfig,
-    usesCssProps,
 }                           from '@cssfn/css-config'
 
 // other libs:
@@ -82,7 +76,7 @@ export type StylePackMixins<TName extends string, TMixinDefs extends MixinDefs> 
 
 
 
-const createStylePack = <
+export const createStylePack = <
     TName extends string,
     TPlural extends string,
     
@@ -159,41 +153,3 @@ const createStylePack = <
         ...cachedMixins,
     } as any;
 }
-
-const result = createStylePack({
-    name   : 'basic',
-    plural : 'basics',
-    prefix : 'bsc',
-    
-    
-    
-    config : () => ({
-        backg  : 'transparent',
-        foregr : 'black',
-    }),
-    
-    
-    
-    mixins : {
-        layout     : (counter: number, flip: boolean) => style({
-            display: 'block',
-            ...usesCssProps(basics),
-        }),
-        variants   : () => style({
-            display: 'block',
-        }),
-        styleSheet : () => style({
-            ...basicLayout(123, true),
-            ...basicVariants(),
-        }),
-    },
-});
-export const {
-    basics,
-    basicValues,
-    basicConfig,
-    
-    basicLayout,
-    basicVariants,
-    basicStyleSheet,
-} = result;
