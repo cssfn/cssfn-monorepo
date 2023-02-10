@@ -6,17 +6,12 @@ import type {
 import type {
     // cssfn properties:
     CssStyle,
-    CssProps,
 }                           from '@cssfn/css-types'
 
 // other libs:
 import type {
     Observable,
 }                           from 'rxjs'
-import {
-    style,
-    rule,
-}                           from '@cssfn/cssfn'
 
 
 
@@ -35,13 +30,17 @@ export const memorizeStyle = <TFunction extends (...params: any) => TReturn, TRe
     
     
     // cached function:
-    const cachedFactory : TFunction = ((...params: any) => {
+    const cachedFactory : TFunction = ((...params: any[]) => {
+        if (params.length) return factory(...params);
+        
+        
+        
         const cached = cache?.deref();
-        if (!cached) return cached;
+        if (cached) return cached;
         
         
         
-        const result = factory(...params);
+        const result = factory();
         cache = new WeakRef<TReturn>(result);
         return result;
     }) as any;
@@ -50,17 +49,3 @@ export const memorizeStyle = <TFunction extends (...params: any) => TReturn, TRe
     
     return cachedFactory;
 };
-
-
-
-export const test1 = memorizeStyle(() => style({}));
-export const test2 = memorizeStyle((num: 123, flip: boolean) => style({}));
-
-export const test3 = memorizeStyle(() => rule('button', {}));
-export const test4 = memorizeStyle((num: 123, flip: boolean) => rule('button', {}));
-
-export const test5 = memorizeStyle((): CssStyle => ({}));
-export const test6 = memorizeStyle((num: 123, flip: boolean): CssStyle => ({}));
-
-export const test7 = memorizeStyle((): CssProps => ({}));
-export const test8 = memorizeStyle((num: 123, flip: boolean): CssProps => ({}));
