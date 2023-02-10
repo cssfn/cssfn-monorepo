@@ -1,0 +1,39 @@
+{
+  "name": "@cssfn/cssfn-toolkit",
+  "version": "2.2.0",
+  "description": "Write complex stylesheets in a simple way.",
+  "keywords": [
+    "css",
+    "stylesheet",
+    "javascript",
+    "module",
+    "css-in-js",
+    "toolkit"
+  ],
+  "author": "HeyMarco <31385284+heyymarco@users.noreply.github.com>",
+  "homepage": "https://cssfn.org",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cssfn/cssfn-monorepo.git"
+  },
+  "main": "dist/cssfn-toolkit.js",
+  "types": "dist/cssfn-toolkit.d.ts",
+  "type": "module",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "tsc:watch": "tsc --watch",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
+  },
+  "dependencies": {
+    "@cssfn/css-types": "^2.2.0",
+    "@cssfn/types": "^2.2.0"
+  },
+  "peerDependencies": {
+    "@cssfn/cssfn": "^2.2.0"
+  }
+}
