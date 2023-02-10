@@ -1,5 +1,10 @@
 // cssfn:
 import type {
+    // arrays:
+    MaybeArray,
+    
+    
+    
     // factories:
     MaybeFactory,
 }                           from '@cssfn/types'
@@ -31,6 +36,11 @@ import {
     usesCssProps,
 }                           from '@cssfn/css-config'
 
+// other libs:
+import type {
+    Observable,
+}                           from 'rxjs'
+
 
 
 // types:
@@ -43,6 +53,8 @@ export type MixinDefs = {
 export type StylePackOptions<TName extends string, TPlural extends string, TConfigProps extends CssConfigProps, TMixinDefs extends MixinDefs> = {
     name      : TName
     plural    : TPlural
+    
+    deps     ?: MaybeArray<Observable<void>>
 } & ({
     prefix   ?: never
     selector ?: never
@@ -81,6 +93,8 @@ const createStylePack = <
         name,
         plural,
         
+        deps,
+        
         config : configFactory,
         mixins : mixinsFactory,
     } = options;
@@ -94,11 +108,17 @@ const createStylePack = <
     
     // mixins:
     const mixinsCache = new Map<string, WeakRef<CssRule>>();
+    const clearCache = (): void => {
+        mixinsCache.clear();
+    };
     if (config) {
         const [,,cssConfig] = config;
-        cssConfig.onChange.subscribe(() => {
-            mixinsCache.clear();
-        });
+        cssConfig.onChange.subscribe(clearCache);
+    } // if
+    if (deps) {
+        for (const dep of [deps].flat()) {
+            dep.subscribe(clearCache);
+        } // for
     } // if
     const cachedMixins : TMixinDefs = Object.fromEntries(
         Object.entries(
