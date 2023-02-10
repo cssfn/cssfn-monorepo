@@ -39,9 +39,9 @@ import type {
 
 // types:
 export type MixinDefs = {
-    [key in string] : (...params: any) => CssStyle
+    [key in string] : Function
 } & {
-    styleSheet      : (...params: any) => CssStyle
+    styleSheet      : Function
 }
 
 export type StylePackOptions<TName extends string, TPlural extends string, TConfigProps extends CssConfigProps, TMixinDefs extends MixinDefs> = {
