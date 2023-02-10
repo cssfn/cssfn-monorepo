@@ -10,7 +10,7 @@ import type {
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
-    CssRule,
+    CssStyle,
 }                           from '@cssfn/css-types'
 import {
     // utilities:
@@ -39,9 +39,9 @@ import type {
 
 // types:
 export type MixinDefs = {
-    [key in string] : Function
+    [key in string] : (...params: any) => CssStyle
 } & {
-    styleSheet      : Function
+    styleSheet      : (...params: any) => CssStyle
 }
 
 export type StylePackOptions<TName extends string, TPlural extends string, TConfigProps extends CssConfigProps, TMixinDefs extends MixinDefs> = {
@@ -101,7 +101,7 @@ export const createStylePack = <
     
     
     // mixins:
-    const mixinsCache = new Map<string, WeakRef<CssRule>>();
+    const mixinsCache = new Map<string, WeakRef<CssStyle>>();
     const clearCache = (): void => {
         mixinsCache.clear();
     };
@@ -130,7 +130,7 @@ export const createStylePack = <
                 
                 
                 const mixinValue = mixinDef();
-                mixinsCache.set(mixinName, new WeakRef<CssRule>(mixinValue));
+                mixinsCache.set(mixinName, new WeakRef<CssStyle>(mixinValue));
                 return mixinValue;
             };
             
