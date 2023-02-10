@@ -37,7 +37,7 @@ export const memorizeStyle = <TFunction extends (...params: any) => TReturn, TRe
     // cached function:
     const cachedFactory : TFunction = ((...params: any) => {
         const cached = cache?.deref();
-        if (cached !== undefined) return cached;
+        if (!cached) return cached;
         
         
         
