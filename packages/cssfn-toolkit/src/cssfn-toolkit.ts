@@ -1,19 +1,28 @@
 // cssfn:
 import type {
+    // factories:
+    MaybeFactory,
+}                           from '@cssfn/types'
+import type {
     // cssfn properties:
     CssRule,
 }                           from '@cssfn/css-types'
 import {
     // styles:
     style,
+    
+    
+    
+    // utilities:
+    startsCapitalized,
 }                           from '@cssfn/cssfn'
 import {
     // types:
     CssConfigProps,
     Refs,
     Vals,
+    CssConfigOptions,
     LiveCssConfigOptions,
-    CssConfig,
     
     
     
@@ -30,15 +39,17 @@ export type MixinDefs = {
 }
 
 export type StylePackOptions<TName extends string, TPlural extends string, TConfigProps extends CssConfigProps, TMixinDefs extends MixinDefs> = {
-    name   : TName
-    plural : TPlural
+    name      : TName
+    plural    : TPlural
 } & ({
-    config : undefined|null|never
-    mixins : TMixinDefs
-}|{
-    config : CssConfig<TConfigProps>
-    mixins : TMixinDefs
-})
+    prefix   ?: never
+    selector ?: never
+    config   ?: never
+    mixins    : TMixinDefs
+}|(CssConfigOptions & {
+    config    : MaybeFactory<TConfigProps>
+    mixins    : MaybeFactory<TMixinDefs>
+}))
 
 export type StylePack<TName extends string, TPlural extends string, TConfigProps extends CssConfigProps, TMixinDefs extends MixinDefs> =
     & StylePackConfig<TName, TPlural, TConfigProps>
@@ -68,12 +79,18 @@ const createStylePack = <
         name,
         plural,
         
-        config,
-        mixins : mixinDefs,
+        config : configFactory,
+        mixins : mixinsFactory,
     } = options;
     
     
     
+    // config:
+    const config = configFactory ? cssConfig(configFactory, options) : undefined;
+    
+    
+    
+    // mixins:
     const mixinsCache = new Map<string, WeakRef<CssRule>>();
     if (config) {
         const [,,cssConfig] = config;
@@ -82,7 +99,9 @@ const createStylePack = <
         });
     } // if
     const cachedMixins : TMixinDefs = Object.fromEntries(
-        Object.entries(mixinDefs)
+        Object.entries(
+            (typeof(mixinsFactory) !== 'function') ? mixinsFactory : mixinsFactory()
+        )
         .map(([mixinName, mixinDef]) => {
             const cachedMixinDef : typeof mixinDef = (...params: any[]) => {
                 if (params.length) return mixinDef(...params);
@@ -98,9 +117,16 @@ const createStylePack = <
                 mixinsCache.set(mixinName, new WeakRef<CssRule>(mixinValue));
                 return mixinValue;
             };
-            return [mixinName, cachedMixinDef];
+            
+            
+            
+            return [
+                `${name}${startsCapitalized(mixinName)}`,
+                cachedMixinDef
+            ];
         })
     ) as any;
+    
     
     
     return {
@@ -115,13 +141,13 @@ const createStylePack = <
 const result = createStylePack({
     name   : 'basic',
     plural : 'basics',
+    prefix : 'bsc',
     
     
-    
-    config : cssConfig({
+    config : () => ({
         backg  : 'transparent',
         foregr : 'black',
-    }, { prefix: 'bsc' }),
+    }),
     
     
     
@@ -146,6 +172,5 @@ export const {
     
     basicLayout,
     basicVariants,
+    basicStyleSheet,
 } = result;
-
-basicLayout(123, true);
