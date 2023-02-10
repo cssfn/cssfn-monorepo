@@ -309,3 +309,216 @@ test(`test memorizeStyle - 3-10`, () => {
 
 
 
+let counter4 = 0;
+const invalidate4 = new Subject<void>();
+const stunningStyle = memorizeStyle((opacity?: number) => {
+    counter4++;
+    return {
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: opacity ?? 0.55,
+    };
+}, [invalidate4]);
+test(`test memorizeStyle - 2-1`, () => {
+    expect(counter4)
+    .toBe(0);
+});
+test(`test memorizeStyle - 2-2`, () => {
+    const val = stunningStyle();
+    
+    expect(counter4)
+    .toBe(1);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: 0.55,
+    });
+});
+test(`test memorizeStyle - 2-3`, () => {
+    const val = stunningStyle();
+    
+    expect(counter4)
+    .toBe(1);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: 0.55,
+    });
+});
+test(`test memorizeStyle - 2-4`, () => {
+    const val = stunningStyle();
+    
+    expect(counter4)
+    .toBe(1);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: 0.55,
+    });
+});
+test(`test memorizeStyle - 2-5`, () => {
+    const val = stunningStyle(0.33);
+    
+    expect(counter4)
+    .toBe(2);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: 0.33,
+    });
+});
+test(`test memorizeStyle - 2-5`, () => {
+    const val = stunningStyle(0.1);
+    
+    expect(counter4)
+    .toBe(3);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: 0.1,
+    });
+});
+test(`test memorizeStyle - 2-5`, () => {
+    const val = stunningStyle(0.1);
+    
+    expect(counter4)
+    .toBe(4);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: 0.1,
+    });
+});
+test(`test memorizeStyle - 2-5`, () => {
+    const val = stunningStyle(0.1);
+    
+    expect(counter4)
+    .toBe(5);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: 0.1,
+    });
+});
+test(`test memorizeStyle - 2-5`, () => {
+    const val = stunningStyle(0.4);
+    
+    expect(counter4)
+    .toBe(6);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: 0.4,
+    });
+});
+
+test(`test memorizeStyle - 2-6`, () => {
+    const val = stunningStyle();
+    
+    expect(counter4)
+    .toBe(6);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: 0.55,
+    });
+});
+test(`test memorizeStyle - 2-7`, () => {
+    const val = stunningStyle();
+    
+    expect(counter4)
+    .toBe(6);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: 0.55,
+    });
+});
+test(`test memorizeStyle - 2-8`, () => {
+    invalidate4.next();
+    const val = stunningStyle();
+    
+    expect(counter4)
+    .toBe(7);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: 0.55,
+    });
+});
+test(`test memorizeStyle - 2-9`, () => {
+    const val = stunningStyle();
+    
+    expect(counter4)
+    .toBe(7);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: 0.55,
+    });
+});
+test(`test memorizeStyle - 2-10`, () => {
+    invalidate4.next();
+    const val = stunningStyle();
+    
+    expect(counter4)
+    .toBe(8);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: 0.55,
+    });
+});
+test(`test memorizeStyle - 2-11`, () => {
+    invalidate4.next();
+    const val = stunningStyle();
+    
+    expect(counter4)
+    .toBe(9);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: 0.55,
+    });
+});
+test(`test memorizeStyle - 2-12`, () => {
+    const val = stunningStyle();
+    
+    expect(counter4)
+    .toBe(9);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        opacity: 0.55,
+    });
+});
