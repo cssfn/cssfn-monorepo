@@ -17,8 +17,8 @@
     "type": "git",
     "url": "git+https://github.com/cssfn/cssfn-monorepo.git"
   },
-  "main": "dist/cssfn-toolkit.js",
-  "types": "dist/cssfn-toolkit.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
   "sideEffects": false,
   "publishConfig": {
