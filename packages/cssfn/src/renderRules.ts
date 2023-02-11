@@ -140,7 +140,7 @@ export interface RenderRuleOptions {
 }
 class RenderRule {
     //#region private fields
-    private options : RenderRuleOptions|undefined
+    private _options : RenderRuleOptions|undefined
     //#endregion private fields
     
     //#region public fields
@@ -157,7 +157,7 @@ class RenderRule {
         
         
         const unshortPropName    = shortProps.get(propName) ?? propName;
-        const cssPropAutoPrefix  = this.options?.cssPropAutoPrefix;
+        const cssPropAutoPrefix  = this._options?.cssPropAutoPrefix;
         const prefixedPropName   = cssPropAutoPrefix ? cssPropAutoPrefix(unshortPropName) : unshortPropName;
         const hyphenatedPropName = hyphenate(prefixedPropName);
         return hyphenatedPropName;
@@ -278,7 +278,7 @@ class RenderRule {
             this.rendered += (new RenderRule(
                 finalSelector.slice(1), // remove PropRule token (single prefix space)
                 finalStyle,
-                this.options
+                this._options
             )).rendered;
         } // for
     }
@@ -291,7 +291,7 @@ class RenderRule {
             
             
             if (finalSelector === '@global') { // special @global rule
-                this.rendered += (new RenderRule(null, finalStyle, this.options)).rendered;
+                this.rendered += (new RenderRule(null, finalStyle, this._options)).rendered;
             }
             else if (isNestedAtRule(finalSelector)) {
                 /*
@@ -367,7 +367,7 @@ class RenderRule {
             else if (finalSelector[0] === '@') {
                 // top_level at rule  , eg: @keyframes, @font-face
                 
-                this.rendered += (new RenderRule(finalSelector, finalStyle, this.options)).rendered;
+                this.rendered += (new RenderRule(finalSelector, finalStyle, this._options)).rendered;
             }
             else {
                 // nested rule, eg: &.boo, &>:foo, .bleh>&>.feh
@@ -378,7 +378,7 @@ class RenderRule {
                     finalSelector
                 ) ?? finalSelector;
                 
-                this.rendered += (new RenderRule(combinedSelector, finalStyle, this.options)).rendered;
+                this.rendered += (new RenderRule(combinedSelector, finalStyle, this._options)).rendered;
             } // if
         } // for
     }
@@ -388,7 +388,7 @@ class RenderRule {
     
     constructor(finalSelector: CssFinalSelector|null, finalStyle: CssFinalStyleMap|null, options: RenderRuleOptions|undefined) {
         // configs:
-        this.options = options;
+        this._options = options;
         
         
         
