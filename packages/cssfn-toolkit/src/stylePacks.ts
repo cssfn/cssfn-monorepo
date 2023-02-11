@@ -44,29 +44,32 @@ export type MixinDefs = {
     styleSheet      : Function
 }
 
-export type StylePackOptions<TName extends string, TPlural extends string, TConfigProps extends CssConfigProps, TMixinDefs extends MixinDefs> = {
+export type StylePackOptions<TName extends string, TPlural extends string, TCssConfigProps extends CssConfigProps, TMixinDefs extends MixinDefs> = {
     name      : TName
     plural    : TPlural
     
     deps     ?: MaybeArray<Observable<void>>
-} & ({
-    prefix   ?: never
-    selector ?: never
-    config   ?: never
-    mixins    : TMixinDefs
-}|(CssConfigOptions & {
-    config    : MaybeFactory<TConfigProps>
+    
     mixins    : MaybeFactory<TMixinDefs>
-}))
+} & ({
+    /* without config */
+    
+    config   ?: never // no config
+    prefix   ?: never // no config => no config's prefix
+    selector ?: never // no config => no config's selector
+}|({
+    /* with config */
+    
+    config    : MaybeFactory<TCssConfigProps>
+} & CssConfigOptions))
 
-export type StylePack<TName extends string, TPlural extends string, TConfigProps extends CssConfigProps, TMixinDefs extends MixinDefs> =
-    & StylePackConfig<TName, TPlural, TConfigProps>
+export type StylePack<TName extends string, TPlural extends string, TCssConfigProps extends CssConfigProps, TMixinDefs extends MixinDefs> =
+    & StylePackConfig<TName, TPlural, TCssConfigProps>
     & StylePackMixins<TName, TMixinDefs>
-    // & TMixinDefs
-export type StylePackConfig<TName extends string, TPlural extends string, TConfigProps extends CssConfigProps> = {
-    [key in TPlural         ] : Refs<TConfigProps>
+export type StylePackConfig<TName extends string, TPlural extends string, TCssConfigProps extends CssConfigProps> = {
+    [key in TPlural         ] : Refs<TCssConfigProps>
 } & {
-    [key in `${TName}Values`] : Vals<TConfigProps>
+    [key in `${TName}Values`] : Vals<TCssConfigProps>
 } & {
     [key in `${TName}Config`] : LiveCssConfigOptions
 }
@@ -77,12 +80,12 @@ export type StylePackMixins<TName extends string, TMixinDefs extends MixinDefs> 
 
 
 export const createStylePack = <
-    TName extends string,
-    TPlural extends string,
+    TName        extends string,
+    TPlural      extends string,
     
-    TConfigProps extends CssConfigProps,
-    TMixinDefs extends MixinDefs
->(options: StylePackOptions<TName, TPlural, TConfigProps, TMixinDefs>): StylePack<TName, TPlural, TConfigProps, TMixinDefs> => {
+    TCssConfigProps extends CssConfigProps,
+    TMixinDefs   extends MixinDefs
+>(options: StylePackOptions<TName, TPlural, TCssConfigProps, TMixinDefs>): StylePack<TName, TPlural, TCssConfigProps, TMixinDefs> => {
     const {
         name,
         plural,
