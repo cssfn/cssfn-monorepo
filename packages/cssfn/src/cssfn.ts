@@ -198,16 +198,16 @@ export const states   = (states  : CssRuleCollection, options?: CssSelectorOptio
 const globalAutoKeyframesIdRegistry = new Map<CssCustomKeyframesRefImpl, string>();
 class CssCustomKeyframesRefImpl implements CssCustomKeyframesRef {
     //#region private properties
-    #value         : string|null;
-    #onValueChange : (value: string) => void
+    private _value         : string|null;
+    private _onValueChange : (value: string) => void
     //#endregion private properties
     
     
     
     //#region constructors
     constructor(value: string|null, onValueChange: (value: string) => void) {
-        this.#value = value || null; // non_empty_string or null
-        this.#onValueChange = onValueChange;
+        this._value = value || null; // non_empty_string or null
+        this._onValueChange = onValueChange;
     }
     //#endregion constructors
     
@@ -215,16 +215,16 @@ class CssCustomKeyframesRefImpl implements CssCustomKeyframesRef {
     
     //#region public properties
     get value(): string|null {
-        return this.#value;
+        return this._value;
     }
     set value(value: string|null) {
         const newValue = value || null; // non_empty_string or null
-        if (this.#value === newValue) return;
-        this.#value = newValue;
+        if (this._value === newValue) return;
+        this._value = newValue;
         
         
         
-        this.#onValueChange(this.toString());
+        this._onValueChange(this.toString());
     }
     //#endregion public properties
     
@@ -232,7 +232,7 @@ class CssCustomKeyframesRefImpl implements CssCustomKeyframesRef {
     
     //#region public methods
     toString(): string {
-        const staticValue = this.#value;
+        const staticValue = this._value;
         if (staticValue) return staticValue;
         
         
