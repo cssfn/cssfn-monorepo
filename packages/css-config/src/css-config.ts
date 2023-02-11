@@ -111,22 +111,22 @@ const defaultOptions : Required<CssConfigOptions> = {
 }
 class LiveCssConfigOptions implements Required<CssConfigOptions> {
     //#region private properties
-    #prefix   : string
-    #selector : CssSelector
-    #onChange : Subject<void>
+    private _prefix   : string
+    private _selector : CssSelector
+    private _onChange : Subject<void>
     
-    readonly #updatedCallback : (prevPrefix: string) => void
+    private readonly _updatedCallback : (prevPrefix: string) => void
     //#endregion private properties
     
     
     
     //#region constructors
     constructor(updatedCallback: (prevPrefix: string) => void, options?: CssConfigOptions) {
-        this.#prefix   = options?.prefix   ?? defaultOptions.prefix;   // an empty prefix   is allowed
-        this.#selector = options?.selector || defaultOptions.selector; // an empty selector is not allowed
-        this.#onChange = new Subject<void>();
+        this._prefix   = options?.prefix   ?? defaultOptions.prefix;   // an empty prefix   is allowed
+        this._selector = options?.selector || defaultOptions.selector; // an empty selector is not allowed
+        this._onChange = new Subject<void>();
         
-        this.#updatedCallback = updatedCallback;
+        this._updatedCallback = updatedCallback;
     }
     //#endregion constructors
     
@@ -134,25 +134,25 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
     
     //#region public properties
     get prefix() {
-        return this.#prefix;
+        return this._prefix;
     }
     set prefix(value: string) {
         // an empty prefix is allowed
-        if (this.#prefix === value) return; // no change => no need to update
+        if (this._prefix === value) return; // no change => no need to update
         
-        const prevPrefix = this.#prefix;
-        this.#prefix = value; // update
+        const prevPrefix = this._prefix;
+        this._prefix = value; // update
         this.update(prevPrefix); // notify a css-config updated
     }
     
     get selector() {
-        return this.#selector;
+        return this._selector;
     }
     set selector(value: CssSelector) {
         value = value || defaultOptions.selector; // an empty selector is not allowed
-        if (this.#selector === value) return; // no change => no need to update
+        if (this._selector === value) return; // no change => no need to update
         
-        this.#selector = value; // update
+        this._selector = value; // update
         this.update(); // notify a css-config updated
     }
     
@@ -160,7 +160,7 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
      * Registers callback function to be called when the `CssConfig` changed.
     */
     get onChange(): Observable<void> {
-        return this.#onChange;
+        return this._onChange;
     }
     //#endregion public properties
     
@@ -168,13 +168,13 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
     
     //#region private methods
     private update(prevPrefix?: string) {
-        this.#updatedCallback(prevPrefix ?? this.prefix); // notify a css-config updated
+        this._updatedCallback(prevPrefix ?? this.prefix); // notify a css-config updated
     }
     //#endregion private methods
     
     //#region public methods
     notifyChanged() {
-        this.#onChange.next()
+        this._onChange.next()
     }
     //#endregion public methods
 }
