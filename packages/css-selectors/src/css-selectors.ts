@@ -125,37 +125,37 @@ const joinExpressions = (expressions: MaybeDeepArray<OptionalOrBoolean<string>>)
 
 class SelectorsParser {
     //#region private fields
-    expression       : string = ''
-    expressionLength : number = 0
-    pos              : number = 0
+    private _expression       : string = ''
+    private _expressionLength : number = 0
+    private _pos              : number = 0
     //#endregion private fields
     
     
     
     //#region private parsing functions
-    isEof(): boolean {
-        return (this.pos >= this.expressionLength);
+    private isEof(): boolean {
+        return (this._pos >= this._expressionLength);
     }
-    isWhitespace(): boolean {
-        return whitespaceList.includes(this.expression[this.pos]);
+    private isWhitespace(): boolean {
+        return whitespaceList.includes(this._expression[this._pos]);
     }
-    skipWhitespace(): void {
-        while (!this.isEof() && whitespaceList.includes(this.expression[this.pos])) this.pos++;
+    private skipWhitespace(): void {
+        while (!this.isEof() && whitespaceList.includes(this._expression[this._pos])) this._pos++;
     }
     
-    parseSelectorToken(): SelectorToken|null {
-        const char = this.expression[this.pos];
+    private parseSelectorToken(): SelectorToken|null {
+        const char = this._expression[this._pos];
         switch (char) {
             case '&': // ParentSelectorToken
             case '*': // UniversalSelectorToken
             case '[': // AttrSelectorToken
             case '#': // IdSelectorToken
             case '.': // ClassSelectorToken
-                this.pos++; return char;
+                this._pos++; return char;
             
             case ':':
-                this.pos++;
-                if (this.expression[this.pos] === ':') { this.pos++; return '::'; } // PseudoElementSelectorToken
+                this._pos++;
+                if (this._expression[this._pos] === ':') { this._pos++; return '::'; } // PseudoElementSelectorToken
                 return ':'; // PseudoClassSelectorToken
             
             default:
@@ -163,8 +163,8 @@ class SelectorsParser {
                 return null; // unknown expression => return null
         } // switch
     }
-    isValidIdentifierChar(): boolean {
-        const char = this.expression[this.pos];
+    private isValidIdentifierChar(): boolean {
+        const char = this._expression[this._pos];
         
         /*
             using regex is easier, but the performance is slow
@@ -181,16 +181,16 @@ class SelectorsParser {
         if (char === '_') return true;
         return false;
     }
-    parseIdentifierName(): string|null {
-        const originPos = this.pos;
+    private parseIdentifierName(): string|null {
+        const originPos = this._pos;
         
-        while (!this.isEof() && this.isValidIdentifierChar()) this.pos++; // move forward until invalid
-        if (this.pos === originPos) return null; // pos was not moved => nothing to parse => no changes made & return null
+        while (!this.isEof() && this.isValidIdentifierChar()) this._pos++; // move forward until invalid
+        if (this._pos === originPos) return null; // pos was not moved => nothing to parse => no changes made & return null
         
-        return this.expression.slice(originPos, this.pos);
+        return this._expression.slice(originPos, this._pos);
     }
-    parseSimpleSelector(): SimpleSelector|null {
-        const originPos = this.pos;
+    private parseSimpleSelector(): SimpleSelector|null {
+        const originPos = this._pos;
         
         const token = this.parseSelectorToken();
         if (token === null) return null; // syntax error: missing token => no changes made & return null
@@ -202,7 +202,7 @@ class SelectorsParser {
         }
         else if (token === '[') { // AttrSelectorToken
             const attrSelectorParams = this.parseAttrSelectorParams();
-            if (!attrSelectorParams) { this.pos = originPos; return null; } // syntax error: missing attrSelectorParams => revert changes & return null
+            if (!attrSelectorParams) { this._pos = originPos; return null; } // syntax error: missing attrSelectorParams => revert changes & return null
             
             return [
                 token,
@@ -212,7 +212,7 @@ class SelectorsParser {
         }
         else { // NamedSelectorToken
             const name = this.parseIdentifierName();
-            if (!name) { this.pos = originPos; return null; } // syntax error: missing name => revert changes & return null
+            if (!name) { this._pos = originPos; return null; } // syntax error: missing name => revert changes & return null
             
             if (token !== ':') { // NonParamSelector
                 return [
@@ -223,7 +223,7 @@ class SelectorsParser {
             else { // PseudoClassSelectorToken
                 if (specialPseudoClassList.includes(name)) {
                     const selectorParams = this.parseSelectorParams();
-                    if (!selectorParams) { this.pos = originPos; return null; } // syntax error: missing selectorParams => revert changes & return null
+                    if (!selectorParams) { this._pos = originPos; return null; } // syntax error: missing selectorParams => revert changes & return null
                     return [
                         token,
                         name,
@@ -249,31 +249,31 @@ class SelectorsParser {
             } // if
         } // if
     }
-    parseCombinator(): Combinator|null {
-        const originPos = this.pos;
+    private parseCombinator(): Combinator|null {
+        const originPos = this._pos;
         
         this.skipWhitespace();
         
-        const char = this.expression[this.pos];
+        const char = this._expression[this._pos];
         switch (char) {
             case '>': // ChildCombinator
             case '~': // SiblingCombinator
             case '+': // NextSiblingCombinator
-                this.pos++; return char;
+                this._pos++; return char;
             
             default:
-            if (this.pos > originPos) { // previously had whitespace
-                const currentPos = this.pos;            // 1. backup
+            if (this._pos > originPos) { // previously had whitespace
+                const currentPos = this._pos;           // 1. backup
                 const test = this.parseSelectorToken(); // 2. destructive test
-                this.pos = currentPos;                  // 3. restore
+                this._pos = currentPos;                 // 3. restore
                 
                 if (test !== null) return ' '; // DescendantCombinator
             } // if
             return null; // unknown expression => return null
         } // switch
     }
-    parseSelector(): Selector|null {
-        const originPos = this.pos;
+    private parseSelector(): Selector|null {
+        const originPos = this._pos;
         
         const selector : Selector = [];
         
@@ -301,7 +301,7 @@ class SelectorsParser {
             //#region SelectorSequence(s) - not separated by any spaces
             // first sequence:
             const simpleSelector = this.parseSimpleSelector();
-            if (!simpleSelector) { this.pos = originPos; return null; } // syntax error: missing simpleSelector => revert changes & return null
+            if (!simpleSelector) { this._pos = originPos; return null; } // syntax error: missing simpleSelector => revert changes & return null
             selector.push(simpleSelector);
             
             // optional next sequence(s):
@@ -314,36 +314,36 @@ class SelectorsParser {
             //#endregion SelectorSequence(s) - not separated by any spaces
         } // while
         
-        if (!selector.length) { this.pos = originPos; return null; }; // syntax error: no any simpleSelector => revert changes & return null
+        if (!selector.length) { this._pos = originPos; return null; }; // syntax error: no any simpleSelector => revert changes & return null
         return selector;
     }
     
-    eatComma(): boolean {
-        if (this.expression[this.pos] !== ',') return false;
-        this.pos++; return true; // move forward & return true
+    private eatComma(): boolean {
+        if (this._expression[this._pos] !== ',') return false;
+        this._pos++; return true; // move forward & return true
     }
-    eatOpeningBracket(): boolean {
-        if (this.expression[this.pos] !== '(') return false;
-        this.pos++; return true; // move forward & return true
+    private eatOpeningBracket(): boolean {
+        if (this._expression[this._pos] !== '(') return false;
+        this._pos++; return true; // move forward & return true
     }
-    eatClosingBracket(): boolean {
-        if (this.expression[this.pos] !== ')') return false;
-        this.pos++; return true; // move forward & return true
+    private eatClosingBracket(): boolean {
+        if (this._expression[this._pos] !== ')') return false;
+        this._pos++; return true; // move forward & return true
     }
-    eatClosingSquareBracket(): boolean {
-        if (this.expression[this.pos] !== ']') return false;
-        this.pos++; return true; // move forward & return true
+    private eatClosingSquareBracket(): boolean {
+        if (this._expression[this._pos] !== ']') return false;
+        this._pos++; return true; // move forward & return true
     }
-    eatNonBracketsOrSpaces(): boolean {
-        const originPos = this.pos;
+    private eatNonBracketsOrSpaces(): boolean {
+        const originPos = this._pos;
         
-        while (!this.isEof() && !this.isWhitespace() && (this.expression[this.pos] !== '(') && (this.expression[this.pos] !== ')')) this.pos++; // move forward until unmatch
-        if (this.pos === originPos) return false; // pos was not moved => nothing to eat => no changes made & return false
+        while (!this.isEof() && !this.isWhitespace() && (this._expression[this._pos] !== '(') && (this._expression[this._pos] !== ')')) this._pos++; // move forward until unmatch
+        if (this._pos === originPos) return false; // pos was not moved => nothing to eat => no changes made & return false
         
         return true;
     }
-    parseSelectors(): SelectorGroup|null {
-        const originPos = this.pos;
+    private parseSelectors(): SelectorGroup|null {
+        const originPos = this._pos;
         
         const selectors : SelectorGroup = [];
         
@@ -358,15 +358,15 @@ class SelectorsParser {
             } // if
             
             const selector = this.parseSelector();
-            if (!selector) { this.pos = originPos; return null; } // syntax error: missing selector => revert changes & return null
+            if (!selector) { this._pos = originPos; return null; } // syntax error: missing selector => revert changes & return null
             selectors.push(selector);
         } // while
         
-        if (!selectors.length) { this.pos = originPos; return null; }; // syntax error: no any selector => revert changes & return null
+        if (!selectors.length) { this._pos = originPos; return null; }; // syntax error: no any selector => revert changes & return null
         return selectors;
     }
-    parseWildParams(): WildParams|null {
-        const originPos = this.pos;
+    private parseWildParams(): WildParams|null {
+        const originPos = this._pos;
         
         if (!this.eatOpeningBracket()) return null; // syntax error: missing `(` => no changes made & return null
         this.skipWhitespace();
@@ -374,12 +374,12 @@ class SelectorsParser {
         const taken : string[] = [];
         while (!this.isEof()) {
             //#region eat non_nested value
-            const startPos = this.pos;
+            const startPos = this._pos;
             let eaten = this.eatNonBracketsOrSpaces();
             if (eaten) {
-                const endPos = this.pos;
+                const endPos = this._pos;
                 taken.push(
-                    this.expression.slice(startPos, endPos)
+                    this._expression.slice(startPos, endPos)
                 );
                 
                 this.skipWhitespace();
@@ -409,86 +409,86 @@ class SelectorsParser {
         } // while
         
         this.skipWhitespace();
-        if (!this.eatClosingBracket()) { this.pos = originPos; return null; } // syntax error: missing `)` => revert changes & return null
+        if (!this.eatClosingBracket()) { this._pos = originPos; return null; } // syntax error: missing `)` => revert changes & return null
         
         return taken.join('');
     }
-    parseSelectorParams(): SelectorGroup|null {
-        const originPos = this.pos;
+    private parseSelectorParams(): SelectorGroup|null {
+        const originPos = this._pos;
         
         if (!this.eatOpeningBracket()) return null; // syntax error: missing `(` => no changes made & return null
         
         const selectors = this.parseSelectors();
-        if (!selectors) { this.pos = originPos; return null; } // syntax error: missing selectors => revert changes & return null
+        if (!selectors) { this._pos = originPos; return null; } // syntax error: missing selectors => revert changes & return null
         
-        if (!this.eatClosingBracket()) { this.pos = originPos; return null; } // syntax error: missing `)` => revert changes & return null
+        if (!this.eatClosingBracket()) { this._pos = originPos; return null; } // syntax error: missing `)` => revert changes & return null
         
         return selectors;
     }
-    parseAttrSelectorOperator(): AttrSelectorOperator|null {
-        const originPos = this.pos;
+    private parseAttrSelectorOperator(): AttrSelectorOperator|null {
+        const originPos = this._pos;
         
-        const char = this.expression[this.pos];
+        const char = this._expression[this._pos];
         switch (char) {
             case '=': // ExactOperator
-                this.pos++; return char;
+                this._pos++; return char;
             
             case '~': // SpaceSeparatedOperator
             case '|': // SubsOperator
             case '^': // BeginsWithOperator
             case '$': // EndsWithOperator
             case '*': // IncludesOperator
-                this.pos++;
-                if (this.expression[this.pos] !== '=') { this.pos = originPos; return null; } // syntax error: missing `=` => revert changes & return null
-                this.pos++;
+                this._pos++;
+                if (this._expression[this._pos] !== '=') { this._pos = originPos; return null; } // syntax error: missing `=` => revert changes & return null
+                this._pos++;
                 return `${char}=`;
             
             default:
                 return null; // unknown expression => return null
         } // switch
     }
-    parseAttrSelectorOptions(): AttrSelectorOptions|null {
-        const char = this.expression[this.pos];
+    private parseAttrSelectorOptions(): AttrSelectorOptions|null {
+        const char = this._expression[this._pos];
         switch (char) {
             case 'i': // case-insensitively
             case 'I': // case-insensitively
             case 's': // case-sensitively
             case 'S': // case-sensitively
-                this.pos++; return char;
+                this._pos++; return char;
             
             default:
                 return null; // unknown expression => return null
         } // switch
     }
-    parseNudeString(): string|null {
+    private parseNudeString(): string|null {
         return this.parseIdentifierName();
     }
-    eatQuote(quoteChar: "'" | '"'): boolean {
-        if (this.expression[this.pos] !== quoteChar) return false;
-        this.pos++; return true; // move forward & return true
+    private eatQuote(quoteChar: "'" | '"'): boolean {
+        if (this._expression[this._pos] !== quoteChar) return false;
+        this._pos++; return true; // move forward & return true
     }
-    isValidStringChar(quoteChar: "'" | '"'): boolean {
-        const char = this.expression[this.pos];
+    private isValidStringChar(quoteChar: "'" | '"'): boolean {
+        const char = this._expression[this._pos];
         if (char === quoteChar) {
-            return ((this.pos >= 1) && (this.expression[this.pos - 1] === '\\')); // looking backward escape char
+            return ((this._pos >= 1) && (this._expression[this._pos - 1] === '\\')); // looking backward escape char
         }
         else if (char === '\\') {
-            return ((this.pos + 1) < this.expressionLength); // looking forward has any char
+            return ((this._pos + 1) < this._expressionLength); // looking forward has any char
         }
         else {
             return true; // any chars other than quoteChar & backwardChar
         } // if
     }
-    parseQuoteString(quoteChar: "'" | '"'): string|null {
-        const originPos = this.pos;
+    private parseQuoteString(quoteChar: "'" | '"'): string|null {
+        const originPos = this._pos;
         
         if (!this.eatQuote(quoteChar)) return null; // syntax error: missing opening_quoteChar => no changes made & return null
         
-        while (!this.isEof() && this.isValidStringChar(quoteChar)) this.pos++; // move forward until invalid
+        while (!this.isEof() && this.isValidStringChar(quoteChar)) this._pos++; // move forward until invalid
         
-        if (!this.eatQuote(quoteChar)) { this.pos = originPos; return null; } // syntax error: missing closing_quoteChar => revert changes & return null
+        if (!this.eatQuote(quoteChar)) { this._pos = originPos; return null; } // syntax error: missing closing_quoteChar => revert changes & return null
         
-        const value = this.expression.slice(originPos + 1, this.pos - 1); // excludes the opening_quoteChar & closing_quoteChar
+        const value = this._expression.slice(originPos + 1, this._pos - 1); // excludes the opening_quoteChar & closing_quoteChar
         if (quoteChar === "'") { // single quoteChar
             return value.replace(/(?<!\\)"/g, '\\"'); // escape the unescaped double quoteChar, so both single & double quoteChar are escaped
         }
@@ -496,7 +496,7 @@ class SelectorsParser {
             return value.replace(/(?<!\\)'/g, "\\'"); // escape the unescaped single quoteChar, so both single & double quoteChar are escaped
         } // if
     }
-    parseString(): string|null {
+    private parseString(): string|null {
         return (
             this.parseQuoteString("'")
             ??
@@ -505,21 +505,21 @@ class SelectorsParser {
             this.parseNudeString()
         );
     }
-    parseAttrSelectorParams(): AttrSelectorParams|null {
-        const originPos = this.pos;
+    private parseAttrSelectorParams(): AttrSelectorParams|null {
+        const originPos = this._pos;
         
         // if (!eatOpeningSquareBracket()) return null; // already eaten by `this.parseSelectorToken()`
         
         this.skipWhitespace();
         
         const name = this.parseIdentifierName();
-        if (!name) { this.pos = originPos; return null; } // syntax error: missing name => revert changes & return null
+        if (!name) { this._pos = originPos; return null; } // syntax error: missing name => revert changes & return null
         
         this.skipWhitespace();
         
         const operator = this.parseAttrSelectorOperator();
         if (!operator) { // name only
-            if (!this.eatClosingSquareBracket()) { this.pos = originPos; return null; } // syntax error: missing `]` => revert changes & return null
+            if (!this.eatClosingSquareBracket()) { this._pos = originPos; return null; } // syntax error: missing `]` => revert changes & return null
             
             return [
                 name,
@@ -530,7 +530,7 @@ class SelectorsParser {
             
             const value = this.parseString();
             // an empty value "" -or- '' is possible
-            if (value === null) { this.pos = originPos; return null; } // syntax error: missing value => revert changes & return null
+            if (value === null) { this._pos = originPos; return null; } // syntax error: missing value => revert changes & return null
             
             this.skipWhitespace();
             
@@ -539,7 +539,7 @@ class SelectorsParser {
                 this.skipWhitespace();
             } // if
             
-            if (!this.eatClosingSquareBracket()) { this.pos = originPos; return null; } // syntax error: missing `]` => revert changes & return null
+            if (!this.eatClosingSquareBracket()) { this._pos = originPos; return null; } // syntax error: missing `]` => revert changes & return null
             
             if (!options) { // name=value without options
                 return [
@@ -564,9 +564,9 @@ class SelectorsParser {
     
     process(expressions: MaybeDeepArray<OptionalOrBoolean<string>>): SelectorGroup|null {
         // configure:
-        this.expression       = joinExpressions(expressions);
-        this.expressionLength = this.expression.length;
-        this.pos              = 0;
+        this._expression       = joinExpressions(expressions);
+        this._expressionLength = this._expression.length;
+        this._pos              = 0;
         
         
         
@@ -587,7 +587,7 @@ class SelectorsParser {
         
         
         // cleanups:
-        this.expression = '';
+        this._expression = '';
         
         
         
