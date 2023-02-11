@@ -15,7 +15,7 @@ import type {
 
 
 
-export const memorizedStyle = <TFunction extends (...params: any) => TReturn, TReturn extends CssStyle>(factory: TFunction, deps ?: MaybeArray<Observable<void>>): TFunction => {
+export const memorizedStyle = <TFunction extends (...params: any[]) => TReturn, TReturn extends CssStyle>(factory: TFunction, deps ?: MaybeArray<Observable<void>>): TFunction => {
     // caches:
     let cache : WeakRef<TReturn>|undefined = undefined;
     const clearCache = (): void => {
@@ -31,6 +31,7 @@ export const memorizedStyle = <TFunction extends (...params: any) => TReturn, TR
     
     // cached function:
     const cachedFactory : TFunction = ((...params: any[]) => {
+        // do not cache a parameterized function call:
         if (params.length) return factory(...params);
         
         
@@ -40,10 +41,11 @@ export const memorizedStyle = <TFunction extends (...params: any) => TReturn, TR
         
         
         
+        // cache a non_parameterized function call:
         const result = factory();
         cache = new WeakRef<TReturn>(result);
         return result;
-    }) as any;
+    }) as TFunction;
     
     
     
