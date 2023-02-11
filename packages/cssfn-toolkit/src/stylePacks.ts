@@ -80,11 +80,11 @@ export type StylePackMixins<TName extends string, TMixinDefs extends MixinDefs> 
 
 
 export const createStylePack = <
-    TName        extends string,
-    TPlural      extends string,
+    TName           extends string,
+    TPlural         extends string,
     
     TCssConfigProps extends CssConfigProps,
-    TMixinDefs   extends MixinDefs
+    TMixinDefs      extends MixinDefs
 >(options: StylePackOptions<TName, TPlural, TCssConfigProps, TMixinDefs>): StylePack<TName, TPlural, TCssConfigProps, TMixinDefs> => {
     const {
         name,
@@ -123,6 +123,7 @@ export const createStylePack = <
         )
         .map(([mixinName, mixinFactory]) => {
             const cachedMixinDef : typeof mixinFactory = (...params: any[]) => {
+                // do not cache a parameterized function call:
                 if (params.length) return mixinFactory(...params);
                 
                 
@@ -132,19 +133,20 @@ export const createStylePack = <
                 
                 
                 
-                const mixinValue = mixinFactory();
-                mixinsCache.set(mixinName, new WeakRef<CssStyle>(mixinValue));
-                return mixinValue;
+                // cache a non_parameterized function call:
+                const result = mixinFactory();
+                mixinsCache.set(mixinName, new WeakRef<CssStyle>(result));
+                return result;
             };
             
             
             
             return [
                 `${name}${startsCapitalized(mixinName)}`,
-                cachedMixinDef
+                cachedMixinDef,
             ];
         })
-    ) as any;
+    ) as TMixinDefs;
     
     
     
