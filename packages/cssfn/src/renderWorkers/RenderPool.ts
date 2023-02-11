@@ -39,7 +39,7 @@ export interface RenderPoolConfigs extends WorkerBaseConfigs, ValueOf<RequestCon
 }
 export class RenderPool extends WorkerBase<Request, Response> {
     // private properties:
-    #configs : RenderPoolConfigs|undefined
+    private _configs2 : RenderPoolConfigs|undefined
     
     
     
@@ -53,7 +53,7 @@ export class RenderPool extends WorkerBase<Request, Response> {
         
         
         // configs:
-        this.#configs = configs;
+        this._configs2 = configs;
         if (configs && !this.isError) {
             const {
                 onReady         : _onReady,         // remove
@@ -106,10 +106,10 @@ export class RenderPool extends WorkerBase<Request, Response> {
         } // switch
     }
     protected handleRendered(jobId: number, rendered: ValueOf<ResponseRendered>): void {
-        this.#configs?.onRendered?.(jobId, rendered)
+        this._configs2?.onRendered?.(jobId, rendered)
     }
     protected handleRenderedError(jobId: number, error: ValueOf<ResponseRenderedError>): void {
-        this.#configs?.onRenderedError?.(jobId, error);
+        this._configs2?.onRenderedError?.(jobId, error);
     }
     
     

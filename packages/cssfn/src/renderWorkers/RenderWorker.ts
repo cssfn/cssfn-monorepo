@@ -30,8 +30,8 @@ export interface RenderWorkerConfigs extends WorkerBaseConfigs {
 }
 export class RenderWorker extends WorkerBase<Request, Response> {
     // private properties:
-    #configs  : RenderWorkerConfigs|undefined
-    #workerId : number
+    private _configs2  : RenderWorkerConfigs|undefined
+    private _workerId : number
     
     
     
@@ -45,10 +45,10 @@ export class RenderWorker extends WorkerBase<Request, Response> {
         
         
         // configs:
-        this.#configs = configs;
+        this._configs2 = configs;
         
         workerCounter++; if (workerCounter >= Number.MAX_SAFE_INTEGER) workerCounter = 0;
-        this.#workerId = workerCounter;
+        this._workerId = workerCounter;
     }
     
     
@@ -68,7 +68,7 @@ export class RenderWorker extends WorkerBase<Request, Response> {
         } // switch
     }
     protected handleConnectWorker(remotePort: MessagePort): void {
-        this.#configs?.onConnectWorker?.(this.#workerId, remotePort);
+        this._configs2?.onConnectWorker?.(this._workerId, remotePort);
     }
     protected handleError(error: Error|string|null|undefined): void {
         super.handleError(error);
@@ -78,6 +78,6 @@ export class RenderWorker extends WorkerBase<Request, Response> {
         this.handleErrorWorker(error);
     }
     protected handleErrorWorker(error: Error|string|null|undefined): void {
-        this.#configs?.onErrorWorker?.(this.#workerId, error);
+        this._configs2?.onErrorWorker?.(this._workerId, error);
     }
 }

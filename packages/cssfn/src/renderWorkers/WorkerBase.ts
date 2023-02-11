@@ -17,10 +17,10 @@ export interface WorkerBaseConfigs {
 }
 export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends Tuple<string, any>> {
     // private properties:
-    #configs : WorkerBaseConfigs|undefined
-    #worker  : Worker|null
-    #isReady : boolean
-    #isError : Error|string|null|undefined
+    private _configs : WorkerBaseConfigs|undefined
+    private _worker  : Worker|null
+    private _isReady : boolean
+    private _isError : Error|string|null|undefined
     
     
     
@@ -30,21 +30,21 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
     }
     constructor(configs?: WorkerBaseConfigs) {
         // configs:
-        this.#configs = configs;
+        this._configs = configs;
         
         
         
         // setup web worker:
         if (typeof(Worker) !== 'undefined') { // supports Web Worker
             try {
-                this.#worker  = this.createWorker(); // try to initialize
-                this.#isReady = false; // not yet ready
-                this.#isError = null;  // not yet having error
+                this._worker  = this.createWorker(); // try to initialize
+                this._isReady = false; // not yet ready
+                this._isError = null;  // not yet having error
             }
             catch (error) {
-                this.#worker  = null;  // Web Worker initialization was failed
-                this.#isReady = false; // never ready
-                this.#isError = (      // the causing error:
+                this._worker  = null;  // Web Worker initialization was failed
+                this._isReady = false; // never ready
+                this._isError = (      // the causing error:
                     !error
                     ?
                     Error() // avoids null|undefined|empty_string => nullish
@@ -60,15 +60,15 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
             } // try
         }
         else { // not support Web Worker
-            this.#worker  = null;  // Web Worker is not available
-            this.#isReady = false; // never ready
-            this.#isError = Error('Web Worker is not supported');
+            this._worker  = null;  // Web Worker is not available
+            this._isReady = false; // never ready
+            this._isError = Error('Web Worker is not supported');
         } // if
         
         
         
         // configure web worker:
-        const worker = this.#worker;
+        const worker = this._worker;
         if (worker) {
             worker.onmessage = (event: MessageEvent<TResponse>) => {
                 this.handleResponse(event);
@@ -96,7 +96,7 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
     
     // requests:
     protected postRequest(requestData : TRequest, transfer?: Transferable[]): void {
-        const worker = this.#worker;
+        const worker = this._worker;
         if (!worker) throw Error('internal error');
         if (transfer) {
             worker.postMessage(requestData, transfer);
@@ -115,38 +115,38 @@ export class WorkerBase<TRequest extends Tuple<string, any>, TResponse extends T
     // responses:
     protected handleResponse(_event: MessageEvent<TResponse>): void {
         // any responses are treated as ready status:
-        if (!this.#isReady) this.handleReady();
+        if (!this._isReady) this.handleReady();
     }
     protected handleError(error: Error|string|null|undefined): void {
-        this.#worker?.terminate();
-        this.#worker  = null;
-        this.#isReady = false;
-        this.#isError = error || Error(); // avoids null|undefined|empty_string => nullish
+        this._worker?.terminate();
+        this._worker  = null;
+        this._isReady = false;
+        this._isError = error || Error(); // avoids null|undefined|empty_string => nullish
         
-        this.#configs?.onError?.(error);
+        this._configs?.onError?.(error);
     }
     protected handleReady(): void {
-        this.#isReady = true;
+        this._isReady = true;
         
-        this.#configs?.onReady?.();
+        this._configs?.onReady?.();
     }
     
     
     
     // public properties:
-    get isReady() { return this.#isReady }
-    get isError() { return this.#isError }
+    get isReady() { return this._isReady }
+    get isError() { return this._isError }
     
     
     
     // public methods:
     async ensureReady(timeout = 100/*ms*/): Promise<boolean> {
-        if (this.#isError) return false; // never ready
-        if (this.#isReady) return true;  // was ready
+        if (this._isError) return false; // never ready
+        if (this._isReady) return true;  // was ready
         
         
         
-        const worker = this.#worker;
+        const worker = this._worker;
         if (!worker) return false; // never ready
         return new Promise<boolean>((resolve) => {
             let resolved = false;
