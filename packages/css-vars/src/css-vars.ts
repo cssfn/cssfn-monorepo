@@ -45,20 +45,20 @@ const defaultOptions : Required<CssVarsOptions> = {
 };
 class LiveCssVarsOptions implements Required<CssVarsOptions> {
     //#region private properties
-    #prefix : string
-    #minify : boolean
+    private _prefix : string
+    private _minify : boolean
     
-    readonly #updatedCallback : () => void
+    private readonly _updatedCallback : () => void
     //#endregion private properties
     
     
     
     //#region constructors
     constructor(updatedCallback: () => void, options?: CssVarsOptions) {
-        this.#prefix = options?.prefix ?? defaultOptions.prefix; // an empty prefix is allowed
-        this.#minify = options?.minify ?? defaultOptions.minify;
+        this._prefix = options?.prefix ?? defaultOptions.prefix; // an empty prefix is allowed
+        this._minify = options?.minify ?? defaultOptions.minify;
         
-        this.#updatedCallback = updatedCallback;
+        this._updatedCallback = updatedCallback;
     }
     //#endregion constructors
     
@@ -66,32 +66,32 @@ class LiveCssVarsOptions implements Required<CssVarsOptions> {
     
     //#region public properties
     get prefix() {
-        return this.#prefix;
+        return this._prefix;
     }
     set prefix(value: string) {
         // an empty prefix is allowed
-        if (this.#prefix === value) return; // no change => no need to update
+        if (this._prefix === value) return; // no change => no need to update
         
-        this.#prefix = value; // update
-        this.#update(); // notify a css-vars updated
+        this._prefix = value; // update
+        this.update(); // notify a css-vars updated
     }
     
     get minify() {
-        return this.#minify;
+        return this._minify;
     }
     set minify(value: boolean) {
-        if (this.#minify === value) return; // no change => no need to update
+        if (this._minify === value) return; // no change => no need to update
         
-        this.#minify = value; // update
-        this.#update(); // notify a css-vars updated
+        this._minify = value; // update
+        this.update(); // notify a css-vars updated
     }
     //#endregion public properties
     
     
     
     //#region private methods
-    #update() {
-        this.#updatedCallback(); // notify a css-config updated
+    private update() {
+        this._updatedCallback(); // notify a css-config updated
     }
     //#endregion private methods
 }
