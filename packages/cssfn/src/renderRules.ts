@@ -140,7 +140,7 @@ export interface RenderRuleOptions {
 }
 class RenderRule {
     //#region private fields
-    #options : RenderRuleOptions|undefined
+    private options : RenderRuleOptions|undefined
     //#endregion private fields
     
     //#region public fields
@@ -150,38 +150,38 @@ class RenderRule {
     
     
     //#region private methods
-    #renderPropName(propName: keyof CssProps): string {
+    private renderPropName(propName: keyof CssProps): string {
         if (propName.startsWith('--')) return propName; // css custom prop
         if (propName.startsWith('var(')) return propName.slice(4, -1); // fix: var(--customProp) => --customProp
         
         
         
         const unshortPropName    = shortProps.get(propName) ?? propName;
-        const cssPropAutoPrefix  = this.#options?.cssPropAutoPrefix;
+        const cssPropAutoPrefix  = this.options?.cssPropAutoPrefix;
         const prefixedPropName   = cssPropAutoPrefix ? cssPropAutoPrefix(unshortPropName) : unshortPropName;
         const hyphenatedPropName = hyphenate(prefixedPropName);
         return hyphenatedPropName;
     }
-    #renderProp(propName: keyof CssProps, propValue: CssCustomValue|undefined|null): void {
+    private renderProp(propName: keyof CssProps, propValue: CssCustomValue|undefined|null): void {
         if ((propValue === undefined) || (propValue === null)) return;
         
         
         
         this.rendered += '\n';
-        const renderedPropName = this.#renderPropName(propName);
+        const renderedPropName = this.renderPropName(propName);
         this.rendered += renderedPropName;
         this.rendered += ': ';
         this.rendered += renderValue(propValue);
         this.rendered += ';';
     }
     
-    #hasPropRule(finalStyle: CssFinalStyleMap): boolean {
+    private hasPropRule(finalStyle: CssFinalStyleMap): boolean {
         for (const [finalSelector] of finalStyle.rules) {
             if (finalSelector[0] === ' ') return true; // found a PropRule
         } // for
         return false; // not found any PropRule
     }
-    #renderSelector(finalSelector: CssFinalSelector|null, finalStyle: CssFinalStyleMap|null): void {
+    private renderSelector(finalSelector: CssFinalSelector|null, finalStyle: CssFinalStyleMap|null): void {
         if (
             !finalSelector?.startsWith('@keyframes ') // an empty `@keyframes noAnimation {}` is allowed
             &&
@@ -198,7 +198,7 @@ class RenderRule {
                     
                     // there is no any PropRule:
                     // in case of a something like @keyframes rule, that is always contains PropRule(s) but not contains nestedRule(s)
-                    !this.#hasPropRule(finalStyle)
+                    !this.hasPropRule(finalStyle)
                 )
             )
         )
@@ -209,7 +209,7 @@ class RenderRule {
         
         
         if (!finalSelector) {
-            this.#renderStyle(finalStyle); // just render the style without selector, eg: @global rule => no selector but has style
+            this.renderStyle(finalStyle); // just render the style without selector, eg: @global rule => no selector but has style
             return;
         } // if
         
@@ -220,12 +220,12 @@ class RenderRule {
         this.rendered += finalSelector;
         this.rendered += ' {';
         {
-            this.#renderStyle(finalStyle);
+            this.renderStyle(finalStyle);
         }
         this.rendered += '\n}\n';
         //#endregion render complete .selector { style }
     }
-    #renderNestedSelector(finalSelector: CssFinalSelector, nestedRules: CssFinalStyleMap|null): void {
+    private renderNestedSelector(finalSelector: CssFinalSelector, nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
         
         
@@ -235,19 +235,19 @@ class RenderRule {
         this.rendered += finalSelector;
         this.rendered += ' {';
         {
-            this.#renderNestedRules(null, nestedRules);
+            this.renderNestedRules(null, nestedRules);
         }
         this.rendered += '\n}\n';
         //#endregion render complete .selector { style }
     }
-    #renderStyle(finalStyle: CssFinalStyleMap|null): void {
-        this.#renderFallbacksRules(finalStyle);
+    private renderStyle(finalStyle: CssFinalStyleMap|null): void {
+        this.renderFallbacksRules(finalStyle);
         
         
         
         if (!finalStyle) return;
         for (const propName of finalStyle.propKeys) {
-            this.#renderProp(
+            this.renderProp(
                 propName,
                 (finalStyle as CssPropsMap).get(propName as any) as CssCustomValue|undefined|null
             );
@@ -255,20 +255,20 @@ class RenderRule {
         
         
         
-        this.#renderPropRules(finalStyle);
+        this.renderPropRules(finalStyle);
     }
     
-    #renderFallbacksRules(nestedRules: CssFinalStyleMap|null): void {
+    private renderFallbacksRules(nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
         for (const [finalSelector, finalStyle] of nestedRules.rules.slice(0).reverse()) { // reverse the @fallbacks order
             if (finalSelector !== '@fallbacks') continue; // only interested in @fallbacks
             
             
             
-            this.#renderStyle(finalStyle);
+            this.renderStyle(finalStyle);
         } // for
     }
-    #renderPropRules(nestedRules: CssFinalStyleMap|null): void {
+    private renderPropRules(nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
         for (const [finalSelector, finalStyle] of nestedRules.rules) {
             if (finalSelector[0] !== ' ') continue; // only interested in PropRule
@@ -278,11 +278,11 @@ class RenderRule {
             this.rendered += (new RenderRule(
                 finalSelector.slice(1), // remove PropRule token (single prefix space)
                 finalStyle,
-                this.#options
+                this.options
             )).rendered;
         } // for
     }
-    #renderNestedRules(finalParentSelector: CssFinalSelector|null, nestedRules: CssFinalStyleMap|null): void {
+    private renderNestedRules(finalParentSelector: CssFinalSelector|null, nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
         for (const [finalSelector, finalStyle] of nestedRules.rules) {
             if (finalSelector[0] === ' ')       continue; // skip PropRule
@@ -291,7 +291,7 @@ class RenderRule {
             
             
             if (finalSelector === '@global') { // special @global rule
-                this.rendered += (new RenderRule(null, finalStyle, this.#options)).rendered;
+                this.rendered += (new RenderRule(null, finalStyle, this.options)).rendered;
             }
             else if (isNestedAtRule(finalSelector)) {
                 /*
@@ -347,12 +347,12 @@ class RenderRule {
                     // top_level at rule with nestedRules
                     
                     // this.rendered += (new RenderRule(finalSelector, finalStyle)).rendered; doesn't work, the nested will automatically unnested
-                    this.#renderNestedSelector(finalSelector, finalStyle);
+                    this.renderNestedSelector(finalSelector, finalStyle);
                 }
                 else {
                     // top_level at rule with nestedRules
                     
-                    this.#renderNestedSelector(finalSelector,
+                    this.renderNestedSelector(finalSelector,
                         //#region wrap the style with a duplicated parentRule selector
                         new CssStyleMapImpl([
                             [Symbol(), [
@@ -367,7 +367,7 @@ class RenderRule {
             else if (finalSelector[0] === '@') {
                 // top_level at rule  , eg: @keyframes, @font-face
                 
-                this.rendered += (new RenderRule(finalSelector, finalStyle, this.#options)).rendered;
+                this.rendered += (new RenderRule(finalSelector, finalStyle, this.options)).rendered;
             }
             else {
                 // nested rule, eg: &.boo, &>:foo, .bleh>&>.feh
@@ -378,7 +378,7 @@ class RenderRule {
                     finalSelector
                 ) ?? finalSelector;
                 
-                this.rendered += (new RenderRule(combinedSelector, finalStyle, this.#options)).rendered;
+                this.rendered += (new RenderRule(combinedSelector, finalStyle, this.options)).rendered;
             } // if
         } // for
     }
@@ -388,7 +388,7 @@ class RenderRule {
     
     constructor(finalSelector: CssFinalSelector|null, finalStyle: CssFinalStyleMap|null, options: RenderRuleOptions|undefined) {
         // configs:
-        this.#options = options;
+        this.options = options;
         
         
         
@@ -399,8 +399,8 @@ class RenderRule {
         
         // render:
         if ((finalSelector !== null) || (finalStyle !== null)) {
-            this.#renderSelector(finalSelector, finalStyle);
-            this.#renderNestedRules(finalSelector, finalStyle);
+            this.renderSelector(finalSelector, finalStyle);
+            this.renderNestedRules(finalSelector, finalStyle);
         } // if
     }
 }
