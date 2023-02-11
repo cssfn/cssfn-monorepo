@@ -392,7 +392,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             
             
             // comparing the `srcPropValue` & `refPropValue` deeply:
-            if (this.isDeepEqual(srcPropValue, refPropValue)) return this._createRef(refPropName); // return the link to the ref
+            if (this.isDeepEqual(srcPropValue, refPropValue)) return this.createRef(refPropName); // return the link to the ref
         } // search for duplicates
         
         // not found:
@@ -432,7 +432,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param propName The prop name to create.
      * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
      */
-    protected _createDecl(propName: string): CssCustomName {
+    protected createDecl(propName: string): CssCustomName {
         if (!this.options) return propName as CssCustomName;
         return createDecl(propName, this.options);
     }
@@ -442,17 +442,17 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param propName The prop name to create.
      * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName`.
      */
-    protected _createRef(propName: string): CssCustomSimpleRef {
+    protected createRef(propName: string): CssCustomSimpleRef {
         if (!this.options) return `var(${propName})` as CssCustomSimpleRef;
         return createRef(propName, this.options);
     }
     //#endregion protected utility methods
     
     //#region virtual methods
-    protected _onCreatePropName<TTSrcPropName extends TSrcPropName|symbol>(srcPropName: TTSrcPropName): TTSrcPropName {
+    protected onCreatePropName<TTSrcPropName extends TSrcPropName|symbol>(srcPropName: TTSrcPropName): TTSrcPropName {
         return srcPropName; // the default behavior is preserve the original prop name
     }
-    protected _onCombineModified(srcProps: Map<TSrcPropName, TSrcPropValue>, modified: (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap)): (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap) {
+    protected onCombineModified(srcProps: Map<TSrcPropName, TSrcPropValue>, modified: (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap)): (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap) {
         // clone the entire srcProps:
         const combined = new Map(srcProps) as (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap);
         
@@ -529,7 +529,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 */
                 // // store the modified `newKeyframesName`:
                 // modified.set(
-                //     this._onCreatePropName(srcPropName),
+                //     this.onCreatePropName(srcPropName),
                 //     [`@keyframes ${newKeyframesName}`, styles]
                 // );
             }  // rename all @keyframes name
@@ -566,7 +566,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                     if (equalNestedStyle) {
                         // store the modified `srcNestedStyle`:
                         modified.set(
-                            this._onCreatePropName(srcPropName),
+                            this.onCreatePropName(srcPropName),
                             [selector, equalNestedStyle]
                         );
                     } // if
@@ -594,7 +594,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             if (equalPropRef) {
                 // store the modified `srcPropValue`:
                 modified.set(
-                    this._onCreatePropName(srcPropName),
+                    this.onCreatePropName(srcPropName),
                     equalPropRef
                 );
                 
@@ -623,7 +623,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 if (equalNestedValues) {
                     // store the modified `srcPropValue`:
                     modified.set(
-                        this._onCreatePropName(srcPropName),
+                        this.onCreatePropName(srcPropName),
                         equalNestedValues
                     );
                     
@@ -636,7 +636,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             
             
             //#region handle no value change
-            const srcPropRenamed = this._onCreatePropName(srcPropName);
+            const srcPropRenamed = this.onCreatePropName(srcPropName);
             if (srcPropRenamed !== srcPropName) {
                 // The `srcPropValue` was not modified but the `srcPropName` needs to be renamed:
                 modified.set(
@@ -651,7 +651,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         if (modified.size) {
             // if the `modified` is not empty (has any modifications) => return the (original + modified):
-            this.result = this._onCombineModified(this.srcProps, modified);
+            this.result = this.onCombineModified(this.srcProps, modified);
         }
         else {
             this.result = null; // `null` means no modification was performed
@@ -680,11 +680,11 @@ class TransformCssConfigFactoryDuplicatesBuilder<TConfigProps extends CssConfigP
     extends TransformDuplicatesBuilder<keyof TConfigProps, ValueOf<TConfigProps>, keyof TConfigProps, ValueOf<TConfigProps>>
 {
     //#region overrides
-    protected _onCreatePropName<TTSrcPropName extends keyof TConfigProps|symbol>(srcPropName: TTSrcPropName): TTSrcPropName {
+    protected onCreatePropName<TTSrcPropName extends keyof TConfigProps|symbol>(srcPropName: TTSrcPropName): TTSrcPropName {
         if (typeof(srcPropName) !== 'string') return srcPropName; // no change for symbol props
-        return this._createDecl(srcPropName) as CssCustomName as TTSrcPropName;
+        return this.createDecl(srcPropName) as CssCustomName as TTSrcPropName;
     }
-    protected _onCombineModified(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, modified: (Map<keyof TConfigProps, Exclude<ValueOf<TConfigProps>, undefined|null>|CssCustomValue> & CssRuleMap)) {
+    protected onCombineModified(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, modified: (Map<keyof TConfigProps, Exclude<ValueOf<TConfigProps>, undefined|null>|CssCustomValue> & CssRuleMap)) {
         // clone all symbol props from srcProps:
         const combined = new Map() as (Map<keyof TConfigProps, Exclude<ValueOf<TConfigProps>, undefined|null>|CssCustomValue> & CssRuleMap);
         for (const propName of srcProps.keys()) {
