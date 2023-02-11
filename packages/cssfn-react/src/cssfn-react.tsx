@@ -243,21 +243,21 @@ export interface DynamicStyleSheetOptions extends StyleSheetOptions {
 export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName> extends StyleSheet<TCssScopeName> {
     //#region private properties
     // configs:
-    readonly    #options                   : DynamicStyleSheetOptions
+    private readonly    options2                  : DynamicStyleSheetOptions
     
     
     
     // states:
-    readonly    #scopesFactory             : StyleSheetsFactory<TCssScopeName>
-    /*mutable*/ #scopesActivated           : boolean
+    private readonly    scopesFactory2            : StyleSheetsFactory<TCssScopeName>
+    private /*mutable*/ scopesActivated2          : boolean
     
-    /*mutable*/ #cancelDisable             : ReturnType<typeof setTimeout>|undefined
-    /*mutable*/ #registeredUsingStyleSheet : number
+    private /*mutable*/ cancelDisable             : ReturnType<typeof setTimeout>|undefined
+    private /*mutable*/ registeredUsingStyleSheet : number
     
     
     
     // css classes:
-    readonly    #dynamicStyleSheet         : Subject<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
+    private readonly    dynamicStyleSheet         : Subject<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
     //#endregion private properties
     
     
@@ -275,23 +275,23 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
         
         
         // init base:
-        const dynamicStyleSheet         = new Subject<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>();
+        const dynamicStyleSheet        = new Subject<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>();
         super(dynamicStyleSheet, updatedCallback, styleSheetOptions);
-        this.#options                   = styleSheetOptions;
+        this.options2                  = styleSheetOptions;
         
         
         
         // states:
-        this.#scopesFactory             = scopesFactory;
-        this.#scopesActivated           = false;
+        this.scopesFactory2            = scopesFactory;
+        this.scopesActivated2          = false;
         
-        this.#cancelDisable             = undefined;
-        this.#registeredUsingStyleSheet = 0; // initially no user using this styleSheet
+        this.cancelDisable             = undefined;
+        this.registeredUsingStyleSheet = 0; // initially no user using this styleSheet
         
         
         
         // css classes:
-        this.#dynamicStyleSheet         = dynamicStyleSheet;
+        this.dynamicStyleSheet         = dynamicStyleSheet;
         
         
         
@@ -318,13 +318,13 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
     //#region protected methods
     protected activateDynamicScopesIfNeeded(): void {
         // conditions:
-        if (this.#scopesActivated) return; // stop execution if already activated
+        if (this.scopesActivated2) return; // stop execution if already activated
         
         
         
         // activation:
         // activate (call the callback function -- if the given scopesFactory is a function):
-        const scopesValue = (typeof(this.#scopesFactory) !== 'function') ? this.#scopesFactory : this.#scopesFactory();
+        const scopesValue = (typeof(this.scopesFactory2) !== 'function') ? this.scopesFactory2 : this.scopesFactory2();
         
         
         
@@ -335,7 +335,7 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
                 don't twice, three times, so on.
                 Except: an error occured during activation. Eg: a network error during dynamic import().
             */
-            this.#scopesActivated = true;
+            this.scopesActivated2 = true;
             
             
             
@@ -348,7 +348,7 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
                     don't twice, three times, so on.
                     Except: an error occured during activation. Eg: a network error during dynamic import().
                 */
-                this.#scopesActivated = true;
+                this.scopesActivated2 = true;
                 
                 
                 
@@ -358,13 +358,13 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
     }
     protected forwardScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
         if (!isObservableScopes(scopes)) { // scopes is MaybeFactory<CssScopeList<TCssScopeName>|null>
-            this.#dynamicStyleSheet.next(
+            this.dynamicStyleSheet.next(
                 scopes // forward once
             );
         } // if
         else { // scopes is Observable<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
             scopes.subscribe((newScopesOrEnabled) => {
-                this.#dynamicStyleSheet.next(
+                this.dynamicStyleSheet.next(
                     newScopesOrEnabled // live forward
                 );
             });
@@ -375,50 +375,50 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
     
     protected cancelDelayedDisableStyleSheet() {
         // conditions:
-        if (!this.#cancelDisable) return; // nothing to cancel => ignore
+        if (!this.cancelDisable) return; // nothing to cancel => ignore
         
         
         
         // actions:
-        clearTimeout(this.#cancelDisable);
-        this.#cancelDisable = undefined;
+        clearTimeout(this.cancelDisable);
+        this.cancelDisable = undefined;
     }
     
     protected registerUsingStyleSheet() {
-        this.#registeredUsingStyleSheet++; // increase the counter
+        this.registeredUsingStyleSheet++; // increase the counter
         
-        if (this.#registeredUsingStyleSheet === 1) { // at the moment of the first user => enabling the styleSheet
+        if (this.registeredUsingStyleSheet === 1) { // at the moment of the first user => enabling the styleSheet
             // cancel previously delayed disable styleSheet (if any):
             this.cancelDelayedDisableStyleSheet();
             
             
             
-            this.#dynamicStyleSheet.next(true); // the first user => enable styleSheet
+            this.dynamicStyleSheet.next(true); // the first user => enable styleSheet
         } // if
     }
     protected unregisterUsingStyleSheet() {
-        this.#registeredUsingStyleSheet--; // decrease the counter
+        this.registeredUsingStyleSheet--; // decrease the counter
         
-        if (this.#registeredUsingStyleSheet === 0) { // at the moment of no user => disabling the styleSheet
+        if (this.registeredUsingStyleSheet === 0) { // at the moment of no user => disabling the styleSheet
             // cancel previously delayed disable styleSheet (if any):
             this.cancelDelayedDisableStyleSheet();
             
             
             
-            const disableDelay = this.#options.disableDelay ?? 0;
+            const disableDelay = this.options2.disableDelay ?? 0;
             if (disableDelay <= 0) {
                 // immediately disable styleSheet:
-                this.#dynamicStyleSheet.next(false); // no user => disable styleSheet
+                this.dynamicStyleSheet.next(false); // no user => disable styleSheet
             }
             else {
                 // delayed disable styleSheet:
-                this.#cancelDisable = setTimeout(() => {
-                    this.#cancelDisable = undefined; // mark as was performed
+                this.cancelDisable = setTimeout(() => {
+                    this.cancelDisable = undefined; // mark as was performed
                     
                     
                     
                     // perform disable styleSheet:
-                    this.#dynamicStyleSheet.next(false); // no user => disable styleSheet
+                    this.dynamicStyleSheet.next(false); // no user => disable styleSheet
                 }, disableDelay);
             } // if
         } // if

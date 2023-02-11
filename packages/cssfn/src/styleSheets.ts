@@ -101,20 +101,20 @@ export type StyleSheetUpdatedCallback<in TCssScopeName extends CssScopeName> = (
 export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implements Required<StyleSheetOptions> {
     //#region private properties
     // configs:
-    readonly    #options         : Required<StyleSheetOptions>
-    readonly    #updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>
+    private readonly    options         : Required<StyleSheetOptions>
+    private readonly    updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>
     
     
     
     // states:
-    readonly    #scopesFactory   : StyleSheetsFactory<TCssScopeName>
-    /*mutable*/ #scopesActivated : boolean
-    /*mutable*/ #scopesLive      : MaybeFactory<CssScopeList<TCssScopeName>|null>
+    private readonly    scopesFactory   : StyleSheetsFactory<TCssScopeName>
+    private /*mutable*/ scopesActivated : boolean
+    private /*mutable*/ scopesLive      : MaybeFactory<CssScopeList<TCssScopeName>|null>
     
     
     
     // css classes:
-    readonly    #classes         : CssScopeMap<TCssScopeName>
+    private readonly    _classes        : CssScopeMap<TCssScopeName>
     //#endregion private properties
     
     
@@ -131,21 +131,21 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
             ssr     : options?.ssr     ?? defaultStyleSheetOptions.ssr,
             lazyCsr : options?.lazyCsr ?? defaultStyleSheetOptions.lazyCsr,
         };
-        this.#options         = styleSheetOptions;
-        this.#updatedCallback = updatedCallback;
+        this.options         = styleSheetOptions;
+        this.updatedCallback = updatedCallback;
         
         
         
         // states:
-        this.#scopesFactory   = scopesFactory;
-        this.#scopesActivated = false;
-        this.#scopesLive      = null;
+        this.scopesFactory   = scopesFactory;
+        this.scopesActivated = false;
+        this.scopesLive      = null;
         
         
         
         // css classes:
         const scopeMap = {} as CssScopeMap<TCssScopeName>;
-        this.#classes  = new Proxy<CssScopeMap<TCssScopeName>>(scopeMap, {
+        this._classes  = new Proxy<CssScopeMap<TCssScopeName>>(scopeMap, {
             get(scopeMap: CssScopeMap<TCssScopeName>, scopeName: TCssScopeName|symbol): CssClassName|undefined {
                 // ignores symbol & number props:
                 if (typeof(scopeName) !== 'string') return undefined;
@@ -193,13 +193,13 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     //#region protected methods
     protected activateScopesIfNeeded(): void {
         // conditions:
-        if (this.#scopesActivated) return; // stop execution if already activated
+        if (this.scopesActivated) return; // stop execution if already activated
         
         
         
         // activation:
         // activate (call the callback function -- if the given scopesFactory is a function):
-        const scopesValue = (typeof(this.#scopesFactory) !== 'function') ? this.#scopesFactory : this.#scopesFactory();
+        const scopesValue = (typeof(this.scopesFactory) !== 'function') ? this.scopesFactory : this.scopesFactory();
         
         
         
@@ -210,7 +210,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
                 don't twice, three times, so on.
                 Except: an error occured during activation. Eg: a network error during dynamic import().
             */
-            this.#scopesActivated = true;
+            this.scopesActivated = true;
             
             
             
@@ -223,7 +223,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
                     don't twice, three times, so on.
                     Except: an error occured during activation. Eg: a network error during dynamic import().
                 */
-                this.#scopesActivated = true;
+                this.scopesActivated = true;
                 
                 
                 
@@ -233,7 +233,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     }
     protected updateScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
         if (!isObservableScopes(scopes)) { // scopes is MaybeFactory<CssScopeList<TCssScopeName>|null>
-            this.#scopesLive = scopes; // update once
+            this.scopesLive = scopes; // update once
         }
         else { // scopes is Observable<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
             let subsequentUpdate = false;
@@ -241,17 +241,17 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
                 if (typeof(newScopesOrEnabled) === 'boolean') { // newScopesOrEnabled is boolean
                     // update prop `enabled`:
                     
-                    if (this.#options.enabled === newScopesOrEnabled) return; // no change => no need to update
+                    if (this.options.enabled === newScopesOrEnabled) return; // no change => no need to update
                     
-                    this.#options.enabled = newScopesOrEnabled; // update
+                    this.options.enabled = newScopesOrEnabled; // update
                 }
                 else { // newScopesOrEnabled is MaybeFactory<CssScopeList<TCssScopeName>|null>
                     // update prop `scopes`:
                     
-                    if ((this.#scopesLive === null) && (newScopesOrEnabled === null)) return; // still null => no change => no need to update
+                    if ((this.scopesLive === null) && (newScopesOrEnabled === null)) return; // still null => no change => no need to update
                     // CssScopeList is always treated as unique object even though it's equal by ref, no deep comparison for performance reason
                     
-                    this.#scopesLive = newScopesOrEnabled; // live update
+                    this.scopesLive = newScopesOrEnabled; // live update
                 } // if
                 
                 
@@ -266,7 +266,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     }
     
     protected notifyUpdated(): void {
-        this.#updatedCallback(this); // notify a StyleSheet updated
+        this.updatedCallback(this); // notify a StyleSheet updated
     }
     //#endregion protected methods
     
@@ -274,28 +274,28 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     
     //#region public properties
     get enabled() {
-        return this.#options.enabled;
+        return this.options.enabled;
     }
     
     get id() {
-        return this.#options.id;
+        return this.options.id;
     }
     
     get ssr() {
-        return this.#options.ssr;
+        return this.options.ssr;
     }
     
     get lazyCsr() {
-        return this.#options.lazyCsr;
+        return this.options.lazyCsr;
     }
     
     get scopes() {
         this.activateScopesIfNeeded();
-        return this.#scopesLive;
+        return this.scopesLive;
     }
     
     get classes() {
-        return this.#classes;
+        return this._classes;
     }
     //#endregion public properties
 }
@@ -304,16 +304,16 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
 
 class StyleSheetRegistry {
     //#region private properties
-    #styleSheets : StyleSheet<CssScopeName>[]
-    #subscribers : Subject<StyleSheet<CssScopeName>>
+    private styleSheets : StyleSheet<CssScopeName>[]
+    private subscribers : Subject<StyleSheet<CssScopeName>>
     //#endregion private properties
     
     
     
     //#region constructors
     constructor() {
-        this.#styleSheets = [];
-        this.#subscribers = new Subject<StyleSheet<CssScopeName>>();
+        this.styleSheets = [];
+        this.subscribers = new Subject<StyleSheet<CssScopeName>>();
     }
     //#endregion constructors
     
@@ -330,12 +330,12 @@ class StyleSheetRegistry {
         
         
         
-        this.#styleSheets.push(newStyleSheet);     // register to collection
+        this.styleSheets.push(newStyleSheet);     // register to collection
         
         
         
-        if (newStyleSheet.enabled) {               // skip disabled styleSheet
-            this.#subscribers.next(newStyleSheet); // notify a StyleSheet added
+        if (newStyleSheet.enabled) {              // skip disabled styleSheet
+            this.subscribers.next(newStyleSheet); // notify a StyleSheet added
         } // if
         
         
@@ -345,7 +345,7 @@ class StyleSheetRegistry {
     
     subscribe(subscriber: (styleSheet: StyleSheet<CssScopeName>) => void) {
         //#region notify previously registered StyleSheet(s)
-        const styleSheets = this.#styleSheets;
+        const styleSheets = this.styleSheets;
         for (let i = 0; i < styleSheets.length; i++) {
             const styleSheet = styleSheets[i];
             if (!styleSheet.enabled) continue;     // skip disabled styleSheet
@@ -354,7 +354,7 @@ class StyleSheetRegistry {
         } // for
         //#endregion notify previously registered StyleSheet(s)
         
-        return this.#subscribers.subscribe(subscriber); // listen for future updates
+        return this.subscribers.subscribe(subscriber); // listen for future updates
     }
     //#endregion public methods
     
@@ -362,7 +362,7 @@ class StyleSheetRegistry {
     
     //#region public callbacks
     handleStyleSheetUpdated = (styleSheet: StyleSheet<CssScopeName>): void => {
-        this.#subscribers.next(styleSheet); // notify a StyleSheet updated
+        this.subscribers.next(styleSheet); // notify a StyleSheet updated
     }
     //#endregion public callbacks
 }
