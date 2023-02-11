@@ -142,7 +142,7 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
         
         const prevPrefix = this.#prefix;
         this.#prefix = value; // update
-        this.#update(prevPrefix); // notify a css-config updated
+        this.update(prevPrefix); // notify a css-config updated
     }
     
     get selector() {
@@ -153,7 +153,7 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
         if (this.#selector === value) return; // no change => no need to update
         
         this.#selector = value; // update
-        this.#update(); // notify a css-config updated
+        this.update(); // notify a css-config updated
     }
     
     /**
@@ -167,7 +167,7 @@ class LiveCssConfigOptions implements Required<CssConfigOptions> {
     
     
     //#region private methods
-    #update(prevPrefix?: string) {
+    private update(prevPrefix?: string) {
         this.#updatedCallback(prevPrefix ?? this.prefix); // notify a css-config updated
     }
     //#endregion private methods
@@ -238,17 +238,14 @@ function selectObjectEntryFromRuleKey<TConfigProps extends CssConfigProps>(this:
 
 class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrcPropValue extends CssCustomValue|CssRuleData|CssFinalRuleData|undefined|null,   TRefPropName extends string|number|symbol, TRefPropValue extends CssCustomValue|CssRuleData|CssFinalRuleData|undefined|null> {
     //#region private properties
-    readonly #srcProps     : Map<TSrcPropName, TSrcPropValue>
-    readonly #refProps     : Map<TRefPropName, TRefPropValue>
-    readonly #genKeyframes : Map<string, string>|undefined
-    readonly #options      : LiveCssConfigOptions|undefined
+    private readonly srcProps     : Map<TSrcPropName, TSrcPropValue>
+    private readonly refProps     : Map<TRefPropName, TRefPropValue>
+    private readonly genKeyframes : Map<string, string>|undefined
+    private readonly options      : LiveCssConfigOptions|undefined
     //#endregion private properties
     
     //#region public properties
-    readonly #result       : (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap) | null
-    get result() {
-        return this.#result;
-    }
+    public readonly result        : (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap) | null
     //#endregion public properties
     
     
@@ -259,9 +256,9 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param basicKeyframesName The basic name of `@keyframes` rule to create.
      * @returns A `string` represents the name of `@keyframes` rule.
      */
-    #createKeyframesName(basicKeyframesName: string): string {
+    private createKeyframesName(basicKeyframesName: string): string {
         // add prefix `prefix-` or just a `basicKeyframesName`
-        return this.#options?.prefix ? `${this.#options.prefix}-${basicKeyframesName}` : basicKeyframesName;
+        return this.options?.prefix ? `${this.options.prefix}-${basicKeyframesName}` : basicKeyframesName;
     }
     
     /**
@@ -269,7 +266,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param value The value to test.
      * @returns `true` if the `value` is not nullish, otherwise `false`.
      */
-    #hasValue<TValue>(value: TValue): value is Exclude<TValue, undefined|null> {
+    private hasValue<TValue>(value: TValue): value is Exclude<TValue, undefined|null> {
         return (value !== undefined) && (value !== null);
     }
     
@@ -278,7 +275,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param srcPropValue The value to test.
      * @returns `true` indicates it's transformable, otherwise `false`.
      */
-    #isTransformableProp(srcPropValue: Exclude<TSrcPropValue, undefined|null>): boolean {
+    private isTransformableProp(srcPropValue: Exclude<TSrcPropValue, undefined|null>): boolean {
         if ((typeof(srcPropValue) === 'string')) {
             switch(srcPropValue) {
                 // ignore global keywords:
@@ -297,12 +294,12 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     
     /**
      * Determines if the specified `srcPropName` and `refPropName` are pointed to the same object.
-     * @param srcPropName The prop name of `#srcProps`.
-     * @param refPropName The prop name of `#refProps`.
+     * @param srcPropName The prop name of `srcProps`.
+     * @param refPropName The prop name of `refProps`.
      * @returns `true` indicates the same object, otherwise `false`.
      */
-    #isSelfProp(srcPropName: TSrcPropName, refPropName: TRefPropName): boolean {
-        if (!Object.is(this.#srcProps, this.#refProps)) return false; // if `#srcProps` and `#refProps` are not the same object in memory => always return `false`
+    private isSelfProp(srcPropName: TSrcPropName, refPropName: TRefPropName): boolean {
+        if (!Object.is(this.srcProps, this.refProps)) return false; // if `srcProps` and `refProps` are not the same object in memory => always return `false`
         
         return ((srcPropName as string|number|symbol) === (refPropName as string|number|symbol));
     }
@@ -313,7 +310,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @param refPropValue The second value to test.
      * @returns `true` if both are equal, otherwise `false`.
      */
-    #isDeepEqual(srcPropValue: Exclude<TSrcPropValue, undefined|null>, refPropValue: Exclude<TRefPropValue, undefined|null>): boolean {
+    private isDeepEqual(srcPropValue: Exclude<TSrcPropValue, undefined|null>, refPropValue: Exclude<TRefPropValue, undefined|null>): boolean {
         // shallow equal comparison:
         if (Object.is(srcPropValue, refPropValue)) return true;
         
@@ -351,12 +348,12 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             if (!(deepPropName in refPropValue)) return false;
             const refNestedValue = refPropValue[deepPropName as Extract<keyof Exclude<TRefPropValue, undefined|null>, string>];
             
-            if (!this.#hasValue(srcNestedValue) || !this.#hasValue(refNestedValue)) {
+            if (!this.hasValue(srcNestedValue) || !this.hasValue(refNestedValue)) {
                 if (!Object.is(srcNestedValue, refNestedValue)) return false; // the same prop name with different prop value => false
                 continue; // continue to next check loop
             } // if
             
-            if (!this.#isDeepEqual(srcNestedValue as any, refNestedValue as any)) return false; // the same prop name with different prop value => false
+            if (!this.isDeepEqual(srcNestedValue as any, refNestedValue as any)) return false; // the same prop name with different prop value => false
         } // for
         
         
@@ -367,16 +364,16 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     }
     
     /**
-     * Determines if the specified entry [`srcPropName`, `srcPropValue`] has the equivalent entry in `#refProps`.
-     * @param srcPropName  The prop name of `#srcProps`.
-     * @param srcPropValue The prop value of `#srcProps`.
-     * @returns A `CssCustomSimpleRef` represents the link to the equivalent entry in `#refProps`.  
+     * Determines if the specified entry [`srcPropName`, `srcPropValue`] has the equivalent entry in `refProps`.
+     * @param srcPropName  The prop name of `srcProps`.
+     * @param srcPropValue The prop value of `srcProps`.
+     * @returns A `CssCustomSimpleRef` represents the link to the equivalent entry in `refProps`.  
      * -or- `null` if no equivalent found.
      */
-    #findEqualProp(srcPropName: TSrcPropName, srcPropValue: Exclude<TSrcPropValue, undefined|null>): CssCustomSimpleRef|null {
-        // for (const [refPropName, refPropValue] of this.#refProps) { // search for duplicates // SLOW
-        for (const refPropName of this.#refProps.keys()) {             // search for duplicates // FASTER
-            const refPropValue = this.#refProps.get(refPropName);
+    private findEqualProp(srcPropName: TSrcPropName, srcPropValue: Exclude<TSrcPropValue, undefined|null>): CssCustomSimpleRef|null {
+        // for (const [refPropName, refPropValue] of this.refProps) { // search for duplicates // SLOW
+        for (const refPropName of this.refProps.keys()) {             // search for duplicates // FASTER
+            const refPropValue = this.refProps.get(refPropName);
             
             
             
@@ -384,18 +381,18 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             if (typeof(refPropName) !== 'string') continue; // symbol & number props are ignored
             
             // skip empty ref:
-            if (!this.#hasValue(refPropValue)) continue; // undefined & null values are ignored
+            if (!this.hasValue(refPropValue)) continue; // undefined & null values are ignored
             
             // stop search if reaches current entry (search for prev entries only):
-            if (this.#isSelfProp(srcPropName, refPropName)) break;
+            if (this.isSelfProp(srcPropName, refPropName)) break;
             
             // skip non transformable prop:
-            if (!this.#isTransformableProp(srcPropValue)) continue;
+            if (!this.isTransformableProp(srcPropValue)) continue;
             
             
             
             // comparing the `srcPropValue` & `refPropValue` deeply:
-            if (this.#isDeepEqual(srcPropValue, refPropValue)) return this._createRef(refPropName); // return the link to the ref
+            if (this.isDeepEqual(srcPropValue, refPropValue)) return this._createRef(refPropName); // return the link to the ref
         } // search for duplicates
         
         // not found:
@@ -404,11 +401,11 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
     
     /**
      * Re-link the existing `@keyframes` reference (if found) to the modified `@keyframes`.
-     * @param srcPropValue The prop value of `#srcProps`.
+     * @param srcPropValue The prop value of `srcProps`.
      * @returns `true` if found and updated, otherwise `false`.
      */
-    #updateKeyframesRef(srcPropValue: TSrcPropValue): boolean {
-        const genKeyframes = this.#genKeyframes;
+    private updateKeyframesRef(srcPropValue: TSrcPropValue): boolean {
+        const genKeyframes = this.genKeyframes;
         if (!genKeyframes || !genKeyframes.size) return false; // nothing to update
         
         
@@ -436,8 +433,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
      */
     protected _createDecl(propName: string): CssCustomName {
-        if (!this.#options) return propName as CssCustomName;
-        return createDecl(propName, this.#options);
+        if (!this.options) return propName as CssCustomName;
+        return createDecl(propName, this.options);
     }
     
     /**
@@ -446,8 +443,8 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName`.
      */
     protected _createRef(propName: string): CssCustomSimpleRef {
-        if (!this.#options) return `var(${propName})` as CssCustomSimpleRef;
-        return createRef(propName, this.#options);
+        if (!this.options) return `var(${propName})` as CssCustomSimpleRef;
+        return createRef(propName, this.options);
     }
     //#endregion protected utility methods
     
@@ -456,7 +453,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         return srcPropName; // the default behavior is preserve the original prop name
     }
     protected _onCombineModified(srcProps: Map<TSrcPropName, TSrcPropValue>, modified: (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap)): (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap) {
-        // clone the entire #srcProps:
+        // clone the entire srcProps:
         const combined = new Map(srcProps) as (Map<TSrcPropName, Exclude<TSrcPropValue, undefined|null>|CssCustomValue> & CssRuleMap);
         
         // then update the changes:
@@ -486,10 +483,10 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
      */
     constructor(srcProps: Map<TSrcPropName, TSrcPropValue>, refProps: Map<TRefPropName, TRefPropValue>, genKeyframes: Map<string, string>|undefined, options: LiveCssConfigOptions|undefined) {
         if (!options?.prefix) genKeyframes = undefined; // no prefix modifier => no need to mutate the @keyframes names
-        this.#srcProps     = srcProps;
-        this.#refProps     = refProps;
-        this.#genKeyframes = genKeyframes;
-        this.#options      = options;
+        this.srcProps     = srcProps;
+        this.refProps     = refProps;
+        this.genKeyframes = genKeyframes;
+        this.options      = options;
         
         
         
@@ -498,9 +495,9 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         if (genKeyframes) {
-            // for (const [srcPropName, srcPropValue] of this.#srcProps) {       // rename all @keyframes name // SLOW
-            for (const srcPropName of this.#srcProps.keys()) {                   // rename all @keyframes name // FASTER
-                const srcPropValue = this.#srcProps.get(srcPropName);
+            // for (const [srcPropName, srcPropValue] of this.srcProps) {        // rename all @keyframes name // SLOW
+            for (const srcPropName of this.srcProps.keys()) {                    // rename all @keyframes name // FASTER
+                const srcPropValue = this.srcProps.get(srcPropName);
                 
                 
                 
@@ -511,9 +508,9 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 
                 
                 
-                const oldkeyframesName = selector.slice(11).trimStart();              // extract the name of @keyframes rule
-                const newKeyframesName = this.#createKeyframesName(oldkeyframesName); // rename the @keyframes rule
-                if (newKeyframesName === oldkeyframesName) continue;                  // no difference => skip
+                const oldkeyframesName = selector.slice(11).trimStart();             // extract the name of @keyframes rule
+                const newKeyframesName = this.createKeyframesName(oldkeyframesName); // rename the @keyframes rule
+                if (newKeyframesName === oldkeyframesName) continue;                 // no difference => skip
                 
                 
                 
@@ -540,17 +537,17 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
         
         
         
-        // for (const [srcPropName, srcPropValue] of this.#srcProps) { // walk each entry in `#srcProps` // SLOW
-        for (const srcPropName of this.#srcProps.keys()) {             // walk each entry in `#srcProps` // FASTER
-            const srcPropValue = this.#srcProps.get(srcPropName);
+        // for (const [srcPropName, srcPropValue] of this.srcProps) { // walk each entry in `srcProps` // SLOW
+        for (const srcPropName of this.srcProps.keys()) {             // walk each entry in `srcProps` // FASTER
+            const srcPropValue = this.srcProps.get(srcPropName);
             
             
             
             // skip empty src:
-            if (!this.#hasValue(srcPropValue)) continue; // undefined & null values are ignored
+            if (!this.hasValue(srcPropValue)) continue; // undefined & null values are ignored
             
             // skip !important modifier:
-            if ((typeof(srcPropName) === 'number') && (srcPropName >= 1) && (srcPropName === (this.#srcProps.size - 1)) && (srcPropValue === '!important')) continue;
+            if ((typeof(srcPropName) === 'number') && (srcPropName >= 1) && (srcPropName === (this.srcProps.size - 1)) && (srcPropValue === '!important')) continue;
             
             
             
@@ -586,14 +583,14 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
             
             //#region re-link the @keyframes name
             if (genKeyframes) {
-                if (this.#updateKeyframesRef(srcPropValue)) continue; // if found & updated => mission done => continue walk to the next entry
+                if (this.updateKeyframesRef(srcPropValue)) continue; // if found & updated => mission done => continue walk to the next entry
             } // if
             //#endregion re-link the @keyframes name
             
             
             
             //#region handle single_value
-            const equalPropRef = this.#findEqualProp(srcPropName, srcPropValue);
+            const equalPropRef = this.findEqualProp(srcPropName, srcPropValue);
             if (equalPropRef) {
                 // store the modified `srcPropValue`:
                 modified.set(
@@ -648,16 +645,16 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                 );
             } // if
             //#endregion handle no value change
-        } // walk each entry in `#srcProps`
+        } // walk each entry in `srcProps`
         
         
         
         if (modified.size) {
             // if the `modified` is not empty (has any modifications) => return the (original + modified):
-            this.#result = this._onCombineModified(this.#srcProps, modified);
+            this.result = this._onCombineModified(this.srcProps, modified);
         }
         else {
-            this.#result = null; // `null` means no modification was performed
+            this.result = null; // `null` means no modification was performed
         } // if
     }
 }
@@ -688,7 +685,7 @@ class TransformCssConfigFactoryDuplicatesBuilder<TConfigProps extends CssConfigP
         return this._createDecl(srcPropName) as CssCustomName as TTSrcPropName;
     }
     protected _onCombineModified(srcProps: Map<keyof TConfigProps, ValueOf<TConfigProps>>, modified: (Map<keyof TConfigProps, Exclude<ValueOf<TConfigProps>, undefined|null>|CssCustomValue> & CssRuleMap)) {
-        // clone all symbol props from #srcProps:
+        // clone all symbol props from srcProps:
         const combined = new Map() as (Map<keyof TConfigProps, Exclude<ValueOf<TConfigProps>, undefined|null>|CssCustomValue> & CssRuleMap);
         for (const propName of srcProps.keys()) {
             if (typeof(propName) !== 'symbol') continue; // ignores non symbol props
@@ -740,20 +737,20 @@ class TransformCssConfigDuplicatesBuilder
 
 class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     //#region private properties
-    readonly #propsFactory : MaybeFactory<TConfigProps>
+    private readonly propsFactory : MaybeFactory<TConfigProps>
     
     
     
     //#region data sources
-    #_propsMapSource : Map<keyof TConfigProps, ValueOf<TConfigProps>> | undefined = undefined
-    #_propsState     : CssConfigCustomPropsMap                        | undefined = undefined
+    private propsMapSource : Map<keyof TConfigProps, ValueOf<TConfigProps>> | undefined = undefined
+    private propsState     : CssConfigCustomPropsMap                        | undefined = undefined
     /**
      * A *generated css custom props* as the *source of truth*.  
      *   
      * Similar to `propsMap` but all keys has been prefixed and some values has been partially/fully *transformed*.  
      * The duplicate values has been replaced with a `var(...)` linked to the previously existing ones.  
      *   
-     * If mutated, the `#genProps` needs to `update()`.  
+     * If mutated, the `genProps` needs to `update()`.  
      *   
      * eg data:  
      * // origin:  
@@ -777,7 +774,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * };  
      *   
      * // transformed:  
-     * #props = {  
+     * props = {  
      *    --navb-colRed      : '#ff0000',  
      *    --navb-colBlue     : '#0000ff',  
      *    --navb-bdWidth     : '1px',  
@@ -796,11 +793,11 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      *    animation   : [[ '100ms', 'ease', 'navb-fly-away' ]],
      * };  
      */
-    get #props() : CssConfigCustomPropsMap {
-        //#region construct `#props` for the first time
-        if (!this.#_propsState) {
-            if (!this.#_propsMapSource) {
-                const propsFactory = this.#propsFactory;
+    private get props() : CssConfigCustomPropsMap {
+        //#region construct `props` for the first time
+        if (!this.propsState) {
+            if (!this.propsMapSource) {
+                const propsFactory = this.propsFactory;
                 const props : TConfigProps = (
                     (typeof(propsFactory) === 'function')
                     ?
@@ -812,7 +809,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
                 
                 
                 // convert props to propsMap:
-                this.#_propsMapSource = new Map<keyof TConfigProps, ValueOf<TConfigProps>>([
+                this.propsMapSource = new Map<keyof TConfigProps, ValueOf<TConfigProps>>([
                     ...Object.entries(props) as [keyof TConfigProps, ValueOf<TConfigProps>][],
                     ...Object.getOwnPropertySymbols(props).map(selectObjectEntryFromRuleKey, props) as [keyof TConfigProps, ValueOf<TConfigProps>][],
                 ]);
@@ -820,28 +817,28 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
             
             
             
-            // convert #_propsMapSource to cssCustomPropsMap:
+            // convert propsMapSource to cssCustomPropsMap:
             const cssCustomPropsMap : CssConfigCustomPropsMap = (
                 // if mutated (simplified):
-                (new TransformCssConfigFactoryDuplicatesBuilder<TConfigProps>(this.#_propsMapSource, this.#options)).props
+                (new TransformCssConfigFactoryDuplicatesBuilder<TConfigProps>(this.propsMapSource, this.options)).props
                 
                 ??
                 
                 // if no mutate required (as original):
-                this.#_propsMapSource as CssConfigCustomPropsMap
+                this.propsMapSource as CssConfigCustomPropsMap
             );
-            this.#_propsMapSource = undefined; // converted! => dispose the source
+            this.propsMapSource = undefined; // converted! => dispose the source
             
             
             
             // now the cssCustomPropsMap becomes a new *source of truth*:
-            this.#_propsState = cssCustomPropsMap;
+            this.propsState = cssCustomPropsMap;
         } // if
-        //#endregion construct `#props` for the first time
+        //#endregion construct `props` for the first time
         
         
         
-        return this.#_propsState;
+        return this.propsState;
     }
     //#endregion data sources
     
@@ -851,101 +848,97 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     /**
      * The *generated css custom props* as an editable_config_storage.  
      *   
-     * Similar to `#props` but some values has been partially/fully *transformed*.  
+     * Similar to `props` but some values has been partially/fully *transformed*.  
      * The duplicate values has been replaced with a `var(...)` linked to the previously existing ones.  
      */
-    #genProps = new Map() as CssConfigCustomPropsMap; // create a blank generated props collection
+    private genProps = new Map() as CssConfigCustomPropsMap; // create a blank generated props collection
     
     /**
      * The *generated css* attached on dom (by default).
      */
-    readonly #liveStyleSheet : Subject<CssStyle|null>;
+    private readonly liveStyleSheet : Subject<CssStyle|null>;
     //#endregion generated data
     //#endregion private properties
     
     //#region public properties
-    readonly #options : LiveCssConfigOptions
-    readonly #refs    : Refs<TConfigProps>
-    readonly #vals    : Vals<TConfigProps>
-    
-    get options() { return this.#options }
-    get refs()    { return this.#refs    }
-    get vals()    { return this.#vals    }
+    public readonly options : LiveCssConfigOptions
+    public readonly refs    : Refs<TConfigProps>
+    public readonly vals    : Vals<TConfigProps>
     //#endregion public properties
     
     
     
     //#region data builds
-    #rebuild() {
+    private rebuild() {
         //#region transform the `props`
-        this.#genProps = (
-            (new TransformCssConfigDuplicatesBuilder(this.#props)).props
+        this.genProps = (
+            (new TransformCssConfigDuplicatesBuilder(this.props)).props
             ??
-            this.#props
+            this.props
         );
         //#endregion transform the `props`
         
         
         
         // update styleSheet:
-        this.#liveStyleSheet.next({
+        this.liveStyleSheet.next({
             ...atGlobal({
-                ...rule(this.#options.selector, Object.fromEntries(this.#genProps) as unknown as (CssCustomProps & CssKeyframesRule)),
+                ...rule(this.options.selector, Object.fromEntries(this.genProps) as unknown as (CssCustomProps & CssKeyframesRule)),
             }),
         });
     }
     
     /**
-     * Holds the validity status of the `#genProps`.  
+     * Holds the validity status of the `genProps`.  
      * `false` is invalid or never built.  
      * `true`  is valid.
      */
-    #valid = false;
+    private valid = false;
     /**
-     * Regenerates the `#genProps`.
-     * @param immediately `true` to update immediately (guaranteed has fully updated after `#update()` returned) -or- `false` to update shortly after current execution finished.
+     * Regenerates the `genProps`.
+     * @param immediately `true` to update immediately (guaranteed has fully updated after `update()` returned) -or- `false` to update shortly after current execution finished.
      */
-    #update(immediately = false) {
+    private update(immediately = false) {
         if (immediately) {
             // regenerate the data right now:
             
-            this.#rebuild();
-            this.#valid = true; // mark the `#genProps` as valid
+            this.rebuild();
+            this.valid = true; // mark the `genProps` as valid
             
             // now the data is guaranteed regenerated.
         }
         else {
-            this.#scheduleUpdate();
+            this.scheduleUpdate();
         } // if
     }
-    #scheduleUpdateToken = 0;
-    #scheduleUpdate() {
-        this.#valid = false;         // mark the `#genProps` as invalid
+    private scheduleUpdateToken = 0;
+    private scheduleUpdate() {
+        this.valid = false;         // mark the `genProps` as invalid
         
-        const scheduleUpdateTokenLocal = (this.#scheduleUpdateToken === Number.MAX_SAFE_INTEGER) ? 0 : (++this.#scheduleUpdateToken);
-        this.#scheduleUpdateToken = scheduleUpdateTokenLocal;
-        Promise.resolve().then(() => { // runs the `#rebuild()` to the microTasks
-            if (this.#scheduleUpdateToken !== scheduleUpdateTokenLocal) return; // token changed => a newer `#scheduleUpdate()` call was made
+        const scheduleUpdateTokenLocal = (this.scheduleUpdateToken === Number.MAX_SAFE_INTEGER) ? 0 : (++this.scheduleUpdateToken);
+        this.scheduleUpdateToken = scheduleUpdateTokenLocal;
+        Promise.resolve().then(() => { // runs the `rebuild()` to the microTasks
+            if (this.scheduleUpdateToken !== scheduleUpdateTokenLocal) return; // token changed => a newer `scheduleUpdate()` call was made
             
-            if (this.#valid) return; // has been previously generated => abort
-            this.#rebuild();
-            this.#valid = true;      // mark the `#genProps` as valid
+            if (this.valid) return; // has been previously generated => abort
+            this.rebuild();
+            this.valid = true;      // mark the `genProps` as valid
         });
     }
     
     /**
-     * Ensures the `#genProps` was fully generated.
+     * Ensures the `genProps` was fully generated.
      */
-    #ensureGenerated() {
-        if (this.#valid) {
+    private ensureGenerated() {
+        if (this.valid) {
             // console.log('update not required');
             return; // if was valid => return immediately
         } // if
         
         
         
-        this.#update(/*immediately*/true); // regenerate the `#genProps` and wait until completed
-        // console.log(`update done - prefix: ${this.#options.prefix}`);
+        this.update(/*immediately*/true); // regenerate the `genProps` and wait until completed
+        // console.log(`update done - prefix: ${this.options.prefix}`);
     }
     //#endregion data builds
     
@@ -957,47 +950,47 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param propName The prop name to create.
      * @returns A `CssCustomName` represents the declaration name of the specified `propName`.
      */
-    #createDecl(propName: string): CssCustomName {
-        return createDecl(propName, this.#options);
+    private createDecl(propName: string): CssCustomName {
+        return createDecl(propName, this.options);
     }
     //#endregion private utility methods
     
     
     
     //#region proxy getters & setters
-    #_propRefsCache  = new Map<string, CssCustomSimpleRef|false>();
-    #_propNamesCache : WeakRef<string[]> | undefined = undefined;
+    private propRefsCache  = new Map<string, CssCustomSimpleRef|false>();
+    private propNamesCache : WeakRef<string[]> | undefined = undefined;
     
     /**
      * Gets the *value* (reference) of the specified `propName`, not the *direct* value, eg: `var(--my-favColor)`.
      * @param propName The prop name to retrieve.
      * @returns A `CssCustomSimpleRef` represents the expression for retrieving the value of the specified `propName` -or- `undefined` if it doesn't exist.
      */
-    #getRef(propName: string|symbol): CssCustomSimpleRef|undefined {
+    private getRef(propName: string|symbol): CssCustomSimpleRef|undefined {
         // ignores symbol & number props:
         if (typeof(propName) !== 'string') return undefined;
         
         
         
-        const cached = this.#_propRefsCache.get(propName);
+        const cached = this.propRefsCache.get(propName);
         if (cached !== undefined) return (cached === false) ? undefined : cached;
         
         
         
-        const propDecl = this.#createDecl(propName);
+        const propDecl = this.createDecl(propName);
         
         
         
-        // check if the `#props` has `propDecl`:
-        if (!this.#props.has(propDecl)) {
-            this.#_propRefsCache.set(propName, false); // update cache
+        // check if the `props` has `propDecl`:
+        if (!this.props.has(propDecl)) {
+            this.propRefsCache.set(propName, false); // update cache
             return undefined; // not found
         } // if
         
         
         
         const propRef : CssCustomSimpleRef = `var(${propDecl})`;
-        this.#_propRefsCache.set(propName, propRef); // update cache
+        this.propRefsCache.set(propName, propRef); // update cache
         return propRef; // found
     }
     
@@ -1006,21 +999,21 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param propName The prop name to retrieve.
      * @returns A `CssCustomValue` represents the value of the specified `propName` -or- `undefined` if it doesn't exist.
      */
-    #getVal(propName: string|symbol): CssCustomValue|undefined {
+    private getVal(propName: string|symbol): CssCustomValue|undefined {
         // ignores symbol & number props:
         if (typeof(propName) !== 'string') return undefined;
         
         
         
-        const propDecl = this.#createDecl(propName);
-        if (!this.#props.has(propDecl)) return undefined; // not found
+        const propDecl = this.createDecl(propName);
+        if (!this.props.has(propDecl)) return undefined; // not found
         
         
         
-        // ensures the `#genProps` was fully generated:
-        this.#ensureGenerated(); // expensive op!
+        // ensures the `genProps` was fully generated:
+        this.ensureGenerated(); // expensive op!
         
-        return this.#genProps.get(propDecl);
+        return this.genProps.get(propDecl);
     }
     
     /**
@@ -1029,39 +1022,39 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param newValue The new value.
      * @returns Always return `true`.
      */
-    #setVal(propName: string|symbol, newValue: CssCustomValue|undefined|null): boolean {
+    private setVal(propName: string|symbol, newValue: CssCustomValue|undefined|null): boolean {
         // ignores symbol & number props:
         if (typeof(propName) !== 'string') return false;
         
         
         
-        const propDecl = this.#createDecl(propName);
+        const propDecl = this.createDecl(propName);
         
         
         
         // the source of truth:
-        const props = this.#props;
+        const props = this.props;
         
         
         
         if ((newValue === undefined) || (newValue === null)) { // delete property
             props.delete(propDecl);
             
-            this.#_propRefsCache.set(propName,  false);                 // update the cached mapping of [ propName => *deleted* ]
-            this.#_propNamesCache = undefined;                          // collection CHANGED => clear enumeration cache
+            this.propRefsCache.set(propName,  false);                   // update the cached mapping of [ propName => *deleted* ]
+            this.propNamesCache = undefined;                            // collection CHANGED => clear enumeration cache
             
-            this.#update();                    // property DELETED => the `#genProps` needs to `update()` and the live styleSheet also need to re-build
-            this.#options.notifyChanged();     // notify the subscriber of `onChange.subscribe()` that something was changed
+            this.update();                    // property DELETED => the `genProps` needs to `update()` and the live styleSheet also need to re-build
+            this.options.notifyChanged();     // notify the subscriber of `onChange.subscribe()` that something was changed
         }
         else {
             if (props.get(propDecl) !== newValue) { // add new -or- update property
                 props.set(propDecl, newValue);
                 
-                this.#_propRefsCache.set(propName, `var(${propDecl})`); // update the cached mapping of [ propName => `--prefix-(new)PropDecl` ]
-                this.#_propNamesCache = undefined;                      // collection CHANGED => clear enumeration cache
+                this.propRefsCache.set(propName, `var(${propDecl})`);   // update the cached mapping of [ propName => `--prefix-(new)PropDecl` ]
+                this.propNamesCache = undefined;                        // collection CHANGED => clear enumeration cache
                 
-                this.#update();                // property MODIFIED => the `#genProps` needs to `update()` and the live styleSheet also need to re-build
-                this.#options.notifyChanged(); // notify the subscriber of `onChange.subscribe()` that something was changed
+                this.update();                // property MODIFIED => the `genProps` needs to `update()` and the live styleSheet also need to re-build
+                this.options.notifyChanged(); // notify the subscriber of `onChange.subscribe()` that something was changed
             } // if
         } // if
         
@@ -1075,38 +1068,38 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param propName The prop name to check.
      * @returns `true` indicates the specified `propName` exists -or- `false` if it doesn't exist.
      */
-    #hasProp(propName: string|symbol): boolean {
+    private hasProp(propName: string|symbol): boolean {
         // ignores symbol & number props:
         if (typeof(propName) !== 'string') return false;
         
         
         
-        const cached = this.#_propRefsCache.get(propName);
+        const cached = this.propRefsCache.get(propName);
         if (cached !== undefined) {
             return (cached !== false);
         } // if
         
         
         
-        const cached2 = this.#_propNamesCache?.deref();
+        const cached2 = this.propNamesCache?.deref();
         if (cached2) return cached2.includes(propName);
         
         
         
-        const propRef = this.#getRef(propName); // calling `#getRef` also generates a cached `var(--foo)` to be used later (high probability)
+        const propRef = this.getRef(propName); // calling `getRef` also generates a cached `var(--foo)` to be used later (high probability)
         return (propRef !== undefined);
     }
     /**
      * Gets the *all possible* `propName`s in the css-config.
      * @returns An `Array<string>` contains *all possible* `propName`s in the css-config.
      */
-    #getPropList(): ArrayLike<string|symbol> {
-        const cached = this.#_propNamesCache?.deref();
+    private getPropList(): ArrayLike<string|symbol> {
+        const cached = this.propNamesCache?.deref();
         if (cached !== undefined) return cached;
         
         
         
-        const prefixLength    = this.#options.prefix.length;
+        const prefixLength    = this.options.prefix.length;
         const skipPrefixChars = (
             prefixLength
             ?
@@ -1118,8 +1111,8 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         const result: string[] = [];
-        iteratePropList(this.#props.keys() as IterableIterator<CssCustomName|symbol>, skipPrefixChars, result);
-        this.#_propNamesCache = new WeakRef<string[]>(result);
+        iteratePropList(this.props.keys() as IterableIterator<CssCustomName|symbol>, skipPrefixChars, result);
+        this.propNamesCache = new WeakRef<string[]>(result);
         return result;
     }
     /**
@@ -1127,8 +1120,8 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * @param propName The prop name to retrieve.
      * @returns A `PropertyDescriptor` represents the behavior of the specified `propName` -or- `undefined` if it doesn't exist.
      */
-    #getPropDesc(propName: string|symbol): PropertyDescriptor|undefined {
-        if (!this.#hasProp(propName)) return undefined;
+    private getPropDesc(propName: string|symbol): PropertyDescriptor|undefined {
+        if (!this.hasProp(propName)) return undefined;
         
         return defaultPropDescriptor;
     }
@@ -1138,10 +1131,10 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     //#region constructors
     constructor(initialProps: MaybeFactory<TConfigProps>, options?: CssConfigOptions) {
-        this.#propsFactory = initialProps;
-        this.#options = new LiveCssConfigOptions((prevPrefix: string) => {
-            this.#_propsMapSource = (() => {
-                const prevState = this.#_propsState;
+        this.propsFactory = initialProps;
+        this.options = new LiveCssConfigOptions((prevPrefix: string) => {
+            this.propsMapSource = (() => {
+                const prevState = this.propsState;
                 if (!prevState) return prevState;
                 
                 
@@ -1178,40 +1171,40 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
                 // here the restored:
                 return prevState as Map<keyof TConfigProps, ValueOf<TConfigProps>>;
             })();
-            this.#_propsState     = undefined; // config MODIFIED => the stated vars    of { `--oldPrefix-propDecl`: someValue       } becomes invalid
-            this.#_propRefsCache.clear();      // config MODIFIED => the cached mapping of [ propName => `var(--oldPrefix-propDecl)` ] becomes invalid
+            this.propsState     = undefined;   // config MODIFIED => the stated vars    of { `--oldPrefix-propDecl`: someValue       } becomes invalid
+            this.propRefsCache.clear();        // config MODIFIED => the cached mapping of [ propName => `var(--oldPrefix-propDecl)` ] becomes invalid
             
-            this.#update();                    // config MODIFIED => the `#genProps` needs to `update()` and the live styleSheet also need to re-build
-            this.#options.notifyChanged();     // notify the subscriber of `onChange.subscribe()` that something was changed
+            this.update();                     // config MODIFIED => the `genProps` needs to `update()` and the live styleSheet also need to re-build
+            this.options.notifyChanged();      // notify the subscriber of `onChange.subscribe()` that something was changed
         }, options);
         
         
         
-        this.#liveStyleSheet = new Subject<CssStyle|null>();
-        styleSheet(this.#liveStyleSheet, { id: `${this.#options.prefix}-cfg` });
+        this.liveStyleSheet = new Subject<CssStyle|null>();
+        styleSheet(this.liveStyleSheet, { id: `${this.options.prefix}-cfg` });
         
         
         
-        this.#update(); // generate the `#genProps` BEFORE browser repaint
+        this.update(); // generate the `genProps` BEFORE browser repaint
         
         
         
         // proxies - representing data in various formats:
         type This = CssConfigBuilder<TConfigProps>;
         const restProxyHandler : ProxyHandler<{ [Key in keyof TConfigProps] : /*setter: */CssCustomValue|undefined|null }> = {
-            set                      (_this, propName: string|symbol, newValue: CssCustomValue|undefined|null) { return (_this as This).#setVal(propName, newValue) },
-            deleteProperty           (_this, propName: string|symbol)                                          { return (_this as This).#setVal(propName, undefined) },
+            set                      (_this, propName: string|symbol, newValue: CssCustomValue|undefined|null) { return (_this as This).setVal(propName, newValue) },
+            deleteProperty           (_this, propName: string|symbol)                                          { return (_this as This).setVal(propName, undefined) },
             
-            has                      (_this, propName: string|symbol)                                          { return (_this as This).#hasProp(propName) },
-            ownKeys                  (_this)                                                                   { return (_this as This).#getPropList() },
-            getOwnPropertyDescriptor (_this, propName: string|symbol)                                          { return (_this as This).#getPropDesc(propName) },
+            has                      (_this, propName: string|symbol)                                          { return (_this as This).hasProp(propName) },
+            ownKeys                  (_this)                                                                   { return (_this as This).getPropList() },
+            getOwnPropertyDescriptor (_this, propName: string|symbol)                                          { return (_this as This).getPropDesc(propName) },
         };
-        this.#refs = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */CssCustomSimpleRef | /*setter: */CssCustomValue|undefined|null }>(this as any, {
-            get                      (_this, propName: string|symbol)                                          { return (_this as This).#getRef(propName) },
+        this.refs = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */CssCustomSimpleRef | /*setter: */CssCustomValue|undefined|null }>(this as any, {
+            get                      (_this, propName: string|symbol)                                          { return (_this as This).getRef(propName) },
             ...restProxyHandler
         }) as Refs<TConfigProps>;
-        this.#vals = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */    CssCustomValue | /*setter: */CssCustomValue|undefined|null }>(this as any, {
-            get                      (_this, propName: string|symbol)                                          { return (_this as This).#getVal(propName) },
+        this.vals = new Proxy<{ [Key in keyof TConfigProps] : /*getter: */    CssCustomValue | /*setter: */CssCustomValue|undefined|null }>(this as any, {
+            get                      (_this, propName: string|symbol)                                          { return (_this as This).getVal(propName) },
             ...restProxyHandler
         }) as Vals<TConfigProps>;
     }
