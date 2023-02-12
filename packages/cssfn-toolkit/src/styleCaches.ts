@@ -15,7 +15,7 @@ import type {
 
 
 
-export const memorizedStyle = <TFunction extends (...params: any[]) => TReturn, TReturn extends CssStyle>(factory: TFunction, deps ?: MaybeArray<Observable<void>>): TFunction => {
+export const memoizeStyle = <TFunction extends (...params: any[]) => TReturn, TReturn extends CssStyle>(factory: TFunction, deps ?: MaybeArray<Observable<void>>): TFunction => {
     // caches:
     let cache : WeakRef<TReturn>|undefined = undefined;
     const clearCache = (): void => {
