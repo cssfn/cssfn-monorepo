@@ -36,7 +36,8 @@
     "@cssfn/css-selectors": "^2.2.0",
     "@cssfn/css-supports": "^2.2.0",
     "@cssfn/css-types": "^2.2.0",
-    "@cssfn/types": "^2.2.0"
+    "@cssfn/types": "^2.2.0",
+    "@cssfn/cssfn-toolkit": "^2.2.0"
   },
   "peerDependencies": {
     "@cssfn/css-vars": "^2.2.0",

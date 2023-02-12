@@ -1,7 +1,7 @@
 {
   "name": "@cssfn/cssfn-toolkit",
   "version": "2.2.0",
-  "description": "Write complex stylesheets in a simple way.",
+  "description": "Writes complex stylesheets in simpler way.",
   "keywords": [
     "css",
     "stylesheet",
