@@ -27,6 +27,18 @@ import {
     RenderWorker,
 }                           from './renderWorkers/RenderWorker.js'
 
+// other libs:
+import {
+    // tests:
+    isBrowser,
+    isJsDom,
+}                           from 'is-in-browser'
+
+
+
+// utilities:
+const isClientSide : boolean = isBrowser || isJsDom;
+
 
 
 // jobs:
@@ -89,7 +101,20 @@ const createRenderWorkerIfNeeded = (): boolean => {
     return true;
 }
 // pre-load some workers, so the first page render will served quickly:
-const maxPreloadWorkers = 8;
+const maxPreloadWorkers = (
+    /*
+        limits the workers to 3 when one/more SSR rendered <style> is exist
+    */
+    (
+        isClientSide
+        &&
+        !!document.head.querySelector('style[data-cssfn-id]')
+    )
+    ?
+    3
+    :
+    8
+);
 for (let addWorker = 0; addWorker < maxPreloadWorkers; addWorker++) {
     if (!createRenderWorkerIfNeeded()) break; // max concurrent workers reached => stop adding new worker
 } // for
