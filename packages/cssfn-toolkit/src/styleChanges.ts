@@ -6,7 +6,7 @@ import {
 
 
 
-export const watchDependencies = (...deps: Array<Observable<void>>): Observable<void> => {
+export const watchChanges = (...deps: Array<Observable<void>>): Observable<void> => {
     const onStylesChange = new Subject<void>();
     
     
