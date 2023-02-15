@@ -214,7 +214,10 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
             
             
             
-            this.updateScopes(scopesValue);
+            this.updateScopes(
+                scopesValue,
+                /* forceUpdate: */false // only update if NEEDED -- if `scopesValue is Observable` and the Observable makes ASYNC update
+            );
         }
         else { // scopesValue is Promise<ModuleDefault<MaybeFactory<CssScopeList<TCssScopeName> | null>>>
             scopesValue.then((resolvedScopes) => {
@@ -227,13 +230,22 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
                 
                 
                 
-                this.updateScopes(resolvedScopes.default);
+                this.updateScopes(
+                    resolvedScopes.default,
+                    /* forceUpdate: */true // FORCE to update because a `Promise::then()` is considered a SUBSEQUENT update
+                );
             });
         } // if
     }
-    protected updateScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
+    protected updateScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>, forceUpdate = false): void {
         if (!isObservableScopes(scopes)) { // scopes is MaybeFactory<CssScopeList<TCssScopeName>|null>
             this._scopesLive = scopes; // update once
+            
+            
+            
+            if (forceUpdate) {
+                this.notifyUpdated();
+            } // if
         }
         else { // scopes is Observable<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
             let subsequentUpdate = false;
@@ -257,7 +269,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
                 
                 
                 // notify a StyleSheet updated ONLY on SUBSEQUENT update:
-                if (subsequentUpdate) {
+                if (forceUpdate || subsequentUpdate) {
                     this.notifyUpdated();
                 } // if
             });

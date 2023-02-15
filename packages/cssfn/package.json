@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/cssfn",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Writes, imports, and exports css stylesheets as javascript modules.",
   "keywords": [
     "css",
