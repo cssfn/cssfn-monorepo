@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/cssfn",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "description": "Writes, imports, and exports css stylesheets as javascript modules.",
   "keywords": [
     "css",
@@ -29,10 +29,10 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
-    "@cssfn/css-prop-auto-prefix": "^2.3.0",
-    "@cssfn/css-selectors": "^2.3.0",
-    "@cssfn/css-types": "^2.3.0",
-    "@cssfn/types": "^2.3.0",
+    "@cssfn/css-prop-auto-prefix": "^2.4.0",
+    "@cssfn/css-selectors": "^2.4.0",
+    "@cssfn/css-types": "^2.4.0",
+    "@cssfn/types": "^2.4.0",
     "@types/hyphenate-style-name": "^1.0.0",
     "camel-case": "^4.1.2",
     "hyphenate-style-name": "^1.0.4",

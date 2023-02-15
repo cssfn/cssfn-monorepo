@@ -1,11 +1,11 @@
 {
   "name": "test-load-cssfn-react",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "private": true,
   "dependencies": {
-    "@cssfn/cssfn": "^2.3.0",
-    "@cssfn/cssfn-dom": "^2.3.0",
-    "@cssfn/cssfn-react": "^2.3.0",
+    "@cssfn/cssfn": "^2.4.0",
+    "@cssfn/cssfn-dom": "^2.4.0",
+    "@cssfn/cssfn-react": "^2.4.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",

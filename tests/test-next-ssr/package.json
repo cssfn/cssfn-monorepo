@@ -1,6 +1,6 @@
 {
   "name": "test-next-ssr",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,9 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@cssfn/core": "^2.3.0",
-    "@cssfn/cssfn-dom": "^2.3.0",
-    "@cssfn/cssfn-react": "^2.3.0",
+    "@cssfn/core": "^2.4.0",
+    "@cssfn/cssfn-dom": "^2.4.0",
+    "@cssfn/cssfn-react": "^2.4.0",
     "@next/font": "13.1.6",
     "@types/node": "18.13.0",
     "@types/react": "18.0.27",

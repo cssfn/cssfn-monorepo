@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/cssfn-react",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Declares, loads, and unloads css stylesheets in React hooks way.",
   "keywords": [
     "css",
@@ -29,14 +29,14 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
-    "@cssfn/css-types": "^2.3.0",
-    "@cssfn/types": "^2.3.0",
+    "@cssfn/css-types": "^2.4.0",
+    "@cssfn/types": "^2.4.0",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
     "is-in-browser": "^2.0.0"
   },
   "peerDependencies": {
-    "@cssfn/cssfn": "^2.3.0",
+    "@cssfn/cssfn": "^2.4.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "rxjs": "^7.8.0"
