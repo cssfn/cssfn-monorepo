@@ -22,9 +22,14 @@ export const memoizeStyle = <TFunction extends (...params: any[]) => TReturn, TR
         cache = undefined;
     };
     if (deps) {
-        for (const dep of [deps].flat()) {
-            dep.subscribe(clearCache);
-        } // for
+        if (!Array.isArray(deps)) {
+            deps.subscribe(clearCache);
+        }
+        else {
+            for (const dep of deps) {
+                dep.subscribe(clearCache);
+            } // for
+        } // if
     } // if
     
     
