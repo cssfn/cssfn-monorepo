@@ -54,24 +54,27 @@ export const decodeStyle = (style: OptionalOrBoolean<EncodedCssStyle>): Optional
         
         
         
-        type MutableEncodedCssRuleData = [...EncodedCssRuleData]|[...CssRuleEntry];
+        type MutableEncodedCssRuleData = [...EncodedCssRuleData]|[...CssRuleData];
         for (let index = 0, max = nestedRules.length, encodedRuleData: MutableEncodedCssRuleData; index < max; index++) {
             encodedRuleData = nestedRules[index] as MutableEncodedCssRuleData;
             
             
             
-            const decodedStyles = decodeStyles(                 // mutate : EncodedCssStyleCollection => CssStyleCollection
-                (encodedRuleData as EncodedCssRuleData)[1]      // type   : EncodedCssStyleCollection
+            const decodedStyles = decodeStyles(                 // mutate    : EncodedCssStyleCollection => CssStyleCollection
+                (encodedRuleData as EncodedCssRuleData)[1]      // type      : EncodedCssStyleCollection
             );
             if (!decodedStyles || (decodedStyles === true)) {
-                nestedRules[index] = undefined;                 // mutate : falsy style => undefined (delete)
+                nestedRules[index] = undefined;                 // mutate    : falsy style => undefined (delete)
             }
             else {
-                encodedRuleData[1] = [                          // mutate : EncodedCssStyleCollection => CssRuleData
-                    (encodedRuleData as EncodedCssRuleData)[0], // type   : undefined|CssRawSelector|CssFinalSelector
-                    decodedStyles                               // type   : CssStyleCollection
-                ] as CssRuleData;
-                encodedRuleData[0] = Symbol();                  // mutate : undefined|CssRawSelector|CssFinalSelector => new symbol
+             // encodedRuleData[0] = encodedRuleData[0];        // unchanged : undefined|CssRawSelector|CssFinalSelector
+                encodedRuleData[1] = decodedStyles;             // mutate    : EncodedCssStyleCollection => CssStyleCollection
+                
+                nestedRules[index] = [
+                    Symbol()
+                    ,
+                    encodedRuleData as CssRuleData
+                ] as CssRuleEntry;
             } // if
         } // for
         

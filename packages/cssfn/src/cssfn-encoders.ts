@@ -121,8 +121,8 @@ export const encodeStyle = (style: MaybeFactory<OptionalOrBoolean<CssStyle>>): O
                 nestedRules[index] = undefined;                         // mutate : falsy style => undefined (delete)
             }
             else {
-                ruleData[1] = encodedStyles;                            // mutate : CssStyleCollection => EncodedCssStyleCollection
              // ruleData[0] = ruleData[0];                              // unchanged : undefined|CssRawSelector|CssFinalSelector
+                ruleData[1] = encodedStyles;                            // mutate : CssStyleCollection => EncodedCssStyleCollection
                 
                 
                 
