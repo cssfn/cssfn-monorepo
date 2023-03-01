@@ -1109,3 +1109,105 @@ test(`test memoizeStyleWithVariants - 4-9`, () => {
         opacity: 0.4,
     });
 });
+
+test(`test memoizeStyleWithVariants - 4-10`, () => {
+    const val = stunningStyleVar(5);
+    
+    expect(counter8)
+    .toBe(6);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+        opacity: 0.55,
+    });
+});
+test(`test memoizeStyleWithVariants - 4-11`, () => {
+    const val = stunningStyleVar(5);
+    
+    expect(counter8)
+    .toBe(6);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+        opacity: 0.55,
+    });
+});
+test(`test memoizeStyleWithVariants - 4-12`, () => {
+    invalidate8.next();
+    const val = stunningStyleVar(5);
+    
+    expect(counter8)
+    .toBe(7);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+        opacity: 0.55,
+    });
+});
+test(`test memoizeStyleWithVariants - 4-13`, () => {
+    const val = stunningStyleVar(5);
+    
+    expect(counter8)
+    .toBe(7);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+        opacity: 0.55,
+    });
+});
+test(`test memoizeStyleWithVariants - 4-14`, () => {
+    invalidate8.next();
+    const val = stunningStyleVar(5);
+    
+    expect(counter8)
+    .toBe(8);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+        opacity: 0.55,
+    });
+});
+test(`test memoizeStyleWithVariants - 4-15`, () => {
+    invalidate8.next();
+    const val = stunningStyleVar(5);
+    
+    expect(counter8)
+    .toBe(9);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+        opacity: 0.55,
+    });
+});
+test(`test memoizeStyleWithVariants - 4-16`, () => {
+    const val = stunningStyleVar(5);
+    
+    expect(counter8)
+    .toBe(9);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+        opacity: 0.55,
+    });
+});
