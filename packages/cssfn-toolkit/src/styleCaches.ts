@@ -15,9 +15,9 @@ import type {
 
 
 
-export const memoizeResult = <TFunction extends (...params: any[]) => TReturn, TReturn extends object>(factory: TFunction, deps ?: MaybeArray<Observable<void>>): TFunction => {
+export const memoizeResult = <TFunction extends (...params: any[]) => TResult, TResult extends object>(factory: TFunction, deps ?: MaybeArray<Observable<void>>): TFunction => {
     // caches:
-    let cache : WeakRef<TReturn>|undefined = undefined;
+    let cache : WeakRef<TResult>|undefined = undefined;
     const clearCache = (): void => {
         cache = undefined;
     };
@@ -48,7 +48,7 @@ export const memoizeResult = <TFunction extends (...params: any[]) => TReturn, T
         
         // cache a non_parameterized function call:
         const result = factory();
-        cache = new WeakRef<TReturn>(result);
+        cache = new WeakRef<TResult>(result);
         return result;
     }) as TFunction;
     
@@ -56,15 +56,15 @@ export const memoizeResult = <TFunction extends (...params: any[]) => TReturn, T
     
     return cachedFactory;
 };
-export const memoizeStyle  = <TFunction extends (...params: any[]) => TReturn, TReturn extends CssStyle>(factory: TFunction, deps ?: MaybeArray<Observable<void>>): TFunction => {
+export const memoizeStyle  = <TFunction extends (...params: any[]) => TResult, TResult extends CssStyle>(factory: TFunction, deps ?: MaybeArray<Observable<void>>): TFunction => {
     return memoizeResult(factory, deps);
 };
 
 
 
-export const memoizeResultWithVariants = <TFunction extends (variant: any, ...params: any[]) => TReturn, TReturn extends object>(factory: TFunction, deps ?: MaybeArray<Observable<void>>): TFunction => {
+export const memoizeResultWithVariants = <TFunction extends (variant: any, ...params: any[]) => TResult, TResult extends object>(factory: TFunction, deps ?: MaybeArray<Observable<void>>): TFunction => {
     // caches:
-    let cache = new Map<any, WeakRef<TReturn>>();
+    let cache = new Map<any, WeakRef<TResult>>();
     const clearCache = (): void => {
         cache.clear();
     };
@@ -95,7 +95,7 @@ export const memoizeResultWithVariants = <TFunction extends (variant: any, ...pa
         
         // cache a non_parameterized function call:
         const result = factory(variant);
-        cache.set(variant, new WeakRef<TReturn>(result));
+        cache.set(variant, new WeakRef<TResult>(result));
         return result;
     }) as TFunction;
     
@@ -103,6 +103,6 @@ export const memoizeResultWithVariants = <TFunction extends (variant: any, ...pa
     
     return cachedFactory;
 };
-export const memoizeStyleWithVariants  = <TFunction extends (variant: any, ...params: any[]) => TReturn, TReturn extends CssStyle>(factory: TFunction, deps ?: MaybeArray<Observable<void>>): TFunction => {
+export const memoizeStyleWithVariants  = <TFunction extends (variant: any, ...params: any[]) => TResult, TResult extends CssStyle>(factory: TFunction, deps ?: MaybeArray<Observable<void>>): TFunction => {
     return memoizeResultWithVariants(factory, deps);
 };
