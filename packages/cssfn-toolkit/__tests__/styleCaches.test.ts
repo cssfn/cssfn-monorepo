@@ -842,3 +842,140 @@ test(`test memoizeStyleWithVariants - 2-14`, () => {
         opacity: 0.4,
     });
 });
+
+
+
+let counter7 = 0;
+const invalidate7 = new Subject<void>();
+const otherStyleVar = memoizeStyleWithVariants((padding: number) => {
+    counter7++;
+    return {
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: `${padding} ${padding}`,
+    };
+}, invalidate7);
+test(`test memoizeStyleWithVariants - 3-1`, () => {
+    expect(counter7)
+    .toBe(0);
+});
+test(`test memoizeStyleWithVariants - 3-2`, () => {
+    const val = otherStyleVar(5);
+    
+    expect(counter7)
+    .toBe(1);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+    });
+});
+test(`test memoizeStyleWithVariants - 3-3`, () => {
+    const val = otherStyleVar(5);
+    
+    expect(counter7)
+    .toBe(1);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+    });
+});
+test(`test memoizeStyleWithVariants - 3-4`, () => {
+    const val = otherStyleVar(5);
+    
+    expect(counter7)
+    .toBe(1);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+    });
+});
+test(`test memoizeStyleWithVariants - 3-5`, () => {
+    invalidate7.next();
+    const val = otherStyleVar(5);
+    
+    expect(counter7)
+    .toBe(2);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+    });
+});
+test(`test memoizeStyleWithVariants - 3-6`, () => {
+    const val = otherStyleVar(5);
+    
+    expect(counter7)
+    .toBe(2);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+    });
+});
+test(`test memoizeStyleWithVariants - 3-7`, () => {
+    invalidate7.next();
+    const val = otherStyleVar(5);
+    
+    expect(counter7)
+    .toBe(3);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+    });
+});
+test(`test memoizeStyleWithVariants - 3-8`, () => {
+    invalidate7.next();
+    const val = otherStyleVar(5);
+    
+    expect(counter7)
+    .toBe(4);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+    });
+});
+test(`test memoizeStyleWithVariants - 3-9`, () => {
+    const val = otherStyleVar(5);
+    
+    expect(counter7)
+    .toBe(4);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+    });
+});
+test(`test memoizeStyleWithVariants - 3-10`, () => {
+    const val = otherStyleVar(5);
+    
+    expect(counter7)
+    .toBe(4);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+    });
+});
