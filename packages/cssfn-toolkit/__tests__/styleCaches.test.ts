@@ -376,7 +376,7 @@ test(`test memoizeStyle - 4-5`, () => {
         opacity: 0.33,
     });
 });
-test(`test memoizeStyle - 4-5`, () => {
+test(`test memoizeStyle - 4-6`, () => {
     const val = stunningStyle(0.1);
     
     expect(counter4)
@@ -389,7 +389,7 @@ test(`test memoizeStyle - 4-5`, () => {
         opacity: 0.1,
     });
 });
-test(`test memoizeStyle - 4-5`, () => {
+test(`test memoizeStyle - 4-7`, () => {
     const val = stunningStyle(0.1);
     
     expect(counter4)
@@ -402,7 +402,7 @@ test(`test memoizeStyle - 4-5`, () => {
         opacity: 0.1,
     });
 });
-test(`test memoizeStyle - 4-5`, () => {
+test(`test memoizeStyle - 4-8`, () => {
     const val = stunningStyle(0.1);
     
     expect(counter4)
@@ -415,7 +415,7 @@ test(`test memoizeStyle - 4-5`, () => {
         opacity: 0.1,
     });
 });
-test(`test memoizeStyle - 4-5`, () => {
+test(`test memoizeStyle - 4-9`, () => {
     const val = stunningStyle(0.4);
     
     expect(counter4)
@@ -429,7 +429,7 @@ test(`test memoizeStyle - 4-5`, () => {
     });
 });
 
-test(`test memoizeStyle - 4-6`, () => {
+test(`test memoizeStyle - 4-10`, () => {
     const val = stunningStyle();
     
     expect(counter4)
@@ -442,7 +442,7 @@ test(`test memoizeStyle - 4-6`, () => {
         opacity: 0.55,
     });
 });
-test(`test memoizeStyle - 4-7`, () => {
+test(`test memoizeStyle - 4-11`, () => {
     const val = stunningStyle();
     
     expect(counter4)
@@ -455,7 +455,7 @@ test(`test memoizeStyle - 4-7`, () => {
         opacity: 0.55,
     });
 });
-test(`test memoizeStyle - 4-8`, () => {
+test(`test memoizeStyle - 4-12`, () => {
     invalidate4.next();
     const val = stunningStyle();
     
@@ -469,7 +469,7 @@ test(`test memoizeStyle - 4-8`, () => {
         opacity: 0.55,
     });
 });
-test(`test memoizeStyle - 4-9`, () => {
+test(`test memoizeStyle - 4-13`, () => {
     const val = stunningStyle();
     
     expect(counter4)
@@ -482,7 +482,7 @@ test(`test memoizeStyle - 4-9`, () => {
         opacity: 0.55,
     });
 });
-test(`test memoizeStyle - 4-10`, () => {
+test(`test memoizeStyle - 4-14`, () => {
     invalidate4.next();
     const val = stunningStyle();
     
@@ -496,7 +496,7 @@ test(`test memoizeStyle - 4-10`, () => {
         opacity: 0.55,
     });
 });
-test(`test memoizeStyle - 4-11`, () => {
+test(`test memoizeStyle - 4-15`, () => {
     invalidate4.next();
     const val = stunningStyle();
     
@@ -510,7 +510,7 @@ test(`test memoizeStyle - 4-11`, () => {
         opacity: 0.55,
     });
 });
-test(`test memoizeStyle - 4-12`, () => {
+test(`test memoizeStyle - 4-16`, () => {
     const val = stunningStyle();
     
     expect(counter4)
