@@ -283,23 +283,27 @@ if (isClientSide) styleSheetRegistry.subscribe(handleUpdate);
 
 
 // SSR cleanups:
-if (headElement) { // === if (isClientSide)
-    // register a callback just BEFORE the first_paint occured:
-    isomorphicRequestAnimationFrame(() => {
-        // register a callback on the next macro_task (just AFTER the first_paint occured):
-        const messageChannel = new MessageChannel();
-        messageChannel.port1.onmessage = () => {
-            // wait for 10 seconds to remove all <style>(s) having [data-cssfn-id] attr in which not listed in `csrStyleElms`:
-            setTimeout(() => {
-                // remove all <style>(s) having [data-cssfn-id] attr in which not listed in `csrStyleElms`:
-                const cssfnStyles           = Array.from(headElement.querySelectorAll('style[data-cssfn-id]')) as HTMLStyleElement[];
-                const registeredCssfnStyles = new Set<HTMLStyleElement|null>(csrStyleElms.values());
-                const unusedCssfnStyles     = cssfnStyles.filter((cssfnStyle) => !registeredCssfnStyles.has(cssfnStyle));
-                for (const unusedCssfnStyle of unusedCssfnStyles) {
-                    unusedCssfnStyle.parentElement?.removeChild(unusedCssfnStyle);
-                } // for
-            }, 10 * 1000);
-        };
-        messageChannel.port2.postMessage(undefined);
-    });
-} // if
+/*
+    Disabled the cleanup feature.
+    Because a css-config may not registered the styleSheet(s) if the corresponding module is not loaded -- in case of a style.js module is not loaded due to ALREADY RENDERED on server_side.
+*/
+// if (headElement) { // === if (isClientSide)
+//     // register a callback just BEFORE the first_paint occured:
+//     isomorphicRequestAnimationFrame(() => {
+//         // register a callback on the next macro_task (just AFTER the first_paint occured):
+//         const messageChannel = new MessageChannel();
+//         messageChannel.port1.onmessage = () => {
+//             // wait for 10 seconds to remove all <style>(s) having [data-cssfn-id] attr in which not listed in `csrStyleElms`:
+//             setTimeout(() => {
+//                 // remove all <style>(s) having [data-cssfn-id] attr in which not listed in `csrStyleElms`:
+//                 const cssfnStyles           = Array.from(headElement.querySelectorAll('style[data-cssfn-id]')) as HTMLStyleElement[];
+//                 const registeredCssfnStyles = new Set<HTMLStyleElement|null>(csrStyleElms.values());
+//                 const unusedCssfnStyles     = cssfnStyles.filter((cssfnStyle) => !registeredCssfnStyles.has(cssfnStyle));
+//                 for (const unusedCssfnStyle of unusedCssfnStyles) {
+//                     unusedCssfnStyle.parentElement?.removeChild(unusedCssfnStyle);
+//                 } // for
+//             }, 10 * 1000);
+//         };
+//         messageChannel.port2.postMessage(undefined);
+//     });
+// } // if
