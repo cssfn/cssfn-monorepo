@@ -772,3 +772,73 @@ test(`test memoizeStyleWithVariants - 2-9`, () => {
         opacity: 0.4,
     });
 });
+test(`test memoizeStyleWithVariants - 2-10`, () => {
+    const val = awesomeStyleVar(7, 0.4);
+    
+    expect(counter6)
+    .toBe(7);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '7 7',
+        opacity: 0.4,
+    });
+});
+test(`test memoizeStyleWithVariants - 2-11`, () => {
+    const val = awesomeStyleVar(7, 0.4);
+    
+    expect(counter6)
+    .toBe(8);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '7 7',
+        opacity: 0.4,
+    });
+});
+test(`test memoizeStyleWithVariants - 2-12`, () => {
+    const val = awesomeStyleVar(7, 0.4);
+    
+    expect(counter6)
+    .toBe(9);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '7 7',
+        opacity: 0.4,
+    });
+});
+test(`test memoizeStyleWithVariants - 2-13`, () => {
+    const val = awesomeStyleVar(5, 0.4);
+    
+    expect(counter6)
+    .toBe(10);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '5 5',
+        opacity: 0.4,
+    });
+});
+test(`test memoizeStyleWithVariants - 2-14`, () => {
+    const val = awesomeStyleVar(7, 0.4);
+    
+    expect(counter6)
+    .toBe(11);
+    
+    expect(val)
+    .toExactEqual({
+        background: 'lightblue',
+        color: 'darkblue',
+        padding: '7 7',
+        opacity: 0.4,
+    });
+});
