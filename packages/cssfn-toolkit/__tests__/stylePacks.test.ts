@@ -52,6 +52,7 @@ const {
     basics,
     basicValues,
     basicConfig,
+    cssBasicConfig,
     
     basicLayout,
     basicVariants,
@@ -80,17 +81,20 @@ test(`basicValues`, () => {
 
 
 
-test(`basicConfig`, () => {
-    expect(basicConfig.prefix)
+test(`cssBasicConfig`, () => {
+    expect(basicConfig)
+    .toEqual(cssBasicConfig)
+    
+    expect(cssBasicConfig.prefix)
     .toBe('bsc');
     
-    expect(basicConfig.selector)
+    expect(cssBasicConfig.selector)
     .toBe(':root');
     
-    expect(basicConfig.onChange instanceof Observable)
+    expect(cssBasicConfig.onChange instanceof Observable)
     .toBe(true);
     
-    expect(basicConfig.notifyChanged instanceof Function)
+    expect(cssBasicConfig.notifyChanged instanceof Function)
     .toBe(true);
 });
 
