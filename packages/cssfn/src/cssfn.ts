@@ -470,6 +470,9 @@ export const style   = (style: CssStyle)              => alwaysRule(style);
  * @returns A `CssRule` represents the css variables.
  */
 export const vars    = (items: CssCustomProps)        => alwaysRule(items);
+/**
+ * @deprecated use spread operator instead.
+ */
 export const imports = (styles: CssStyleCollection[]) => alwaysRule(styles); // force to use an array bracket [] for syntax consistency
 
 
