@@ -12,7 +12,8 @@ export const watchChanges = (...deps: Array<Observable<void>>): Observable<void>
     
     
     for (const dep of deps) {
-        dep.subscribe(onStylesChange.next);
+        // dep.subscribe(onStylesChange.next);
+        dep.subscribe(() => onStylesChange.next()); // workaround for `this === undefined` issue
     } // for
     
     
