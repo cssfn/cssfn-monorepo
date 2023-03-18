@@ -1,3 +1,7 @@
+[high prior] fix async render race condition
+
+
+
 high cpu usage:
 
 export const selectPureSelectorGroupFromSelectorGroup = (selectors : SelectorGroup): PureSelectorGroup => selectors.filter(isNotEmptySelector);
