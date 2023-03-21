@@ -227,6 +227,29 @@ const scheduleBatchCommit = () => {
 
 
 // handlers:
+const raceRenderStyleSheet = new Map<StyleSheet, number>();
+const unraceRenderStyleSheetAsync = async (styleSheet: StyleSheet): Promise<Awaited<ReturnType<typeof renderStyleSheetAsync>>|undefined> => {
+    // update the race flag:
+    const prevGeneration    = raceRenderStyleSheet.get(styleSheet) ?? 0;
+    const currentGeneration = (prevGeneration === Number.MAX_SAFE_INTEGER) ? 0 : (prevGeneration + 1);
+    raceRenderStyleSheet.set(styleSheet, currentGeneration);
+    
+    
+    
+    // render and await the result:
+    const renderedCss = await renderStyleSheetAsync(styleSheet);
+    
+    
+    
+    // check if the rendered is not *expired*:
+    const checkGeneration = raceRenderStyleSheet.get(styleSheet) ?? 0;
+    if (checkGeneration !== currentGeneration) return undefined; // a *newer generation* detected => *expired* render => abort
+    
+    
+    
+    // still the *latest* generation => return the result:
+    return renderedCss;
+}
 const handleUpdate = async (styleSheet: StyleSheet): Promise<void> => {
     const styleSheetEnabled = styleSheet.enabled;
     
@@ -259,11 +282,12 @@ const handleUpdate = async (styleSheet: StyleSheet): Promise<void> => {
         (
             config.asyncRender
             ?
-            await renderStyleSheetAsync(styleSheet)
+            await unraceRenderStyleSheetAsync(styleSheet)
             :
             renderStyleSheet(styleSheet)
         )
     );
+    if (renderedCss === undefined) return; // ignore *expired* render
     
     
     
@@ -273,7 +297,7 @@ const handleUpdate = async (styleSheet: StyleSheet): Promise<void> => {
         Note:
         if there's a rendered_styleSheet that has not_been_applied, it will be canceled (lost) because a newer rendered_styleSheet is exist
     */
-    pendingCommit.set(styleSheet, renderedCss || null);
+    pendingCommit.set(styleSheet, renderedCss || null); // empty string => null
     
     // schedule to `batchCommit()` the rendered css in the future BEFORE browser repaint:
     scheduleBatchCommit();
