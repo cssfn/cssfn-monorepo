@@ -1,1 +1,1 @@
-none - all fixed
+rename scopeOf to scope
