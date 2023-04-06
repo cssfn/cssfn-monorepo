@@ -175,9 +175,10 @@ class RenderRule {
         this.rendered += ';';
     }
     
-    private hasPropRule(finalStyle: CssFinalStyleMap): boolean {
+    private hasPropRuleOrFallbacksRule(finalStyle: CssFinalStyleMap): boolean {
         for (const [finalSelector] of finalStyle.rules) {
-            if (finalSelector[0] === ' ') return true; // found a PropRule
+            if (finalSelector[0] === ' '      ) return true; // found a PropRule
+            if (finalSelector === '@fallbacks') return true; // found a @fallbacks rule
         } // for
         return false; // not found any PropRule
     }
@@ -196,9 +197,10 @@ class RenderRule {
                     
                     &&
                     
-                    // there is no any PropRule:
+                    // there is no any PropRule nor @fallbacks rule:
                     // in case of a something like @keyframes rule, that is always contains PropRule(s) but not contains nestedRule(s)
-                    !this.hasPropRule(finalStyle)
+                    // a @fallbacks rule is *always nested* -- not be combined with `finalParentSelector` by `renderNestedRules`
+                    !this.hasPropRuleOrFallbacksRule(finalStyle)
                 )
             )
         )

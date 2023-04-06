@@ -124,6 +124,60 @@ jest.isolateModules(() => {
     
     
     
+    //#region test known buggies
+    test(`buggy#1`, () => {
+        styleSheets(() => [
+            mainScope(
+                style({
+                    ...fallbacks({
+                        color: 'red',
+                    }),
+                    ...fallbacks({
+                        color: 'green',
+                    }),
+                })
+            )
+        ], { id: '#buggy#1' });
+        expect(renderStyleSheet(lastStyleSheet!))
+        .toBe(
+`
+.ylzwq {
+color: green;
+color: red;
+}
+`
+        );
+    });
+    test(`buggy#2`, () => {
+        styleSheets(() => [
+            mainScope(
+                style({
+                    ...rule('.RED', {
+                        color: 'red',
+                    }),
+                    ...rule('.GREEN', {
+                        color: 'green',
+                    }),
+                })
+            )
+        ], { id: '#buggy#2' });
+        expect(renderStyleSheet(lastStyleSheet!))
+        .toBe(
+`
+.z5si3.RED {
+color: red;
+}
+
+.z5si3.GREEN {
+color: green;
+}
+`
+        );
+    });
+    //#endregion test known buggies
+    
+    
+    
     //#region test properties
     test(`renderStyleSheet() # test standard propName`, () => {
         styleSheets(() => [
