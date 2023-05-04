@@ -99,7 +99,7 @@ const defaultStyleSheetOptions : Required<StyleSheetOptions> = {
     prerender  : true,
 }
 
-export type StyleSheetUpdatedCallback<in TCssScopeName extends CssScopeName> = (styleSheet: StyleSheet<TCssScopeName>) => void;
+export type StyleSheetUpdatedCallback<in TCssScopeName extends CssScopeName> = (styleSheet: StyleSheet<TCssScopeName>, type: StyleSheetUpdateChangedType) => void;
 export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implements Required<StyleSheetOptions> {
     //#region private properties
     // configs:
@@ -247,13 +247,14 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
             
             
             if (forceUpdate) {
-                this.notifyUpdated();
+                this.notifyUpdated('scopesChanged');
             } // if
         }
         else { // scopes is Observable<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
             let subsequentUpdate = false;
             scopes.subscribe((newScopesOrEnabled) => {
-                if (typeof(newScopesOrEnabled) === 'boolean') { // newScopesOrEnabled is boolean
+                const isEnabledChanged = typeof(newScopesOrEnabled) === 'boolean';
+                if (isEnabledChanged) { // newScopesOrEnabled is boolean
                     // update prop `enabled`:
                     
                     if (this._options.enabled === newScopesOrEnabled) return; // no change => no need to update
@@ -273,15 +274,15 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
                 
                 // notify a StyleSheet updated ONLY on SUBSEQUENT update:
                 if (forceUpdate || subsequentUpdate) {
-                    this.notifyUpdated();
+                    this.notifyUpdated(isEnabledChanged ? 'enabledChanged' : 'scopesChanged');
                 } // if
             });
             subsequentUpdate = true; // any updates AFTER calling `scopes.subscribe` is considered as SUBSEQUENT update
         } // if
     }
     
-    protected notifyUpdated(): void {
-        this._updatedCallback(this); // notify a StyleSheet updated
+    protected notifyUpdated(type: StyleSheetUpdateChangedType): void {
+        this._updatedCallback(this, type); // notify a StyleSheet updated
     }
     //#endregion protected methods
     
@@ -323,7 +324,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
 
 export type      StyleSheetUpdateChangedType = 'enabledChanged'|'scopesChanged'
 export type      StyleSheetUpdateType        = 'added'|'existing'|StyleSheetUpdateChangedType
-export interface StyleSheetUpdateEvent<TCssScopeName extends CssScopeName> {
+export interface StyleSheetUpdateEvent<out TCssScopeName extends CssScopeName> {
     styleSheet : StyleSheet<TCssScopeName>
     type       : StyleSheetUpdateType
 }
