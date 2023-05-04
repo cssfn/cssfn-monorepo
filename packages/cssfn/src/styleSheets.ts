@@ -83,18 +83,20 @@ export const isObservableStyles = (styles: StyleSheetFactoryBase): styles is Obs
 // style sheets:
 
 export interface StyleSheetOptions {
-    enabled ?: boolean
-    id      ?: string
+    enabled   ?: boolean
+    id        ?: string
     
-    ssr     ?: boolean
-    lazyCsr ?: boolean
+    ssr       ?: boolean
+    lazyCsr   ?: boolean
+    prerender ?: boolean
 }
 const defaultStyleSheetOptions : Required<StyleSheetOptions> = {
-    enabled  : true,
-    id       : '',
+    enabled    : true,
+    id         : '',
     
-    ssr      : true,
-    lazyCsr  : true,
+    ssr        : true,
+    lazyCsr    : true,
+    prerender  : true,
 }
 
 export type StyleSheetUpdatedCallback<in TCssScopeName extends CssScopeName> = (styleSheet: StyleSheet<TCssScopeName>) => void;
@@ -125,11 +127,12 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         const styleSheetOptions : Required<StyleSheetOptions> = {
             ...options,
             
-            enabled : options?.enabled ?? defaultStyleSheetOptions.enabled,
-            id      : options?.id      ?? defaultStyleSheetOptions.id,
+            enabled   : options?.enabled   ?? defaultStyleSheetOptions.enabled,
+            id        : options?.id        ?? defaultStyleSheetOptions.id,
             
-            ssr     : options?.ssr     ?? defaultStyleSheetOptions.ssr,
-            lazyCsr : options?.lazyCsr ?? defaultStyleSheetOptions.lazyCsr,
+            ssr       : options?.ssr       ?? defaultStyleSheetOptions.ssr,
+            lazyCsr   : options?.lazyCsr   ?? defaultStyleSheetOptions.lazyCsr,
+            prerender : options?.prerender ?? defaultStyleSheetOptions.prerender,
         };
         this._options         = styleSheetOptions;
         this._updatedCallback = updatedCallback;
@@ -299,6 +302,10 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     
     get lazyCsr() {
         return this._options.lazyCsr;
+    }
+    
+    get prerender() {
+        return this._options.prerender;
     }
     
     get scopes() {
