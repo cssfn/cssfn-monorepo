@@ -321,10 +321,16 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
 
 
 
+export type      StyleSheetUpdateChangedType = 'enabledChanged'|'scopesChanged'
+export type      StyleSheetUpdateType        = 'added'|'existing'|StyleSheetUpdateChangedType
+export interface StyleSheetUpdateEvent<TCssScopeName extends CssScopeName> {
+    styleSheet : StyleSheet<TCssScopeName>
+    type       : StyleSheetUpdateType
+}
 class StyleSheetRegistry {
     //#region private properties
     private _styleSheets : StyleSheet<CssScopeName>[]
-    private _subscribers : Subject<StyleSheet<CssScopeName>>
+    private _subscribers : Subject<StyleSheetUpdateEvent<CssScopeName>>
     //#endregion private properties
     
     
@@ -332,7 +338,7 @@ class StyleSheetRegistry {
     //#region constructors
     constructor() {
         this._styleSheets = [];
-        this._subscribers = new Subject<StyleSheet<CssScopeName>>();
+        this._subscribers = new Subject<StyleSheetUpdateEvent<CssScopeName>>();
     }
     //#endregion constructors
     
@@ -349,27 +355,28 @@ class StyleSheetRegistry {
         
         
         
-        this._styleSheets.push(newStyleSheet);     // register to collection
+        this._styleSheets.push(newStyleSheet);          // register to collection
         
         
         
-        if (newStyleSheet.enabled) {               // skip disabled styleSheet
-            this._subscribers.next(newStyleSheet); // notify a StyleSheet added
-        } // if
+        this._subscribers.next({                        // notify a StyleSheet added
+            styleSheet : newStyleSheet,
+            type       : 'added',
+        });
         
         
         
         return newStyleSheet;
     }
     
-    subscribe(subscriber: (styleSheet: StyleSheet<CssScopeName>) => void) {
+    subscribe(subscriber: (event: StyleSheetUpdateEvent<CssScopeName>) => void) {
         //#region notify previously registered StyleSheet(s)
         const styleSheets = this._styleSheets;
         for (let i = 0; i < styleSheets.length; i++) {
-            const styleSheet = styleSheets[i];
-            if (!styleSheet.enabled) continue;     // skip disabled styleSheet
-            
-            subscriber(styleSheet);
+            subscriber({                                // notify previously registered StyleSheet(s)
+                styleSheet : styleSheets[i],
+                type       : 'existing',
+            });
         } // for
         //#endregion notify previously registered StyleSheet(s)
         
@@ -380,8 +387,11 @@ class StyleSheetRegistry {
     
     
     //#region public callbacks
-    handleStyleSheetUpdated = (styleSheet: StyleSheet<CssScopeName>): void => {
-        this._subscribers.next(styleSheet); // notify a StyleSheet updated
+    handleStyleSheetUpdated = (styleSheet: StyleSheet<CssScopeName>, type: StyleSheetUpdateChangedType): void => {
+        this._subscribers.next({                        // notify a StyleSheet updated
+            styleSheet : styleSheet,
+            type       : type,
+        });
     }
     //#endregion public callbacks
 }
