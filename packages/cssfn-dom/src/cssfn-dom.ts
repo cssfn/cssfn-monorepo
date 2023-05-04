@@ -1,7 +1,12 @@
 // cssfn:
+import type {
+    // cssfn properties:
+    CssScopeName,
+}                           from '@cssfn/css-types'
 import {
     // style sheets:
     StyleSheet,
+    StyleSheetUpdateEvent,
     styleSheetRegistry,
     
     
@@ -250,12 +255,13 @@ const unraceRenderStyleSheetAsync = async (styleSheet: StyleSheet): Promise<Awai
     // still the *latest* generation => return the result:
     return renderedCss;
 }
-const handleUpdate = async (styleSheet: StyleSheet): Promise<void> => {
-    const styleSheetEnabled = styleSheet.enabled;
+const handleUpdate = async ({styleSheet, type}: StyleSheetUpdateEvent<CssScopeName>): Promise<void> => {
+    const styleSheetEnabled  = styleSheet.enabled;
+    const doRenderStyleSheet = styleSheetEnabled || styleSheet.prerender; // if the styleSheet is enabled -or- disabled but marked to prerender => perform render
     
     
     
-    if (styleSheetEnabled && styleSheet.lazyCsr) {
+    if (doRenderStyleSheet && styleSheet.lazyCsr) {
         /* ***** [lazyCsr]: if possible, skip the first_render by re-use SSR generated <style> element ***** */
         
         
@@ -277,7 +283,7 @@ const handleUpdate = async (styleSheet: StyleSheet): Promise<void> => {
     
     
     const renderedCss = (
-        (styleSheetEnabled || null) // if the styleSheet is disabled => no need to render
+        (doRenderStyleSheet || null)
         &&
         (
             config.asyncRender
