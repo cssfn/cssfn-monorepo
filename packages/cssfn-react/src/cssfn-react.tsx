@@ -300,7 +300,7 @@ export const Styles = ({ asyncRender = false, onlySsr = true }: StylesProps): JS
     
     
     // jsx:
-    return useMemo((): JSX.Element|null => {
+    const stylesJsx = useMemo((): JSX.Element|null => {
         // mark <Styles> component as live:
         loaded.current = true;
         
@@ -321,6 +321,22 @@ export const Styles = ({ asyncRender = false, onlySsr = true }: StylesProps): JS
             </>
         );
     }, [generation]); // re-create the `JSX.Element` if `generation` changed
+    
+    return (
+        <>
+            {stylesJsx}
+            <script dangerouslySetInnerHTML={useMemo((): React.DOMAttributes<HTMLStyleElement>['dangerouslySetInnerHTML'] => ({
+                __html:
+`
+for (const style of document.querySelectorAll('style[data-cssfn-id]')) {
+    if (!style.hasAttribute('disabled')) continue;
+    style.removeAttribute('disabled');
+    style.disabled = true;
+}
+`
+            }), [])} />
+        </>
+    );
 };
 
 export const HeadPortal = ({ children }: React.PropsWithChildren<{}>): JSX.Element|null => {
