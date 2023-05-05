@@ -177,6 +177,7 @@ const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ id, enabled, c
             
             // behaviors:
             {...(enabled ? undefined : ({ disabled : true } as {}))} /* non_standard [disabled] */
+            suppressHydrationWarning={true} // supports for <script> of removing [disabled] property
             
             
             
@@ -322,19 +323,19 @@ export const Styles = ({ asyncRender = false, onlySsr = true }: StylesProps): JS
         );
     }, [generation]); // re-create the `JSX.Element` if `generation` changed
     
+    const scriptNormalizeDisabledStyle = useMemo((): React.DOMAttributes<HTMLStyleElement>['dangerouslySetInnerHTML'] => ({
+        __html:
+`for (const style of document.querySelectorAll('style[data-cssfn-id][disabled]')) {
+    style.removeAttribute('disabled');
+    style.disabled = true;
+    console.log('normalized: ', style);
+}`
+    }), []);
+    
     return (
         <>
             {stylesJsx}
-            <script dangerouslySetInnerHTML={useMemo((): React.DOMAttributes<HTMLStyleElement>['dangerouslySetInnerHTML'] => ({
-                __html:
-`
-for (const style of document.querySelectorAll('style[data-cssfn-id]')) {
-    if (!style.hasAttribute('disabled')) continue;
-    style.removeAttribute('disabled');
-    style.disabled = true;
-}
-`
-            }), [])} />
+            <script dangerouslySetInnerHTML={scriptNormalizeDisabledStyle} />
         </>
     );
 };
