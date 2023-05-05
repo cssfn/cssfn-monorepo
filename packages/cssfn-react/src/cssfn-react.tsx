@@ -127,7 +127,18 @@ const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ id, enabled, c
     
     
     // dom effects:
-    useIsomorphicLayoutEffect(() => {
+    useIsomorphicLayoutEffect(() => { // runs before browser_paint occured
+        // conditions:
+        const styleElm = styleRef.current;
+        if (!styleElm) return;
+        
+        
+        
+        // actions:
+        styleElm.disabled = !enabled;
+    }, [enabled]);
+    
+    useEffect(() => { // runs after hydration completed
         // conditions:
         const styleElm = styleRef.current;
         if (!styleElm) return;
@@ -136,8 +147,7 @@ const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ id, enabled, c
         
         // actions:
         styleElm.removeAttribute('disabled'); /* non_standard [disabled] */
-        styleElm.disabled = !enabled;
-    }, [enabled]);
+    }, []);
     
     
     
