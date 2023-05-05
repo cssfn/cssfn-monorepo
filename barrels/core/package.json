@@ -29,7 +29,7 @@
     "tsc:watch": "tsc --watch",
     "ncu": "ncu --peer",
     "ncu:upgrade": "ncu --peer --upgrade",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
     "@cssfn/css-config": "^2.5.0",
