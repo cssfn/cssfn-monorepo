@@ -302,7 +302,7 @@ export const Styles = ({ asyncRender = false, onlySsr = true }: StylesProps): JS
     
     
     // identifiers:
-    const styleGroupId = useId();
+    const scriptId = useId();
     
     
     
@@ -331,21 +331,22 @@ export const Styles = ({ asyncRender = false, onlySsr = true }: StylesProps): JS
     
     const scriptNormalizeDisabledStyle = useMemo((): React.DOMAttributes<HTMLStyleElement>['dangerouslySetInnerHTML'] => ({
         __html:
-`for (const style of (document.getElementById('${styleGroupId}')?.querySelectorAll('style[data-cssfn-id][disabled]') ?? [])) {
-    style.removeAttribute('disabled');
-    style.disabled = true;
-}`
+`
+const scriptElm = document.getElementById('${scriptId}');
+for (const child of (scriptElm?.parentElement?.children ?? [])) {
+    if (child === scriptElm) break;
+    if (!child.matches('style[data-cssfn-id][disabled]')) continue;
+    child.removeAttribute('disabled');
+    child.disabled = true;
+}
+`
     }), []);
     
     return (
-        <div
-            // identifiers:
-            id={styleGroupId}
-            data-cssfn-ssr=''
-        >
+        <>
             {stylesJsx}
-            <script dangerouslySetInnerHTML={scriptNormalizeDisabledStyle} />
-        </div>
+            <script id={scriptId} dangerouslySetInnerHTML={scriptNormalizeDisabledStyle} />
+        </>
     );
 };
 
