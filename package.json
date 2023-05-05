@@ -4,7 +4,9 @@
   "scripts": {
     "compile+test": "lerna run tsc && lerna run test",
     "update-deps": "ncu --root --workspaces --peer",
-    "update-deps-u": "ncu --root --workspaces --peer -u"
+    "update-deps-u": "ncu --root --workspaces --peer -u",
+    "build": "npx lerna run tsc",
+    "publish": "npm run build && npx lerna publish from-package"
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",
