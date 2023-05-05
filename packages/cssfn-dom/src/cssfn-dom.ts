@@ -75,7 +75,11 @@ const findCssfnStyleElmById = (cssfnId: string): HTMLStyleElement|null => {
 
 
 // commits:
-const pendingCommit = new Map<StyleSheet, string|null>();
+interface RenderedStyleSheet {
+    renderedCss : string|null
+    enabled     : boolean
+}
+const pendingCommit = new Map<StyleSheet, RenderedStyleSheet>();
 const batchCommit = () => {
     // conditions:
     if (!pendingCommit.size) return; // no queued updates => ignore
@@ -89,11 +93,11 @@ const batchCommit = () => {
     
     
     // apply the changes:
-    const batchAppendChildren : HTMLStyleElement[]                      = [];
-    const batchDeleteChildren : HTMLStyleElement[]                      = [];
-    const batchMutateChildren : (readonly [HTMLStyleElement, string])[] = [];
-    for (const [styleSheet, rendered] of changes) {
-        if (!rendered) {
+    const batchAppendChildren : HTMLStyleElement[]                                  = [];
+    const batchDeleteChildren : HTMLStyleElement[]                                  = [];
+    const batchMutateChildren : (readonly [HTMLStyleElement, RenderedStyleSheet])[] = [];
+    for (const [styleSheet, {renderedCss, enabled}] of changes) {
+        if (!renderedCss) {
             // remove the styleSheet:
             
             
@@ -137,7 +141,7 @@ const batchCommit = () => {
                     csrStyleElms.set(styleSheet, ssrStyleElm);
                     
                     // schedule to re-use (update) SSR generated <style> element:
-                    batchMutateChildren.push([ssrStyleElm, rendered]); // replace: SSR generated => CSR generated
+                    batchMutateChildren.push([ssrStyleElm, { renderedCss, enabled }]); // replace: SSR generated => CSR generated
                 }
                 else {
                     /* ***** create a new CSR generated <style> element ***** */
@@ -145,7 +149,8 @@ const batchCommit = () => {
                     
                     
                     styleElm = document.createElement('style'); // create a new <style> element
-                    styleElm.textContent = rendered;
+                    styleElm.textContent = renderedCss;
+                    styleElm.disabled    = !enabled;
                     styleElm.dataset.cssfnId = styleSheet.id || '';
                     
                     // make a relationship between StyleSheet_object => CSR HTMLStyleElement:
@@ -161,7 +166,7 @@ const batchCommit = () => {
                 
                 
                 // schedule to re-use (update) CSR generated <style> element:
-                batchMutateChildren.push([styleElm, rendered]); // CSR generated
+                batchMutateChildren.push([styleElm, { renderedCss, enabled }]); // CSR generated
             } // if
         } // if
     } // for
@@ -171,8 +176,9 @@ const batchCommit = () => {
     //#region efficiently mutate(s) the <head> element
     // mutate children:
     // the first operation, the <style> element(s) was already there, so the operation is fast & instantly applied
-    for (const [styleElm, rendered] of batchMutateChildren) {
-        styleElm.textContent = rendered;
+    for (const [styleElm, {renderedCss, enabled}] of batchMutateChildren) {
+        styleElm.textContent = renderedCss;
+        styleElm.disabled    = !enabled;
     } // for
     
     
@@ -246,7 +252,7 @@ const unraceRenderStyleSheetAsync = async (styleSheet: StyleSheet): Promise<Awai
     
     
     
-    // check if the rendered is not *expired*:
+    // check if the rendered css is not *expired*:
     const checkGeneration = raceRenderStyleSheet.get(styleSheet) ?? 0;
     if (checkGeneration !== currentGeneration) return undefined; // a *newer generation* detected => *expired* render => abort
     
@@ -257,12 +263,13 @@ const unraceRenderStyleSheetAsync = async (styleSheet: StyleSheet): Promise<Awai
 }
 const handleUpdate = async ({styleSheet, type}: StyleSheetUpdateEvent<CssScopeName>): Promise<void> => {
     const styleSheetEnabled  = styleSheet.enabled;
+    const doUpdateStyleSheet = (type === 'enabledChanged');
     const doRenderStyleSheet = styleSheetEnabled || styleSheet.prerender; // if the styleSheet is enabled -or- disabled but marked to prerender => perform render
     
     
     
-    if (doRenderStyleSheet && styleSheet.lazyCsr) {
-        /* ***** [lazyCsr]: if possible, skip the first_render by re-use SSR generated <style> element ***** */
+    if (styleSheet.lazyCsr && (doUpdateStyleSheet || doRenderStyleSheet)) {
+        /* ***** [lazyCsr]: if possible, skip the first_update_first_render by re-use SSR generated <style> element ***** */
         
         
         
@@ -275,6 +282,11 @@ const handleUpdate = async ({styleSheet, type}: StyleSheetUpdateEvent<CssScopeNa
                 
                 
                 
+                // update the enabled/disabled:
+                if (doUpdateStyleSheet) ssrStyleElm.disabled = !styleSheetEnabled;
+                
+                
+                
                 return; // no need further CSR generated
             } // if
         } // if
@@ -282,18 +294,31 @@ const handleUpdate = async ({styleSheet, type}: StyleSheetUpdateEvent<CssScopeNa
     
     
     
+    // update the enabled/disabled:
+    if (doUpdateStyleSheet) {
+        // find the CSR generated <style> element (if any):
+        const styleElm = csrStyleElms.get(styleSheet);
+        if (styleElm) { // found CSR generated <style> element => update the enabled/disabled
+            styleElm.disabled = !styleSheetEnabled;
+            
+            
+            
+            return; // no need further CSR generated
+        } // if
+    } // if
+    
+    
+    
     const renderedCss = (
-        (doRenderStyleSheet || null)
+        (doRenderStyleSheet || undefined) // do render -or- *canceled*
         &&
         (
             config.asyncRender
-            ?
-            await unraceRenderStyleSheetAsync(styleSheet)
-            :
-            renderStyleSheet(styleSheet)
+            ? await unraceRenderStyleSheetAsync(styleSheet)
+            : renderStyleSheet(styleSheet)
         )
     );
-    if (renderedCss === undefined) return; // ignore *expired* render
+    if (renderedCss === undefined) return; // ignore *canceled*/*expired* render
     
     
     
@@ -303,7 +328,10 @@ const handleUpdate = async ({styleSheet, type}: StyleSheetUpdateEvent<CssScopeNa
         Note:
         if there's a rendered_styleSheet that has not_been_applied, it will be canceled (lost) because a newer rendered_styleSheet is exist
     */
-    pendingCommit.set(styleSheet, renderedCss || null); // empty string => null
+    pendingCommit.set(styleSheet, {
+        renderedCss : renderedCss || null, // empty string => null
+        enabled     : styleSheetEnabled,
+    });
     
     // schedule to `batchCommit()` the rendered css in the future BEFORE browser repaint:
     scheduleBatchCommit();
