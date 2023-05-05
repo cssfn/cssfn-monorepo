@@ -1,1 +1,7 @@
+remove @deprecated
 rename scopeOf to scope
+remove imports
+add atProperty
+rename fallbacks to fallback
+
+experimental remove renderSync on cssfn-dom & cssfn-react
