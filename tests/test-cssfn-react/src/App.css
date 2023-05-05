@@ -55,6 +55,8 @@
   text-align: start;
   margin: 0;
   padding: 0.5rem;
+}
+.stylesheet-view>style:not([disabled]) {
   animation: 1000ms ease flashing;
 }
 .stylesheet-view>style:nth-child(1n) {
@@ -71,6 +73,9 @@
 }
 .stylesheet-view>style:nth-child(5n) {
   background: hsl(277, 50%, 85%);
+}
+.stylesheet-view>style[disabled] {
+  opacity: 0.1;
 }
 
 @keyframes flashing {
