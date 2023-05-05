@@ -10,6 +10,8 @@ import {
     useReducer,
     useRef,
     useMemo,
+    useEffect,
+    useLayoutEffect,
     useInsertionEffect,
     useInsertionEffect as _useInsertionEffect,
     
@@ -49,6 +51,7 @@ import {
     StyleSheetOptions,
     StyleSheetUpdatedCallback,
     StyleSheet,
+    StyleSheetUpdateEvent,
     styleSheetRegistry,
     singularStyleSheet,
     
@@ -56,7 +59,7 @@ import {
     
     // processors:
     renderStyleSheet,
-    renderStyleSheetAsync,
+    unraceRenderStyleSheetAsync,
     
     
     
@@ -76,6 +79,11 @@ import {
 
 
 
+// defaults:
+const _defaultDisableDelay = 0;
+
+
+
 // utilities:
 const isClientSide : boolean = isBrowser || isJsDom;
 
@@ -90,25 +98,75 @@ const useTriggerRender = () => {
     return [setState, generation] as const;
 };
 
+/**
+ * A React helper hook for using `useLayoutEffect` with a fallback to a regular `useEffect` for environments where `useLayoutEffect` should not be used (such as server-side rendering).
+ */
+export const useIsomorphicLayoutEffect = isClientSide ? useLayoutEffect : useEffect;
+
 
 
 // react components:
-interface StyleContent {
-    renderedCss : string|null
-}
 interface StyleProps {
-    content  : StyleContent
+    // identifiers:
     id      ?: string
+    
+    
+    
+    // behaviors:
+    enabled  : boolean
+    
+    
+    
+    // children:
+    children : string|null
 }
-const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ content, id }: StyleProps): JSX.Element|null => {
-    // because the `renderedCss` may be a_huge_string, we need to *unreference* it:
-    const localRenderedCss = content.renderedCss; // copy         the `renderedCss` to local variable
-    content.renderedCss    = null;                // de-reference the `renderedCss` from `props`
+const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ id, enabled, children: renderedCss }: StyleProps): JSX.Element|null => {
+    // refs:
+    const styleRef = useRef<HTMLStyleElement|null>(null);
+    
+    
+    
+    // dom effects:
+    useIsomorphicLayoutEffect(() => {
+        // conditions:
+        const styleElm = styleRef.current;
+        if (!styleElm) return;
+        
+        
+        
+        // actions:
+        styleElm.disabled = !enabled;
+    }, [enabled]);
+    
+    
+    
+    const innerHtml = useMemo((): React.DOMAttributes<HTMLStyleElement>['dangerouslySetInnerHTML'] => {
+        if (!renderedCss) return undefined;
+        
+        return {
+            __html: renderedCss,
+        };
+    }, [renderedCss]);
+    
+    
     
     // jsx:
-    if (!localRenderedCss) return null;
+    if (!innerHtml) return null;
     return (
-        <style data-cssfn-id={id || ''} dangerouslySetInnerHTML={{ __html: localRenderedCss }} />
+        <style
+            // refs:
+            ref={styleRef}
+            
+            
+            
+            // identifiers:
+            data-cssfn-id={id || ''} // for identifier and cssfn's asset marker
+            
+            
+            
+            // children:
+            dangerouslySetInnerHTML={innerHtml}
+        />
     );
 });
 
@@ -134,55 +192,82 @@ export const Styles = ({ asyncRender = false, onlySsr = true }: StylesProps): JS
     
     
     // dom effects:
-    const [unsubscribe] = useState(() => styleSheetRegistry.subscribe(async (styleSheet: StyleSheet): Promise<void> => {
-        const renderedCss = (
-            styleSheet.enabled           // if the styleSheet is disabled         => no need to render
-            &&
-            (!onlySsr || styleSheet.ssr) // if onlySsr -and- SSR_mode is disabled => no need to render
-            &&
-            (
-                asyncRender
-                ?
-                await renderStyleSheetAsync(styleSheet)
-                :
-                renderStyleSheet(styleSheet)
-            )
-        ) || null; // if false|empty_string => null
-        if (!renderedCss) {
-            // remove the <Style>:
-            // styles.delete(styleSheet); // do not delete an item in collection
-            styles.set(styleSheet, null); // instead assign to `null` to mark as deleted, so we can un-delete it later in the same prev order
-        }
-        else {
-            // add/update the <Style>:
-            styles.set(styleSheet,
-                /**
-                 * <Style> is a pure static component and will never re-render by itself.
-                 * To update <Style>, we need to re-create a new <Style>.
-                 */
-                <Style
-                    id={styleSheet.id}
+    const [unsubscribe] = useState(() => styleSheetRegistry.subscribe(async ({styleSheet, type}: StyleSheetUpdateEvent<CssScopeName>): Promise<void> => {
+        const styleSheetEnabled  = styleSheet.enabled;
+        const doUpdateStyleSheet = (type === 'enabledChanged');
+        const doRenderStyleSheet = styleSheetEnabled || styleSheet.prerender; // if the styleSheet is enabled -or- disabled but marked to prerender => perform render
+        
+        
+        
+        try {
+            // update the enabled/disabled:
+            if (doUpdateStyleSheet) {
+                // find the JSX generated <style> element (if any):
+                const styleJsx = styles.get(styleSheet);
+                if (styleJsx) { // found JSX generated <style> element => update the enabled/disabled
+                    styles.set(styleSheet, React.cloneElement(styleJsx,
+                        // props:
+                        {
+                            enabled: styleSheetEnabled,
+                        }
+                    ));
                     
-                    content={
-                        { renderedCss } as StyleContent
-                    }
-                />
+                    
+                    
+                    return; // no need further SSR generated
+                } // if
+            } // if
+            
+            
+            
+            const renderedCss = (
+                ((doRenderStyleSheet && (!onlySsr /* allMode */ || styleSheet.ssr /* ssr_mode_enabled */)) || undefined) // do render (if allMode || ssr_mode_enabled) -or- *canceled*
+                &&
+                (
+                    asyncRender
+                    ? await unraceRenderStyleSheetAsync(styleSheet)
+                    : renderStyleSheet(styleSheet)
+                )
             );
-        } // if
-        
-        
-        
-        if (loaded.current) { // prevents double render of <Styles> component at startup by *async* of `Promise.resolve().then`
-            /**
-             * prevents re-rendering the <Style> while another <Component> is currently rendering
-             * => the solution is async execution => executes after the another <Component> has finished rendering
-             */
-            Promise.resolve().then(() => {
-                if (!loaded.current) return; // prevents executing a dead <Styles> component
-                
-                triggerRender(); // data changed => (re)schedule to (re)render the <Styles>
-            });
-        } // if
+            if (renderedCss === undefined) return; // ignore *canceled*/*expired* render
+            
+            
+            
+            if (!renderedCss) {
+                // remove the <Style>:
+                // styles.delete(styleSheet); // do not delete an item in collection
+                styles.set(styleSheet, null); // instead assign to `null` to mark as deleted, so we can un-delete it later in the same prev order
+            }
+            else {
+                // add/update the <Style>:
+                styles.set(styleSheet,
+                    /**
+                     * <Style> is a pure static component and will never re-render by itself.
+                     * To update <Style>, we need to re-create a new <Style>.
+                     */
+                    <Style
+                        id={styleSheet.id}
+                        
+                        enabled={styleSheetEnabled}
+                    >
+                        {renderedCss}
+                    </Style>
+                );
+            } // if
+        }
+        finally {
+            if (loaded.current) { // prevents double render of <Styles> component at startup by *async* of `Promise.resolve().then`
+                /**
+                 * prevents re-rendering the <Style> while another <Component> is currently rendering
+                 * => the solution is async execution => executes after the another <Component> has finished rendering
+                 */
+                Promise.resolve().then(() => {
+                    if (!loaded.current) return; // prevents executing a dead <Styles> component
+                    
+                    triggerRender(); // data changed => (re)schedule to (re)render the <Styles>
+                });
+            } // if
+        } // try
     }));
     
     useInsertionEffect(() => {
@@ -269,7 +354,7 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
             ...options,
             
             enabled      : options?.enabled      ?? false, // the default is initially disabled, will be re-enabled/re-disabled at runtime
-            disableDelay : options?.disableDelay ?? 1000,
+            disableDelay : options?.disableDelay ?? _defaultDisableDelay,
         };
         
         
