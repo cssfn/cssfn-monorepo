@@ -14,6 +14,7 @@ import {
     useLayoutEffect,
     useInsertionEffect,
     useInsertionEffect as _useInsertionEffect,
+    useId,
     
     
     
@@ -300,6 +301,11 @@ export const Styles = ({ asyncRender = false, onlySsr = true }: StylesProps): JS
     
     
     
+    // identifiers:
+    const styleGroupId = useId();
+    
+    
+    
     // jsx:
     const stylesJsx = useMemo((): JSX.Element|null => {
         // mark <Styles> component as live:
@@ -325,17 +331,21 @@ export const Styles = ({ asyncRender = false, onlySsr = true }: StylesProps): JS
     
     const scriptNormalizeDisabledStyle = useMemo((): React.DOMAttributes<HTMLStyleElement>['dangerouslySetInnerHTML'] => ({
         __html:
-`for (const style of document.querySelectorAll('style[data-cssfn-id][disabled]')) {
+`for (const style of (document.getElementById('${styleGroupId}')?.querySelectorAll('style[data-cssfn-id][disabled]') ?? [])) {
     style.removeAttribute('disabled');
     style.disabled = true;
 }`
     }), []);
     
     return (
-        <>
+        <div
+            // identifiers:
+            id={styleGroupId}
+            data-cssfn-ssr=''
+        >
             {stylesJsx}
             <script dangerouslySetInnerHTML={scriptNormalizeDisabledStyle} />
-        </>
+        </div>
     );
 };
 
