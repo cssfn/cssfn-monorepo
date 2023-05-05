@@ -93,7 +93,7 @@ const batchCommit = () => {
     
     
     // apply the changes:
-    const batchAppendChildren : HTMLStyleElement[]                                  = [];
+    const batchAppendChildren : (readonly [HTMLStyleElement, boolean])[]            = [];
     const batchDeleteChildren : HTMLStyleElement[]                                  = [];
     const batchMutateChildren : (readonly [HTMLStyleElement, RenderedStyleSheet])[] = [];
     for (const [styleSheet, {renderedCss, enabled}] of changes) {
@@ -150,14 +150,14 @@ const batchCommit = () => {
                     
                     styleElm = document.createElement('style'); // create a new <style> element
                     styleElm.textContent = renderedCss;
-                    styleElm.disabled    = !enabled;
+                    // styleElm.disabled    = !enabled; // DOESN'T WORK: disabling <style> *before* mounted to DOM
                     styleElm.dataset.cssfnId = styleSheet.id || '';
                     
                     // make a relationship between StyleSheet_object => CSR HTMLStyleElement:
                     csrStyleElms.set(styleSheet, styleElm);
                     
                     // schedule to append a new CSR generated <style> element:
-                    batchAppendChildren.push(styleElm);
+                    batchAppendChildren.push([styleElm, enabled]); // disabling <style> *after* mounted to DOM
                 } // if
             }
             else {
@@ -189,16 +189,21 @@ const batchCommit = () => {
         if (batchAppendChildren.length === 1) {
             // singular append:
             
-            headElement?.appendChild(batchAppendChildren[0]);
+            const [styleElm, enabled] = batchAppendChildren[0];
+            headElement?.appendChild(styleElm);
+            if (!enabled) styleElm.disabled = true; // disabling <style> *after* mounted to DOM
         }
         else {
             // plural append:
             
             const childrenGroup = document.createDocumentFragment();
-            for (const styleElm of batchAppendChildren) {
+            for (const [styleElm] of batchAppendChildren) {
                 childrenGroup.appendChild(styleElm);
             } // for
             headElement?.appendChild(childrenGroup);
+            for (const [styleElm, enabled] of batchAppendChildren) {
+                if (!enabled) styleElm.disabled = true; // disabling <style> *after* mounted to DOM
+            } // for
         } // if
     } // if
     
