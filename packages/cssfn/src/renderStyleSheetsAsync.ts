@@ -156,6 +156,30 @@ export const renderStyleSheetAsync = async <TCssScopeName extends CssScopeName =
     return renderPromise;
 }
 
+const raceRenderStyleSheet = new Map<StyleSheet, number>();
+export const unraceRenderStyleSheetAsync = async (styleSheet: StyleSheet): Promise<Awaited<ReturnType<typeof renderStyleSheetAsync>>|undefined> => {
+    // update the race flag:
+    const prevGeneration    = raceRenderStyleSheet.get(styleSheet) ?? 0;
+    const currentGeneration = (prevGeneration === Number.MAX_SAFE_INTEGER) ? 0 : (prevGeneration + 1);
+    raceRenderStyleSheet.set(styleSheet, currentGeneration);
+    
+    
+    
+    // render and await the result:
+    const renderedCss = await renderStyleSheetAsync(styleSheet);
+    
+    
+    
+    // check if the rendered css is not *expired*:
+    const checkGeneration = raceRenderStyleSheet.get(styleSheet) ?? 0;
+    if (checkGeneration !== currentGeneration) return undefined; // a *newer generation* detected => *expired* render => abort
+    
+    
+    
+    // still the *latest* generation => return the result:
+    return renderedCss;
+}
+
 
 
 // optimizations:
