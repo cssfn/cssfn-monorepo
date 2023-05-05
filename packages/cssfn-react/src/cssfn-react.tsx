@@ -328,7 +328,6 @@ export const Styles = ({ asyncRender = false, onlySsr = true }: StylesProps): JS
 `for (const style of document.querySelectorAll('style[data-cssfn-id][disabled]')) {
     style.removeAttribute('disabled');
     style.disabled = true;
-    console.log('normalized: ', style);
 }`
     }), []);
     
