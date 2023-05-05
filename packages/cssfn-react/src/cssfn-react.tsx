@@ -135,6 +135,7 @@ const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ id, enabled, c
         
         
         // actions:
+        styleElm.removeAttribute('disabled'); /* non_standard [disabled] */
         styleElm.disabled = !enabled;
     }, [enabled]);
     
@@ -161,6 +162,11 @@ const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ id, enabled, c
             
             // identifiers:
             data-cssfn-id={id || ''} // for identifier and cssfn's asset marker
+            
+            
+            
+            // behaviors:
+            {...(enabled ? undefined : ({ disabled : true } as {}))} /* non_standard [disabled] */
             
             
             
