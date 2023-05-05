@@ -258,7 +258,6 @@ const handleUpdate = async ({styleSheet, type}: StyleSheetUpdateEvent<CssScopeNa
         if (!csrStyleElms.has(styleSheet)) { // if the styleSheet is NEVER CSR generated => find the SSR generated (if any)
             // find the SSR generated <style> element (if any):
             const ssrStyleElm = findCssfnStyleElmById(styleSheet.id);
-            console.log('find result: ', ssrStyleElm)
             if (ssrStyleElm) { // found SSR generated <style> element => re-use it
                 // make a relationship between StyleSheet_object => SSR HTMLStyleElement:
                 csrStyleElms.set(styleSheet, ssrStyleElm);
