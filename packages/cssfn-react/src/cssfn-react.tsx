@@ -148,7 +148,7 @@ const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ id, enabled, c
         
         // actions:
         styleElm.removeAttribute('disabled'); /* non_standard [disabled] */
-    }, []);
+    }, [enabled]);
     
     
     
