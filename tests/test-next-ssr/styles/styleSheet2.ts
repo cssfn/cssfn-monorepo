@@ -1,4 +1,4 @@
-import { style } from '@cssfn/core'
+import { atGlobal, rule, style } from '@cssfn/core'
 
 
 
@@ -8,6 +8,11 @@ export default () => {
         '--sheet2': '"sheet2"',
         background: 'lightblue',
         color: 'darkblue',
+        ...atGlobal({
+            ...rule('body', {
+                background: 'pink',
+            })
+        })
     });
 };
 
