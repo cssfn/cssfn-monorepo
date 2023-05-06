@@ -629,12 +629,3 @@ export const dynamicStyleSheets = <TCssScopeName extends CssScopeName>(scopes: S
 export const dynamicStyleSheet  = (styles: StyleSheetFactory, options?: DynamicStyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
     return singularStyleSheet(dynamicStyleSheets, styles, options);
 };
-
-/**
- * @deprecated renamed to `dynamicStyleSheets`
- */
-export const createUseStyleSheets = dynamicStyleSheets;
-/**
- * @deprecated renamed to `dynamicStyleSheet`
- */
-export const createUseStyleSheet  = dynamicStyleSheet;
