@@ -386,21 +386,21 @@ export type CssFontFaceProps =
 
 export type CssPropertyProps = PartialNullish<{
     syntax       :
-        |'<length>'
-        |'<number>'
-        |'<percentage>'
-        |'<length-percentage>'
-        |'<color>'
-        |'<image>'
-        |'<url>'
-        |'<integer>'
-        |'<angle>'
-        |'<time>'
-        |'<resolution>'
-        |'<transform-function>'
-        |'<custom-ident>'
-        |'<transform-list>'
-        |'*'
+        |'"<length>"'
+        |'"<number>"'
+        |'"<percentage>"'
+        |'"<length-percentage>"'
+        |'"<color>"'
+        |'"<image>"'
+        |'"<url>"'
+        |'"<integer>"'
+        |'"<angle>"'
+        |'"<time>"'
+        |'"<resolution>"'
+        |'"<transform-function>"'
+        |'"<custom-ident>"'
+        |'"<transform-list>"'
+        |'"*"'
         |(string & {})
     
     inherits     : boolean
