@@ -8,6 +8,11 @@ import {
 
 
 
+// @ts-ignore
+const exports = {};
+
+
+
 const isDeepEqual     = (received: any, expected: any): boolean => {
     if (received === undefined) {
         return (expected === undefined);

@@ -86,7 +86,7 @@ jest.isolateModules(() => {
     
     test('[server] test registered styleSheets = 0', () => {
         const activeSheets : StyleSheet[] = [];
-        styleSheetRegistry.subscribe((styleSheet) => {
+        styleSheetRegistry.subscribe(({styleSheet, type}) => {
             if (styleSheet.enabled) {
                 activeSheets.push(styleSheet);
             } else {
@@ -123,7 +123,7 @@ jest.isolateModules(() => {
         
         
         const activeSheets : StyleSheet[] = [];
-        styleSheetRegistry.subscribe((styleSheet) => {
+        styleSheetRegistry.subscribe(({styleSheet, type}) => {
             if (styleSheet.enabled) {
                 activeSheets.push(styleSheet);
             } else {
@@ -152,7 +152,7 @@ jest.isolateModules(() => {
         
         
         const activeSheets : StyleSheet[] = [];
-        styleSheetRegistry.subscribe((styleSheet) => {
+        styleSheetRegistry.subscribe(({styleSheet, type}) => {
             if (styleSheet.enabled) {
                 activeSheets.push(styleSheet);
             } else {
@@ -199,7 +199,7 @@ jest.isolateModules(() => {
         
         
         const activeSheets : StyleSheet[] = [];
-        styleSheetRegistry.subscribe((styleSheet) => {
+        styleSheetRegistry.subscribe(({styleSheet, type}) => {
             if (styleSheet.enabled) {
                 activeSheets.push(styleSheet);
             } else {
@@ -265,7 +265,7 @@ jest.isolateModules(() => {
     
     test('[browser] test registered styleSheets = 0', () => {
         const activeSheets : StyleSheet[] = [];
-        styleSheetRegistry.subscribe((styleSheet) => {
+        styleSheetRegistry.subscribe(({styleSheet, type}) => {
             if (styleSheet.enabled) {
                 activeSheets.push(styleSheet);
             } else {
@@ -302,7 +302,7 @@ jest.isolateModules(() => {
         
         
         const activeSheets : StyleSheet[] = [];
-        styleSheetRegistry.subscribe((styleSheet) => {
+        styleSheetRegistry.subscribe(({styleSheet, type}) => {
             if (styleSheet.enabled) {
                 activeSheets.push(styleSheet);
             } else {
@@ -331,7 +331,7 @@ jest.isolateModules(() => {
         
         
         const activeSheets : StyleSheet[] = [];
-        styleSheetRegistry.subscribe((styleSheet) => {
+        styleSheetRegistry.subscribe(({styleSheet, type}) => {
             if (styleSheet.enabled) {
                 activeSheets.push(styleSheet);
             } else {

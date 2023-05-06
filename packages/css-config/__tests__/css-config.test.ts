@@ -76,8 +76,8 @@ jest.isolateModules(() => {
         
         
         
-        styleSheetRegistry.subscribe((newSheet) => {
-            lastStyleSheet = newSheet;
+        styleSheetRegistry.subscribe(({styleSheet, type}) => {
+            lastStyleSheet = styleSheet;
         });
     });
     
