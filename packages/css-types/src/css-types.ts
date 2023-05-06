@@ -384,31 +384,28 @@ export type CssFontFaceProps =
     & CssLonghandFontFaceProps
     & CssShorthandFontFaceProps
 
-export type CssPropertyProps =
-    & {
-        syntax       :
-            |'<length>'
-            |'<number>'
-            |'<percentage>'
-            |'<length-percentage>'
-            |'<color>'
-            |'<image>'
-            |'<url>'
-            |'<integer>'
-            |'<angle>'
-            |'<time>'
-            |'<resolution>'
-            |'<transform-function>'
-            |'<custom-ident>'
-            |'<transform-list>'
-            |'*'
-            |(string & {})
-        
-        inherits     : boolean
-    }
-    & PartialNullish<{
-        initialValue : string
-    }>
+export type CssPropertyProps = PartialNullish<{
+    syntax       :
+        |'<length>'
+        |'<number>'
+        |'<percentage>'
+        |'<length-percentage>'
+        |'<color>'
+        |'<image>'
+        |'<url>'
+        |'<integer>'
+        |'<angle>'
+        |'<time>'
+        |'<resolution>'
+        |'<transform-function>'
+        |'<custom-ident>'
+        |'<transform-list>'
+        |'*'
+        |(string & {})
+    
+    inherits     : boolean
+    initialValue : string
+}>
 //#endregion css special properties
 
 export type CssKnownStandardLonghandProps  =
