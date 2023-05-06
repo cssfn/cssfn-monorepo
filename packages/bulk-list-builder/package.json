@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/bulk-list-builder",
-  "version": "2.5.0",
+  "version": "3.0.0",
   "description": "A tool for creating an efficient list of words.",
   "keywords": [
     "list",
