@@ -608,6 +608,7 @@ export type CssStyleMap                = CssStyleMapFilteredKeys & CssStyleMapOv
 export type CssFinalStyleMap           = CssStyleMapFilteredKeys & CssFinalStyleMapOverloads & Omit<CssPropsMap              & CssFinalRuleMap, CssStyleMapExcludeMembers>
 export type CssStyleCollection         = MaybeFactoryMaybeDeepArray<OptionalOrBoolean<CssStyle>>
 export type CssFontFaceStyleCollection = MaybeFactoryMaybeDeepArray<OptionalOrBoolean<CssFontFaceProps>>
+export type CssPropertyStyleCollection = MaybeFactoryMaybeDeepArray<OptionalOrBoolean<CssPropertyProps>>
 
 export interface CssCustomKeyframesRef {
     value      : string|null
