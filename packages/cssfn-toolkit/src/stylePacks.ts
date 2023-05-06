@@ -71,11 +71,6 @@ export type StylePackConfig<TName extends string, TPlural extends string, TCssCo
 } & {
     [key in `${TName}Values`] : Vals<TCssConfigProps>
 } & {
-    /**
-     * @deprecated renamed to `css${Capitalize<TName>}Config`.
-     */
-    [key in `${TName}Config`] : LiveCssConfigOptions
-} & {
     [key in `css${Capitalize<TName>}Config`] : LiveCssConfigOptions
 }
 export type StylePackMixins<TName extends string, TMixinDefs extends MixinDefs> = {
@@ -156,9 +151,8 @@ export const createStylePack = <
     
     
     return {
-        [plural         ] : config?.[0],
-        [`${name}Values`] : config?.[1],
-        [`${name}Config`] : config?.[2],
+        [plural                               ] : config?.[0],
+        [                     `${name}Values` ] : config?.[1],
         [`css${startsCapitalized(name)}Config`] : config?.[2],
         
         ...cachedMixins,
