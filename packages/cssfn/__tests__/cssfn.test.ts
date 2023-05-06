@@ -27,7 +27,7 @@ import {
     
     alwaysRule,
     neverRule,
-    fallbacks,
+    fallback,
     fontFace,
     atGlobal,
     atRoot,
@@ -1796,19 +1796,19 @@ test(`neverRule()`, () => {
     });
 });
 
-test(`fallbacks()`, () => {
+test(`fallback()`, () => {
     expect(firstSelectorOf(mergeStyles(
-        fallbacks({
+        fallback({
             color: 'red',
         })
     )))
     .toBe(
-        '@fallbacks'
+        '@fallback'
     );
 });
-test(`fallbacks()`, () => {
+test(`fallback()`, () => {
     expect(firstStylesOf(mergeStyles(
-        fallbacks([
+        fallback([
             {
                 background: 'pink',
                 color: 'red',

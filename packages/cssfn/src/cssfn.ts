@@ -326,7 +326,7 @@ const neverRuleCache           : CssRule = {
 };
 Object.freeze(neverRuleCache);
 export const neverRule         = (                                                                ) => neverRuleCache; // a bit faster
-export const fallbacks         = (styles:         CssStyleCollection                              ) => atRule('@fallbacks'        , styles         );
+export const fallback          = (styles:         CssStyleCollection                              ) => atRule('@fallback'         , styles         );
 export const fontFace          = (styles: CssFontFaceStyleCollection                              ) => atRule('@font-face'        , styles         );
 export const atGlobal          = (rules :          CssRuleCollection                              ) => atRule('@global'           , rules          );
 

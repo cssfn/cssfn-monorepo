@@ -175,10 +175,10 @@ class RenderRule {
         this.rendered += ';';
     }
     
-    private hasPropRuleOrFallbacksRule(finalStyle: CssFinalStyleMap): boolean {
+    private hasPropRuleOrFallbackRule(finalStyle: CssFinalStyleMap): boolean {
         for (const [finalSelector] of finalStyle.rules) {
-            if (finalSelector[0] === ' '      ) return true; // found a PropRule
-            if (finalSelector === '@fallbacks') return true; // found a @fallbacks rule
+            if (finalSelector[0] === ' '     ) return true; // found a PropRule
+            if (finalSelector === '@fallback') return true; // found a @fallback rule
         } // for
         return false; // not found any PropRule
     }
@@ -197,10 +197,10 @@ class RenderRule {
                     
                     &&
                     
-                    // there is no any PropRule nor @fallbacks rule:
+                    // there is no any PropRule nor @fallback rule:
                     // in case of a something like @keyframes rule, that is always contains PropRule(s) but not contains nestedRule(s)
-                    // a @fallbacks rule is *always nested* -- not be combined with `finalParentSelector` by `renderNestedRules`
-                    !this.hasPropRuleOrFallbacksRule(finalStyle)
+                    // a @fallback rule is *always nested* -- not be combined with `finalParentSelector` by `renderNestedRules`
+                    !this.hasPropRuleOrFallbackRule(finalStyle)
                 )
             )
         )
@@ -243,7 +243,7 @@ class RenderRule {
         //#endregion render complete .selector { style }
     }
     private renderStyle(finalStyle: CssFinalStyleMap|null): void {
-        this.renderFallbacksRules(finalStyle);
+        this.renderFallbackRules(finalStyle);
         
         
         
@@ -260,10 +260,10 @@ class RenderRule {
         this.renderPropRules(finalStyle);
     }
     
-    private renderFallbacksRules(nestedRules: CssFinalStyleMap|null): void {
+    private renderFallbackRules(nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
-        for (const [finalSelector, finalStyle] of nestedRules.rules.slice(0).reverse()) { // reverse the @fallbacks order
-            if (finalSelector !== '@fallbacks') continue; // only interested in @fallbacks
+        for (const [finalSelector, finalStyle] of nestedRules.rules.slice(0).reverse()) { // reverse the @fallback order
+            if (finalSelector !== '@fallback') continue; // only interested in @fallback
             
             
             
@@ -287,8 +287,8 @@ class RenderRule {
     private renderNestedRules(finalParentSelector: CssFinalSelector|null, nestedRules: CssFinalStyleMap|null): void {
         if (!nestedRules) return;
         for (const [finalSelector, finalStyle] of nestedRules.rules) {
-            if (finalSelector[0] === ' ')       continue; // skip PropRule
-            if (finalSelector === '@fallbacks') continue; // skip @fallbacks
+            if (finalSelector[0] === ' '        ) continue; // skip PropRule
+            if (finalSelector    === '@fallback') continue; // skip @fallback
             
             
             

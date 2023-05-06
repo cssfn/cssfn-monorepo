@@ -11,7 +11,7 @@ import {
     
     
     // rule shortcuts:
-    fallbacks          as _fallbacks,
+    fallback           as _fallback,
     fontFace           as _fontFace,
     keyframes          as _keyframes,
     rule               as _rule,
@@ -63,7 +63,7 @@ const simulateBrowserSide = (dom: _JSDOM) => {
 jest.isolateModules(() => {
     let JSDOM              : typeof _JSDOM              = undefined as any;
     let dom                : _JSDOM                     = undefined as any;
-    let fallbacks          : typeof _fallbacks          = undefined as any;
+    let fallback           : typeof _fallback           = undefined as any;
     let fontFace           : typeof _fontFace           = undefined as any;
     let keyframes          : typeof _keyframes          = undefined as any;
     let rule               : typeof _rule               = undefined as any;
@@ -98,7 +98,7 @@ jest.isolateModules(() => {
         
         const cssfnModule  = await import('../dist/index.js')
         
-        fallbacks          = cssfnModule.fallbacks
+        fallback           = cssfnModule.fallback
         fontFace           = cssfnModule.fontFace
         keyframes          = cssfnModule.keyframes
         rule               = cssfnModule.rule
@@ -129,10 +129,10 @@ jest.isolateModules(() => {
         styleSheets(() => [
             mainScope(
                 style({
-                    ...fallbacks({
+                    ...fallback({
                         color: 'red',
                     }),
-                    ...fallbacks({
+                    ...fallback({
                         color: 'green',
                     }),
                 })
@@ -376,13 +376,13 @@ background-position: 0 0, 1cm 2cm, center !important;
     
     
     
-    //#region test @fallbacks
-    test(`renderStyleSheet() # test @fallbacks`, () => {
+    //#region test @fallback
+    test(`renderStyleSheet() # test @fallback`, () => {
         styleSheets(() => [
             mainScope(
                 style({
                     background: 'linear-gradient(to right, red 0%, green 100%)',
-                    ...fallbacks({
+                    ...fallback({
                         background: 'red',
                     }),
                 })
@@ -398,21 +398,21 @@ background: linear-gradient(to right, red 0%, green 100%);
 `
         );
     });
-    test(`renderStyleSheet() # test @fallbacks`, () => {
+    test(`renderStyleSheet() # test @fallback`, () => {
         styleSheets(() => [
             mainScope(
                 style({
                     display: 'grid',
-                    ...fallbacks({
+                    ...fallback({
                         display: 'flex',
                     }),
-                    ...fallbacks({
+                    ...fallback({
                         display: 'block',
                     }),
-                    ...fallbacks({
+                    ...fallback({
                         display: 'inline',
                     }),
-                    ...fallbacks({
+                    ...fallback({
                         display: 'none',
                     }),
                 })
@@ -434,10 +434,10 @@ display: grid;
     
     
     
-    test(`renderStyleSheet() # test @fallbacks`, () => {
+    test(`renderStyleSheet() # test @fallback`, () => {
         styleSheet(() => ({
             background: 'linear-gradient(to right, red 0%, green 100%)',
-            ...fallbacks({
+            ...fallback({
                 background: 'red',
             }),
         }), { id: '#sheet#5' });
@@ -451,19 +451,19 @@ background: linear-gradient(to right, red 0%, green 100%);
 `
         );
     });
-    test(`renderStyleSheet() # test @fallbacks`, () => {
+    test(`renderStyleSheet() # test @fallback`, () => {
         styleSheet(() => ({
             display: 'grid',
-            ...fallbacks({
+            ...fallback({
                 display: 'flex',
             }),
-            ...fallbacks({
+            ...fallback({
                 display: 'block',
             }),
-            ...fallbacks({
+            ...fallback({
                 display: 'inline',
             }),
-            ...fallbacks({
+            ...fallback({
                 display: 'none',
             }),
         }), { id: '#sheet#6' });
@@ -480,7 +480,7 @@ display: grid;
 `
         );
     });
-    //#endregion test @fallbacks
+    //#endregion test @fallback
     
     
     

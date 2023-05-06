@@ -384,7 +384,7 @@ export const mergeParent  = (style: CssStyleMap): void => {
 }
 
 const mergeableNestedAtRules = ['@media', '@supports', '@document', '@global'];
-// const unmergeableNestedAtRules = ['@keyframes', '@font-face', '@fallbacks'];
+// const unmergeableNestedAtRules = ['@keyframes', '@font-face', '@fallback'];
 export const isMergeableNestedAtRule = (finalSelector: CssFinalSelector) => mergeableNestedAtRules.some((at) => finalSelector.startsWith(at));
 
 type GroupedRules = readonly [symbol, CssFinalSelector, CssStyleCollection]
