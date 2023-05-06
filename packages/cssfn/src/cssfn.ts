@@ -464,16 +464,12 @@ export const nextSiblings = (selectors: CssSelectorCollection, styles: CssStyleC
  * Defines css properties.
  * @returns A `CssRule` represents the css properties.
  */
-export const style   = (style: CssStyle)              => alwaysRule(style);
+export const style = (style: CssStyle)       => alwaysRule(style);
 /**
  * Defines css variables.
  * @returns A `CssRule` represents the css variables.
  */
-export const vars    = (items: CssCustomProps)        => alwaysRule(items);
-/**
- * @deprecated use spread operator instead.
- */
-export const imports = (styles: CssStyleCollection[]) => alwaysRule(styles); // force to use an array bracket [] for syntax consistency
+export const vars  = (items: CssCustomProps) => alwaysRule(items);
 
 
 

@@ -57,7 +57,6 @@ import {
     
     style,
     vars,
-    imports,
     
     iif,
     escapeSvg,
@@ -2440,40 +2439,6 @@ test(`vars()`, () => {
         '--default-border' : [['solid', '1px', 'red'], '!important'],
         'var(--myVar)'     : '"boo"',
         'var(--myBorder)'  : [['dashed', '2px', 'blue']],
-    });
-});
-test(`imports()`, () => {
-    expect(cssMapToStyle(mergeStyles(
-        imports([
-            {
-                color      : 'blue',
-                background : 'lightblue',
-            },
-        ])
-    )))
-    .toExactEqual({
-        color      : 'blue',
-        background : 'lightblue',
-    });
-});
-test(`imports()`, () => {
-    expect(cssMapToStyle(mergeStyles(
-        imports([
-            {
-                color      : 'blue',
-                background : 'lightblue',
-            },
-            {
-                opacity    : 0.9,
-                width      : '300px',
-            },
-        ])
-    )))
-    .toExactEqual({
-        color      : 'blue',
-        background : 'lightblue',
-        opacity    : 0.9,
-        width      : '300px',
     });
 });
 //#endregion styles
