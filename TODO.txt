@@ -1,4 +1,3 @@
-remove @deprecated
 rename scopeOf to scope
 add atProperty
 rename fallbacks to fallback
