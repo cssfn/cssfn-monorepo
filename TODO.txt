@@ -3,5 +3,6 @@ rename scopeOf to scope
 remove imports
 add atProperty
 rename fallbacks to fallback
+rename vars to var
 
 experimental remove renderSync on cssfn-dom & cssfn-react
