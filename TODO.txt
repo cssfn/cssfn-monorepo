@@ -1,4 +1,3 @@
 add atProperty
-rename vars to var
 
 experimental remove renderSync on cssfn-dom & cssfn-react
