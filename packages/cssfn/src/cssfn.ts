@@ -15,6 +15,8 @@ import type {
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
+    CssCustomName,
+    CssCustomSimpleRef,
     CssCustomValue,
     CssCustomProps,
     
@@ -29,6 +31,7 @@ import type {
     CssStyle,
     CssStyleCollection,
     CssFontFaceStyleCollection,
+    CssPropertyStyleCollection,
     
     CssCustomKeyframesRef,
     CssKeyframes,
@@ -328,6 +331,10 @@ Object.freeze(neverRuleCache);
 export const neverRule         = (                                                                ) => neverRuleCache; // a bit faster
 export const fallback          = (styles:         CssStyleCollection                              ) => atRule('@fallback'         , styles         );
 export const fontFace          = (styles: CssFontFaceStyleCollection                              ) => atRule('@font-face'        , styles         );
+export const property          = (styles: CssPropertyStyleCollection,
+                                    name: CssCustomName|CssCustomSimpleRef                        ) => {
+    return atRule(`@property ${name.startsWith('var(') ? name.slice(4, -1) : name}`        , styles         );
+};
 export const atGlobal          = (rules :          CssRuleCollection                              ) => atRule('@global'           , rules          );
 
 export const atRoot            = (styles:         CssStyleCollection, options?: CssSelectorOptions) => rule(':root'               , styles, options);

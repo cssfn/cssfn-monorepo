@@ -367,7 +367,7 @@ class RenderRule {
                 } // if
             }
             else if (finalSelector[0] === '@') {
-                // top_level at rule  , eg: @keyframes, @font-face
+                // top_level at rule  , eg: @keyframes, @font-face, @property
                 
                 this.rendered += (new RenderRule(finalSelector, finalStyle, this._options)).rendered;
             }
