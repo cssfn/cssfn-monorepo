@@ -15,7 +15,7 @@ import type {
     
     
     // scopes:
-    scopeOf     as _scopeOf,
+    scope       as _scope,
     mainScope   as _mainScope,
     globalScope as _globalScope,
 } from '../dist/index.js'
@@ -61,7 +61,7 @@ const simulateBrowserSide = (dom: _JSDOM) => {
 jest.isolateModules(() => {
     let styleSheets        : typeof _styleSheets        = undefined as any;
     // let styleSheet         : typeof _styleSheet         = undefined as any;
-    let scopeOf            : typeof _scopeOf            = undefined as any;
+    let scope              : typeof _scope              = undefined as any;
     let mainScope          : typeof _mainScope          = undefined as any;
     let globalScope        : typeof _globalScope        = undefined as any;
     let styleSheetRegistry : typeof _styleSheetRegistry = undefined as any;
@@ -74,7 +74,7 @@ jest.isolateModules(() => {
         
         styleSheets        = cssfnModule.styleSheets
         // styleSheet         = cssfnModule.styleSheet
-        scopeOf            = cssfnModule.scopeOf
+        scope              = cssfnModule.scope
         mainScope          = cssfnModule.mainScope
         globalScope        = cssfnModule.globalScope
         styleSheetRegistry = cssfnModule.styleSheetRegistry
@@ -102,7 +102,7 @@ jest.isolateModules(() => {
     test('[server] test registered styleSheets = 2', () => {
         const sheet1 = styleSheets(() => [
             mainScope({ color: 'red', }),
-            scopeOf('menuBar', { background: 'blue', }),
+            scope('menuBar', { background: 'blue', }),
             globalScope([]),
         ], { id: 'sheet1' });
         styleSheets(() => [
@@ -227,7 +227,7 @@ jest.isolateModules(() => {
     let dom                : _JSDOM = undefined as any;
     let styleSheets        : typeof _styleSheets        = undefined as any;
     let styleSheet         : typeof _styleSheet         = undefined as any;
-    let scopeOf            : typeof _scopeOf            = undefined as any;
+    let scope              : typeof _scope              = undefined as any;
     let mainScope          : typeof _mainScope          = undefined as any;
     let globalScope        : typeof _globalScope        = undefined as any;
     let styleSheetRegistry : typeof _styleSheetRegistry = undefined as any;
@@ -253,7 +253,7 @@ jest.isolateModules(() => {
         
         styleSheets        = cssfnModule.styleSheets
         styleSheet         = cssfnModule.styleSheet
-        scopeOf            = cssfnModule.scopeOf
+        scope              = cssfnModule.scope
         mainScope          = cssfnModule.mainScope
         globalScope        = cssfnModule.globalScope
         styleSheetRegistry = cssfnModule.styleSheetRegistry
@@ -281,7 +281,7 @@ jest.isolateModules(() => {
     test('[browser] test registered styleSheets = 2', () => {
         const sheet1 = styleSheets(() => [
             mainScope({ color: 'red', }),
-            scopeOf('menuBar', { background: 'blue', }),
+            scope('menuBar', { background: 'blue', }),
             globalScope([]),
         ], { id: 'sheet1' });
         styleSheets(() => [

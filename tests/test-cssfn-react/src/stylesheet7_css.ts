@@ -3,7 +3,7 @@ import {
 } from '@cssfn/cssfn-react'
 import {
     mainScope,
-    scopeOf,
+    scope,
 } from '@cssfn/cssfn'
 
 
@@ -19,7 +19,7 @@ export const useStyleSheet7 = dynamicStyleSheets(() => [
         padding       : '0.5rem',
         gap           : '1rem',
     }),
-    scopeOf('boo', {
+    scope('boo', {
         background: 'lightsalmon',
         color: 'darkorange',
     })

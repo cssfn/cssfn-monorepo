@@ -4,7 +4,7 @@ import type {
 import {
     styleSheets,
     mainScope,
-    scopeOf,
+    scope,
 } from '@cssfn/cssfn'
 import {
     Subject,
@@ -22,7 +22,7 @@ sheetScopes.next([
         appearance: 'none',
         visibility: 'hidden'
     }),
-    scopeOf('other', {
+    scope('other', {
         cursor: 'pointer',
         userSelect: 'none',
     }),

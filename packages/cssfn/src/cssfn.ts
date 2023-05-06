@@ -478,7 +478,7 @@ export const vars  = (items: CssCustomProps) => alwaysRule(items);
  * Defines an additional scoped styleSheet.
  * @returns A `CssScopeEntry` represents a scoped styleSheet.
  */
-export const scopeOf     = <TCssScopeName extends CssScopeName>(scopeName: TCssScopeName, styles: CssStyleCollection, options?: CssScopeOptions): CssScopeEntry<TCssScopeName> => [
+export const scope       = <TCssScopeName extends CssScopeName>(scopeName: TCssScopeName, styles: CssStyleCollection, options?: CssScopeOptions): CssScopeEntry<TCssScopeName> => [
     scopeName,
     styles,
     options
@@ -487,12 +487,12 @@ export const scopeOf     = <TCssScopeName extends CssScopeName>(scopeName: TCssS
  * Defines the main styleSheet.
  * @returns A `CssScopeEntry` represents a main styleSheet.
  */
-export const mainScope   = (styles: CssStyleCollection, options?: CssScopeOptions) => scopeOf('main' , styles, options);
+export const mainScope   = (styles: CssStyleCollection, options?: CssScopeOptions) => scope('main' , styles, options);
 /**
  * Defines an unscoped styleSheet (applied to a whole document).
  * @returns A `CssScopeEntry` represents an unscoped styleSheet.
  */
-export const globalScope = (rules :  CssRuleCollection                           ) => scopeOf(''     , rules          );
+export const globalScope = (rules :  CssRuleCollection                           ) => scope(''     , rules          );
 
 
 

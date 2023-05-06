@@ -1,4 +1,3 @@
-rename scopeOf to scope
 add atProperty
 rename fallbacks to fallback
 rename vars to var

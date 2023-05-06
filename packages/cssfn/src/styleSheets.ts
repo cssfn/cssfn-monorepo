@@ -475,7 +475,7 @@ function createMainScope (styles:         StyleSheetFactoryBase                 
         return null; // empty scope
     }
     else if (!isObservableStyles(styles)) { // styles is CssStyleCollection
-        return [['main', styles, options]]; // scopeOf('main', styles, options)
+        return [['main', styles, options]]; // scope('main', styles, options)
     }
     else { // styles is Observable<CssStyleCollection|boolean>
         const dynamicStyleSheet = new Subject<MaybeFactory<CssScopeList<'main'>|null>|boolean>();
@@ -493,7 +493,7 @@ function createMainScope (styles:         StyleSheetFactoryBase                 
                     ?
                     null                                    // empty scope
                     :
-                    [['main', newStylesOrEnabled, options]] // scopeOf('main', styles, options)
+                    [['main', newStylesOrEnabled, options]] // scope('main', styles, options)
                 );
             } // if
         });
