@@ -24,5 +24,8 @@
     "@types/react-dom": "^18.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@next/bundle-analyzer": "^13.4.1"
   }
 }
