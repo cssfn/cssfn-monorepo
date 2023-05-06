@@ -14,8 +14,8 @@ import { Styles } from '@cssfn/cssfn-react'
 
 
 
-import './stylesheet1_css.ts'
-import './stylesheet2_css.ts'
+import './stylesheet1_css'
+import './stylesheet2_css'
 import { className3, mutateSheet3, toggleSheet3 } from './stylesheet3_css'
 import { toggleSheet4 } from './stylesheet4_css'
 import { mutateSheet5 } from './stylesheet5_css'
@@ -132,10 +132,10 @@ function App() {
                     { toDoList.map((toDoItem, index) =>
                         React.cloneElement(toDoItem, { key: index })
                     ) }
-                    <button onClick={handleAddListItemA}>Add new A</button>
-                    <button onClick={handleAddListItemB}>Add new B</button>
-                    <button onClick={handleAddListItemC}>Add new C</button>
                 </ul>
+                <button onClick={handleAddListItemA}>Add new A</button>
+                <button onClick={handleAddListItemB}>Add new B</button>
+                <button onClick={handleAddListItemC}>Add new C</button>
             </article>
             <article>
                 <TestComponent1 />
