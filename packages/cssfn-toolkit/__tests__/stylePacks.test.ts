@@ -51,7 +51,6 @@ const result = createStylePack({
 const {
     basics,
     basicValues,
-    basicConfig,
     cssBasicConfig,
     
     basicLayout,
@@ -82,9 +81,6 @@ test(`basicValues`, () => {
 
 
 test(`cssBasicConfig`, () => {
-    expect(basicConfig)
-    .toEqual(cssBasicConfig)
-    
     expect(cssBasicConfig.prefix)
     .toBe('bsc');
     
