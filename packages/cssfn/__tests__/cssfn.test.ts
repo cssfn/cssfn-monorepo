@@ -29,6 +29,7 @@ import {
     neverRule,
     fallback,
     fontFace,
+    property,
     atGlobal,
     atRoot,
     ifFirstChild,
@@ -1896,6 +1897,62 @@ test(`fontFace()`, () => {
         fontWeight: 'bold',
         fontStyle: [['oblique', '40deg']],
     });
+});
+
+test(`property()`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        property('--customColor', {
+            syntax: '"<color>"',
+            inherits: true,
+        }),
+    )))
+    .toBe(
+        '@property --customColor'
+    );
+});
+test(`property()`, () => {
+    expect(firstSelectorOf(mergeStyles(
+        property('var(--theDistance)', {
+            syntax: '"<length>"',
+            inherits: false,
+            initialValue: '100px',
+        }),
+    )))
+    .toBe(
+        '@property --theDistance'
+    );
+});
+test(`property()`, () => {
+    expect(firstStylesOf(mergeStyles(
+        property('var(--theDistance)', {
+            syntax: '"<length>"',
+            inherits: false,
+            initialValue: '100px',
+        }),
+    )))
+    .toExactEqual({
+        syntax: '"<length>"',
+        inherits: false,
+        initialValue: '100px',
+    } as any);
+});
+test(`property()`, () => {
+    expect(firstStylesOf(mergeStyles(
+        property('var(--theWidth)', [
+            {
+                syntax: '"<length>"',
+                inherits: true,
+            },
+            {
+                initialValue: '3rem',
+            },
+        ]),
+    )))
+    .toExactEqual({
+        syntax: '"<length>"',
+        inherits: true,
+        initialValue: '3rem',
+    } as any);
 });
 
 test(`global()`, () => {

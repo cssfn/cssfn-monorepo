@@ -13,6 +13,7 @@ import {
     // rule shortcuts:
     fallback           as _fallback,
     fontFace           as _fontFace,
+    property           as _property,
     keyframes          as _keyframes,
     rule               as _rule,
     atRule             as _atRule,
@@ -65,6 +66,7 @@ jest.isolateModules(() => {
     let dom                : _JSDOM                     = undefined as any;
     let fallback           : typeof _fallback           = undefined as any;
     let fontFace           : typeof _fontFace           = undefined as any;
+    let property           : typeof _property           = undefined as any;
     let keyframes          : typeof _keyframes          = undefined as any;
     let rule               : typeof _rule               = undefined as any;
     let atRule             : typeof _atRule             = undefined as any;
@@ -100,6 +102,7 @@ jest.isolateModules(() => {
         
         fallback           = cssfnModule.fallback
         fontFace           = cssfnModule.fontFace
+        property           = cssfnModule.property
         keyframes          = cssfnModule.keyframes
         rule               = cssfnModule.rule
         atRule             = cssfnModule.atRule
@@ -585,6 +588,57 @@ font-style: oblique 40deg;
         );
     });
     //#endregion test @font-face
+    
+    
+    
+    //#region test @property
+    test(`renderStyleSheet() # test @property`, () => {
+        styleSheets(() => [
+            mainScope(
+                style({
+                    ...property('--theColor', {
+                        syntax: '"<color>"',
+                        inherits: true,
+                        initialValue: 'red',
+                    }),
+                })
+            )
+        ], { id: '#sheet#othfmg' });
+        expect(renderStyleSheet(lastStyleSheet!))
+        .toBe(
+`
+@property --theColor {
+syntax: "<color>";
+inherits: true;
+initial-value: red;
+}
+`
+        );
+    });
+    test(`renderStyleSheet() # test @property`, () => {
+        styleSheets(() => [
+            mainScope(
+                style({
+                    ...property('var(--theDistance)', {
+                        syntax: '"<length>"',
+                        inherits: false,
+                        initialValue: '3rem',
+                    }),
+                })
+            )
+        ], { id: '#sheet#8' });
+        expect(renderStyleSheet(lastStyleSheet!))
+        .toBe(
+`
+@property --theDistance {
+syntax: "<length>";
+inherits: false;
+initial-value: 3rem;
+}
+`
+        );
+    });
+    //#endregion test @property
     
     
     

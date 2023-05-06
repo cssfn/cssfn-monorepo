@@ -331,8 +331,8 @@ Object.freeze(neverRuleCache);
 export const neverRule         = (                                                                ) => neverRuleCache; // a bit faster
 export const fallback          = (styles:         CssStyleCollection                              ) => atRule('@fallback'         , styles         );
 export const fontFace          = (styles: CssFontFaceStyleCollection                              ) => atRule('@font-face'        , styles         );
-export const property          = (styles: CssPropertyStyleCollection,
-                                    name: CssCustomName|CssCustomSimpleRef                        ) => {
+export const property          = (name: CssCustomName|CssCustomSimpleRef,
+                                    styles: CssPropertyStyleCollection                            ) => {
     return atRule(`@property ${name.startsWith('var(') ? name.slice(4, -1) : name}`        , styles         );
 };
 export const atGlobal          = (rules :          CssRuleCollection                              ) => atRule('@global'           , rules          );
