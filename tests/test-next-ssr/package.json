@@ -11,7 +11,7 @@
   "dependencies": {
     "@cssfn/core": "^3.0.0",
     "@cssfn/cssfn-dom": "^3.0.0",
-    "@cssfn/cssfn-react": "^3.0.0",
+    "@cssfn/cssfn-react": "^3.0.1",
     "@next/font": "^13.4.1",
     "@types/node": "^20.1.0",
     "eslint": "^8.40.0",

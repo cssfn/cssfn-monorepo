@@ -332,13 +332,16 @@ export const Styles = ({ asyncRender = false, onlySsr = true }: StylesProps): JS
     const scriptNormalizeDisabledStyle = useMemo((): React.DOMAttributes<HTMLStyleElement>['dangerouslySetInnerHTML'] => ({
         __html:
 `
-const scriptElm = document.getElementById('${scriptId}');
-for (const child of (scriptElm?.parentElement?.children ?? [])) {
-    if (child === scriptElm) break;
-    if (!child.matches('style[data-cssfn-id][disabled]')) continue;
-    child.removeAttribute('disabled');
-    child.disabled = true;
-}
+(() => {
+    const scriptElm = document.getElementById('${scriptId}');
+    for (const child of (scriptElm?.parentElement?.children ?? [])) {
+        if (child === scriptElm) break;
+        if (!child.matches('style[data-cssfn-id][disabled]')) continue;
+        child.removeAttribute('disabled');
+        child.disabled = true;
+    }
+    scriptElm?.parentElement?.removeChild?.(scriptElm);
+})();
 `
     }), []);
     
