@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/css-types",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "description": "CSS typescript definitions.",
   "keywords": [
     "css",
@@ -28,7 +28,7 @@
     "tsc:watch": "tsc --watch"
   },
   "dependencies": {
-    "@cssfn/types": "^3.0.0",
+    "@cssfn/types": "^3.0.2",
     "csstype": "^3.1.2"
   }
 }
