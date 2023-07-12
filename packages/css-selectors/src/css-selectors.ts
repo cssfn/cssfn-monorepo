@@ -470,10 +470,10 @@ class SelectorsParser {
     private isValidStringChar(quoteChar: "'" | '"'): boolean {
         const char = this._expression[this._pos];
         if (char === quoteChar) {
-            return ((this._pos >= 1) && (this._expression[this._pos - 1] === '\\')); // looking backward escape char
+            return ((this._pos >= 1) && (this._expression[this._pos - 1] === '\\')); // IF looking_backward: has backward_slash_char => VALID, otherwise: INVALID
         }
-        else if (char === '\\') {
-            return ((this._pos + 1) < this._expressionLength); // looking forward has any char
+        else if (char === '\\') { // backward_slash_char
+            return ((this._pos + 1) < this._expressionLength); // IF looking_forward: has any_char => VALID, otherwise: INVALID
         }
         else {
             return true; // any chars other than quoteChar & backwardChar
@@ -490,10 +490,14 @@ class SelectorsParser {
         
         const value = this._expression.slice(originPos + 1, this._pos - 1); // excludes the opening_quoteChar & closing_quoteChar
         if (quoteChar === "'") { // single quoteChar
-            return value.replace(/(?<!\\)"/g, '\\"'); // escape the unescaped double quoteChar, so both single & double quoteChar are escaped
+            // for consistency reason: escape the unescaped double quoteChar, so both single & double quoteChar are escaped:
+            // return value.replace(/(?<!\\)"/g, '\\"');     // DO NOT USE look_backward    to maximize browser compatibility
+            return value.replace(/(^|[^\\])(")/g, '$1\\$2'); // use an alternative solution to maximize browser compatibility
         }
         else { // double quoteChar
-            return value.replace(/(?<!\\)'/g, "\\'"); // escape the unescaped single quoteChar, so both single & double quoteChar are escaped
+            // for consistency reason: escape the unescaped single quoteChar, so both single & double quoteChar are escaped:
+            // return value.replace(/(?<!\\)'/g, "\\'");     // DO NOT USE look_backward    to maximize browser compatibility
+            return value.replace(/(^|[^\\])(')/g, '$1\\$2'); // use an alternative solution to maximize browser compatibility
         } // if
     }
     private parseString(): string|null {
