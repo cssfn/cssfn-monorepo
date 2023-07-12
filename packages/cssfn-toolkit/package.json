@@ -37,7 +37,7 @@
     "@cssfn/types": "^3.0.2"
   },
   "peerDependencies": {
-    "@cssfn/cssfn": "^3.0.0",
+    "@cssfn/cssfn": "^3.0.2",
     "rxjs": "^7.8.0"
   }
 }

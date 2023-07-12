@@ -36,7 +36,7 @@
     "is-in-browser": "^2.0.0"
   },
   "peerDependencies": {
-    "@cssfn/cssfn": "^3.0.0",
+    "@cssfn/cssfn": "^3.0.2",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "react": "^18.0.0",
