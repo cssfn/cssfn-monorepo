@@ -122,7 +122,7 @@ jest.isolateModules(() => {
                 ...rule('input[type="text"]', {
                     display: 'grid',
                     background: 'gray',
-                    color: 'darkgray',
+                    color: 'rgb(255, 127, 80)',
                 }),
             }),
         ]);
@@ -204,7 +204,7 @@ jest.isolateModules(() => {
                 ...rule('input[type="text"]', {
                     display: 'grid',
                     background: 'gray',
-                    color: 'darkgray',
+                    color: 'rgb(255, 127, 80)',
                 }),
             }),
         }));
@@ -384,7 +384,7 @@ jest.isolateModules(() => {
                 ...rule('input[type="text"]', {
                     display: 'grid',
                     background: 'gray',
-                    color: 'darkgray',
+                    color: 'rgb(255, 127, 80)',
                 }),
             }),
         ]);
@@ -423,7 +423,7 @@ jest.isolateModules(() => {
                 );
                 expect(text1Style.display).toBe('grid');
                 expect(text1Style.background).toBe('gray');
-                expect(text1Style.color).toBe('darkgray');
+                expect(text1Style.color).toBe('rgb(255, 127, 80)');
                 
                 
                 
@@ -475,7 +475,7 @@ jest.isolateModules(() => {
                         );
                         expect(text1Style.display).toBe('grid');
                         expect(text1Style.background).toBe('gray');
-                        expect(text1Style.color).toBe('darkgray');
+                        expect(text1Style.color).toBe('rgb(255, 127, 80)');
                         
                         
                         
@@ -681,7 +681,7 @@ jest.isolateModules(() => {
                 ...rule('[role="textbox"]', {
                     display: 'inline-grid',
                     background: 'lightblue',
-                    color: 'darkblue',
+                    color: 'rgb(0, 0, 139)',
                 }),
             }),
         }));
@@ -720,7 +720,7 @@ jest.isolateModules(() => {
                 );
                 expect(text1Style.display).toBe('inline-grid');
                 expect(text1Style.background).toBe('lightblue');
-                expect(text1Style.color).toBe('darkblue');
+                expect(text1Style.color).toBe('rgb(0, 0, 139)');
                 
                 
                 
@@ -772,7 +772,7 @@ jest.isolateModules(() => {
                         );
                         expect(text1Style.display).toBe('inline-grid');
                         expect(text1Style.background).toBe('lightblue');
-                        expect(text1Style.color).toBe('darkblue');
+                        expect(text1Style.color).toBe('rgb(0, 0, 139)');
                         
                         
                         
