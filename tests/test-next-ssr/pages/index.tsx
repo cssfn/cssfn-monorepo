@@ -2,24 +2,25 @@ import Head from 'next/head'
 
 import { dynamicStyleSheet } from '@cssfn/cssfn-react'
 import { style } from '@cssfn/core'
+import '../styles/styleSheet2'
 
 
-
-const useStyleSheet1 = dynamicStyleSheet(
-    () => style({
-        '--sheet1': '"sheet1"',
-        color: 'red',
-    })
-, { id: 'sheet-1' });
+// const useStyleSheet1 = dynamicStyleSheet(
+//     () => style({
+//         '--sheet1': '"sheet1"',
+//         color: 'red',
+//     })
+// , { id: 'sheet-1' });
 
 const useStyleSheet2 = dynamicStyleSheet(
     () => import(/* webpackChunkName: 'sheet-2' */ /* webpackPreload: true */ '../styles/styleSheet2')
+    // styleSheet2
 , { id: 'sheet-2' });
 
 
 
 export default function Home() {
-    const sheet1 = useStyleSheet1();
+    // const sheet1 = useStyleSheet1();
     const sheet2 = useStyleSheet2();
     
     return (
@@ -31,7 +32,7 @@ export default function Home() {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <main>
-                <button className={sheet1.main}>button 1</button>
+                {/* <button className={sheet1.main}>button 1</button> */}
                 <button className={sheet2.main}>button 2</button>
             </main>
         </>
