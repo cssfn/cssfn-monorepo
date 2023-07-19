@@ -32,11 +32,11 @@
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
-    "@cssfn/css-types": "^3.0.2",
-    "@cssfn/types": "^3.0.2",
+    "@cssfn/css-types": "^3.1.0",
+    "@cssfn/types": "^3.1.0",
     "is-in-browser": "^2.0.0"
   },
   "peerDependencies": {
-    "@cssfn/cssfn": "^3.0.2"
+    "@cssfn/cssfn": "^3.1.0"
   }
 }

@@ -33,14 +33,14 @@
   },
   "dependencies": {
     "@cssfn/css-config": "^3.1.0",
-    "@cssfn/css-selectors": "^3.0.2",
-    "@cssfn/css-supports": "^3.0.2",
-    "@cssfn/css-types": "^3.0.2",
+    "@cssfn/css-selectors": "^3.1.0",
+    "@cssfn/css-supports": "^3.1.0",
+    "@cssfn/css-types": "^3.1.0",
     "@cssfn/cssfn-toolkit": "^3.1.0",
-    "@cssfn/types": "^3.0.2"
+    "@cssfn/types": "^3.1.0"
   },
   "peerDependencies": {
-    "@cssfn/css-vars": "^3.0.2",
-    "@cssfn/cssfn": "^3.0.2"
+    "@cssfn/css-vars": "^3.1.0",
+    "@cssfn/cssfn": "^3.1.0"
   }
 }

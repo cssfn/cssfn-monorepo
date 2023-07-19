@@ -29,9 +29,9 @@
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
-    "@cssfn/css-types": "^3.0.2"
+    "@cssfn/css-types": "^3.1.0"
   },
   "devDependencies": {
-    "@cssfn/bulk-list-builder": "^3.0.2"
+    "@cssfn/bulk-list-builder": "^3.1.0"
   }
 }
