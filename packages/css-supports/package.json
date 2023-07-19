@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/css-supports",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "description": "Checks if a certain css feature is supported by the running browser.",
   "keywords": [
     "css",

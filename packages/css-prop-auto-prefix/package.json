@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/css-prop-auto-prefix",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "description": "Adds vendor prefixes in the browser.",
   "keywords": [
     "css",
