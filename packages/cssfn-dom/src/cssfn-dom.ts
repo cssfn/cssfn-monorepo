@@ -244,13 +244,13 @@ const scheduleBatchCommit = () => {
 
 // handlers:
 const handleUpdate = async ({styleSheet, type}: StyleSheetUpdateEvent<CssScopeName>): Promise<void> => {
-    const styleSheetEnabled  = styleSheet.enabled;
-    const doUpdateStyleSheet = (type === 'enabledChanged');
-    const doRenderStyleSheet = styleSheetEnabled || styleSheet.prerender; // if the styleSheet is enabled -or- disabled but marked to prerender => perform render
+    const styleSheetEnabled    = styleSheet.enabled;
+    const doReenableStyleSheet = (type === 'enabledChanged');
+    const doRenderStyleSheet   = styleSheetEnabled || styleSheet.prerender; // if the styleSheet is enabled -or- disabled_but_marked_as_prerender => perform render
     
     
     
-    if (styleSheet.lazyCsr && (doUpdateStyleSheet || doRenderStyleSheet)) {
+    if (styleSheet.lazyCsr && (doReenableStyleSheet || doRenderStyleSheet)) {
         /* ***** [lazyCsr]: if possible, skip the first_update_first_render by re-use SSR generated <style> element ***** */
         
         
@@ -265,7 +265,7 @@ const handleUpdate = async ({styleSheet, type}: StyleSheetUpdateEvent<CssScopeNa
                 
                 
                 // update the enabled/disabled:
-                if (doUpdateStyleSheet) ssrStyleElm.disabled = !styleSheetEnabled;
+                if (doReenableStyleSheet) ssrStyleElm.disabled = !styleSheetEnabled;
                 
                 
                 
@@ -277,7 +277,7 @@ const handleUpdate = async ({styleSheet, type}: StyleSheetUpdateEvent<CssScopeNa
     
     
     // update the enabled/disabled:
-    if (doUpdateStyleSheet) {
+    if (doReenableStyleSheet) {
         // find the CSR generated <style> element (if any):
         const styleElm = csrStyleElms.get(styleSheet);
         if (styleElm) { // found CSR generated <style> element => update the enabled/disabled

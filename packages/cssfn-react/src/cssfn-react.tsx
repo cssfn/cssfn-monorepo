@@ -70,6 +70,7 @@ import {
 
 // other libs:
 import {
+    Subscription,
     Subject,
 }                           from 'rxjs'
 import {
@@ -186,7 +187,7 @@ const Style : ((props: StyleProps) => JSX.Element|null) = memo(({ id, enabled, c
             dangerouslySetInnerHTML={innerHtml}
         />
     );
-});
+}) as ((props: StyleProps) => JSX.Element|null);
 
 export interface StylesProps {
     asyncRender ?: boolean
@@ -228,7 +229,7 @@ export const Styles = ({ asyncRender = false, onlySsr = true }: StylesProps): JS
                         {
                             enabled: styleSheetEnabled,
                         }
-                    ));
+                    ) as React.ReactElement<StyleProps, typeof Style>|null);
                     
                     
                     
@@ -379,8 +380,9 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
     
     
     // states:
-    private readonly    _scopesFactory2            : StyleSheetsFactory<TCssScopeName>
+    private /*mutable*/ _scopesFactory2            : StyleSheetsFactory<TCssScopeName>
     private /*mutable*/ _scopesActivated2          : boolean
+    private /*mutable*/ _scopesSubscription2       : Subscription|undefined
     
     private /*mutable*/ _cancelDisable             : ReturnType<typeof setTimeout>|undefined
     private /*mutable*/ _registeredUsingStyleSheet : number
@@ -415,6 +417,7 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
         // states:
         this._scopesFactory2            = scopesFactory;
         this._scopesActivated2          = false;
+        this._scopesSubscription2       = undefined;
         
         this._cancelDisable             = undefined;
         this._registeredUsingStyleSheet = 0; // initially no user using this styleSheet
@@ -488,13 +491,19 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
         } // if
     }
     protected forwardScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>): void {
+        // cleanups:
+        this._scopesSubscription2?.unsubscribe(); // unsubscribe the prev subscription (if any)
+        this._scopesSubscription2 = undefined;    // allows GC to collect
+        
+        
+        
         if (!isObservableScopes(scopes)) { // scopes is MaybeFactory<CssScopeList<TCssScopeName>|null>
             this._dynamicStyleSheet.next(
                 scopes // forward once
             );
         } // if
         else { // scopes is Observable<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
-            scopes.subscribe((newScopesOrEnabled) => {
+            this._scopesSubscription2 = scopes.subscribe((newScopesOrEnabled) => {
                 this._dynamicStyleSheet.next(
                     newScopesOrEnabled // live forward
                 );
@@ -568,6 +577,24 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
     
     
     //#region public methods
+    cloneFrom(source: StyleSheet<TCssScopeName>): boolean {
+        // conditions:
+        if (!(source instanceof DynamicStyleSheet)) return super.cloneFrom(source);
+        
+        
+        
+        if (this._scopesFactory2 !== source._scopesFactory2) {
+            this._scopesFactory2 = source._scopesFactory2; // mutate
+            
+            this._scopesActivated2 = false; // reset the activation flag
+            this.activateDynamicScopesIfNeeded();
+        } // if
+        
+        
+        
+        return true; // report as success
+    }
+    
     createDynamicStyleSheetsHook(): CssScopeMap<TCssScopeName> {
         // states:
         const isDynamicStyleSheetsHookInUse = useRef(false);
@@ -614,18 +641,18 @@ export class DynamicStyleSheet<TCssScopeName extends CssScopeName = CssScopeName
 // hooks:
 export const dynamicStyleSheets = <TCssScopeName extends CssScopeName>(scopes: StyleSheetsFactory<TCssScopeName>, options?: DynamicStyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
     // a single `DynamicStyleSheet` instance for creating many hooks:
-    const dynamicStyleSheet = new DynamicStyleSheet<TCssScopeName>(
+    const newDynamicStyleSheet = new DynamicStyleSheet<TCssScopeName>(
         scopes,
         styleSheetRegistry.handleStyleSheetUpdated, // listen for future updates
         options
     );
-    styleSheetRegistry.add(dynamicStyleSheet);
+    const existingDynamicStyleSheet = styleSheetRegistry.add(newDynamicStyleSheet);
     
     
     
     // the hook:
     return () => ( // wrap with arrow func so the `this` in `createDynamicStyleSheetsHook` preserved
-        dynamicStyleSheet
+        ((existingDynamicStyleSheet instanceof DynamicStyleSheet) ? existingDynamicStyleSheet : newDynamicStyleSheet)
         .createDynamicStyleSheetsHook()
     );
 };

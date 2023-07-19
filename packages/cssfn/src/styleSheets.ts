@@ -26,6 +26,7 @@ import {
 
 // other libs:
 import {
+    Subscription,
     Observable,
     Subject,
 }                           from 'rxjs'
@@ -103,20 +104,21 @@ export type StyleSheetUpdatedCallback<in TCssScopeName extends CssScopeName> = (
 export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implements Required<StyleSheetOptions> {
     //#region private properties
     // configs:
-    private readonly    _options         : Required<StyleSheetOptions>
-    private readonly    _updatedCallback : StyleSheetUpdatedCallback<TCssScopeName>
+    private readonly    _options            : Required<StyleSheetOptions>
+    private readonly    _updatedCallback    : StyleSheetUpdatedCallback<TCssScopeName>
     
     
     
     // states:
-    private readonly    _scopesFactory   : StyleSheetsFactory<TCssScopeName>
-    private /*mutable*/ _scopesActivated : boolean
-    private /*mutable*/ _scopesLive      : MaybeFactory<CssScopeList<TCssScopeName>|null>
+    private /*mutable*/ _scopesFactory      : StyleSheetsFactory<TCssScopeName>
+    private /*mutable*/ _scopesActivated    : boolean
+    private /*mutable*/ _scopesSubscription : Subscription|undefined
+    private /*mutable*/ _scopesLive         : MaybeFactory<CssScopeList<TCssScopeName>|null>
     
     
     
     // css classes:
-    private readonly    _classes         : CssScopeMap<TCssScopeName>
+    private readonly    _classes            : CssScopeMap<TCssScopeName>
     //#endregion private properties
     
     
@@ -134,15 +136,16 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
             lazyCsr   : options?.lazyCsr   ?? defaultStyleSheetOptions.lazyCsr,
             prerender : options?.prerender ?? defaultStyleSheetOptions.prerender,
         };
-        this._options         = styleSheetOptions;
-        this._updatedCallback = updatedCallback;
+        this._options            = styleSheetOptions;
+        this._updatedCallback    = updatedCallback;
         
         
         
         // states:
-        this._scopesFactory   = scopesFactory;
-        this._scopesActivated = false;
-        this._scopesLive      = null;
+        this._scopesFactory      = scopesFactory;
+        this._scopesActivated    = false;
+        this._scopesSubscription = undefined;
+        this._scopesLive         = null;
         
         
         
@@ -241,6 +244,17 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         } // if
     }
     protected updateScopes(scopes: StyleSheetsFactoryBase<TCssScopeName>, forceUpdate = false): void {
+        // states:
+        let subsequentUpdate = !!this._scopesSubscription;
+        
+        
+        
+        // cleanups:
+        this._scopesSubscription?.unsubscribe(); // unsubscribe the prev subscription (if any)
+        this._scopesSubscription = undefined;    // allows GC to collect
+        
+        
+        
         if (!isObservableScopes(scopes)) { // scopes is MaybeFactory<CssScopeList<TCssScopeName>|null>
             this._scopesLive = scopes; // update once
             
@@ -251,8 +265,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
             } // if
         }
         else { // scopes is Observable<MaybeFactory<CssScopeList<TCssScopeName>|null>|boolean>
-            let subsequentUpdate = false;
-            scopes.subscribe((newScopesOrEnabled) => {
+            this._scopesSubscription = scopes.subscribe((newScopesOrEnabled) => {
                 const isEnabledChanged = typeof(newScopesOrEnabled) === 'boolean';
                 if (isEnabledChanged) { // newScopesOrEnabled is boolean
                     // update prop `enabled`:
@@ -318,6 +331,23 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         return this._classes;
     }
     //#endregion public properties
+    
+    
+    
+    //#region public methods
+    cloneFrom(source: StyleSheet<TCssScopeName>): boolean {
+        if (this._scopesFactory !== source._scopesFactory) {
+            this._scopesFactory = source._scopesFactory; // mutate
+            
+            this._scopesActivated = false; // reset the activation flag
+            this.activateScopesIfNeeded();
+        } // if
+        
+        
+        
+        return true; // report as success
+    }
+    //#endregion public methods
 }
 
 
@@ -346,7 +376,7 @@ class StyleSheetRegistry {
     
     
     //#region public methods
-    add(newStyleSheet: StyleSheet<CssScopeName>) {
+    add(newStyleSheet: StyleSheet<CssScopeName>): StyleSheet<CssScopeName> {
         /*
             The `StyleSheetRegistry::add()` always be called every call of `styleSheet()`, `styleSheets()`, dynamicStyleSheet()`, and `dynamicStyleSheets()`.
             In practice, these 4 functions are always be called on *top-level-module*.
@@ -355,12 +385,25 @@ class StyleSheetRegistry {
         */
         
         
+        // mutate the existing styleSheet (with the same id) (if any) with the new styleSheet:
+        const newStyleSheetId    = newStyleSheet.id;
+        const existingStyleSheet = !!newStyleSheetId ? this._styleSheets.find(({id}) => !!id && (id === newStyleSheetId)) : undefined;
+        if (!existingStyleSheet) {
+            this._styleSheets.push(newStyleSheet);             // register to collection (add new)
+        }
+        else {
+            if (existingStyleSheet.cloneFrom(newStyleSheet)) { // register to collection (mutate)
+                return existingStyleSheet; // cloned => done
+            }
+            else {
+                // refuse to clone => fallback to add new:
+                this._styleSheets.push(newStyleSheet);         // register to collection (add new)
+            } // if
+        } // if
         
-        this._styleSheets.push(newStyleSheet);          // register to collection
         
         
-        
-        this._subscribers.next({                        // notify a StyleSheet added
+        this._subscribers.next({                               // notify a StyleSheet added
             styleSheet : newStyleSheet,
             type       : 'added',
         });
@@ -374,14 +417,14 @@ class StyleSheetRegistry {
         //#region notify previously registered StyleSheet(s)
         const styleSheets = this._styleSheets;
         for (let i = 0; i < styleSheets.length; i++) {
-            subscriber({                                // notify previously registered StyleSheet(s)
+            subscriber({                                       // notify previously registered StyleSheet(s)
                 styleSheet : styleSheets[i],
                 type       : 'existing',
             });
         } // for
         //#endregion notify previously registered StyleSheet(s)
         
-        return this._subscribers.subscribe(subscriber); // listen for future updates
+        return this._subscribers.subscribe(subscriber);        // listen for future updates
     }
     //#endregion public methods
     
@@ -389,7 +432,7 @@ class StyleSheetRegistry {
     
     //#region public callbacks
     handleStyleSheetUpdated = (styleSheet: StyleSheet<CssScopeName>, type: StyleSheetUpdateChangedType): void => {
-        this._subscribers.next({                        // notify a StyleSheet updated
+        this._subscribers.next({                               // notify a StyleSheet updated
             styleSheet : styleSheet,
             type       : type,
         });
