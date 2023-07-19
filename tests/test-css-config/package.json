@@ -1,10 +1,10 @@
 {
   "name": "test-css-config",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "private": true,
   "dependencies": {
-    "@cssfn/css-config": "^3.0.2",
-    "@cssfn/cssfn-dom": "^3.0.2",
+    "@cssfn/css-config": "^3.1.0",
+    "@cssfn/cssfn-dom": "^3.1.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
