@@ -212,7 +212,7 @@ const batchCommit = () => {
     // delete children:
     // the last operation, because the excess <style> element(s) have no significant visual impact
     for (const styleElm of batchDeleteChildren) {
-        styleElm.parentElement?.removeChild(styleElm);
+        styleElm.parentElement?.removeChild?.(styleElm);
     } // for
     //#endregion efficiently mutate(s) the <head> element
 }
@@ -340,7 +340,7 @@ if (isClientSide) styleSheetRegistry.subscribe(handleUpdate);
 //                 const registeredCssfnStyles = new Set<HTMLStyleElement|null>(csrStyleElms.values());
 //                 const unusedCssfnStyles     = cssfnStyles.filter((cssfnStyle) => !registeredCssfnStyles.has(cssfnStyle));
 //                 for (const unusedCssfnStyle of unusedCssfnStyles) {
-//                     unusedCssfnStyle.parentElement?.removeChild(unusedCssfnStyle);
+//                     unusedCssfnStyle.parentElement?.removeChild?.(unusedCssfnStyle);
 //                 } // for
 //             }, 10 * 1000);
 //         };
