@@ -72,7 +72,20 @@ import {
 
 
 // utilities:
-const nestedAtRules = ['@media', '@supports', '@layer', '@document'];
+const nestedAtRules = [
+    // conditional responsives:
+    '@media',
+    '@container',
+    
+    // conditional compatibility:
+    '@supports',
+    
+    // conditional deprecated:
+    '@document',
+    
+    // grouping:
+    '@layer',
+];
 export const isNestedAtRule = (finalSelector: CssFinalSelector) => nestedAtRules.some((at) => finalSelector.startsWith(at));
 
 const combineSelector = (parentSelector: CssFinalSelector|null, nestedSelector: CssFinalSelector): CssFinalSelector|null => {

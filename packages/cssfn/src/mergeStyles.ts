@@ -383,7 +383,23 @@ export const mergeParent  = (style: CssStyleMap): void => {
     } // try
 }
 
-const mergeableNestedAtRules = ['@media', '@supports', '@document', '@global'];
+const mergeableNestedAtRules = [
+    // conditional responsives:
+    '@media',
+    '@container',
+    
+    // conditional compatibility:
+    '@supports',
+    
+    // conditional deprecated:
+    '@document',
+    
+    // grouping:
+    // '@layer', // do not merge anonymous layers, the orders are important
+    
+    // unscope selector:
+    '@global',
+];
 // const unmergeableNestedAtRules = ['@keyframes', '@font-face', '@property', '@fallback'];
 export const isMergeableNestedAtRule = (finalSelector: CssFinalSelector) => mergeableNestedAtRules.some((at) => finalSelector.startsWith(at));
 
