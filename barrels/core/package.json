@@ -40,7 +40,7 @@
     "@cssfn/types": "^3.2.0"
   },
   "peerDependencies": {
-    "@cssfn/css-vars": "^3.1.0",
-    "@cssfn/cssfn": "^3.1.0"
+    "@cssfn/css-vars": "^3.2.0",
+    "@cssfn/cssfn": "^3.2.0"
   }
 }
