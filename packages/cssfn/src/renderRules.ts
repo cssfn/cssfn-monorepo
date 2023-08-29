@@ -227,8 +227,8 @@ class RenderRule {
         this.rendered += '\n}\n';
         //#endregion render complete .selector { style }
     }
-    private renderNestedSelector(finalSelector: CssFinalSelector, nestedRules: CssFinalStyleMap|null): void {
-        if (!nestedRules) return;
+    private renderNestedSelector(finalSelector: CssFinalSelector, finalStyle: CssFinalStyleMap|null): void {
+        if (!finalStyle) return;
         
         
         
@@ -237,7 +237,8 @@ class RenderRule {
         this.rendered += finalSelector;
         this.rendered += ' {';
         {
-            this.renderNestedRules(null, nestedRules);
+            this.renderStyle(finalStyle); // render regular_properties for @font-face // render rule_properties for @keyframes
+            this.renderNestedRules(null /* no parent (&) selector */, finalStyle);
         }
         this.rendered += '\n}\n';
         //#endregion render complete .selector { style }
@@ -348,7 +349,7 @@ class RenderRule {
                 if (finalParentSelector === null) { // RenderRule(null, finalStyle) by @global
                     // top_level at rule with nestedRules
                     
-                    // this.rendered += (new RenderRule(finalSelector, finalStyle)).rendered; doesn't work, the nested will automatically unnested
+                    // this.rendered += (new RenderRule(finalSelector, finalStyle, this._options)).rendered; // doesn't work, the nested will automatically *un-nested*
                     this.renderNestedSelector(finalSelector, finalStyle);
                 }
                 else {
@@ -369,7 +370,8 @@ class RenderRule {
             else if (finalSelector[0] === '@') {
                 // top_level at rule  , eg: @keyframes, @font-face, @property
                 
-                this.rendered += (new RenderRule(finalSelector, finalStyle, this._options)).rendered;
+                // this.rendered += (new RenderRule(finalSelector, finalStyle, this._options)).rendered; // doesn't work, the nested will automatically *un-nested*
+                this.renderNestedSelector(finalSelector, finalStyle);
             }
             else {
                 // nested rule, eg: &.boo, &>:foo, .bleh>&>.feh
