@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/cssfn-toolkit",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Writes complex stylesheets in simpler way.",
   "keywords": [
     "css",
@@ -32,9 +32,9 @@
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
-    "@cssfn/css-config": "^3.1.0",
-    "@cssfn/css-types": "^3.1.0",
-    "@cssfn/types": "^3.1.0"
+    "@cssfn/css-config": "^3.2.0",
+    "@cssfn/css-types": "^3.2.0",
+    "@cssfn/types": "^3.2.0"
   },
   "peerDependencies": {
     "@cssfn/cssfn": "^3.1.0",

@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/css-config",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Reads/Writes CSS configuration of HTML components using centralized CSS variables.",
   "keywords": [
     "css",
@@ -34,9 +34,9 @@
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
-    "@cssfn/css-prop-list": "^3.1.0",
-    "@cssfn/css-types": "^3.1.0",
-    "@cssfn/types": "^3.1.0"
+    "@cssfn/css-prop-list": "^3.2.0",
+    "@cssfn/css-types": "^3.2.0",
+    "@cssfn/types": "^3.2.0"
   },
   "peerDependencies": {
     "@cssfn/cssfn": "^3.1.0",
