@@ -1,20 +1,19 @@
-
-// cssfn:
-import type {
+// Cssfn:
+import {
     // types:
-    CssKnownStandardLonghandProps,
-    CssKnownStandardShorthandProps,
+    type CssKnownStandardLonghandProps,
+    type CssKnownStandardShorthandProps,
     
-    CssKnownShorthandProps,
+    type CssKnownShorthandProps,
     
-    CssKnownVendorLonghandProps,
-    CssKnownVendorShorthandProps,
+    type CssKnownVendorLonghandProps,
+    type CssKnownVendorShorthandProps,
     
-    CssKnownObsoleteProps,
+    type CssKnownObsoleteProps,
     
-    CssKnownSvgProps,
+    type CssKnownSvgProps,
     
-    CssKnownProps,
+    type CssKnownProps,
 }                           from '@cssfn/css-types'
 
 
@@ -472,7 +471,6 @@ export const cssKnownVendorLonghandProps : (keyof CssKnownVendorLonghandProps)[]
 'MozAnimationPlayState',
 'MozAnimationTimingFunction',
 'MozAppearance',
-'MozBackfaceVisibility',
 'MozBinding',
 'MozBorderBottomColors',
 'MozBorderEndColor',
@@ -501,18 +499,10 @@ export const cssKnownVendorLonghandProps : (keyof CssKnownVendorLonghandProps)[]
 'MozOsxFontSmoothing',
 'MozPaddingEnd',
 'MozPaddingStart',
-'MozPerspective',
-'MozPerspectiveOrigin',
 'MozStackSizing',
 'MozTabSize',
 'MozTextBlink',
 'MozTextSizeAdjust',
-'MozTransformOrigin',
-'MozTransformStyle',
-'MozTransitionDelay',
-'MozTransitionDuration',
-'MozTransitionProperty',
-'MozTransitionTimingFunction',
 'MozUserFocus',
 'MozUserModify',
 'MozUserSelect',
@@ -695,7 +685,6 @@ export const cssKnownVendorShorthandProps : (keyof CssKnownVendorShorthandProps)
 'MozBorderImage',
 'MozColumnRule',
 'MozColumns',
-'MozTransition',
 'msContentZoomLimit',
 'msContentZoomSnap',
 'msFlex',
@@ -777,11 +766,6 @@ export const cssKnownObsoleteProps : (keyof CssKnownObsoleteProps)[] = [
 'MozOpacity',
 'MozOutline',
 'MozOutlineColor',
-'MozOutlineRadius',
-'MozOutlineRadiusBottomleft',
-'MozOutlineRadiusBottomright',
-'MozOutlineRadiusTopleft',
-'MozOutlineRadiusTopright',
 'MozOutlineStyle',
 'MozOutlineWidth',
 'MozTextAlignLast',
@@ -820,8 +804,6 @@ export const cssKnownObsoleteProps : (keyof CssKnownObsoleteProps)[] = [
 'WebkitBoxOrdinalGroup',
 'WebkitBoxOrient',
 'WebkitBoxPack',
-'WebkitScrollSnapPointsX',
-'WebkitScrollSnapPointsY',
 ];
 
 export const cssKnownSvgProps : (keyof CssKnownSvgProps)[] = [
