@@ -1,11 +1,10 @@
-import React from 'react';
 import { CssKnownProps } from '@cssfn/css-types';
 import {cssConfig} from '@cssfn/css-config'
 import '@cssfn/cssfn-dom'
 
 
 
-export const [basics, basicValues, cssBasicConfig] = cssConfig(() => {
+export const [whatevers, whateverValues, cssWhateverConfig] = cssConfig(() => {
     const transitionDuration = '300ms';
     
     return {
@@ -50,19 +49,3 @@ export const [basics, basicValues, cssBasicConfig] = cssConfig(() => {
         ]                                           as CssKnownProps['transition'],
     };
 }, { prefix: 'test' });
-
-Object.assign(globalThis, {
-    basics, basicValues, cssBasicConfig
-});
-
-
-
-function App() {
-    return (
-        <div className="App">
-            test
-        </div>
-    );
-}
-
-export default App;
