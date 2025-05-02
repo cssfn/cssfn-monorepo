@@ -1,79 +1,79 @@
-// cssfn:
-import type {
-    // optionals:
-    OptionalOrBoolean,
+// Cssfn:
+import {
+    // Optionals:
+    type OptionalOrBoolean,
     
     
     
-    // arrays:
-    MaybeDeepArray,
+    // Arrays:
+    type MaybeDeepArray,
     
     
     
-    // factories:
-    MaybeFactoryMaybeDeepArray,
+    // Factories:
+    type MaybeFactoryMaybeDeepArray,
     
     
     
-    // dictionaries/maps:
-    PartialNullish,
-    MapOf,
+    // Dictionaries/maps:
+    type PartialNullish,
+    type MapOf,
 }                           from '@cssfn/types'
 
-// others libs:
-import type {
-    Properties,
-    StandardLonghandProperties,
-    StandardShorthandProperties,
-    VendorLonghandProperties,
-    VendorShorthandProperties,
-    ObsoleteProperties,
-    SvgProperties,
+// Others libs:
+import {
+    type Properties,
+    type StandardLonghandProperties,
+    type StandardShorthandProperties,
+    type VendorLonghandProperties,
+    type VendorShorthandProperties,
+    type ObsoleteProperties,
+    type SvgProperties,
 }                           from 'csstype'
 
 
 
-//#region css values
-//#region simple values
+//#region CSS values
+//#region Simple values
 export type CssSimpleNumericValue           = (number & {})
 export type CssSimpleLiteralValue           = (string & {})
 export type CssSimpleValue                  =
     | CssSimpleNumericValue
     | CssSimpleLiteralValue
     | CssCustomKeyframesRef
-//#endregion simple values
+//#endregion Simple values
 
-//#region generic complex values
+//#region Generic complex values
 export type CssComplexBaseValueOf<TValue>   =
-    | TValue                                               // final_value
-    | CssCustomRef                                         // css_variable
+    | TValue                                               // Final_value
+    | CssCustomRef                                         // CSS_variable
 export type CssComplexSingleValueOf<TValue> =
-    | CssComplexBaseValueOf<TValue>                        // single_value
-    | [CssComplexBaseValueOf<TValue>, '!important']        // single_value with !important
+    | CssComplexBaseValueOf<TValue>                        // Single_value
+    | [CssComplexBaseValueOf<TValue>, '!important']        // Single_value with !important
 export type CssComplexMultiValueOf<TValue>  =
-    | CssComplexBaseValueOf<TValue>[]                      // comma_separated_values
-    | CssComplexBaseValueOf<TValue>[][]                    // space_separated_values
-    | [...CssComplexBaseValueOf<TValue>[]  , '!important'] // comma_separated_values with !important
-    | [...CssComplexBaseValueOf<TValue>[][], '!important'] // space_separated_values with !important
+    | CssComplexBaseValueOf<TValue>[]                      // Comma_separated_values
+    | CssComplexBaseValueOf<TValue>[][]                    // Space_separated_values
+    | [...CssComplexBaseValueOf<TValue>[]  , '!important'] // Comma_separated_values with !important
+    | [...CssComplexBaseValueOf<TValue>[][], '!important'] // Space_separated_values with !important
 export type CssComplexValueOf<TValue>       =
     | CssComplexSingleValueOf<TValue>
     | CssComplexMultiValueOf<TValue>
-//#endregion generic complex values
-//#endregion css values
+//#endregion Generic complex values
+//#endregion CSS values
 
 
 
-//#region css custom properties
-// declaration:
+//#region CSS custom properties
+// Declaration:
 export type CssCustomName         = `--${string}`
 
-// values:
-export type CssCustomSimpleRef    = `var(${CssCustomName})` // single value
+// Values:
+export type CssCustomSimpleRef    = `var(${CssCustomName})` // Single value
 export type CssCustomRef          =
-    | CssCustomSimpleRef                                    // single value
-    | `var(${CssCustomName}, ${CssCustomSimpleRef})`        // with shallow fallback
- // | `var(${CssCustomName}, ${CssCustomRef})`              // with nested  fallback(s), can't circular
- // | `var(${CssCustomName}, ${string})`                    // use string for nested fallback(s), not ideal but works
+    | CssCustomSimpleRef                                    // Single value
+    | `var(${CssCustomName}, ${CssCustomSimpleRef})`        // With shallow fallback
+ // | `var(${CssCustomName}, ${CssCustomRef})`              // With nested  fallback(s), can't circular
+ // | `var(${CssCustomName}, ${string})`                    // Use string for nested fallback(s), not ideal but works
 
 export type CssCustomValue        = CssComplexValueOf<CssSimpleValue>
 
@@ -82,11 +82,11 @@ export type CssCustomProps = PartialNullish<{
     [name: CssCustomSimpleRef] : CssCustomValue
 }>
 export type CssCustomPropsMap = MapOf<CssCustomProps>
-//#endregion css custom properties
+//#endregion CSS custom properties
 
 
 
-//#region css known (standard) properties
+//#region CSS known (standard) properties
 export type CssLength   = (string & {}) | 0
 export type CssDuration = (string & {})
 
@@ -334,14 +334,14 @@ export type CssKnownPropsOf<TName extends CssKnownName, multiValue extends boole
     [name in keyof CssKnownBaseExProps] ?: multiValue extends false ? CssComplexSingleValueOf<CssKnownValueOf<name>|CssCustomKeyframesRef> : CssComplexValueOf<CssKnownValueOf<name>|CssCustomKeyframesRef>
 }, TName>>
 
-//#region css special properties
+//#region CSS special properties
 export type CssLonghandFontFaceProps =
-    // required props:
-    // forced to optional because it may spreaded in partial style(s)
+    // Required props:
+    // Forced to optional because it may spreaded in partial style(s).
     // & Required<CssKnownPropsOf<'fontFamily', true>>
     & CssKnownPropsOf<'fontFamily', true>
     
-    // longhand single-value props:
+    // Longhand single-value props:
     & CssKnownPropsOf<
         | 'fontVariantCaps'
         | 'fontVariantLigatures'
@@ -351,7 +351,7 @@ export type CssLonghandFontFaceProps =
         | 'fontWeight'
     , false>
     
-    // longhand multi-value props:
+    // Longhand multi-value props:
     & CssKnownPropsOf<
         | 'fontVariantAlternates'
         | 'fontVariantEastAsian'
@@ -366,13 +366,13 @@ export type CssLonghandFontFaceProps =
     , true>
     
     & PartialNullish<{
-        // additional required props:
-        // forced to optional ( ?: ) because it may spreaded in partial style(s)
+        // Additional required props:
+        // Forced to optional ( ?: ) because it may spreaded in partial style(s).
         src             ?: CssComplexValueOf<CssSimpleLiteralValue|`url(${string})`>
         
         
         
-        // additional optional props:
+        // Additional optional props:
         unicodeRange    ?: CssComplexValueOf<CssSimpleLiteralValue>
         
         ascentOverride  ?: CssComplexSingleValueOf<CssSimpleLiteralValue|'normal'>
@@ -406,20 +406,20 @@ export type CssPropertyProps = PartialNullish<{
     inherits     : boolean
     initialValue : string
 }>
-//#endregion css special properties
+//#endregion CSS special properties
 
 export type CssKnownStandardLonghandProps  =
-    & Omit<CssKnownPropsOf<keyof StandardLonghandProperties , true>, keyof CssLonghandFontFaceProps>  // some_props like boxShadow, filter are comma/space separated values
+    & Omit<CssKnownPropsOf<keyof StandardLonghandProperties , true>, keyof CssLonghandFontFaceProps>  // Some_props like boxShadow, filter are comma/space separated values.
     & CssLonghandFontFaceProps
 export type CssKnownStandardShorthandProps =
-    & Omit<CssKnownPropsOf<keyof StandardShorthandProperties, true>, keyof CssShorthandFontFaceProps> // all_props are comma/space separated values
+    & Omit<CssKnownPropsOf<keyof StandardShorthandProperties, true>, keyof CssShorthandFontFaceProps> // All_props are comma/space separated values.
     & CssShorthandFontFaceProps
 export type CssKnownStandardProps          = CssKnownStandardLonghandProps & CssKnownStandardShorthandProps
 
-export type CssKnownShorthandProps         = CssKnownPropsOf<keyof ShorthandProperties , true> // some_props are comma/space separated values
+export type CssKnownShorthandProps         = CssKnownPropsOf<keyof ShorthandProperties , true> // Some_props are comma/space separated values.
 
-export type CssKnownVendorLonghandProps    = CssKnownPropsOf<keyof VendorLonghandProperties , true> // some_props are comma/space separated values
-export type CssKnownVendorShorthandProps   = CssKnownPropsOf<keyof VendorShorthandProperties, true> // all_props  are comma/space separated values
+export type CssKnownVendorLonghandProps    = CssKnownPropsOf<keyof VendorLonghandProperties , true> // Some_props are comma/space separated values.
+export type CssKnownVendorShorthandProps   = CssKnownPropsOf<keyof VendorShorthandProperties, true> // All_props  are comma/space separated values.
 export type CssKnownVendorProps            = CssKnownVendorLonghandProps & CssKnownVendorShorthandProps
 
 export type CssKnownObsoleteProps          = CssKnownPropsOf<keyof ObsoleteProperties, true>
@@ -434,17 +434,17 @@ export type CssKnownProps =
     & CssKnownVendorProps
     & CssKnownObsoleteProps
     & CssKnownSvgProps
-//#endregion css known (standard) properties
+//#endregion CSS known (standard) properties
 
 
 
-//#region cssfn properties
+//#region Cssfn properties
 export type CssProps                   = CssCustomProps    & CssKnownProps
 export type CssPropsMap                = CssCustomPropsMap & MapOf<CssKnownProps>
 
 export type CssRuleData                = readonly [undefined|CssRawSelector|CssFinalSelector, CssStyleCollection]
 export type CssFinalRuleData           = readonly [                         CssFinalSelector, CssFinalStyleMap  ]
-export type CssRule                    = { // do not use Record<symbol, CssRuleData> => doesn't support circular ref
+export type CssRule                    = { // Do not use Record<symbol, CssRuleData> => doesn't support circular ref.
     [name: symbol] : CssRuleData
 }
 export type CssFinalRule               = {
@@ -479,7 +479,7 @@ export type CssStyleMapExcludeMembers  =
     |'values'
     
     |'delete'
-    // |'forEach' // conflict with vanilla Map!
+    // |'forEach' // Conflict with vanilla Map!
     |'get'
     |'has'
     |'set'
@@ -488,7 +488,7 @@ export interface CssStyleMapFilteredKeys
     extends
         Omit<Map<keyof CssStyle, CssStyle[keyof CssStyle]>, CssStyleMapExcludeMembers>
 {
-    // filtered iterators:
+    // Filtered iterators:
     get ruleKeys()      : Array<keyof CssRule>
     get propKeys()      : Array<keyof CssCustomProps|keyof CssKnownProps>
     get hasRuleKeys()   : boolean
@@ -496,19 +496,19 @@ export interface CssStyleMapFilteredKeys
     
     
     
-    // miscs:
+    // Miscs:
     readonly [Symbol.toStringTag]: string
 }
 export interface CssStyleMapOverloads
     extends
         Omit<Map<keyof CssStyle, CssStyle[keyof CssStyle]>, CssStyleMapExcludeMembers>
 {
-    // filtered iterators:
+    // Filtered iterators:
     get rules() : Array<CssRuleData>
     
     
     
-    // iterators:
+    // Iterators:
     [Symbol.iterator]() : IterableIterator<[CssUnionKey, CssUnionValue]>
     entries()           : IterableIterator<[CssUnionKey, CssUnionValue]>
     get keysAsArray()   : Array<CssUnionKey>
@@ -517,7 +517,7 @@ export interface CssStyleMapOverloads
     
     
     
-    // deletes:
+    // Deletes:
     delete(key: keyof CssCustomProps): boolean
     delete(key: keyof CssKnownProps ): boolean
     delete(key: keyof CssRule       ): boolean
@@ -525,26 +525,26 @@ export interface CssStyleMapOverloads
     
     
     // forEach:
-    // conflict with vanilla Map!
+    // Conflict with vanilla Map!
     // forEach(callbackfn: ((value: CssUnionValue, key: CssUnionKey, map: CssStyleMap) => void), thisArg?: any): void
     
     
     
-    // gets:
+    // Gets:
     get(key: keyof CssCustomProps): CssCustomProps[keyof CssCustomProps] | undefined
     get(key: keyof CssKnownProps ): CssKnownProps[keyof CssKnownProps]   | undefined
     get(key: keyof CssRule       ): CssRule[keyof CssRule]               | undefined
     
     
     
-    // hases:
+    // Hases:
     has(key: keyof CssCustomProps): boolean
     has(key: keyof CssKnownProps ): boolean
     has(key: keyof CssRule       ): boolean
     
     
     
-    // sets:
+    // Sets:
     set(key: keyof CssCustomProps | keyof CssKnownProps, value: CssCustomProps[keyof CssCustomProps] | CssKnownProps[keyof CssKnownProps]): this
     set(key: keyof CssCustomProps, value: CssCustomProps[keyof CssCustomProps]): this
     set(key: keyof CssKnownProps , value: CssKnownProps[keyof CssKnownProps]  ): this
@@ -554,12 +554,12 @@ export interface CssFinalStyleMapOverloads
     extends
         Omit<Map<keyof CssFinalStyle, CssFinalStyle[keyof CssFinalStyle]>, CssStyleMapExcludeMembers>
 {
-    // filtered iterators:
+    // Filtered iterators:
     get rules() : Array<CssFinalRuleData>
     
     
     
-    // iterators:
+    // Iterators:
     [Symbol.iterator]() : IterableIterator<[CssUnionKey, CssUnionFinalValue]>
     entries()           : IterableIterator<[CssUnionKey, CssUnionFinalValue]>
     get keysAsArray()   : Array<CssUnionKey>
@@ -568,7 +568,7 @@ export interface CssFinalStyleMapOverloads
     
     
     
-    // deletes:
+    // Deletes:
     delete(key: keyof CssCustomProps): boolean
     delete(key: keyof CssKnownProps ): boolean
     delete(key: keyof CssFinalRule  ): boolean
@@ -576,26 +576,26 @@ export interface CssFinalStyleMapOverloads
     
     
     // forEach:
-    // conflict with vanilla Map!
+    // Conflict with vanilla Map!
     // forEach(callbackfn: ((value: CssUnionFinalValue, key: CssUnionKey, map: CssStyleMap) => void), thisArg?: any): void
     
     
     
-    // gets:
+    // Gets:
     get(key: keyof CssCustomProps): CssCustomProps[keyof CssCustomProps] | undefined
     get(key: keyof CssKnownProps ): CssKnownProps[keyof CssKnownProps]   | undefined
     get(key: keyof CssFinalRule  ): CssFinalRule[keyof CssFinalRule]     | undefined
     
     
     
-    // hases:
+    // Hases:
     has(key: keyof CssCustomProps): boolean
     has(key: keyof CssKnownProps ): boolean
     has(key: keyof CssFinalRule  ): boolean
     
     
     
-    // sets:
+    // Sets:
     set(key: keyof CssCustomProps | keyof CssKnownProps, value: CssCustomProps[keyof CssCustomProps] | CssKnownProps[keyof CssKnownProps]): this
     set(key: keyof CssCustomProps, value: CssCustomProps[keyof CssCustomProps]): this
     set(key: keyof CssKnownProps , value: CssKnownProps[keyof CssKnownProps]  ): this
@@ -638,11 +638,11 @@ export type CssFinalSelector      = CssSelector & {}
 
 
 
-export type CssClassName = string & {} // not a really string: [A-Z_a-z-]+
+export type CssClassName = string & {} // Not a really string: [A-Z_a-z-]+
 
 
 
-export type CssScopeName    = string & {} // not a really string: [A-Z_a-z-]+
+export type CssScopeName    = string & {} // Not a really string: [A-Z_a-z-]+
 export type CssScopeOptions = Omit<CssSelectorOptions, 'performGrouping'>
 export type CssScopeEntry
     <TCssScopeName extends CssScopeName> = readonly [TCssScopeName, CssStyleCollection, CssScopeOptions|undefined]
@@ -651,4 +651,4 @@ export type CssScopeList
 export type CssScopeMap<TCssScopeName extends CssScopeName> = {
     [name in TCssScopeName] : CssClassName
 }
-//#endregion cssfn properties
+//#endregion Cssfn properties
