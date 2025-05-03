@@ -1,4 +1,7 @@
-import React from 'react';
+'use client'
+
+import styles from "./page.module.css";
+
 import '@cssfn/cssfn-dom'
 import './components/TestComponent1'
 import { TestComponent2 } from './components/TestComponent2'
@@ -8,18 +11,17 @@ import { TestComponent5 } from './components/TestComponent5'
 import { TestComponent6 } from './components/TestComponent6'
 
 
-
-function App() {
-    return (
-        <div className="App">
-            test
-            <TestComponent2 />
-            <TestComponent3 />
-            <TestComponent4 />
-            <TestComponent5 />
-            <TestComponent6 />
-        </div>
-    );
+export default function Home() {
+  return (
+    <div className={styles.page}>
+      <main className={styles.main}>
+        test
+        <TestComponent2 />
+        <TestComponent3 />
+        <TestComponent4 />
+        <TestComponent5 />
+        <TestComponent6 />
+      </main>
+    </div>
+  );
 }
-
-export default App;
