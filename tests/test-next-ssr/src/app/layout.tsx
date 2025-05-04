@@ -4,7 +4,7 @@
 import "./globals.css";
 import {
   StaticStyles,
-  // HydrateStyles,
+  HydrateStyles,
 } from '@cssfn/cssfn-react/server'
 // import {TestServerComponent} from './TestServerComponent'
 // import { Suspense } from "react";
@@ -33,7 +33,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <StaticStyles />
-        {/* <HydrateStyles /> */}
+        <HydrateStyles />
       </head>
       <body
         // className={`${geistSans.variable} ${geistMono.variable}`}

@@ -14,7 +14,7 @@ import                           '@cssfn/cssfn-dom' // side effect
 // React components:
 
 /**
- * `HydrateStyles` Component
+ * Hydrates the `StaticStyles` component and continues to dynamically renders stylesheets based on the registered styles.
  *
  * ## Purpose:
  * - Ensures **hydration of static styles** produced by `<StaticStyles>` (server-side renderer).

@@ -79,6 +79,7 @@ export interface StylesProps {
  * - Supports both **batch (async)** and **sequential (sync)** rendering.
  * - Listens for real-time stylesheet changes via `styleSheetRegistry.subscribe()`.
  * 
+ * @component
  * @param {StylesProps} props - Component properties.
  * @returns {JSX.Element | null} A collection of `<style>` elements for rendered styles.
  */
@@ -94,7 +95,7 @@ const Styles = (props: StylesProps): JSX.Element | null => {
     /**
      * This component maintains two separate states to efficiently manage stylesheet updates:
      * 
-     * 1️⃣ `styleMap`: A stable reference to a `Map<StyleSheet, string|null>`, storing the 
+     * 1️⃣ `renderedStyleMap`: A stable reference to a `Map<StyleSheet, string|null>`, storing the 
      *     rendered CSS for each registered stylesheet.
      * 
      *     - Using `useState` ensures the `Map` remains **persistent** across re-renders.
@@ -107,7 +108,7 @@ const Styles = (props: StylesProps): JSX.Element | null => {
      *     when the stylesheet map is modified.
      * 
      *     - React **does not detect mutations inside objects like Maps**, so updating 
-     *       `styleMap` alone **will not trigger a re-render**.
+     *       `renderedStyleMap` alone **will not trigger a re-render**.
      *     - To notify React that styles have changed, we use `useTriggerRender()` to 
      *       provide a **lightweight mechanism** for requesting a re-render.
      *     - The `generation` value from `useTriggerRender()` acts as a version counter,
@@ -116,7 +117,7 @@ const Styles = (props: StylesProps): JSX.Element | null => {
      * ✅ This approach optimizes performance by **avoiding unnecessary deep copies**
      *    of the stylesheet map while still ensuring React updates properly.
      */
-    const [styleMap                 ] = useState<Map<StyleSheet, string|null>>(() => new Map<StyleSheet, string|null>());
+    const [renderedStyleMap         ] = useState<Map<StyleSheet, string|null>>(() => new Map<StyleSheet, string|null>());
     const [triggerRender, stateStamp] = useTriggerRender();
     
     
@@ -130,12 +131,37 @@ const Styles = (props: StylesProps): JSX.Element | null => {
      * 
      * We use `useInsertionEffect` for:
      * - **Subscribes early** (before React lifecycle starts) to steal startup time and make rendering appear faster.
-     * - **Stores rendering results** in a Map reference (`styleMap`) for efficient caching.
+     * - **Stores rendering results** in a Map reference (`renderedStyleMap`) for efficient caching.
      * - **Avoids premature re-renders**, only triggering updates when React lifecycle is ready (`isMounted.current === true`).
      * - **Handles SSR settings** to ensure correct rendering modes.
      * - **Cleans up properly** when the component unmounts to avoid memory leaks.
      */
     useInsertionEffect(() => {
+        /**
+         * Executes the stylesheet rendering function.
+         *
+         * ## Purpose:
+         * - Ensures **CPU-intensive rendering runs efficiently** based on execution context.
+         *
+         * ## Execution Modes:
+         * - **Web Worker Mode** → Executes in a separate process (non-blocking).
+         * - **Main Thread Mode** → Runs synchronously within the current process (blocking).
+         *
+         * @returns An async function that renders stylesheets based on the execution mode.
+         */
+        const getRenderer = () => {
+            if (asyncRender) {
+                // Use Web Worker for non-blocking execution:
+                return unraceRenderStyleSheetAsync;
+            }
+            else {
+                // Use Main Thread for synchronous execution:
+                return renderStyleSheet;
+            } // if
+        };
+        
+        
+        
         // Setups:
         // Subscribe immediately to stylesheet updates:
         const subscription = styleSheetRegistry.subscribe(async ({ styleSheet, type }: StyleSheetUpdateEvent<CssScopeName>): Promise<void> => {
@@ -152,7 +178,7 @@ const Styles = (props: StylesProps): JSX.Element | null => {
             
             
             // Skip expensive re-rendering for simple enabled/disabled state changes:
-            if (shouldUpdate && styleMap.has(styleSheet)) return;
+            if (shouldUpdate && renderedStyleMap.has(styleSheet)) return;
             
             
             
@@ -180,11 +206,7 @@ const Styles = (props: StylesProps): JSX.Element | null => {
             // Execute rendering based on async/sequential mode:
             const renderedCss = (
                 renderCondition
-                ? (
-                    asyncRender
-                    ? await unraceRenderStyleSheetAsync(styleSheet) // Batch rendering mode.
-                    : renderStyleSheet(styleSheet)                  // Sequential rendering mode.
-                )
+                ? await getRenderer()(styleSheet) // Perform fresh rendering (expensive).
                 : undefined // Canceled render.
             );
             if (renderedCss === undefined) return; // Ignore expired/canceled render.
@@ -199,12 +221,12 @@ const Styles = (props: StylesProps): JSX.Element | null => {
             // Store rendered CSS in the Map reference:
             if (!renderedCss) { // Nothing is rendered.
                 // Delete the CSS:
-                // styleMap.delete(styleSheet); // Do not delete an item in the map.
-                styleMap.set(styleSheet, null); // Preserve the state (mark as removed instead of deleting).
+                // renderedStyleMap.delete(styleSheet); // Do not delete an item in the map.
+                renderedStyleMap.set(styleSheet, null); // Preserve the state (mark as removed instead of deleting).
             }
             else {
                 // Store rendered CSS:
-                styleMap.set(styleSheet, renderedCss);
+                renderedStyleMap.set(styleSheet, renderedCss);
             } // if
             
             
@@ -228,7 +250,7 @@ const Styles = (props: StylesProps): JSX.Element | null => {
     const cachedJsx = useMemo(() => (
         <>
             {
-                Array.from(styleMap.entries())
+                Array.from(renderedStyleMap.entries())
                 .map(([styleSheet, renderedCss], index) =>
                     renderedCss
                     ? <Style
