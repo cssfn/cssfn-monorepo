@@ -4,7 +4,7 @@ import Image from "next/image";
 import styles from "./page.module.css";
 
 import { TestClientComponent } from './TestClientComponent'
-import { TestServerComponent } from './TestServerComponent'
+// import { TestServerComponent } from './TestServerComponent'
 
 
 
