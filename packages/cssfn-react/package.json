@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/cssfn-react",
-  "version": "3.2.0",
+  "version": "4.0.0",
   "description": "Declares, loads, and unloads css stylesheets in React hooks way.",
   "keywords": [
     "css",
@@ -16,10 +16,19 @@
     "type": "git",
     "url": "git+https://github.com/cssfn/cssfn-monorepo.git"
   },
-  "main": "dist/cssfn-react.js",
-  "types": "dist/cssfn-react.d.ts",
+  "main": "dist/client.js",
+  "types": "dist/client.d.ts",
   "type": "module",
-  "sideEffects": false,
+  "exports": {
+    ".": "./dist/client.js",
+    "./client": "./dist/client.js",
+    "./client.js": "./dist/client.js",
+    "./server": "./dist/server.js",
+    "./server.js": "./dist/server.js"
+  },
+  "sideEffects": [
+    "./dist/HydrateStyles.js"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -37,10 +46,10 @@
   },
   "peerDependencies": {
     "@cssfn/cssfn": "^3.2.0",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "rxjs": "^7.8.0"
   }
 }
