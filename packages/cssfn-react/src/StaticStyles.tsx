@@ -176,6 +176,7 @@ const StaticStyles = memo((props: StaticStylesProps): JSX.Element | null => {
             // Holds the collected stylesheets:
             const renderedStyleMap = new Map<StyleSheet, RenderedStyleSheet>();
             const pendingStyleMap  = new Map<StyleSheet, PendingStyleSheet>();
+            const pendingUpdateSet = new Set<Promise<void>>();
             
             
             
@@ -215,134 +216,149 @@ const StaticStyles = memo((props: StaticStylesProps): JSX.Element | null => {
             
             
             // Subscribe to stylesheet updates:
-            const subscription = styleSheetRegistry.subscribe(async ({ styleSheet, type }: StyleSheetUpdateEvent<CssScopeName>): Promise<void> => {
-                // Abort early if the component was already unmounted:
-                if (isMounted.current === false) return;
-                
-                
-                
-                // Determine whether the update affects rendering:
-                const isEnabled    = styleSheet.enabled;
-                const isLoaded     = !!styleSheet.scopes;
-                const shouldUpdate = (type === 'enabledChanged');
-                const shouldRender = isEnabled || styleSheet.prerender; // Render if enabled or marked for prerendering.
-                // if (process.env.NODE_ENV !== 'production') {
-                //     console.log('CSS added: ', { type, id: styleSheet.id, isEnabled, isLoaded, shouldUpdate, shouldRender });
-                // } // if
-                
-                
-                
-                // Detect when stylesheet becomes ready:
-                if (type === 'scopesChanged') {
-                    pendingStyleMap.get(styleSheet)?.completeLoad();
-                } // if
-                
-                
-                
-                // Skip expensive re-rendering for simple enabled/disabled state changes:
-                if (shouldUpdate && renderedStyleMap.has(styleSheet)) return;
-                
-                
-                
-                // Evaluate SSR rendering conditions:
-                const renderCondition = (
-                    // Render only when needed:
-                    shouldRender
+            const subscription = styleSheetRegistry.subscribe(({ styleSheet, type }: StyleSheetUpdateEvent<CssScopeName>): void => {
+                // Wrap async processing inside synchronous callback:
+                const updatePromise = (async (): Promise<void> => {
+                    // Abort early if the component was already unmounted:
+                    if (isMounted.current === false) return;
                     
-                    &&
                     
-                    // Either both-client-and-server rendering or SSR-enabled:
-                    (
-                        // Opted both server and client side:
-                        !onlySsr
+                    
+                    // Determine whether the update affects rendering:
+                    const isEnabled    = styleSheet.enabled;
+                    const isLoaded     = !!styleSheet.scopes;
+                    const shouldUpdate = (type === 'enabledChanged');
+                    const shouldRender = isEnabled || styleSheet.prerender; // Render if enabled or marked for prerendering.
+                    // if (process.env.NODE_ENV !== 'production') {
+                    //     console.log('CSS added: ', { type, id: styleSheet.id, isEnabled, isLoaded, shouldUpdate, shouldRender });
+                    // } // if
+                    
+                    
+                    
+                    // Detect when stylesheet becomes ready:
+                    if (type === 'scopesChanged') {
+                        pendingStyleMap.get(styleSheet)?.completeLoad();
+                    } // if
+                    
+                    
+                    
+                    // Skip expensive re-rendering for simple enabled/disabled state changes:
+                    if (shouldUpdate && renderedStyleMap.has(styleSheet)) return;
+                    
+                    
+                    
+                    // Evaluate SSR rendering conditions:
+                    const renderCondition = (
+                        // Render only when needed:
+                        shouldRender
                         
-                        ||
+                        &&
                         
-                        // Opted only if server side AND ssr mode enabled:
-                        styleSheet.ssr
-                    )
-                );
-                
-                
-                
-                // Execute rendering based on async/sequential mode:
-                let enabledOverride : boolean | undefined = undefined;
-                const renderedCss = (
-                    renderCondition
-                    ? await (async (): Promise<string | null | undefined> => {
-                        // Reuse prerendered styles (if available):
-                        if (styleSheet.id) {
-                            const headElement  = isClientSide ? document.head : undefined;
-                            if (headElement) {
-                                const existingStyleElm = headElement.querySelector(`style[data-cssfn-id="${styleSheet.id}"]`);
-                                if (existingStyleElm) {
-                                    const preRenderedCss = existingStyleElm.textContent;
-                                    // if (process.env.NODE_ENV !== 'production') {
-                                    //     console.log('Found prerendered: ', preRenderedCss);
-                                    // } // if
-                                    
-                                    // If the prerendered <style> exists, it means the styleSheet has been accessed (turned to enabled) during prerendered on server:
-                                    enabledOverride = true;
-                                    
-                                    return preRenderedCss;
+                        // Either both-client-and-server rendering or SSR-enabled:
+                        (
+                            // Opted both server and client side:
+                            !onlySsr
+                            
+                            ||
+                            
+                            // Opted only if server side AND ssr mode enabled:
+                            styleSheet.ssr
+                        )
+                    );
+                    
+                    
+                    
+                    // Execute rendering based on async/sequential mode:
+                    let enabledOverride : boolean | undefined = undefined;
+                    const renderedCss = (
+                        renderCondition
+                        ? await (async (): Promise<string | null | undefined> => {
+                            // Reuse prerendered styles (if available):
+                            if (styleSheet.id) {
+                                const headElement  = isClientSide ? document.head : undefined;
+                                if (headElement) {
+                                    const existingStyleElm = headElement.querySelector(`style[data-cssfn-id="${styleSheet.id}"]`);
+                                    if (existingStyleElm) {
+                                        const preRenderedCss = existingStyleElm.textContent;
+                                        // if (process.env.NODE_ENV !== 'production') {
+                                        //     console.log('Found prerendered: ', preRenderedCss);
+                                        // } // if
+                                        
+                                        // If the prerendered <style> exists, it means the styleSheet has been accessed (turned to enabled) during prerendered on server:
+                                        enabledOverride = true;
+                                        
+                                        return preRenderedCss;
+                                    } // if
                                 } // if
                             } // if
-                        } // if
-                        
-                        
-                        
-                        // Abort early if the stylesheet isn't loaded yet:
-                        if (!isLoaded) {
+                            
+                            
+                            
+                            // Abort early if the stylesheet isn't loaded yet:
+                            if (!isLoaded) {
+                                // if (process.env.NODE_ENV !== 'production') {
+                                //     console.log('The stylesheet is not yet loaded: ', { type, id: styleSheet.id, isEnabled, isLoaded, shouldUpdate, shouldRender });
+                                // } // if
+                                
+                                
+                                
+                                // Setup a stylesheet ready signal:
+                                // const { promise: loadPromise, resolve: completeLoad } = Promise.withResolvers<void>(); // Not compatible with Node v20.
+                                let completeLoad!: () => void;
+                                const loadPromise = new Promise<void>((resolve) => {
+                                    completeLoad = resolve;
+                                });
+                                pendingStyleMap.set(styleSheet, { loadPromise, completeLoad } satisfies PendingStyleSheet);
+                                
+                                
+                                
+                                // Assumes rendered as nothing:
+                                return null;
+                            } // if
+                            
+                            
+                            
+                            // Perform fresh rendering (expensive) using lazy rendering function:
+                            const freshRenderedCss = await getLazyRenderer()(styleSheet);
                             // if (process.env.NODE_ENV !== 'production') {
-                            //     console.log('The stylesheet is not yet loaded: ', { type, id: styleSheet.id, isEnabled, isLoaded, shouldUpdate, shouldRender });
+                            //     console.log('Fresh rendered: ', freshRenderedCss);
                             // } // if
-                            
-                            
-                            
-                            // Setup a stylesheet ready signal:
-                            // const { promise: loadPromise, resolve: completeLoad } = Promise.withResolvers<void>(); // Not compatible with Node v20.
-                            let completeLoad!: () => void;
-                            const loadPromise = new Promise<void>((resolve) => {
-                                completeLoad = resolve;
-                            });
-                            pendingStyleMap.set(styleSheet, { loadPromise, completeLoad } satisfies PendingStyleSheet);
-                            
-                            
-                            
-                            // Assumes rendered as nothing:
-                            return null;
-                        } // if
-                        
-                        
-                        
-                        // Perform fresh rendering (expensive) using lazy rendering function:
-                        const freshRenderedCss = await getLazyRenderer()(styleSheet);
-                        // if (process.env.NODE_ENV !== 'production') {
-                        //     console.log('Fresh rendered: ', freshRenderedCss);
-                        // } // if
-                        return freshRenderedCss;
-                    })()
-                    : undefined // Canceled render.
-                );
-                if (renderedCss === undefined) return; // Ignore expired/canceled render.
+                            return freshRenderedCss;
+                        })()
+                        : undefined // Canceled render.
+                    );
+                    if (renderedCss === undefined) return; // Ignore expired/canceled render.
+                    
+                    
+                    
+                    // Abort again if the component was unmounted **after await resumes**:
+                    if ((isMounted.current as boolean|undefined) === false) return;
+                    
+                    
+                    
+                    // Store rendered CSS in the Map reference:
+                    if (!renderedCss) { // Nothing is rendered.
+                        // Delete the CSS:
+                        // renderedStyleMap.delete(styleSheet); // Do not delete an item in the map.
+                        renderedStyleMap.set(styleSheet, { renderedCss: null, enabledOverride } satisfies RenderedStyleSheet); // Preserve the state (mark as removed instead of deleting).
+                    }
+                    else {
+                        // Store rendered CSS:
+                        renderedStyleMap.set(styleSheet, { renderedCss, enabledOverride } satisfies RenderedStyleSheet);
+                    } // if
+                })();
                 
                 
                 
-                // Abort again if the component was unmounted **after await resumes**:
-                if ((isMounted.current as boolean|undefined) === false) return;
+                // Track pending update:
+                pendingUpdateSet.add(updatePromise);
                 
                 
                 
-                // Store rendered CSS in the Map reference:
-                if (!renderedCss) { // Nothing is rendered.
-                    // Delete the CSS:
-                    // renderedStyleMap.delete(styleSheet); // Do not delete an item in the map.
-                    renderedStyleMap.set(styleSheet, { renderedCss: null, enabledOverride } satisfies RenderedStyleSheet); // Preserve the state (mark as removed instead of deleting).
-                }
-                else {
-                    // Store rendered CSS:
-                    renderedStyleMap.set(styleSheet, { renderedCss, enabledOverride } satisfies RenderedStyleSheet);
-                } // if
+                // Remove completed update from tracking set:
+                updatePromise.then(() => {
+                    pendingUpdateSet.delete(updatePromise);
+                });
             });
             
             
@@ -383,6 +399,13 @@ const StaticStyles = memo((props: StaticStylesProps): JSX.Element | null => {
             
             // Cleanup subscription:
             subscription.unsubscribe();
+            
+            
+            
+            // Wait for all pending updates to complete before proceeding:
+            if (pendingUpdateSet.size) {
+                await Promise.all(pendingUpdateSet);
+            } // if
             
             
             
