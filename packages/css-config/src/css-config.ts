@@ -1,6 +1,6 @@
 // cssfn:
 import type {
-    // factories:
+    // lazies:
     MaybeLazy,
     
     

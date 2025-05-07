@@ -5,7 +5,7 @@ import type {
     
     
     
-    // factories:
+    // lazies:
     MaybeLazy,
 }                           from '@cssfn/types'
 import type {
