@@ -1,7 +1,7 @@
 // cssfn:
 import type {
     // factories:
-    MaybeFactory,
+    MaybeLazy,
     
     
     
@@ -562,7 +562,7 @@ class TransformDuplicatesBuilder<TSrcPropName extends string|number|symbol, TSrc
                     mergeStyles(styles)
                 );
                 if (srcNestedStyle) {
-                    const equalNestedStyle = (new TransformCssStyleDuplicatesBuilder<TRefPropName, TRefPropValue>(srcNestedStyle as unknown as CssStyleMap /* de-finalize */, refProps, genKeyframes, options)).style;
+                    const equalNestedStyle = (new TransformCssStyleDuplicatesBuilder<TRefPropName, TRefPropValue>(srcNestedStyle as unknown as CssStyleMap as any /* de-finalize */, refProps, genKeyframes, options)).style;
                     if (equalNestedStyle) {
                         // store the modified `srcNestedStyle`:
                         modified.set(
@@ -737,7 +737,7 @@ class TransformCssConfigDuplicatesBuilder
 
 class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     //#region private properties
-    private readonly _propsFactory : MaybeFactory<TConfigProps>
+    private readonly _propsFactory : MaybeLazy<TConfigProps>
     
     
     
@@ -1130,7 +1130,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
     
     
     //#region constructors
-    constructor(initialProps: MaybeFactory<TConfigProps>, options?: CssConfigOptions) {
+    constructor(initialProps: MaybeLazy<TConfigProps>, options?: CssConfigOptions) {
         this._propsFactory = initialProps;
         this.options = new LiveCssConfigOptions((prevPrefix: string) => {
             this._propsMapSource = (() => {
@@ -1214,7 +1214,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
 /**
  * A configurable css variables (css custom properties).  
  */
-const cssConfig = <TConfigProps extends CssConfigProps>(initialProps: MaybeFactory<TConfigProps>, options?: CssConfigOptions): CssConfig<TConfigProps> => {
+const cssConfig = <TConfigProps extends CssConfigProps>(initialProps: MaybeLazy<TConfigProps>, options?: CssConfigOptions): CssConfig<TConfigProps> => {
     const cssConfig = new CssConfigBuilder<TConfigProps>(initialProps, options);
     return [
         cssConfig.refs,
