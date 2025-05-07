@@ -46,7 +46,7 @@ export type MaybePromise<T>                = T | Promise<T>
 
 
 
-// Factories:
+// Lazies:
 
 /**
  * Represents a function that returns a value of type `T`.
@@ -185,14 +185,14 @@ export type MaybeLazyDeferred<T>           = MaybeLazy<MaybeDeferred<T>>
  *
  * Useful for handling objects with optional nullable properties.
  */
-export type PartialNullish<T>              = { [Key in keyof T] ?: null |  T[Key]                  }
+export type PartialNullish<T>              = { [Key in keyof T] ?: null |  T[Key]                    }
 
 /**
  * Represents an object where all properties are required and cannot be `undefined` or `null`.
  * - Ensures all values are explicitly defined.
  * - Excludes both `undefined` and `null` from property types.
  */
-export type RequiredNotNullish<T>          = { [Key in keyof T]  : Exclude<T[Key], undefined|null> }
+export type RequiredNotNullish<T>          = { [Key in keyof T]  : Exclude<T[Key], undefined | null> }
 
 
 /**
