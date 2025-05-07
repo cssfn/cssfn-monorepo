@@ -6,7 +6,7 @@ import type {
     
     
     // factories:
-    MaybeFactory,
+    MaybeLazy,
 }                           from '@cssfn/types'
 import type {
     // cssfn properties:
@@ -50,7 +50,7 @@ export type StylePackOptions<TName extends string, TPlural extends string, TCssC
     
     deps     ?: MaybeArray<Observable<void>>
     
-    mixins    : MaybeFactory<TMixinDefs>
+    mixins    : MaybeLazy<TMixinDefs>
 } & ({
     /* without config */
     
@@ -60,7 +60,7 @@ export type StylePackOptions<TName extends string, TPlural extends string, TCssC
 }|({
     /* with config */
     
-    config    : MaybeFactory<TCssConfigProps>
+    config    : MaybeLazy<TCssConfigProps>
 } & CssConfigOptions))
 
 export type StylePack<TName extends string, TPlural extends string, TCssConfigProps extends CssConfigProps, TMixinDefs extends MixinDefs> =
