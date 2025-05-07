@@ -10,8 +10,8 @@ import {
     
     
     
-    // Factories:
-    type MaybeFactoryMaybeDeepArray,
+    // Lazies:
+    type MaybeLazyDeepArray,
     
     
     
@@ -452,7 +452,7 @@ export type CssFinalRule               = {
 }
 export type CssRuleMap                 = MapOf<CssRule>
 export type CssFinalRuleMap            = MapOf<CssFinalRule>
-export type CssRuleCollection          = MaybeFactoryMaybeDeepArray<OptionalOrBoolean<CssRule>>
+export type CssRuleCollection          = MaybeLazyDeepArray<OptionalOrBoolean<CssRule>>
 
 export type CssStyle                   = CssProps & CssRule
 export type CssFinalStyle              = CssProps & CssFinalRule
@@ -603,9 +603,9 @@ export interface CssFinalStyleMapOverloads
 }
 export type CssStyleMap                = CssStyleMapFilteredKeys & CssStyleMapOverloads      & Omit<CssPropsMap & CssRuleMap & CssFinalRuleMap, CssStyleMapExcludeMembers>
 export type CssFinalStyleMap           = CssStyleMapFilteredKeys & CssFinalStyleMapOverloads & Omit<CssPropsMap              & CssFinalRuleMap, CssStyleMapExcludeMembers>
-export type CssStyleCollection         = MaybeFactoryMaybeDeepArray<OptionalOrBoolean<CssStyle>>
-export type CssFontFaceStyleCollection = MaybeFactoryMaybeDeepArray<OptionalOrBoolean<CssFontFaceProps>>
-export type CssPropertyStyleCollection = MaybeFactoryMaybeDeepArray<OptionalOrBoolean<CssPropertyProps>>
+export type CssStyleCollection         = MaybeLazyDeepArray<OptionalOrBoolean<CssStyle>>
+export type CssFontFaceStyleCollection = MaybeLazyDeepArray<OptionalOrBoolean<CssFontFaceProps>>
+export type CssPropertyStyleCollection = MaybeLazyDeepArray<OptionalOrBoolean<CssPropertyProps>>
 
 export interface CssCustomKeyframesRef {
     value      : string|null
