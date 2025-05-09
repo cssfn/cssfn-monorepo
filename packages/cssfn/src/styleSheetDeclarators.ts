@@ -266,7 +266,7 @@ const resolveLazyScope     = (styleSource: Lazy<MaybeDeferred<CssStyleCollection
         // Prevents accidental execution of `styleSource` before render time.
         const lazyPromiseStyleSource : Lazy<Promise<CssScopeList<'main'>>> = async (): Promise<CssScopeList<'main'>> => {
             const resolved = await styleSource(); // Lazily invoked in the future.
-            return resolveMainScope(resolved, options);
+            return resolveStaticScope(resolved, options);
         };
         
         return lazyPromiseStyleSource satisfies StyleSheetsFactory<'main'>;
@@ -295,7 +295,7 @@ const resolveDeferredScope = (styleSource: MaybePromise<MaybeModuleDefault<CssSt
         // Prevents accidental execution of a promise before the render process.
         const lazyPromiseStyleSource : Lazy<Promise<CssScopeList<'main'>>> = async (): Promise<CssScopeList<'main'>> => {
             const resolved = await styleSource; // Lazily awaited in the future.
-            return resolveMainScope(resolved, options);
+            return resolveStaticScope(resolved, options);
         };
         
         return lazyPromiseStyleSource satisfies StyleSheetsFactory<'main'>;
