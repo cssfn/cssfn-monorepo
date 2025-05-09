@@ -98,6 +98,7 @@ jest.isolateModules(() => {
         
         await new Promise<void>((resolve) => { setTimeout(() => {
             expect(renderStyleSheet(lastStyleSheet!))
+            .resolves
             .toBe(
 `
 :root {
@@ -144,6 +145,7 @@ jest.isolateModules(() => {
         
         await new Promise<void>((resolve) => { setTimeout(() => {
             expect(renderStyleSheet(lastStyleSheet!))
+            .resolves
             .toBe(
 `
 .navbar {
@@ -195,6 +197,7 @@ jest.isolateModules(() => {
         
         await new Promise<void>((resolve) => { setTimeout(() => {
             expect(renderStyleSheet(lastStyleSheet!))
+            .resolves
             .toBe(
 `
 :root {
@@ -258,6 +261,7 @@ jest.isolateModules(() => {
         
         await new Promise<void>((resolve) => { setTimeout(() => {
             expect(renderStyleSheet(lastStyleSheet!))
+            .resolves
             .toBe(
 `
 :root {
@@ -304,6 +308,7 @@ jest.isolateModules(() => {
             cssVals.theBorder   = [['solid', '4px', '#ff0000']];
             setTimeout(() => {
                 expect(renderStyleSheet(lastStyleSheet!))
+                .resolves
                 .toBe(
 `
 :root {
@@ -347,6 +352,7 @@ jest.isolateModules(() => {
                 (cssVals as any).thickBorder = '4px';
                 setTimeout(() => {
                     expect(renderStyleSheet(lastStyleSheet!))
+                    .resolves
                     .toBe(
 `
 :root {
@@ -430,6 +436,7 @@ jest.isolateModules(() => {
         
         await new Promise<void>((resolve) => { setTimeout(() => {
             expect(renderStyleSheet(lastStyleSheet!))
+            .resolves
             .toBe(
 `
 :root {
@@ -523,6 +530,7 @@ background: url(image1b.png), url(image2b.png);
         
         await new Promise<void>((resolve) => { setTimeout(() => {
             expect(renderStyleSheet(lastStyleSheet!))
+            .resolves
             .toBe(
 `
 :root {
@@ -634,6 +642,7 @@ padding: var(--navb-bdWidth) 0 5px 3%;
         
         await new Promise<void>((resolve) => { setTimeout(() => {
             expect(renderStyleSheet(lastStyleSheet!))
+            .resolves
             .toBe(
 `
 :root {
@@ -698,6 +707,7 @@ padding: var(--navb-bdWidth) 0 5px 3%;
             (cssVals as any).thickBorder  = '5px';
             setTimeout(() => {
                 expect(renderStyleSheet(lastStyleSheet!))
+                .resolves
                 .toBe(
 `
 :root {
