@@ -231,6 +231,7 @@ const resolveMainScope     = (styleSource: CssStyleCollection, options: (StyleSh
 /**
  * Resolves a static style source into a `'main'` scoped entry.
  *
+ * - If the source contains a `default` import, it extracts the default value and converts it into a structured scope format.
  * - Converts module-based or direct style definitions into a structured scope format.
  * - Ensures compatibility with standard CSS processing pipelines.
  *
@@ -245,7 +246,7 @@ const resolveStaticScope   = (styleSource: MaybeModuleDefault<CssStyleCollection
     
     
     // Directly returns the input:
-    return resolveMainScope(styleSource, options);
+    return resolveMainScope(styleSource.default, options);
 };
 
 /**
