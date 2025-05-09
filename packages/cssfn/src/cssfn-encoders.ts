@@ -1,39 +1,39 @@
-// cssfn:
-import type {
-    // optionals:
-    OptionalOrBoolean,
+// Cssfn:
+import {
+    // Optionals:
+    type OptionalOrBoolean,
     
     
     
-    // factories:
-    MaybeFactory,
+    // Lazies:
+    type MaybeLazy,
 }                           from '@cssfn/types'
-import type {
-    // css custom properties:
-    CssCustomValue,
+import {
+    // CSS custom properties:
+    type CssCustomValue,
     
     
     
-    // cssfn properties:
-    CssProps,
+    // Cssfn properties:
+    type CssProps,
     
-    CssRuleData,
+    type CssRuleData,
     
-    CssStyle,
-    CssStyleCollection,
+    type CssStyle,
+    type CssStyleCollection,
 }                           from '@cssfn/css-types'
 
-// internals:
-import type {
-    // cssfn properties:
-    EncodedCssRuleData,
-    EncodedCssStyle,
-    EncodedCssStyleCollection,
+// Internals:
+import {
+    // Cssfn properties:
+    type EncodedCssRuleData,
+    type EncodedCssStyle,
+    type EncodedCssStyleCollection,
 }                           from './cssfn-encoded-types.js'
 
 
 
-// types:
+// Types:
 type TransferablePrimitive = undefined|null|string|number
 
 
@@ -49,7 +49,7 @@ const isTransferablePrimitive = <TPropValue extends CssCustomValue|undefined|nul
             return true;                 // any primitive    => *transferable*
     } // switch
 }
-export const encodeStyle = (style: MaybeFactory<OptionalOrBoolean<CssStyle>>): OptionalOrBoolean<EncodedCssStyle> => {
+export const encodeStyle = (style: MaybeLazy<OptionalOrBoolean<CssStyle>>): OptionalOrBoolean<EncodedCssStyle> => {
     if (!style || (style === true))           return undefined;                 // ignore : falsy style
     const styleValue = (typeof(style) === 'function') ? style() : style;
     if (!styleValue || (styleValue === true)) return undefined;                 // ignore : falsy style

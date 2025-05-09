@@ -37,12 +37,12 @@ const cssStyleToMap = (style: OptionalOrBoolean<CssStyle>): CssStyleMap|null => 
     const map = new CssStyleMapImpl() as CssStyleMap;
     for (const propName in style) { // faster!
         const propName2 = propName as keyof Omit<CssStyle, symbol>;
-        (map as CssPropsMap).set(propName2 as any, style[propName2]);
+        (map as unknown as CssPropsMap).set(propName2 as any, style[propName2]);
     } //
     
     // fetch symbol props:
     for (const propName of Object.getOwnPropertySymbols(style)) {
-        (map as CssRuleMap).set(propName, style[propName]);
+        (map as unknown as CssRuleMap).set(propName, style[propName]);
     } // for
     
     

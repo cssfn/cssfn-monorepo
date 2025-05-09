@@ -1,59 +1,59 @@
-// cssfn:
-import type {
-    // optionals:
-    OptionalOrBoolean,
+// Cssfn:
+import {
+    // Optionals:
+    type OptionalOrBoolean,
     
     
     
-    // factories:
-    MaybeFactory,
+    // Lazies:
+    type MaybeLazy,
     
     
     
-    // dictionaries/maps:
-    Dictionary,
+    // Collections:
+    type Dictionary,
 }                           from '@cssfn/types'
-import type {
-    // cssfn properties:
-    CssCustomName,
-    CssCustomSimpleRef,
-    CssCustomValue,
-    CssCustomProps,
+import {
+    // Cssfn properties:
+    type CssCustomName,
+    type CssCustomSimpleRef,
+    type CssCustomValue,
+    type CssCustomProps,
     
-    CssKnownValueOf,
+    type CssKnownValueOf,
     
-    CssProps,
+    type CssProps,
     
-    CssRuleData,
-    CssRule,
-    CssRuleCollection,
+    type CssRuleData,
+    type CssRule,
+    type CssRuleCollection,
     
-    CssStyle,
-    CssStyleCollection,
-    CssFontFaceStyleCollection,
-    CssPropertyStyleCollection,
+    type CssStyle,
+    type CssStyleCollection,
+    type CssFontFaceStyleCollection,
+    type CssPropertyStyleCollection,
     
-    CssCustomKeyframesRef,
-    CssKeyframes,
-    CssKeyframesRule,
+    type CssCustomKeyframesRef,
+    type CssKeyframes,
+    type CssKeyframesRule,
     
-    CssSelector,
-    CssSelectorCollection,
-    CssSelectorOptions,
+    type CssSelector,
+    type CssSelectorCollection,
+    type CssSelectorOptions,
     
-    CssRawSelector,
-    CssFinalSelector,
+    type CssRawSelector,
+    type CssFinalSelector,
     
-    CssScopeName,
-    CssScopeOptions,
-    CssScopeEntry,
+    type CssScopeName,
+    type CssScopeOptions,
+    type CssScopeEntry,
 }                           from '@cssfn/css-types'
-import type {
-    // types:
-    Combinator,
+import {
+    // Types:
+    type Combinator,
 }                           from '@cssfn/css-selectors'
 
-// internals:
+// Internals:
 import {
     flat,
     isFinalSelector,
@@ -95,7 +95,7 @@ export const atRule = (atRule: `@${string}`, styles: CssStyleCollection): CssRul
 
 
 // rule groups:
-const selectOptionalRuleFromOptionalRuleOrFactory = (optionalRuleOrFactory: MaybeFactory<OptionalOrBoolean<CssRule>>): OptionalOrBoolean<CssRule> => {
+const selectOptionalRuleFromOptionalRuleOrFactory = (optionalRuleOrFactory: MaybeLazy<OptionalOrBoolean<CssRule>>): OptionalOrBoolean<CssRule> => {
     // conditions:
     if (!optionalRuleOrFactory || (optionalRuleOrFactory === true)) return optionalRuleOrFactory;
     
@@ -278,7 +278,7 @@ export function keyframes(nameOrItems : string|CssKeyframes, items ?: CssKeyfram
     // second overloading:
     if (items !== undefined) throw TypeError();
     const keyframesRef = new CssCustomKeyframesRefImpl(null, (value) => {
-        (ruleData as unknown as Array<any>)[0] = `@keyframes ${value}`;
+        (ruleData as unknown as Array<unknown>)[0] = `@keyframes ${value}`;
     });
     const ruleData : CssRuleData = [
         `@keyframes ${keyframesRef.toString()}`,

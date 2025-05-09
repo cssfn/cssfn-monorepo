@@ -1,44 +1,44 @@
-// cssfn:
-import type {
-    // cssfn properties:
-    CssRuleData,
+// Cssfn:
+import {
+    // Cssfn properties:
+    type CssRuleData,
     
-    CssFinalRuleMap,
+    type CssFinalRuleMap,
     
-    CssUnionKey,
-    CssUnionValue,
+    type CssUnionKey,
+    type CssUnionValue,
     
-    CssStyleMap,
-    CssFinalStyleMap,
-    CssStyleCollection,
+    type CssStyleMap,
+    type CssFinalStyleMap,
+    type CssStyleCollection,
     
-    CssSelector,
-    CssSelectorCollection,
+    type CssSelector,
+    type CssSelectorCollection,
     
-    CssRawSelector,
-    CssFinalSelector,
+    type CssRawSelector,
+    type CssFinalSelector,
 }                           from '@cssfn/css-types'
 import {
-    // types:
-    SelectorGroup,
+    // Types:
+    type SelectorGroup,
     
     
     
-    // parses:
+    // Parses:
     parseSelectors,
     
     
     
-    // creates & tests:
+    // Creates & tests:
     isNotEmptySelectors,
     
     
     
-    // renders:
+    // Renders:
     selectorsToString,
 }                           from '@cssfn/css-selectors'
 
-// internals:
+// Internals:
 import {
     flat,
     isFinalSelector,
@@ -536,12 +536,12 @@ export const mergeNested  = (style: CssStyleMap): void => {
  */
 export const mergeStyles = (styles: CssStyleCollection | (CssStyleCollection|CssFinalStyleMap)[]): CssFinalStyleMap|null => {
     if (!Array.isArray(styles)) {
-        // nullable_object or function => MaybeFactory<OptionalOrBoolean<CssStyle>>
+        // nullable_object or function => MaybeLazy<OptionalOrBoolean<CssStyle>>
         
         const styleValue: CssStyleMap|null = cssStyleToMap(
             (typeof(styles) === 'function')
             ?
-            styles() // a function => Factory<OptionalOrBoolean<CssStyle>>
+            styles() // a function => Lazy<OptionalOrBoolean<CssStyle>>
             :
             styles   // a product  => OptionalOrBoolean<CssStyle>
         );
@@ -571,9 +571,9 @@ export const mergeStyles = (styles: CssStyleCollection | (CssStyleCollection|Css
             Array.isArray(subStyles)
             ?
             // deep iterating array
-            (mergeStyles(subStyles) as unknown as (CssStyleMap|null)) // de-finalize // an array of CssFinalStyleMap|MaybeFactoryDeepArray<OptionalOrBoolean<CssStyle>> => recursively `mergeStyles()`
+            (mergeStyles(subStyles) as unknown as (CssStyleMap|null)) // de-finalize // an array of CssFinalStyleMap|DeepArrayMaybeLazy<OptionalOrBoolean<CssStyle>> => recursively `mergeStyles()`
             :
-            // not an array => CssFinalStyleMap or nullable_object or function => CssFinalStyleMap|MaybeFactory<OptionalOrBoolean<CssStyle>>
+            // not an array => CssFinalStyleMap or nullable_object or function => CssFinalStyleMap|MaybeLazy<OptionalOrBoolean<CssStyle>>
             (
                 isFinalStyleMap(subStyles)
                 ?
@@ -582,7 +582,7 @@ export const mergeStyles = (styles: CssStyleCollection | (CssStyleCollection|Css
                 cssStyleToMap(
                     (typeof(subStyles) === 'function')
                     ?
-                    subStyles() // a function => Factory<OptionalOrBoolean<CssStyle>>
+                    subStyles() // a function => Lazy<OptionalOrBoolean<CssStyle>>
                     :
                     subStyles   // a product  => OptionalOrBoolean<CssStyle>
                 )

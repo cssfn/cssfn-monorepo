@@ -1,39 +1,39 @@
-// cssfn:
-import type {
-    // optionals:
-    OptionalOrBoolean,
+// Cssfn:
+import {
+    // Optionals:
+    type OptionalOrBoolean,
     
     
     
-    // arrays:
-    DeepArray,
-    MaybeDeepArray,
+    // Arrays:
+    type DeepArray,
+    type MaybeDeepArray,
     
     
     
-    // factories:
-    Factory,
-    MaybeFactory,
+    // Lazies:
+    type Lazy,
+    type MaybeLazy,
 }                           from '@cssfn/types'
-import type {
-    CssRule,
+import {
+    type CssRule,
     
-    CssStyle,
-    CssFinalStyleMap,
-    CssStyleCollection,
+    type CssStyle,
+    type CssFinalStyleMap,
+    type CssStyleCollection,
     
-    CssSelector,
-    CssSelectorOptions,
+    type CssSelector,
+    type CssSelectorOptions,
     
-    CssRawSelector,
-    CssFinalSelector,
+    type CssRawSelector,
+    type CssFinalSelector,
     
-    CssScopeName,
+    type CssScopeName,
 }                           from '@cssfn/css-types'
 
-// other libs:
+// Other libs:
 import {
-    // tests:
+    // Tests:
     default as warning,
 }                           from 'tiny-warning'
 export {
@@ -90,7 +90,7 @@ export const isFinalSelector = (selector: undefined|CssRawSelector|CssFinalSelec
 export const isNotFalsySelector = (selector: OptionalOrBoolean<CssSelector>): selector is CssSelector => {
     return (!!selector && (selector !== true));
 };
-export const isNotFalsyRuleOrFactory = (ruleOrFactory: MaybeFactory<OptionalOrBoolean<CssRule>>): ruleOrFactory is CssRule|Factory<OptionalOrBoolean<CssRule>> => {
+export const isNotFalsyRuleOrFactory = (ruleOrFactory: MaybeLazy<OptionalOrBoolean<CssRule>>): ruleOrFactory is CssRule|Lazy<OptionalOrBoolean<CssRule>> => {
     return (!!ruleOrFactory && (ruleOrFactory !== true));
 };
 export const isNotFalsyRule = (rule: OptionalOrBoolean<CssRule>): rule is CssRule => {

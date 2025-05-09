@@ -142,6 +142,7 @@ jest.isolateModules(() => {
             )
         ], { id: '#buggy#1' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .ylzwq {
@@ -165,6 +166,7 @@ color: red;
             )
         ], { id: '#buggy#2' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .z5si3.RED {
@@ -193,6 +195,7 @@ color: green;
             )
         ], { id: '#sheet#1' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .z7qv1 {
@@ -215,6 +218,7 @@ border-start-end-radius: 0.5px;
             )
         ], { id: '#sheet#2' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .yny9o {
@@ -238,6 +242,7 @@ border-start-end-radius: 0.5px;
             )
         ], { id: '#sheet#3' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .y45ob {
@@ -269,6 +274,7 @@ border-start-end-radius: 0.5px;
             )
         ], { id: '#sheet#4' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .xkd2y {
@@ -295,6 +301,7 @@ background-position: 0 0, 1cm 2cm, center !important;
             borderStartEndRadius: '0.5px',
         }), { id: '#sheet#1b' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .mxuj5 {
@@ -313,6 +320,7 @@ border-start-end-radius: 0.5px;
             msFlexDirection: 'column',
         }), { id: '#sheet#2b' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .qzgxc {
@@ -332,6 +340,7 @@ border-start-end-radius: 0.5px;
             'var(--my-custProp2)': '"good"',
         }), { id: '#sheet#3b' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .l13bj {
@@ -359,6 +368,7 @@ border-start-end-radius: 0.5px;
             backgroundPosition: [[0, 0], ['1cm', '2cm'], ['center'], '!important'],
         }), { id: '#sheet#4b' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .a2ppq {
@@ -392,6 +402,7 @@ background-position: 0 0, 1cm 2cm, center !important;
             )
         ], { id: '#sheet#5' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .x0khl {
@@ -422,6 +433,7 @@ background: linear-gradient(to right, red 0%, green 100%);
             )
         ], { id: '#sheet#6' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .wgrw8 {
@@ -445,6 +457,7 @@ display: grid;
             }),
         }), { id: '#sheet#5b' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .j4c3x {
@@ -471,6 +484,7 @@ background: linear-gradient(to right, red 0%, green 100%);
             }),
         }), { id: '#sheet#6b' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .k5yi4 {
@@ -502,6 +516,7 @@ display: grid;
             )
         ], { id: '#sheet#7' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @font-face {
@@ -529,6 +544,7 @@ font-style: oblique 40deg;
             )
         ], { id: '#sheet#8' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @font-face {
@@ -553,6 +569,7 @@ font-style: oblique 40deg;
             }),
         }), { id: '#sheet#7b' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @font-face {
@@ -576,6 +593,7 @@ font-style: oblique 40deg;
             }),
         }), { id: '#sheet#8b' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @font-face {
@@ -605,6 +623,7 @@ font-style: oblique 40deg;
             )
         ], { id: '#sheet#othfmg' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @property --theColor {
@@ -628,6 +647,7 @@ initial-value: red;
             )
         ], { id: '#sheet#abcdxyz' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @property --theDistance {
@@ -663,6 +683,7 @@ initial-value: 3rem;
             )
         ], { id: '#sheet#aaaa' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @keyframes awesome {
@@ -708,6 +729,7 @@ opacity: 0.9;
             )
         ], { id: '#sheet#bbbb' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @keyframes awesome {
@@ -748,6 +770,7 @@ border: solid 4px blue;
             }),
         }), { id: '#sheet#cccc' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @keyframes awesome {
@@ -789,6 +812,7 @@ opacity: 0.9;
             }),
         }), { id: '#sheet#dddd' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @keyframes awesome {
@@ -819,6 +843,7 @@ border: solid 4px blue;
             }),
         }), { id: '#sheet#eeee' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @keyframes emptyAnimation {
@@ -840,6 +865,7 @@ border: solid 4px blue;
             }),
         }), { id: '#sheet#ffff' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @keyframes emptyAnimation2 {
@@ -877,6 +903,7 @@ border: solid 4px blue;
             )
         ], { id: '#sheet#9' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .ute45 {
@@ -929,6 +956,7 @@ overflow: auto;
             )
         ], { id: '#sheet#10' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .vg4v3.rule.rule.rule {
@@ -980,6 +1008,7 @@ overflow: auto;
             )
         ], { id: '#sheet#11' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .vzxgg {
@@ -1035,6 +1064,7 @@ overflow: auto;
             )
         ], { id: '#sheet#12' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .wjq1t.wjq1t.wjq1t {
@@ -1088,6 +1118,7 @@ overflow: auto;
             ),
         ], { id: '#sheet#13' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .x3in6.x3in6.rule.rule.rule {
@@ -1140,6 +1171,7 @@ overflow: auto;
             )
         ], { id: '#sheet#14' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .xnb8j.xnb8j {
@@ -1195,6 +1227,7 @@ overflow: auto;
             )
         ], { id: '#sheet#15' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 :where(.y73tw) {
@@ -1248,6 +1281,7 @@ overflow: auto;
             ),
         ], { id: '#sheet#16' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 :where(.yqwf9).rule.rule.rule {
@@ -1300,6 +1334,7 @@ overflow: auto;
             )
         ], { id: '#sheet#17' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 :where(.zap0m) {
@@ -1352,6 +1387,7 @@ overflow: auto;
             }),
         }), { id: '#sheet#9qq' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .tyciz {
@@ -1400,6 +1436,7 @@ overflow: auto;
             }, { specificityWeight: 2 }),
         }), { id: '#sheet#10qq' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .eo8n5.rule.rule.rule {
@@ -1447,6 +1484,7 @@ overflow: auto;
             ], { specificityWeight: 3 }),
         }), { id: '#sheet#11qq' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .eq1kw {
@@ -1497,6 +1535,7 @@ overflow: auto;
             }),
         }), { id: '#sheet#12qq', specificityWeight: 3 });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .y4bsx.y4bsx.y4bsx {
@@ -1545,6 +1584,7 @@ overflow: auto;
             }, { specificityWeight: 2 }),
         }), { id: '#sheet#13qq', specificityWeight: 2 });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .elfy6.elfy6.rule.rule.rule {
@@ -1592,6 +1632,7 @@ overflow: auto;
             ], { specificityWeight: 3 }),
         }), { id: '#sheet#14qq', specificityWeight: 2 });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .q75q5.q75q5 {
@@ -1642,6 +1683,7 @@ overflow: auto;
             }),
         }), { id: '#sheet#15qq', specificityWeight: 0 });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 :where(.wsvi4) {
@@ -1690,6 +1732,7 @@ overflow: auto;
             }, { specificityWeight: 2 }),
         }), { id: '#sheet#16qq', specificityWeight: 0 });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 :where(.mlepx).rule.rule.rule {
@@ -1737,6 +1780,7 @@ overflow: auto;
             ], { specificityWeight: 3 }),
         }), { id: '#sheet#17qq', specificityWeight: 0 });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 :where(.azoxy) {
@@ -1795,6 +1839,7 @@ overflow: auto;
             )
         ], { id: '#sheet#18' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .zuhlz {
@@ -1850,6 +1895,7 @@ overflow: auto;
             ),
         ], { id: '#sheet#19' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 :where(.wea7c).rule.rule.rule {
@@ -1904,6 +1950,7 @@ overflow: auto;
             )
         ], { id: '#sheet#20' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 :where(.chr9a) {
@@ -1950,6 +1997,7 @@ overflow: auto;
             )
         ], { id: '#sheet#bleh' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .rmnfx:hover, .rmnfx::backdrop {
@@ -1990,6 +2038,7 @@ overflow: auto;
             }),
         }), { id: '#sheet#18X' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .hovdv {
@@ -2040,6 +2089,7 @@ overflow: auto;
             }, { specificityWeight: 2 }),
         }), { id: '#sheet#19X', specificityWeight: 0 });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 :where(.yqhs2).rule.rule.rule {
@@ -2089,6 +2139,7 @@ overflow: auto;
             ], { specificityWeight: 3 }),
         }), { id: '#sheet#20X', specificityWeight: 0 });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 :where(.dq6gc) {
@@ -2131,6 +2182,7 @@ overflow: auto;
             }),
         }), { id: '#sheet#blehX' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .blq8t:hover, .blq8t::backdrop {
@@ -2190,6 +2242,7 @@ overflow: auto;
             )
         ], { id: '#sheet#22' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .btn {
@@ -2273,6 +2326,7 @@ justify-content: center;
             }),
         ], { id: '#sheet#23' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .navbar {
@@ -2359,6 +2413,7 @@ flex: 0 0 auto !important;
             }),
         }), { id: '#sheet#22X' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .btn {
@@ -2442,6 +2497,7 @@ justify-content: center;
             )
         ], { id: '#sheet#24' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .btn {
@@ -2518,6 +2574,7 @@ justify-content: center;
             }),
         ], { id: '#sheet#25' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .btn {
@@ -2598,6 +2655,7 @@ justify-content: center;
             )
         ], { id: '#sheet#26' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @media (min-width: 1024px) {
@@ -2674,6 +2732,7 @@ justify-content: center;
             }),
         ], { id: '#sheet#27' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @media (min-width: 1024px) {
@@ -2753,6 +2812,7 @@ justify-content: center;
             }),
         }), { id: '#sheet#24R' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .btn {
@@ -2829,6 +2889,7 @@ justify-content: center;
             }),
         }), { id: '#sheet#26R' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @media (min-width: 1024px) {
@@ -2915,6 +2976,7 @@ justify-content: center;
             )
         ], { id: '#sheet#28' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .gw406.btn {
@@ -3003,6 +3065,7 @@ justify-content: center;
             )
         ], { id: '#sheet#29' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .hfwlj.menu.btn {
@@ -3067,6 +3130,7 @@ justify-content: center;
             )
         ], { id: '#sheet#30' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .tjdnh.menu.sub-menu {
@@ -3103,6 +3167,7 @@ display: block;
             )
         ], { id: '#sheet#31' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @media (min-width: 1024px) {
@@ -3154,6 +3219,7 @@ display: block;
             )
         ], { id: '#sheet#32' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .umyu7.btn {
@@ -3218,6 +3284,7 @@ justify-content: center;
             )
         ], { id: '#sheet#33' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .v6rfk.btn {
@@ -3270,6 +3337,7 @@ display: block;
             )
         ], { id: '#sheet#34' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .vqk0x.btn {
@@ -3322,6 +3390,7 @@ display: block;
             )
         ], { id: '#sheet#35' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .wacma.btn {
@@ -3370,6 +3439,7 @@ display: block;
             )
         ], { id: '#sheet#36' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .wu57n.btn {
@@ -3433,6 +3503,7 @@ display: block;
             }),
         }), { id: '#sheet#28N' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .kl7oa.btn {
@@ -3517,6 +3588,7 @@ justify-content: center;
             }),
         }), { id: '#sheet#29N' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .hmu2h.menu.btn {
@@ -3577,6 +3649,7 @@ justify-content: center;
             }),
         }), { id: '#sheet#30N' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .bhj8d.menu.sub-menu {
@@ -3609,6 +3682,7 @@ display: block;
             }),
         }), { id: '#sheet#31N' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 @media (min-width: 1024px) {
@@ -3656,6 +3730,7 @@ display: block;
             }),
         }), { id: '#sheet#32W' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .ig53q.btn {
@@ -3716,6 +3791,7 @@ justify-content: center;
             }),
         }), { id: '#sheet#33W' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .keipj.btn {
@@ -3764,6 +3840,7 @@ display: block;
             }),
         }), { id: '#sheet#34W' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .ycwbc.btn {
@@ -3812,6 +3889,7 @@ display: block;
             }),
         }), { id: '#sheet#35W' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .mb9x5.btn {
@@ -3856,6 +3934,7 @@ display: block;
             }),
         }), { id: '#sheet#36W' });
         expect(renderStyleSheet(lastStyleSheet!))
+        .resolves
         .toBe(
 `
 .o9niy.btn {
