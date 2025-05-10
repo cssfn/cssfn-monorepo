@@ -110,7 +110,7 @@ jest.isolateModules(() => {
         ], { id: 'sheet2', enabled: false });
         styleSheets(() => [
             mainScope([]),
-        ], { id: 'sheet3' });
+        ], { id: 'sheet3', enabled: true });
         
         // @ts-ignore
         const mainClass    = sheet1.main;
@@ -144,10 +144,10 @@ jest.isolateModules(() => {
     test('[server] test registered styleSheets = 4', () => {
         styleSheets(() => [
             mainScope([]),
-        ], { id: 'sheet4' });
+        ], { id: 'sheet4', enabled: true });
         styleSheets(() => [
             mainScope([]),
-        ], { id: 'sheet5' });
+        ], { id: 'sheet5', enabled: true });
         
         
         
@@ -173,25 +173,25 @@ jest.isolateModules(() => {
     
     test('[server] test registered styleSheets = 6', () => {
         const sheet6 = new Subject<CssScopeList<'main'>|null>();
-        styleSheets(sheet6, { id: 'sheet6' });
+        styleSheets(sheet6, { id: 'sheet6', enabled: true });
         sheet6.next([
             mainScope([]),
         ]);
         
         const sheet7 = new Subject<CssScopeList<'main'>|null>();
-        styleSheets(sheet7, { id: 'sheet7' });
+        styleSheets(sheet7, { id: 'sheet7', enabled: true });
         sheet7.next([
             mainScope([]),
         ]);
         
         const sheet8 = new Subject<CssScopeList<'main'>|null>();
-        styleSheets(sheet8, { id: 'sheet8' });
+        styleSheets(sheet8, { id: 'sheet8', enabled: true });
         sheet8.next([
             mainScope([]),
         ]);
         
         const sheet9 = new Subject<CssScopeList<'main'>|null>();
-        styleSheets(sheet9, { id: 'sheet9' });
+        styleSheets(sheet9, { id: 'sheet9', enabled: true });
         sheet9.next([
             mainScope([]),
         ]);
@@ -283,13 +283,13 @@ jest.isolateModules(() => {
             mainScope({ color: 'red', }),
             scope('menuBar', { background: 'blue', }),
             globalScope([]),
-        ], { id: 'sheet1' });
+        ], { id: 'sheet1', enabled: true });
         styleSheets(() => [
             mainScope([]),
         ], { id: 'sheet2', enabled: false });
         styleSheets(() => [
             mainScope([]),
-        ], { id: 'sheet3' });
+        ], { id: 'sheet3', enabled: true });
         
         // @ts-ignore
         const mainClass    = sheet1.main;
@@ -323,10 +323,10 @@ jest.isolateModules(() => {
     test('[browser] test registered styleSheets = 4', () => {
         styleSheets(() => [
             mainScope([]),
-        ], { id: 'sheet4' });
+        ], { id: 'sheet4', enabled: true });
         styleSheets(() => [
             mainScope([]),
-        ], { id: 'sheet5' });
+        ], { id: 'sheet5', enabled: true });
         
         
         

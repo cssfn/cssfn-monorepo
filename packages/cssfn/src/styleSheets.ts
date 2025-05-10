@@ -49,12 +49,14 @@ export interface StyleSheetOptions {
     id        ?: string
     
     /**
-     * Determines whether the stylesheet is enabled.
-     * - If `false`, the styles will not be applied to the DOM.
-     * - If `prerender` is enabled, the `<style>` element exists in the DOM but remains disabled.
-     * - Default: `true`.
+     * Controls whether the stylesheet is active.
+     *
+     * - If `true`, styles are applied to the DOM.
+     * - If `false`, styles are not applied to the DOM. However, if `prerender` is enabled, the `<style>` element exists but remains disabled.
+     * - If `'auto'`, styles start disabled and automatically activate when any property in `StyleSheet.classes` is accessed.
+     * - **Default:** `'auto'`.
      */
-    enabled   ?: boolean
+    enabled   ?: boolean | 'auto'
     
     
     
@@ -112,7 +114,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         
         const {
             id        = '',
-            enabled   = true,
+            enabled   = 'auto',
             
             ssr       = true,
             lazyCsr   = true,
@@ -146,9 +148,14 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         // CSS classes:
         const cachedScopeMap = {} as CssScopeMap<TCssScopeName>;
         this._classes  = new Proxy<CssScopeMap<TCssScopeName>>(cachedScopeMap, {
-            get(cachedScopeMap: CssScopeMap<TCssScopeName>, scopeName: TCssScopeName|symbol): CssClassName|undefined {
+            get: (cachedScopeMap: CssScopeMap<TCssScopeName>, scopeName: TCssScopeName|symbol): CssClassName|undefined => {
                 // Ignores non-string prop keys:
                 if (typeof scopeName !== 'string') return undefined;
+                
+                
+                
+                // Enable the stylesheet only if it's currently in 'auto' mode:
+                this.triggerAutoEnable();
                 
                 
                 
@@ -225,16 +232,14 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
                     if (typeof update === 'boolean') {
                         // Update the enabled state:
                         const newEnabled = update satisfies boolean; // Verify the type must be boolean.
-                        if (this._options.enabled === newEnabled) return;     // Still the same state => no need to update.
-                        this._options.enabled = newEnabled satisfies boolean; // Change the state.
-                        this.notifyUpdated('enabledChanged');                 // Trigger update notification.
+                        this.enabled = newEnabled;
                     }
                     else {
                         // Update the scopes:
                         const newScopes = update satisfies StyleSheetsFactoryBase<TCssScopeName>; // Verify the type must be StyleSheetsFactoryBase.
-                        if (this._scopesLive === newScopes) return;           // Still the same scopes => no need to update.
-                        this._scopesLive = newScopes;                         // Change the scopes.
-                        this.notifyUpdated('scopesChanged');                  // Trigger update notification.
+                        if (this._scopesLive === newScopes) return;  // Still the same scopes => no need to update.
+                        this._scopesLive = newScopes;                // Change the scopes.
+                        this.notifyUpdated('scopesChanged');         // Trigger update notification.
                     } // if
                 },
             });
@@ -257,6 +262,16 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     protected notifyUpdated(type: StyleSheetUpdateChangedType): void {
         this._updatedCallback(this, type); // Notify subscribers about the update.
     }
+    
+    /**
+     * Activates the stylesheet if it is currently set to `'auto'`.
+     * Ensures styles are applied dynamically when required.
+     */
+    protected triggerAutoEnable() {
+        if (this._options.enabled === 'auto') {
+            this.enabled = true; // Automatically enable the stylesheet.
+        } // if
+    }
     //#endregion Protected methods
     
     
@@ -272,12 +287,30 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     }
     
     /**
-     * Indicates whether the stylesheet is enabled.
-     * - If `false`, styles will not be applied to the DOM.
-     * - If `prerender` is enabled, the `<style>` element exists in the DOM but remains disabled.
+     * Gets whether the stylesheet is enabled.
+     *
+     * - Returns `true` if styles are applied to the DOM.
+     * - Returns `false` if styles are disabled. If `prerender` is enabled, the `<style>` element exists but remains inactive.
      */
     get enabled() {
+        if (this._options.enabled === 'auto') return false; // Auto means initially `false` and waiting for updating to `true`.
         return this._options.enabled;
+    }
+    
+    /**
+     * Sets whether the stylesheet is enabled.
+     *
+     * - Changing this value updates the stylesheet state dynamically.
+     * - If `true`, styles are applied to the DOM.
+     * - If `false`, styles are not applied to the DOM. However, if `prerender` is enabled, the `<style>` element exists but remains disabled.
+     * - Triggers an `enabledChanged` update notification when modified.
+     *
+     * @param newEnabled - The new enabled state.
+     */
+    protected set enabled(newEnabled: boolean) {
+        if (this._options.enabled === newEnabled) return;     // No change, so no update needed.
+        this._options.enabled = newEnabled satisfies boolean; // Update the state.
+        this.notifyUpdated('enabledChanged');                 // Notify that the enabled state changed.
     }
     
     

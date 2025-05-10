@@ -74,21 +74,23 @@ const resolveScopeList = async (scopeSource: MaybeLazyDeferred<number>): Promise
         const awaitedScopeSource = await resolvedScope;
         return extractScopeList(awaitedScopeSource);
     } catch (error) {
-        console.error("Error resolving scope list:", error);
+        console.log("Error resolving scope list:", error);
         return NaN; // Return NaN for failed resolutions
     }
 };
 
 // Running tests:
-console.time("Resolve Extreme Cases");
-
-for (const [index, test] of tests.entries()) {
-    try {
-        const result = await resolveScopeList(test);
-        console.log(`Test ${index + 1}:`, result);
-    } catch (error) {
-        console.error(`Test ${index + 1} failed:`, error);
+test(`Resolve Extreme Cases"`, async () => {
+    console.time("Resolve Extreme Cases");
+    
+    for (const [index, test] of tests.entries()) {
+        try {
+            const result = await resolveScopeList(test);
+            console.log(`Test ${index + 1}:`, result);
+        } catch (error) {
+            console.log(`Test ${index + 1} failed:`, error);
+        }
     }
-}
-
-console.timeEnd("Resolve Extreme Cases");
+    
+    console.timeEnd("Resolve Extreme Cases");
+});
