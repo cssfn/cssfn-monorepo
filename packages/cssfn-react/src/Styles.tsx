@@ -33,7 +33,7 @@ import {
     
     // Processors:
     renderStyleSheet,
-    unraceRenderStyleSheetAsync,
+    unraceRenderStyleSheetConcurrent,
 }                           from '@cssfn/cssfn'
 
 // Internal components:
@@ -144,18 +144,18 @@ const Styles = (props: StylesProps): JSX.Element | null => {
          * - Ensures **CPU-intensive rendering runs efficiently** based on execution context.
          *
          * ## Execution Modes:
-         * - **Web Worker Mode** → Executes in a separate process (non-blocking).
-         * - **Main Thread Mode** → Runs synchronously within the current process (blocking).
+         * - **Web Worker Mode** → Runs in a separate process (non-blocking).
+         * - **Main Thread Mode** → Runs in current process (blocking).
          *
          * @returns An async function that renders stylesheets based on the execution mode.
          */
         const getRenderer = () => {
             if (asyncRender) {
                 // Use Web Worker for non-blocking execution:
-                return unraceRenderStyleSheetAsync;
+                return unraceRenderStyleSheetConcurrent;
             }
             else {
-                // Use Main Thread for synchronous execution:
+                // Use Main Thread for blocking execution:
                 return renderStyleSheet;
             } // if
         };

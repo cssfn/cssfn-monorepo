@@ -37,7 +37,7 @@ import {
     
     // Processors:
     type renderStyleSheet,
-    type unraceRenderStyleSheetAsync,
+    type unraceRenderStyleSheetConcurrent,
 }                           from '@cssfn/cssfn'
 
 // Internal components:
@@ -144,7 +144,7 @@ export interface StaticStylesProps {
  * ## Performance Optimizations:
  * - **Dynamic Import for Render Functions**:
  *   - **Web Worker Mode** → Runs in a separate process for non-blocking execution.
- *   - **Main Thread Mode** → Runs synchronously and blocks other tasks until completion.
+ *   - **Main Thread Mode** → Runs in current process for blocking execution.
  *   - Rendering functions are **imported on demand**, reducing unnecessary bundle size.
  * - **Style Hydration Strategy**:
  *   - Prefers **reusing prerendered styles** when available to minimize reprocessing costs.
@@ -189,22 +189,22 @@ const StaticStyles = memo((props: StaticStylesProps): JSX.Element | null => {
              * - **Caches imports** to prevent redundant module fetching.
              *
              * ## Execution Modes:
-             * - **Web Worker Mode** → Executes in a separate process (non-blocking).
-             * - **Main Thread Mode** → Runs synchronously within the current process (blocking).
+             * - **Web Worker Mode** → Runs in a separate process (non-blocking).
+             * - **Main Thread Mode** → Runs in current process (blocking).
              *
              * @returns An async function that renders stylesheets based on the execution mode.
              */
             const getLazyRenderer = () => {
                 if (asyncRender) {
                     // Use Web Worker for non-blocking execution:
-                    let cachedWebWorkerRenderer : typeof unraceRenderStyleSheetAsync | undefined = undefined;
+                    let cachedWebWorkerRenderer : typeof unraceRenderStyleSheetConcurrent | undefined = undefined;
                     return async (styleSheet: StyleSheet) => {
-                        if (!cachedWebWorkerRenderer) cachedWebWorkerRenderer = (await import('@cssfn/cssfn')).unraceRenderStyleSheetAsync;
+                        if (!cachedWebWorkerRenderer) cachedWebWorkerRenderer = (await import('@cssfn/cssfn')).unraceRenderStyleSheetConcurrent;
                         return cachedWebWorkerRenderer(styleSheet);
                     };
                 }
                 else {
-                    // Use Main Thread for synchronous execution:
+                    // Use Main Thread for blocking execution:
                     let cachedMainThreadRenderer : typeof renderStyleSheet | undefined = undefined;
                     return async (styleSheet: StyleSheet) => {
                         if (!cachedMainThreadRenderer) cachedMainThreadRenderer = (await import('@cssfn/cssfn')).renderStyleSheet;
