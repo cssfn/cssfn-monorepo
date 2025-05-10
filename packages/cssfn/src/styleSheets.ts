@@ -90,11 +90,13 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     //#region Private properties
     // Configs:
     private readonly    _updatedCallback    : StyleSheetUpdatedCallback<TCssScopeName>
-    private readonly    _options            : Required<StyleSheetOptions>
+    private readonly    _options            : Readonly<Required<StyleSheetOptions>>
     
     
     
     // States:
+    private /*mutable*/ _enabled            : boolean
+    
     private /*mutable*/ _scopesFactory      : StyleSheetsFactory<TCssScopeName>
     private /*mutable*/ _scopesSubscription : Unsubscribable|undefined
     private /*mutable*/ _scopesLive         : StyleSheetsFactoryBase<TCssScopeName>
@@ -139,6 +141,11 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         
         
         // States:
+        this._enabled            = (
+            (normalizedOptions.enabled === 'auto')
+            ? false                     // Auto means initially disabled, waiting for activation.
+            : normalizedOptions.enabled // Use the defined static state.
+        ),
         this._scopesFactory      = scopesFactory;
         this._scopesSubscription = undefined;
         this._scopesLive         = null;
@@ -269,7 +276,17 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
      */
     protected triggerAutoEnable() {
         if (this._options.enabled === 'auto') {
-            this.enabled = true; // Automatically enable the stylesheet.
+            this.enabled = true; // Activate the stylesheet automatically.
+        } // if
+    }
+    
+    /**
+     * Resets the stylesheet to its initial state if set to `'auto'`.
+     * Returns it to a disabled state for controlled reactivation.
+     */
+    protected resetAutoEnable() {
+        if (this._options.enabled === 'auto') {
+            this.enabled = false; // Reset to initial disabled state.
         } // if
     }
     //#endregion Protected methods
@@ -293,14 +310,13 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
      * - Returns `false` if styles are disabled. If `prerender` is enabled, the `<style>` element exists but remains inactive.
      */
     get enabled() {
-        if (this._options.enabled === 'auto') return false; // Auto means initially `false` and waiting for updating to `true`.
-        return this._options.enabled;
+        return this._enabled;
     }
     
     /**
      * Sets whether the stylesheet is enabled.
      *
-     * - Changing this value updates the stylesheet state dynamically.
+     * - Dynamically updates the stylesheet state.
      * - If `true`, styles are applied to the DOM.
      * - If `false`, styles are not applied to the DOM. However, if `prerender` is enabled, the `<style>` element exists but remains disabled.
      * - Triggers an `enabledChanged` update notification when modified.
@@ -308,9 +324,9 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
      * @param newEnabled - The new enabled state.
      */
     protected set enabled(newEnabled: boolean) {
-        if (this._options.enabled === newEnabled) return;     // No change, so no update needed.
-        this._options.enabled = newEnabled satisfies boolean; // Update the state.
-        this.notifyUpdated('enabledChanged');                 // Notify that the enabled state changed.
+        if (this._enabled === newEnabled) return;     // No change, skip update.
+        this._enabled = newEnabled satisfies boolean; // Apply state change.
+        this.notifyUpdated('enabledChanged');         // Notify listeners of update.
     }
     
     
