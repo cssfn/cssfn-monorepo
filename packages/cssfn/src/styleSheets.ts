@@ -38,7 +38,7 @@ export type StyleSheetFactory                                           = /* sta
 // Style sheets:
 
 /**
- * Configuration options for a stylesheet's behavior.
+ * Configuration options for `StyleSheet`'s behavior.
  */
 export interface StyleSheetOptions {
     /**
@@ -62,30 +62,50 @@ export interface StyleSheetOptions {
     
     /**
      * Specifies whether the stylesheet should be server-side rendered (SSR).
+     * - If `true`, styles are generated on the server and included in the initial HTML.
      * - If `false`, styles are **only generated on the client-side**.
-     * - Default: `true`.
+     * - Useful for reducing client-side computation and improving first render performance.
+     * - **Default:** `true`.
      */
     ssr       ?: boolean
     
     /**
      * Enables lazy client-side rendering.
-     * - **First render:** Uses pre-rendered server-side styles instead of running expensive client-side rendering.
-     * - **Subsequent renders:** Always performs full client-side rendering.
-     * - Useful for performance optimization, particularly for large stylesheets.
-     * - Default: `true`.
+     * - **On first render:** Uses pre-rendered server-side styles instead of performing expensive client-side computations.
+     * - **On subsequent renders:** Always computes styles dynamically on the client.
+     * - Optimizes performance, particularly for large or frequently updated stylesheets.
+     * - **Default:** `true`.
      */
     lazyCsr   ?: boolean
     
     /**
      * Forces prerendering even when the stylesheet is disabled.
-     * - The `<style>` element exists but remains disabled.
-     * - If the corresponding component enables the stylesheet, styles are **instantly applied** to the DOM.
-     * - Default: `true`.
+     * - The `<style>` element exists but remains inactive until enabled.
+     * - If the corresponding component activates the stylesheet, styles are **instantly applied** to the DOM.
+     * - Prevents expensive re-insertion of styles when re-enabled.
+     * - **Default:** `true`.
      */
     prerender ?: boolean
 }
 
+/**
+ * Callback function triggered when a stylesheet's state or content is updated.
+ *
+ * @template TCssScopeName - The name of the CSS scope associated with the stylesheet.
+ * @param styleSheet - The stylesheet instance that was updated.
+ * @param type - The type of update that occurred.
+ */
 export type StyleSheetUpdatedCallback<in TCssScopeName extends CssScopeName> = (styleSheet: StyleSheet<TCssScopeName>, type: StyleSheetUpdateChangedType) => void;
+
+/**
+ * Represents a dynamically managed stylesheet.
+ *
+ * - Supports scoped styling for different components.
+ * - Integrates auto-enabled behavior based on style access.
+ * - Provides server-side rendering and lazy client-side rendering optimizations.
+ *
+ * @template TCssScopeName - The name of the CSS scope applied to this stylesheet.
+ */
 export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> implements Required<StyleSheetOptions> {
     //#region Private properties
     // Configs:
@@ -341,8 +361,8 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     
     /**
      * Controls lazy client-side rendering.
-     * - **First render:** Uses pre-rendered server-side styles instead of running expensive client-side rendering.
-     * - **Subsequent renders:** Always performs full client-side rendering.
+     * - **On first render:** Uses pre-rendered server-side styles instead of performing expensive client-side computations.
+     * - **On subsequent renders:** Always computes styles dynamically on the client.
      */
     get lazyCsr() {
         return this._options.lazyCsr;
