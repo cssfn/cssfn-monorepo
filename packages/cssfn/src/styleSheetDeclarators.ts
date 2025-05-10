@@ -64,8 +64,8 @@ import {
  *
  * ## Usage Examples:
  *
- * **Static Style Definitions:**
- * ```
+ * **Static Style Declaration:**
+ * ```ts
     const styles = styleSheets([
         scope('header', {
             display: 'grid',
@@ -85,7 +85,7 @@ import {
  * ```
  *
  * **Lazy Evaluated Styles:**
- * ```
+ * ```ts
     const styles = styleSheets(() => [
         scope('header', {
             display: 'grid',
@@ -100,7 +100,7 @@ import {
  * ```
  *
  * **Dynamic Imports for Styles:**
- * ```
+ * ```ts
     const styles = styleSheets(async () => import('./my-styles.js'), { id: 'style-3' });
     
     const headerClassName = styles.header;
@@ -108,9 +108,9 @@ import {
  * ```
  *
  * **Live Style Updates via Subscribable or Observables:**
- * ```
+ * ```ts
     const liveStyles = new Subject<CssScopeList<'header' | 'footer'> | null>();
-    const styles = styleSheets(liveStyles, { id: 'sheet4' });
+    const styles = styleSheets(liveStyles, { id: 'style-4' });
     
     const headerClassName = styles.header;
     const footerClassName = styles.footer;
@@ -126,7 +126,8 @@ import {
     ]);
  * ```
  *
- * @param scopeSource - A source defining scoped styles, which may be static, lazy, dynamic, or subscribable (observable).
+ * @template TCssScopeName - A list of scoped class names as a bitwise string (e.g., `'header' | 'footer'`).
+ * @param scopeSource - A definition source for scoped styles, which may be static, lazy, dynamic, or subscribable (observable).
  * @param options - Optional configuration settings for stylesheet registration.
  * @returns A `CssScopeMap<>` containing stable class names mapped to their respective scopes.
  */
@@ -149,13 +150,13 @@ export const styleSheets = <TCssScopeName extends CssScopeName>(scopeSource: Sty
  * Declares an anonymous scoped stylesheet for simple usage.
  *
  * - The scope name is **intrinsically set to `'main'`**, ensuring a single, stable CSS class name.
- * - Returns a `CssScopeMap<'main'>`, where the `'main'` property maps to the corresponding generated class name.
+ * - Returns a `CssScopeMap<'main'>`, where the `'main'` property maps to the generated class name.
  * - **IMPORTANT:** Must be called at the **top-level module** to ensure the stylesheet registration occurs **only once**.
  *
  * ## Usage Examples:
  *
- * **Static Style Definitions:**
- * ```
+ * **Static Style Declaration:**
+ * ```ts
     const styles = styleSheet({
         display: 'grid',
         gap: '1rem',
@@ -165,7 +166,7 @@ export const styleSheets = <TCssScopeName extends CssScopeName>(scopeSource: Sty
  * ```
  *
  * **Lazy Evaluated Styles:**
- * ```
+ * ```ts
     const styles = styleSheet(() => ({
         display: 'flex',
         gap: '1rem',
@@ -178,16 +179,16 @@ export const styleSheets = <TCssScopeName extends CssScopeName>(scopeSource: Sty
  * ```
  *
  * **Dynamic Imports for Styles:**
- * ```
+ * ```ts
     const styles = styleSheet(async () => import('./my-style.js'), { id: 'style-3' });
     
     const componentClassName = styles.main;
  * ```
  *
  * **Live Style Updates via Subscribable or Observables:**
- * ```
+ * ```ts
     const liveStyles = new Subject<CssStyleCollection>();
-    const styles = styleSheet(liveStyles, { id: 'sheet4' });
+    const styles = styleSheet(liveStyles, { id: 'style-4' });
     
     const componentClassName = styles.main;
     
@@ -198,7 +199,7 @@ export const styleSheets = <TCssScopeName extends CssScopeName>(scopeSource: Sty
     });
  * ```
  *
- * @param style - A style definition source, which may be static, lazy, dynamic, or subscribable (observable).
+ * @param style - A definition source for styles, which may be static, lazy, dynamic, or subscribable (observable).
  * @param options - Optional configuration settings for stylesheet registration.
  * @returns A `CssScopeMap<'main'>`, where `'main'` maps to its uniquely generated class name.
  */
