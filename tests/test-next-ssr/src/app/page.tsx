@@ -4,7 +4,7 @@ import Image from "next/image";
 import styles from "./page.module.css";
 
 import { TestClientComponent } from './TestClientComponent'
-// import { TestServerComponent } from './TestServerComponent'
+import { TestServerComponent } from './TestServerComponent'
 
 
 
@@ -13,7 +13,7 @@ export default function Home() {
     <div className={styles.page}>
       <main className={styles.main}>
         <TestClientComponent />
-        {/* <TestServerComponent /> */}
+        <TestServerComponent />
       </main>
       <footer className={styles.footer}>
         <a
