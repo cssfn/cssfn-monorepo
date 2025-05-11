@@ -1,7 +1,9 @@
+'use client' // This module belongs to the client-side bundle but can be imported into a server-side module, meaning it relies on client-side execution.
+
 // React:
 import {
     // Hooks:
-    useRef,
+    useRef    as _useRef,
     useEffect as _useEffect,
 }                           from 'react'
 
@@ -211,7 +213,8 @@ export class ReactStyleSheet<TCssScopeName extends CssScopeName = CssScopeName> 
      */
     useReactStyleSheets(): CssScopeMap<TCssScopeName> {
         // Tracks whether the current component has accessed the stylesheet:
-        const hasAccessedScopedClass = useRef(false);
+        // This `useRef` is prefixed with `_` to avoid eslint validation rule because the `useReactStyleSheets` in this class is technicaly neither React component nor hook.
+        const hasAccessedScopedClass = _useRef(false);
         
         
         

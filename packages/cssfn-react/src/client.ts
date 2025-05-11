@@ -1,8 +1,9 @@
-export *            from './styleSheets.js'
-export *            from './styleSheetDeclarators.js'
-export *            from './HeadPortal.js'
+export *            from './styleSheets.js'           // Client utilities.
+export *            from './styleSheetDeclarators.js' // Client hooks.
 
-export *            from './Styles.js'
-export { default }  from './Styles.js'
+export *            from './HeadPortal.js'            // Client component.
 
-export *            from './HydrateStyles.js'
+export *            from './Styles.js'                // Client component.
+export { default }  from './Styles.js'                // Client component.
+
+export *            from './HydrateStyles.js'         // Client component.

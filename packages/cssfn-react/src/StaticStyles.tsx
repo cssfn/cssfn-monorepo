@@ -1,4 +1,4 @@
-import 'server-only'
+import 'server-only' // This module belongs to the server-side bundle and is never included in the client-side bundle, meaning it is restricted from running in the browser.
 
 // React:
 import {

@@ -1,5 +1,5 @@
-export *            from './ServerStaticStyles.js'
-export *            from './ClientStaticStyles.js'
-export *            from './StaticStyles.js'
+export *            from './ServerStaticStyles.js' // Server component.
+export *            from './ClientStaticStyles.js' // Client component.
+export *            from './StaticStyles.js'       // Server component.
 
-export *            from './HydrateStyles.js'
+export *            from './HydrateStyles.js'      // Client component.
