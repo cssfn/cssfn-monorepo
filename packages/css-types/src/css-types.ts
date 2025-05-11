@@ -509,11 +509,11 @@ export interface CssStyleMapOverloads
     
     
     // Iterators:
-    [Symbol.iterator]() : IterableIterator<[CssUnionKey, CssUnionValue]>
-    entries()           : IterableIterator<[CssUnionKey, CssUnionValue]>
+    [Symbol.iterator]() : MapIterator<[CssUnionKey, CssUnionValue]>
+    entries()           : MapIterator<[CssUnionKey, CssUnionValue]>
     get keysAsArray()   : Array<CssUnionKey>
-    keys()              : IterableIterator<CssUnionKey>
-    values()            : IterableIterator<CssUnionValue>
+    keys()              : MapIterator<CssUnionKey>
+    values()            : MapIterator<CssUnionValue>
     
     
     
@@ -560,11 +560,11 @@ export interface CssFinalStyleMapOverloads
     
     
     // Iterators:
-    [Symbol.iterator]() : IterableIterator<[CssUnionKey, CssUnionFinalValue]>
-    entries()           : IterableIterator<[CssUnionKey, CssUnionFinalValue]>
+    [Symbol.iterator]() : MapIterator<[CssUnionKey, CssUnionFinalValue]>
+    entries()           : MapIterator<[CssUnionKey, CssUnionFinalValue]>
     get keysAsArray()   : Array<CssUnionKey>
-    keys()              : IterableIterator<CssUnionKey>
-    values()            : IterableIterator<CssUnionFinalValue>
+    keys()              : MapIterator<CssUnionKey>
+    values()            : MapIterator<CssUnionFinalValue>
     
     
     
