@@ -58,30 +58,76 @@ import {
  */
 export interface StylesProps {
     /**
-     * Enables batch rendering of multiple CSS-in-JS declarations.
+     * Enables batch rendering for multiple CSS-in-JS declarations.
      * - `true` → Uses multiple web workers for faster rendering but higher CPU/memory usage.
      * - `false` (default) → Sequential rendering, useful when styles are mostly pre-rendered on the server.
      */
     asyncRender ?: boolean
     
     /**
-     * Determines when to render CSS-in-JS styles.
+     * Controls whether styles should be rendered exclusively for SSR.
      * - `false` → Render styles both server-side and client-side.
-     * - `true` (default) → Render styles only if explicitly marked as SSR (`ssr: true`).
-     *    Styles marked as `ssr: false` will be rendered **just-in-time** when accessed.
+     * - `true` (default) → Render styles **only** if explicitly marked as SSR (`ssr: true`).
+     *   Styles marked as `ssr: false` will be rendered **just-in-time** when accessed.
      */
     onlySsr     ?: boolean
 }
 
 /**
- * Dynamically renders stylesheets based on the registered styles.
+ * Dynamically renders stylesheets based on registered styles in real time.
+ *
+ * ## Purpose:
+ * - **Synchronizes with the stylesheet registry** to reflect live updates.
+ * - Supports **both batch (async) and sequential (sync) rendering**, adapting to performance needs.
+ * - Ensures styles are dynamically applied without requiring full page re-renders.
+ * - Provides flexibility for **real-time styling updates**, making it ideal for dynamic UI changes.
+ *
+ * ## Behavior:
+ * - **Listens for updates via `styleSheetRegistry.subscribe()`**, rendering styles as they change.
+ * - **Fully reactive to client-side styling events**, ensuring UI consistency.
+ * - **Unlike `<StaticStyles>`**, it prioritizes **live updates** over hydration performance optimizations.
+ * - **May introduce additional re-renders**, making it less optimized for initial page load.
+ *
+ * ## Performance Considerations:
+ * - **Batch Processing vs. Sequential Execution**:
+ *   - `asyncRender: true` → Uses Web Workers for faster parallel execution.
+ *   - `asyncRender: false` → Runs styles sequentially to optimize CPU usage.
+ * - **Live updates vs. static styles**:
+ *   - Use `<StaticStyles>` for **pre-rendered styles** that won’t change dynamically.
+ *   - Use `<Styles>` for **real-time updates** where styles change frequently.
+ *
+ * ## Choosing Between `<Styles>`, `<StaticStyles>`, `<ClientStaticStyles>`, `<ServerStaticStyles>`, and `<HydrateStyles>`
  * 
- * - Supports both **batch (async)** and **sequential (sync)** rendering.
- * - Listens for real-time stylesheet changes via `styleSheetRegistry.subscribe()`.
+ * - **`<Styles>`** → The most dynamic but least performant choice.  
+ *   - Provides **full real-time style updates**, reacting to both client & server changes.
+ *   - **Best for frameworks that do not support SSR** (since it ensures styling consistency post-render).
+ *   - Should be **avoided** when **server-side rendering is available** due to potential late updates.
+ * 
+ * - **Pairing `<StaticStyles>` & `<HydrateStyles>`** → The most **performant** and **recommended approach**.  
+ *   - `<StaticStyles>` (server-side) ensures **initial styles** are fully rendered **before any React lifecycle runs**.
+ *   - `<HydrateStyles>` ensures **just-in-time updates** when styles dynamically change.
+ *   - **If this pair is present, `<Styles>` should not be used** since hydration fully resolves styling issues.
+ * 
+ * - **`<HydrateStyles>` as a standalone fallback** → Acts as a more efficient `<Styles>` replacement.  
+ *   - Can function **without `<StaticStyles>`, `<ServerStaticStyles>`, or `<ClientStaticStyles>`**.
+ *   - **Best suited for scenarios where only missing `<style>` elements need to be injected dynamically**.
+ * 
+ * - **`<ClientStaticStyles>` standalone usage** → Viable in frameworks without SSR.  
+ *   - **Only use when no subscribeable/observable styles are required**.
+ *   - `enabled` must be set as a **boolean value** (not `'auto'`).
+ *   - **Does not work well if server rendering is supported** (since styles would be missing in SSR).
+ * 
+ * - **Pairing `<ServerStaticStyles>` & `<ClientStaticStyles>`** → Ensures full coverage of server & client styles.  
+ *   - **Required if server-rendered styles need visibility in the client bundle**.
+ *   - Even **better when triple-paired with `<HydrateStyles>`** for real-time dynamic styling.
+ * 
+ * - **`<StaticStyles>` simplifies `<ServerStaticStyles>` + `<ClientStaticStyles>` pairing**.  
+ *   - Functions **identically** as using **both components together**.
+ *   - **`<StaticStyles>` + `<HydrateStyles>` is equivalent to the triple pairing**.
  * 
  * @component
  * @param {StylesProps} props - Component properties.
- * @returns {JSX.Element | null} A collection of `<style>` elements for rendered styles.
+ * @returns {JSX.Element | null} A collection of `<style>` elements reflecting live stylesheet updates.
  */
 const Styles = (props: StylesProps): JSX.Element | null => {
     // Props:
