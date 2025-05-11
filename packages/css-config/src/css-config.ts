@@ -213,7 +213,7 @@ const createRef = (propName: string, options: LiveCssConfigOptions): CssCustomSi
     return options.prefix ? `var(--${options.prefix}-${propName})` : `var(--${propName})`;
 }
 
-const iteratePropList = (propKeys: IterableIterator<CssCustomName|symbol>, skipPrefixChars: number, result: string[]): void => {
+const iteratePropList = (propKeys: MapIterator<CssCustomName|symbol>, skipPrefixChars: number, result: string[]): void => {
     for (const propDecl of propKeys) {
         // conditions:
         if ((typeof(propDecl) !== 'string')) continue; // symbol props are ignored
@@ -1111,7 +1111,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         const result: string[] = [];
-        iteratePropList(this.props.keys() as IterableIterator<CssCustomName|symbol>, skipPrefixChars, result);
+        iteratePropList(this.props.keys() as MapIterator<CssCustomName|symbol>, skipPrefixChars, result);
         this._propNamesCache = new WeakRef<string[]>(result);
         return result;
     }
