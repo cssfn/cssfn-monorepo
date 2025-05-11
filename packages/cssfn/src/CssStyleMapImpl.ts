@@ -99,10 +99,10 @@ export class CssStyleMapImpl
     
     
     // iterators:
-    [Symbol.iterator]() : IterableIterator<[CssUnionKey, CssUnionValue]> {
+    [Symbol.iterator]() : MapIterator<[CssUnionKey, CssUnionValue]> {
         return this.entries();
     }
-    entries()           : IterableIterator<[CssUnionKey, CssUnionValue]> {
+    entries()           : MapIterator<[CssUnionKey, CssUnionValue]> {
         return super.entries();
     }
     _keysCache          : WeakRef<Array<CssUnionKey>>|undefined = undefined
@@ -116,7 +116,7 @@ export class CssStyleMapImpl
         this._keysCache = new WeakRef<Array<CssUnionKey>>(result);
         return result;
     }
-    keys()              : IterableIterator<CssUnionKey> { // non cached enumerator, optimized for enumerating ONE TIMES
+    keys()              : MapIterator<CssUnionKey> { // non cached enumerator, optimized for enumerating ONE TIMES
         const cached = this._keysCache?.deref();
         if (cached) return cached.values();
         
@@ -124,7 +124,7 @@ export class CssStyleMapImpl
         
         return super.keys();
     }
-    values()            : IterableIterator<CssUnionValue> {
+    values()            : MapIterator<CssUnionValue> {
         return super.values();
     }
     

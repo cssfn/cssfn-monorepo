@@ -39,7 +39,7 @@ type WorkerEntry = {
 }
 const workerList = new Map<number, WorkerEntry>();
 
-const findFreeWorker = (workers: IterableIterator<WorkerEntry>): WorkerEntry|undefined => {
+const findFreeWorker = (workers: MapIterator<WorkerEntry>): WorkerEntry|undefined => {
     for (const worker of workers) {
         if (worker.currentJob === null) return worker; // found jobless worker
     } // for
