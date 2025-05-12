@@ -26,9 +26,7 @@
     "./server": "./dist/server.js",
     "./server.js": "./dist/server.js"
   },
-  "sideEffects": [
-    "./dist/HydrateStyles.js"
-  ],
+  "sideEffects": false,
   "publishConfig": {
     "access": "public"
   },

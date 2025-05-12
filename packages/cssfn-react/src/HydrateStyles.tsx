@@ -4,14 +4,42 @@
 import {
     // Types:
     type JSX,
+    
+    
+    
+    // Hooks:
+    useRef,
+    useInsertionEffect,
+    useEffect,
 }                           from 'react'
 
 // Cssfn:
-import                           '@cssfn/cssfn-dom' // side effect
+import {
+    // API:
+    type DynamicStyles,
+    hydrateStyles,
+}                           from '@cssfn/cssfn-dom'
 
 
 
 // React components:
+
+/**
+ * Props for the `HydrateStyles` component.
+ */
+export interface HydrateStylesProps {
+    /**
+     * Enables batch rendering for multiple CSS-in-JS declarations.
+     * - `true` → Uses multiple web workers for faster rendering but higher CPU/memory usage.
+     * - `false` (default) → Sequential rendering, useful when styles are mostly pre-rendered on the server.
+     */
+    concurrentRender ?: boolean
+    
+    /**
+     * Use `concurrentRender` instead.
+     */
+    asyncRender      ?: boolean
+}
 
 /**
  * Hydrates static styles and continues to dynamically renders stylesheets based on the registered styles.
@@ -64,7 +92,65 @@ import                           '@cssfn/cssfn-dom' // side effect
  * @component
  * @returns {JSX.Element | null} Returns `null` since no JSX is directly rendered.
  */
-const HydrateStyles = (): JSX.Element | null => {
+const HydrateStyles = (props: HydrateStylesProps): JSX.Element | null => {
+    // Props:
+    const {
+        asyncRender      = false,
+        concurrentRender = asyncRender,
+    } = props;
+    
+    
+    
+    // States:
+    
+    /**
+     * Holds the `DynamicStyles` instance.
+     * - Used to track and manage hydrated styles dynamically.
+     */
+    const dynamicStylesRef = useRef<DynamicStyles | undefined>(undefined);
+    
+    
+    
+    // Effects:
+    
+    /**
+     * Watches for stylesheet updates and dynamically applies them.
+     *
+     * Uses `useInsertionEffect` to:
+     * - **Hydrate styles early** → Executes before the React lifecycle starts, minimizing render lag.
+     * - **Ensure styles persist** → Stops dynamic reactivity when the component unmounts.
+     */
+    useInsertionEffect(() => {
+        // Setups:
+        dynamicStylesRef.current = hydrateStyles();
+        
+        
+        
+        // Cleanups:
+        return () => {
+            dynamicStylesRef.current?.dehydrateStyles(); // Transition styles to a static state.
+            dynamicStylesRef.current = undefined; // Helps trigger garbage collection (GC) optimization, ensuring that all previously hydrated/live states are released and no longer held in memory.
+        };
+    }, []);
+    
+    /**
+     * Syncs `concurrentRender` with the `DynamicStyles` instance.
+     * - Ensures rendering behavior is dynamically adjusted.
+     * - Prevents unnecessary updates when hydration is inactive.
+     */
+    useEffect(() => {
+        // Get the existing `DynamicStyles` instance:
+        const dynamicStyles = dynamicStylesRef.current;
+        
+        // Skip update if no instance exists:
+        if (!dynamicStyles) return;
+        
+        // Apply concurrent rendering configuration:
+        dynamicStyles.concurrentRender = concurrentRender;
+    }, [concurrentRender]);
+    
+    
+    
     // Jsx:
     return null;
 };
