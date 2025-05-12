@@ -31,6 +31,7 @@ import {
     // DOM manipulations:
     headElement,
     findCssfnStyleElmById,
+    setStyleEnabled,
 }                           from './utilities.js'
 
 
@@ -167,7 +168,7 @@ export const hydrateStyles = (): DynamicStyles => {
                         
                         // Assign the required properties:
                         newStyleElm.textContent = renderedCss;
-                        // newStyleElm.disabled    = !enabled; // DOESN'T WORK: disabling <style> *before* mounted to DOM.
+                        // setStyleEnabled(newStyleElm, enabled); // DOESN'T WORK: disabling <style> *before* mounted to DOM.
                         newStyleElm.dataset.cssfnId = styleSheet.id || '';
                         
                         
@@ -196,7 +197,7 @@ export const hydrateStyles = (): DynamicStyles => {
         // The <style> element(s) are already in the DOM, so the operation is fast & instantly applied.
         for (const [styleElm, {renderedCss, enabled}] of batchMutateChildren) {
             styleElm.textContent = renderedCss;
-            styleElm.disabled    = !enabled;
+            setStyleEnabled(styleElm, enabled);
         } // for
         
         
@@ -210,7 +211,7 @@ export const hydrateStyles = (): DynamicStyles => {
                 
                 const [styleElm, enabled] = batchAppendChildren[0];
                 headElement?.appendChild(styleElm);
-                if (!enabled) styleElm.disabled = true; // Disabling <style> *after* mounted to DOM.
+                if (!enabled) setStyleEnabled(styleElm, false); // Disabling <style> *after* mounted to DOM.
             }
             else {
                 // Plural append:
@@ -221,7 +222,7 @@ export const hydrateStyles = (): DynamicStyles => {
                 } // for
                 headElement?.appendChild(childrenGroup);
                 for (const [styleElm, enabled] of batchAppendChildren) {
-                    if (!enabled) styleElm.disabled = true; // Disabling <style> *after* mounted to DOM.
+                    if (!enabled) setStyleEnabled(styleElm, false); // Disabling <style> *after* mounted to DOM.
                 } // for
             } // if
         } // if
@@ -302,8 +303,8 @@ export const hydrateStyles = (): DynamicStyles => {
                     
                     
                     
-                    // Toggle enabled/disabled state if needed:
-                    if (shouldUpdate) ssrStyleElm.disabled = !isEnabled;
+                    // Sync enabled/disabled state:
+                    setStyleEnabled(ssrStyleElm, isEnabled);
                     
                     
                     
@@ -323,7 +324,7 @@ export const hydrateStyles = (): DynamicStyles => {
             
             
             if (csrStyleElm) { // The last generated CSS is found => update the enabled/disabled state.
-                csrStyleElm.disabled = !isEnabled;
+                setStyleEnabled(csrStyleElm, isEnabled);
                 
                 
                 

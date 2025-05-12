@@ -64,3 +64,23 @@ export const findCssfnStyleElmById = (cssfnId: string): HTMLStyleElement | null 
     if (!cssfnId) return null; // If no ID => return null.
     return (headElement?.querySelector(`style[data-cssfn-id="${cssfnId}"]`) ?? null) as HTMLStyleElement | null;
 };
+
+/**
+ * Controls the enabled state of a `<style>` element.
+ * 
+ * ## Behavior:
+ * - **Activates or deactivates styles** by setting the `disabled` property.
+ * - **Syncs the enable status** via `data-enabled`, ensuring compatibility with vanilla updates.
+ * 
+ * @param styleElm - The `<style>` element to modify.
+ * @param newEnabled - `true` to enable styles, `false` to disable them.
+ */
+export const setStyleEnabled = (styleElm: HTMLStyleElement, newEnabled: boolean) => {
+    // Enable/disable the styling functionality:
+    styleElm.disabled = !newEnabled;
+    
+    
+    
+    // Exposes the enable/disable status for external JavaScript modifications:
+    styleElm.setAttribute('data-enabled', newEnabled ? 'enabled' : 'disabled');
+}
