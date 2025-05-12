@@ -37,26 +37,6 @@ import {
 
 
 
-// Types:
-
-/**
- * Represents a rendered stylesheet entry.
- */
-interface RenderedStyleSheet {
-    /**
-     * Holds the rendered CSS.
-     */
-    renderedCss      : string|null
-    
-    /**
-     * Overrides the enabled state on `StyleSheet.enabled`.
-     * Since `StyleSheet.enabled` is readonly, this temporary state is stored here.
-     */
-    enabledOverride  : boolean|undefined
-}
-
-
-
 // React components:
 
 /**
@@ -151,9 +131,9 @@ const ServerStaticStyles = async (props: ServerStaticStylesProps): Promise<JSX.E
     
     
     // Initialize stylesheet collection on first render:
-    const styleMap = await (async (): Promise<Map<StyleSheet, RenderedStyleSheet>> => {
+    const styleMap = await (async (): Promise<Map<StyleSheet, string | null>> => {
         // Holds the collected stylesheets:
-        const renderedStyleMap = new Map<StyleSheet, RenderedStyleSheet>();
+        const renderedStyleMap = new Map<StyleSheet, string | null>();
         const pendingUpdateSet = new Set<Promise<void>>();
         
         
@@ -225,7 +205,6 @@ const ServerStaticStyles = async (props: ServerStaticStylesProps): Promise<JSX.E
                 
                 
                 // Execute rendering based on async/sequential mode:
-                let enabledOverride : boolean | undefined = undefined;
                 const renderedCss = (
                     renderCondition
                     ? await (async (): Promise<string | null | undefined> => {
@@ -251,11 +230,11 @@ const ServerStaticStyles = async (props: ServerStaticStylesProps): Promise<JSX.E
                 if (!renderedCss) { // Nothing is rendered.
                     // Delete the CSS:
                     // renderedStyleMap.delete(styleSheet); // Do not delete an item in the map.
-                    renderedStyleMap.set(styleSheet, { renderedCss: null, enabledOverride } satisfies RenderedStyleSheet); // Preserve the state (mark as removed instead of deleting).
+                    renderedStyleMap.set(styleSheet, null); // Preserve the state (mark as removed instead of deleting).
                 }
                 else {
                     // Store rendered CSS:
-                    renderedStyleMap.set(styleSheet, { renderedCss, enabledOverride } satisfies RenderedStyleSheet);
+                    renderedStyleMap.set(styleSheet, renderedCss);
                 } // if
             })();
             
@@ -294,7 +273,7 @@ const ServerStaticStyles = async (props: ServerStaticStylesProps): Promise<JSX.E
         <>
             {
                 Array.from(styleMap.entries())
-                .map(([styleSheet, { renderedCss, enabledOverride }], index) =>
+                .map(([styleSheet, renderedCss], index) =>
                     renderedCss
                     ? <Style
                         // Identifiers:
@@ -304,7 +283,7 @@ const ServerStaticStyles = async (props: ServerStaticStylesProps): Promise<JSX.E
                         
                         
                         // States:
-                        enabled={enabledOverride ?? styleSheet.enabled}
+                        enabled={styleSheet.enabled}
                     >
                         {renderedCss}
                     </Style>

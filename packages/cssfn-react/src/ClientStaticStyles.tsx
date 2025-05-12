@@ -54,26 +54,6 @@ import {
 
 
 
-// Types:
-
-/**
- * Represents a rendered stylesheet entry.
- */
-interface RenderedStyleSheet {
-    /**
-     * Holds the rendered CSS.
-     */
-    renderedCss      : string|null
-    
-    /**
-     * Overrides the enabled state on `StyleSheet.enabled`.
-     * Since `StyleSheet.enabled` is readonly, this temporary state is stored here.
-     */
-    enabledOverride  : boolean|undefined
-}
-
-
-
 // React components:
 
 /**
@@ -222,7 +202,7 @@ const ClientStaticStyles = memo((props: ClientStaticStylesProps): JSX.Element | 
         /**
          * A promise that resolves once the stylesheet collection is fully rendered.
          */
-        renderingPromise : Promise<Map<StyleSheet, RenderedStyleSheet>>
+        renderingPromise : Promise<Map<StyleSheet, string | null>>
         
         /**
          * A signal function controlling whether the rendering should proceed.
@@ -231,7 +211,7 @@ const ClientStaticStyles = memo((props: ClientStaticStylesProps): JSX.Element | 
     }
     
     // Ref to manage async stylesheet rendering state:
-    const renderingStyleMapRef = useRef<StyleRenderingTask | Map<StyleSheet, RenderedStyleSheet> | undefined>(undefined);
+    const renderingStyleMapRef = useRef<StyleRenderingTask | Map<StyleSheet, string | null> | undefined>(undefined);
     
     // Initialize stylesheet collection on first render:
     if (!renderingStyleMapRef.current) {
@@ -244,19 +224,19 @@ const ClientStaticStyles = memo((props: ClientStaticStylesProps): JSX.Element | 
         });
         
         renderingStyleMapRef.current = {
-            renderingPromise : (async (): Promise<Map<StyleSheet, RenderedStyleSheet>> => {
+            renderingPromise : (async (): Promise<Map<StyleSheet, string | null>> => {
                 // Await the decision to proceed:
                 const shouldProceedWithRendering = await continuePromise;
                 
                 
                 
                 // Early exit if rendering is canceled:
-                if (!shouldProceedWithRendering) return new Map<StyleSheet, RenderedStyleSheet>();
+                if (!shouldProceedWithRendering) return new Map<StyleSheet, string | null>();
                 
                 
                 
                 // Holds the collected stylesheets:
-                const renderedStyleMap = new Map<StyleSheet, RenderedStyleSheet>();
+                const renderedStyleMap = new Map<StyleSheet, string | null>();
                 const pendingUpdateSet = new Set<Promise<void>>();
                 
                 
@@ -338,7 +318,6 @@ const ClientStaticStyles = memo((props: ClientStaticStylesProps): JSX.Element | 
                         
                         
                         // Execute rendering based on async/sequential mode:
-                        let enabledOverride : boolean | undefined = undefined;
                         const renderedCss = (
                             renderCondition
                             ? await (async (): Promise<string | null | undefined> => {
@@ -352,9 +331,6 @@ const ClientStaticStyles = memo((props: ClientStaticStylesProps): JSX.Element | 
                                             // if (process.env.NODE_ENV !== 'production') {
                                             //     console.log('Found prerendered: ', preRenderedCss);
                                             // } // if
-                                            
-                                            // If the prerendered <style> exists, it means the styleSheet has been accessed (turned to enabled) during prerendered on server:
-                                            enabledOverride = true;
                                             
                                             return preRenderedCss;
                                         } // if
@@ -385,11 +361,11 @@ const ClientStaticStyles = memo((props: ClientStaticStylesProps): JSX.Element | 
                         if (!renderedCss) { // Nothing is rendered.
                             // Delete the CSS:
                             // renderedStyleMap.delete(styleSheet); // Do not delete an item in the map.
-                            renderedStyleMap.set(styleSheet, { renderedCss: null, enabledOverride } satisfies RenderedStyleSheet); // Preserve the state (mark as removed instead of deleting).
+                            renderedStyleMap.set(styleSheet, null); // Preserve the state (mark as removed instead of deleting).
                         }
                         else {
                             // Store rendered CSS:
-                            renderedStyleMap.set(styleSheet, { renderedCss, enabledOverride } satisfies RenderedStyleSheet);
+                            renderedStyleMap.set(styleSheet, renderedCss);
                         } // if
                     })();
                     
@@ -425,7 +401,7 @@ const ClientStaticStyles = memo((props: ClientStaticStylesProps): JSX.Element | 
     } // if
     
     // Resolve stylesheets (waits for async completion):
-    const styleMap : Map<StyleSheet, RenderedStyleSheet> = (
+    const styleMap : Map<StyleSheet, string | null> = (
         (!(renderingStyleMapRef.current instanceof Map))
         
         // Wait for async completion:
@@ -463,7 +439,7 @@ const ClientStaticStyles = memo((props: ClientStaticStylesProps): JSX.Element | 
         <>
             {
                 Array.from(styleMap.entries())
-                .map(([styleSheet, { renderedCss, enabledOverride }], index) =>
+                .map(([styleSheet, renderedCss], index) =>
                     renderedCss
                     ? <Style
                         // Identifiers:
@@ -473,7 +449,7 @@ const ClientStaticStyles = memo((props: ClientStaticStylesProps): JSX.Element | 
                         
                         
                         // States:
-                        enabled={enabledOverride ?? styleSheet.enabled}
+                        enabled={styleSheet.enabled}
                     >
                         {renderedCss}
                     </Style>
