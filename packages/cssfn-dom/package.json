@@ -19,10 +19,15 @@
     "type": "git",
     "url": "git+https://github.com/cssfn/cssfn-monorepo.git"
   },
-  "main": "dist/cssfn-dom.js",
-  "types": "dist/cssfn-dom.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
-  "sideEffects": true,
+  "exports": {
+    ".": "./dist/index.js",
+    "./index": "./dist/index.js",
+    "./index.js": "./dist/index.js"
+  },
+  "sideEffects": false,
   "publishConfig": {
     "access": "public"
   },
