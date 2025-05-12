@@ -1,10 +1,12 @@
-import { styleSheet2 } from './styles/server-loader2'
+import { useTestServerComponent } from './styles/server-loader'
 
 
 
 export function TestServerComponent() {
+    const styles = useTestServerComponent();
+    
     return (
-        <button className={styleSheet2.main}>
+        <button className={styles.main}>
             Test 2
         </button>
     );

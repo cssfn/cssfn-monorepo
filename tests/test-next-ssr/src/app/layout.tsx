@@ -1,10 +1,12 @@
-'use client'
+// 'use client'
 // import type { Metadata } from "next";
 // import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import {
+  // ServerStaticStyles,
+  // ClientStaticStyles,
   StaticStyles,
-  // HydrateStyles,
+  HydrateStyles,
 } from '@cssfn/cssfn-react/server'
 // import {TestServerComponent} from './TestServerComponent'
 // import { Suspense } from "react";
@@ -32,8 +34,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* <ServerStaticStyles /> */}
+        {/* <ClientStaticStyles /> */}
         <StaticStyles />
-        {/* <HydrateStyles /> */}
+        <HydrateStyles />
       </head>
       <body
         // className={`${geistSans.variable} ${geistMono.variable}`}
