@@ -103,23 +103,47 @@ const Style = memo((props: StyleProps): JSX.Element | null => {
     // Effects:
     
     /**
-     * Imperatively update the `disabled` property when `enabled` changes.
-     * Using `useIsomorphicLayoutEffect` ensures the change happens **before the browser repaints**, avoiding flickering.
+     * Imperatively updates the `disabled` property when `enabled` changes.
+     * Using `useIsomorphicLayoutEffect` ensures the update occurs **before the browser repaints**, preventing flickering.
      * 
-     * **Why do we use `useIsomorphicLayoutEffect` here?**
-     * - The `<style>` element **does not support a `disabled` attribute**, but it does have a `disabled` **JavaScript property**.
-     * - React **cannot set this property declaratively in JSX**, so we must update it manually via an effect.
+     * **Why `useIsomorphicLayoutEffect`?**
+     * - The `<style>` element **lacks a `disabled` attribute** but has a `disabled` **JavaScript property**.
+     * - React **cannot set this property declaratively in JSX**, requiring manual updates via an effect.
      */
     useIsomorphicLayoutEffect(() => {
-        // conditions:
+        // Exit if no element is found:
         const styleElm = styleRef.current;
         if (!styleElm) return;
         
         
         
-        // actions:
-        // The <style> element does not have a disabled attribute, so we set it manually via JS:
-        styleElm.disabled = !enabled;
+        /**
+         * Determines the stylesheet's enabled state.
+         * - Prefers the manually modified `data-enabled` attribute.
+         * - Falls back to the `enabled` prop if no override exists.
+         */
+        const isEnabled : boolean = (
+            // Gets the enabled state by `data-enabled` attribute:
+            ((): boolean | undefined => {
+                const dataEnabled = styleElm.getAttribute('data-enabled');
+                switch (dataEnabled) {
+                    case 'enabled'  : return true;
+                    case 'disabled' : return false;
+                    default         : return undefined;
+                } // switch
+            })()
+            
+            ??
+            
+            // Fallback to `enabled` prop:
+            enabled
+        );
+        
+        // The `<style>` element does not have a disabled attribute, so we must update it imperatively:
+        styleElm.disabled = !isEnabled;
+        
+        // Force updating `data-enabled` even if a hydration error occurs (cannot be updated via JSX declaration):
+        styleElm.setAttribute('data-enabled', isEnabled ? 'enabled' : 'disabled');
     }, [enabled]);
     
     
@@ -149,18 +173,25 @@ const Style = memo((props: StyleProps): JSX.Element | null => {
             
             // Identifiers:
             
-            // Identifier for tracking styles:
+            // A unique identifier for tracking styles:
             data-cssfn-id={id || ''}
             
             
             
             // Behaviors:
-            // The CSS content may be large strings, suppressing hydration warnings avoids expensive comparison operations:
+            // Prevents hydration mismatch warnings when `data-enabled` differs from the server-side rendering:
             suppressHydrationWarning={true}
             
             
             
+            // States:
+            // Exposes the enable/disable state for external JavaScript updates:
+            data-enabled={enabled ? 'enabled' : 'disabled'}
+            
+            
+            
             // Children:
+            // Injects the prerendered CSS content safely:
             dangerouslySetInnerHTML={cachedInnerHtmlObject}
         />
     );
