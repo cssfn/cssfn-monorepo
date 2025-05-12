@@ -124,6 +124,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     
     
     // CSS classes:
+    private readonly    _privateClasses     : CssScopeMap<TCssScopeName>
     private readonly    _classes            : CssScopeMap<TCssScopeName>
     //#endregion Private properties
     
@@ -172,33 +173,57 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         
         
         
-        // CSS classes:
+        // CSS Class Management with Scoped Hashing:
         const cachedScopeMap = {} as CssScopeMap<TCssScopeName>;
+        
+        /**
+         * Retrieves a stable, hashed class name for the given scope.
+         * - Automatically enables stylesheets when `autoEnable` is `true`.
+         * - Ensures consistent hashing without redundant recomputations.
+         */
+        const getHashedClassname = (scopeName: TCssScopeName | symbol, autoEnable: boolean = false): CssClassName | undefined => {
+            // Ignore non-string property keys (prevent unintended lookups):
+            if (typeof scopeName !== 'string') return undefined;
+            
+            
+            
+            // Conditionally activate stylesheets if auto mode is enabled:
+            if (autoEnable) this.triggerAutoEnable();
+            
+            
+            
+            // Return cached class if already generated:
+            if (scopeName in cachedScopeMap) return cachedScopeMap[scopeName];
+            
+            
+            
+            // Generate and cache a stable, unique class name:
+            const uniqueClass : CssClassName = generateId(id, scopeName);
+            
+            
+            
+            // Store the computed class in the cache & return:
+            cachedScopeMap[scopeName] = uniqueClass;
+            return uniqueClass;
+        };
+        
+        /**
+         * Stores hashed class mappings without triggering stylesheet activation.
+         * - Used for cases where class names need to be accessed passively.
+         */
+        this._privateClasses = new Proxy<CssScopeMap<TCssScopeName>>(cachedScopeMap, {
+            get: (_cachedScopeMap: CssScopeMap<TCssScopeName>, scopeName: TCssScopeName | symbol): CssClassName | undefined => {
+                return getHashedClassname(scopeName, false);
+            },
+        });
+        
+        /**
+         * Provides public access to hashed class names while ensuring stylesheets activate dynamically.
+         * - When accessed, stylesheets are triggered if in 'auto' mode.
+         */
         this._classes  = new Proxy<CssScopeMap<TCssScopeName>>(cachedScopeMap, {
-            get: (cachedScopeMap: CssScopeMap<TCssScopeName>, scopeName: TCssScopeName|symbol): CssClassName|undefined => {
-                // Ignores non-string prop keys:
-                if (typeof scopeName !== 'string') return undefined;
-                
-                
-                
-                // Enable the stylesheet only if it's currently in 'auto' mode:
-                this.triggerAutoEnable();
-                
-                
-                
-                // If already cached => return immediately:
-                if (scopeName in cachedScopeMap) return cachedScopeMap[scopeName];
-                
-                
-                
-                // Compute stable unique class:
-                const uniqueClass : CssClassName = generateId(id, scopeName);
-                
-                
-                
-                // update the cache & return:
-                cachedScopeMap[scopeName] = uniqueClass;
-                return uniqueClass;
+            get: (_cachedScopeMap: CssScopeMap<TCssScopeName>, scopeName: TCssScopeName | symbol): CssClassName | undefined => {
+                return getHashedClassname(scopeName, true);
             },
         });
         
@@ -408,9 +433,10 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     /**
      * Retrieves the mapping of generated class names for scoped styles.
      *
-     * ## Purpose:
+     * ## Behavior:
+     * - **Automatically enables stylesheets when accessed.**
      * - Provides unique class names for each defined scope.
-     * - Used to apply consistent styles across components.
+     * - Ensures styles remain consistent across components.
      *
      * ## Example Output:
      * ```ts
@@ -419,11 +445,33 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
      *   footer: 'footer-unique567',
      * }
      * ```
-     *
-     * - Each key corresponds to a **style scope**, and the value is its **generated class name**.
+     * - Each key represents a **style scope**, and the value is its **hashed class name**.
+     * - Accessing a class name **triggers stylesheet activation**, ensuring styles are applied.
      */
     get classes() {
         return this._classes;
+    }
+    
+    /**
+     * Internal mapping of generated class names for scoped styles **without auto-enabling stylesheets**.
+     *
+     * ## Behavior:
+     * - **Does NOT enable stylesheets when accessed.**
+     * - Provides unique class names for each defined scope.
+     * - Used by internal render logic where styles should remain inactive unless explicitly triggered.
+     *
+     * ## Example Output:
+     * ```ts
+     * return {
+     *   header: 'header-unique123',
+     *   footer: 'footer-unique567',
+     * }
+     * ```
+     * - Each key represents a **style scope**, and the value is its **hashed class name**.
+     * - Unlike `classes`, reading these **does not trigger stylesheet activation**.
+     */
+    get privateClasses() {
+        return this._privateClasses;
     }
     //#endregion Public properties
     

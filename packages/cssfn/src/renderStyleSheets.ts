@@ -201,8 +201,8 @@ export const resolveCssRuleCollection    = async <TCssScopeName extends CssScope
     
     
     
-    // Retrieve `CssScopeMap` for generating unique CSS classes:
-    const scopeMap   = styleSheet.classes;
+    // Retrieve `CssScopeMap` for generating unique CSS classes **without auto-enabling stylesheets*:
+    const scopeMap   = styleSheet.privateClasses;
     
     
     
