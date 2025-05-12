@@ -13,7 +13,7 @@ import {
     
     // Processors:
     renderStyleSheet,
-    unraceRenderStyleSheetAsync,
+    unraceRenderStyleSheetConcurrent,
 }                           from '@cssfn/cssfn'
 
 // Other libs:
@@ -36,7 +36,7 @@ import {
  */
 const polyfillRequestAnimationFrame = (
     (typeof(requestAnimationFrame) !== 'undefined')
-    ? (callback: () => void): ReturnType<typeof requestAnimationFrame>|undefined => {
+    ? (callback: () => void): ReturnType<typeof requestAnimationFrame> | undefined => {
         // Timeout fallback for inactive tabs:
         const timeoutHandler = setTimeout(() => {
             cancelAnimationFrame(animationFrameHandler); // Abort the underlying `requestAnimationFrame()`.
@@ -52,7 +52,7 @@ const polyfillRequestAnimationFrame = (
         });
         return animationFrameHandler;
     }
-    : (callback: () => void): ReturnType<typeof requestAnimationFrame>|undefined => {
+    : (callback: () => void): ReturnType<typeof requestAnimationFrame> | undefined => {
         Promise.resolve().then(callback);
         return undefined;
     }
@@ -72,7 +72,7 @@ export const config = { asyncRender: true };
 
 // References:
 const headElement  = isClientSide ? document.head : undefined;
-const csrStyleElms = new Map<StyleSheet, HTMLStyleElement|null>(); // Maps `StyleSheet` instances to their corresponding `<style>` elements.
+const csrStyleElms = new Map<StyleSheet, HTMLStyleElement | null>(); // Maps `StyleSheet` instances to their corresponding `<style>` elements.
 
 /**
  * Finds an existing `<style>` element with the specified CSS-in-JS ID.
@@ -80,16 +80,16 @@ const csrStyleElms = new Map<StyleSheet, HTMLStyleElement|null>(); // Maps `Styl
  * @param cssfnId The unique CSS-in-JS identifier.
  * @returns The found `<style>` element or `null` if not found.
  */
-const findCssfnStyleElmById = (cssfnId: string): HTMLStyleElement|null => {
+const findCssfnStyleElmById = (cssfnId: string): HTMLStyleElement | null => {
     if (!cssfnId) return null; // If no ID => return null.
-    return (headElement?.querySelector(`style[data-cssfn-id="${cssfnId}"]`) ?? null) as HTMLStyleElement|null;
+    return (headElement?.querySelector(`style[data-cssfn-id="${cssfnId}"]`) ?? null) as HTMLStyleElement | null;
 };
 
 
 
 // Commit batching:
 interface RenderedStyleSheet {
-    renderedCss : string|null
+    renderedCss : string | null
     enabled     : boolean
 }
 
@@ -238,7 +238,7 @@ const batchCommit = () => {
 
 
 // Scheduling commit updates:
-let handleScheduledBatchCommit : ReturnType<typeof requestAnimationFrame>|undefined = undefined;
+let handleScheduledBatchCommit : ReturnType<typeof requestAnimationFrame> | undefined = undefined;
 const scheduledBatchCommit = () => {
     // Mark the current scheduler is done, so another scheduler can run:
     handleScheduledBatchCommit = undefined;
@@ -344,8 +344,8 @@ const handleUpdate = async ({styleSheet, type}: StyleSheetUpdateEvent<CssScopeNa
         renderCondition
         ? (
             config.asyncRender
-            ? await unraceRenderStyleSheetAsync(styleSheet) // Batch rendering mode.
-            : renderStyleSheet(styleSheet)                  // Sequential rendering mode.
+            ? await unraceRenderStyleSheetConcurrent(styleSheet) // Batch rendering mode.
+            : await renderStyleSheet(styleSheet)                 // Sequential rendering mode.
         )
         : undefined // Canceled render.
     );
@@ -385,7 +385,7 @@ if (isClientSide) styleSheetRegistry.subscribe(handleUpdate);
 //             setTimeout(() => {
 //                 // remove all <style>(s) having [data-cssfn-id] attr in which not listed in `csrStyleElms`:
 //                 const cssfnStyles           = Array.from(headElement.querySelectorAll('style[data-cssfn-id]')) as HTMLStyleElement[];
-//                 const registeredCssfnStyles = new Set<HTMLStyleElement|null>(csrStyleElms.values());
+//                 const registeredCssfnStyles = new Set<HTMLStyleElement | null>(csrStyleElms.values());
 //                 const unusedCssfnStyles     = cssfnStyles.filter((cssfnStyle) => !registeredCssfnStyles.has(cssfnStyle));
 //                 for (const unusedCssfnStyle of unusedCssfnStyles) {
 //                     unusedCssfnStyle.parentElement?.removeChild?.(unusedCssfnStyle);
