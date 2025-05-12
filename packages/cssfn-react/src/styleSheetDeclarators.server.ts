@@ -1,4 +1,4 @@
-'use client' // This module belongs to the client-side bundle but can be imported into a server-side module, meaning it relies on client-side execution.
+import 'server-only' // This module belongs to the server-side bundle and is never included in the client-side bundle, meaning it is restricted from running in the browser.
 
 // Cssfn:
 import {
@@ -15,25 +15,20 @@ import {
     
     
     // Style sheets:
-    styleSheetRegistry,
+    type StyleSheetOptions,
     
     
     
     // Stylesheet declarators:
+    styleSheets,
     transformScopedStyleSource,
 }                           from '@cssfn/cssfn'
-import {
-    // Style sheets:
-    type ReactStyleSheetOptions,
-    ReactStyleSheet,
-}                           from './styleSheets.js'
 
 
 
 // Stylesheet declarators:
-
 /**
- * Creates a React hook for declaring scoped stylesheets for client components.
+ * Creates a React hook for declaring scoped stylesheets for server components.
  *
  * - Defines multiple scoped styles, each mapped to a uniquely stable CSS class name.
  * - The hook returns a `CssScopeMap<>` object containing properties mapped to their corresponding generated class names.
@@ -42,13 +37,13 @@ import {
  *
  * ## Key Features:
  * - **Supports Dynamic Imports for Lazy-Loaded Styles:** Ensures styles are loaded only when needed.
- * - **Reactive & Lifecycle-Aware:** Automatically applies styles when a component mounts and cleans up when it unmounts.
+ * - Does **not** rely on React lifecycle (no component reactivity).
  *
  * ## Usage Examples:
  *
  * **Static Style Declaration:**
  * ```ts
-    const useMyComponentStyles = createStyleSheetsHook([
+    const useMyComponentStyles = createServerStyleSheetsHook([
         scope('header', {
             display: 'grid',
             gap: '1rem',
@@ -62,7 +57,7 @@ import {
         }),
     ], { id: 'style-1' });
     
-    // In the component:
+    // In the server component:
     const styles = useMyComponentStyles();
     const headerClassName = styles.header;
     const footerClassName = styles.footer;
@@ -70,7 +65,7 @@ import {
  *
  * **Lazy Evaluated Styles:**
  * ```ts
-    const useMyComponentStyles = createStyleSheetsHook(() => [
+    const useMyComponentStyles = createServerStyleSheetsHook(() => [
         scope('header', {
             display: 'grid',
         }),
@@ -79,7 +74,7 @@ import {
         }),
     ], { id: 'style-2' });
     
-    // In the component:
+    // In the server component:
     const styles = useMyComponentStyles();
     const headerClassName = styles.header;
     const footerClassName = styles.footer;
@@ -87,9 +82,9 @@ import {
  *
  * **Dynamic Imports for Styles:**
  * ```ts
-    const useMyComponentStyles = createStyleSheetsHook(async () => import('./my-styles.js'), { id: 'style-3' });
+    const useMyComponentStyles = createServerStyleSheetsHook(async () => import('./my-styles.js'), { id: 'style-3' });
     
-    // In the component:
+    // In the server component:
     const styles = useMyComponentStyles();
     const headerClassName = styles.header;
     const footerClassName = styles.footer;
@@ -98,9 +93,9 @@ import {
  * **Live Style Updates via Subscribable or Observables:**
  * ```ts
     const liveStyles = new Subject<CssScopeList<'header' | 'footer'> | null>();
-    const useMyComponentStyles = createStyleSheetsHook(liveStyles, { id: 'style-4' });
+    const useMyComponentStyles = createServerStyleSheetsHook(liveStyles, { id: 'style-4' });
     
-    // In the component:
+    // In the server component:
     const styles = useMyComponentStyles();
     const headerClassName = styles.header;
     const footerClassName = styles.footer;
@@ -121,37 +116,19 @@ import {
  * @param options - Optional configuration settings for stylesheet registration.
  * @returns A hook function providing access to a `CssScopeMap<>` containing stable class names mapped to their respective scopes.
  */
-export const createStyleSheetsHook = <TCssScopeName extends CssScopeName>(scopeSource: StyleSheetsFactory<TCssScopeName>, options?: ReactStyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
-    // Create a new ReactStyleSheet instance:
-    const newReactStyleSheet = new ReactStyleSheet<TCssScopeName>(
-        scopeSource,
-        styleSheetRegistry.handleStyleSheetUpdated, // Listen for updates from registered stylesheets.
-        options
-    );
-    
-    
-    
-    // Attempt to register the new instance into the global stylesheet registry, reusing an existing one if available:
-    const existingReactStyleSheet = styleSheetRegistry.add(newReactStyleSheet);
+export const createServerStyleSheetsHook = <TCssScopeName extends CssScopeName>(scopeSource: StyleSheetsFactory<TCssScopeName>, options?: StyleSheetOptions): () => CssScopeMap<TCssScopeName> => {
+    // Register the stylesheet into the global stylesheet registry:
+    const scopes = styleSheets(scopeSource, options);
     
     
     
     // Return a hook that correctly binds to the stylesheet instance:
-    const useReactStyleSheets = () => (
-        ((existingReactStyleSheet instanceof ReactStyleSheet) ? existingReactStyleSheet : newReactStyleSheet)
-        .useReactStyleSheets() // Ensures proper `this` binding for current `ReactStyleSheet` instance.
-    );
-    return useReactStyleSheets;
+    const useServerReactStyleSheets = () => scopes;
+    return useServerReactStyleSheets;
 };
 
 /**
- * @deprecated Use `createStyleSheetsHook` instead.
- */
-export const dynamicStyleSheets = createStyleSheetsHook;
-
-
-/**
- * Creates a React hook for declaring an anonymous scoped stylesheet for client components.
+ * Creates a React hook for declaring an anonymous scoped stylesheet for server components.
  *
  * - The scope name is **intrinsically set to `'main'`**, ensuring a single, stable CSS class name.
  * - The hook returns a `CssScopeMap<'main'>`, where the `'main'` property maps to the generated class name.
@@ -160,25 +137,25 @@ export const dynamicStyleSheets = createStyleSheetsHook;
  *
  * ## Key Features:
  * - **Supports Dynamic Imports for Lazy-Loaded Styles:** Ensures styles are loaded only when needed.
- * - **Reactive & Lifecycle-Aware:** Automatically applies styles when a component mounts and cleans up when it unmounts.
+ * - Does **not** rely on React lifecycle (no component reactivity).
  *
  * ## Usage Examples:
  *
  * **Static Style Declaration:**
  * ```ts
-    const useMyComponentStyles = createStyleSheetHook({
+    const useMyComponentStyles = createServerStyleSheetHook({
         display: 'grid',
         gap: '1rem',
     }, { id: 'style-1' });
     
-    // In the component:
+    // In the server component:
     const styles = useMyComponentStyles();
     const componentClassName = styles.main;
  * ```
  *
  * **Lazy Evaluated Styles:**
  * ```ts
-    const useMyComponentStyles = createStyleSheetHook(() => ({
+    const useMyComponentStyles = createServerStyleSheetHook(() => ({
         display: 'flex',
         gap: '1rem',
         ...children('p', {
@@ -186,16 +163,16 @@ export const dynamicStyleSheets = createStyleSheetsHook;
         }),
     }), { id: 'style-2' });
     
-    // In the component:
+    // In the server component:
     const styles = useMyComponentStyles();
     const componentClassName = styles.main;
  * ```
  *
  * **Dynamic Imports for Styles:**
  * ```ts
-    const useMyComponentStyles = createStyleSheetHook(async () => import('./my-style.js'), { id: 'style-3' });
+    const useMyComponentStyles = createServerStyleSheetHook(async () => import('./my-style.js'), { id: 'style-3' });
     
-    // In the component:
+    // In the server component:
     const styles = useMyComponentStyles();
     const componentClassName = styles.main;
  * ```
@@ -203,9 +180,9 @@ export const dynamicStyleSheets = createStyleSheetsHook;
  * **Live Style Updates via Subscribable or Observables:**
  * ```ts
     const liveStyles = new Subject<CssStyleCollection>();
-    const useMyComponentStyles = createStyleSheetHook(liveStyles, { id: 'style-4' });
+    const useMyComponentStyles = createServerStyleSheetHook(liveStyles, { id: 'style-4' });
     
-    // In the component:
+    // In the server component:
     const styles = useMyComponentStyles();
     const componentClassName = styles.main;
     
@@ -220,14 +197,9 @@ export const dynamicStyleSheets = createStyleSheetsHook;
  * @param options - Optional configuration settings for stylesheet registration.
  * @returns A hook function providing access to a `CssScopeMap<'main'>`, where `'main'` maps to its uniquely generated class name.
  */
-export const createStyleSheetHook  = (style: StyleSheetFactory, options?: ReactStyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
-    return createStyleSheetsHook(
+export const createServerStyleSheetHook  = (style: StyleSheetFactory, options?: StyleSheetOptions & CssScopeOptions): () => CssScopeMap<'main'> => {
+    return createServerStyleSheetsHook(
         transformScopedStyleSource(style, options), // Transforms the unscoped `style` into a `'main'`-scoped style.
         options
     );
 };
-
-/**
- * @deprecated Use `createStyleSheetHook` instead.
- */
-export const dynamicStyleSheet  = createStyleSheetHook;
