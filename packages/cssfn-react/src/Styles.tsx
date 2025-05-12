@@ -62,7 +62,12 @@ export interface StylesProps {
      * - `true` → Uses multiple web workers for faster rendering but higher CPU/memory usage.
      * - `false` (default) → Sequential rendering, useful when styles are mostly pre-rendered on the server.
      */
-    asyncRender ?: boolean
+    concurrentRender ?: boolean
+    
+    /**
+     * Use `concurrentRender` instead.
+     */
+    asyncRender      ?: boolean
     
     /**
      * Controls whether styles should be rendered exclusively for SSR.
@@ -70,7 +75,7 @@ export interface StylesProps {
      * - `true` (default) → Render styles **only** if explicitly marked as SSR (`ssr: true`).
      *   Styles marked as `ssr: false` will be rendered **just-in-time** when accessed.
      */
-    onlySsr     ?: boolean
+    onlySsr          ?: boolean
 }
 
 /**
@@ -90,8 +95,8 @@ export interface StylesProps {
  *
  * ## Performance Considerations:
  * - **Batch Processing vs. Sequential Execution**:
- *   - `asyncRender: true` → Uses Web Workers for faster parallel execution.
- *   - `asyncRender: false` → Runs styles sequentially to optimize CPU usage.
+ *   - `concurrentRender: true` → Uses Web Workers for faster parallel execution.
+ *   - `concurrentRender: false` → Runs styles sequentially to optimize CPU usage.
  * - **Live updates vs. static styles**:
  *   - Use `<StaticStyles>` for **pre-rendered styles** that won’t change dynamically.
  *   - Use `<Styles>` for **real-time updates** where styles change frequently.
@@ -132,8 +137,10 @@ export interface StylesProps {
 const Styles = (props: StylesProps): JSX.Element | null => {
     // Props:
     const {
-        asyncRender = false,
-        onlySsr     = true,
+        asyncRender      = false,
+        concurrentRender = asyncRender,
+        
+        onlySsr          = true,
     } = props;
     
     
@@ -196,7 +203,7 @@ const Styles = (props: StylesProps): JSX.Element | null => {
          * @returns An async function that renders stylesheets based on the execution mode.
          */
         const getRenderer = () => {
-            if (asyncRender) {
+            if (concurrentRender) {
                 // Use Web Worker for non-blocking execution:
                 return unraceRenderStyleSheetConcurrent;
             }

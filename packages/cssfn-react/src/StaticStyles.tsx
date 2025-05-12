@@ -34,7 +34,12 @@ export interface StaticStylesProps {
      * - `true` → Uses multiple web workers for faster rendering but higher CPU/memory usage.
      * - `false` (default) → Sequential rendering, useful when styles are mostly pre-rendered on the server.
      */
-    asyncRender ?: boolean
+    concurrentRender ?: boolean
+    
+    /**
+     * Use `concurrentRender` instead.
+     */
+    asyncRender      ?: boolean
     
     /**
      * Controls whether styles should be rendered exclusively for SSR.
@@ -42,7 +47,7 @@ export interface StaticStylesProps {
      * - `true` (default) → Render styles **only** if explicitly marked as SSR (`ssr: true`).
      *   Styles marked as `ssr: false` will be rendered **just-in-time** when accessed.
      */
-    onlySsr     ?: boolean
+    onlySsr          ?: boolean
 }
 
 /**
