@@ -57,6 +57,7 @@ import {
 // React components:
 
 /**
+ * @deprecated No longer used. `ClientStaticStyles` is obsolete due to unified `styleSheetRegistry`.
  * Props for the `ClientStaticStyles` component.
  */
 export interface ClientStaticStylesProps {
@@ -82,6 +83,7 @@ export interface ClientStaticStylesProps {
 }
 
 /**
+ * @deprecated No longer used. Use `<StaticStyles>` instead.
  * Statically renders stylesheets based on registered **client-side styles**.
  *
  * ## Purpose:

@@ -1,3 +1,5 @@
+'use cache'
+
 import 'server-only' // This module belongs to the server-side bundle and is never included in the client-side bundle, meaning it is restricted from running in the browser.
 
 // React:
@@ -65,55 +67,50 @@ export interface ServerStaticStylesProps {
 }
 
 /**
- * Statically renders stylesheets based on registered **server-side styles**.
+ * Statically renders stylesheets based on registered styles.
  *
  * ## Purpose:
- * - **Optimized for server-side rendering (SSR)** → Works seamlessly in server components.
- * - **Retrieves stylesheets directly at execution time** → No need for client-side registry tracking.
- * - **Efficiently handles dynamic imports** → Loads styles asynchronously **only when needed**.
- * - **Prioritizes loading speed over bundle size** → Server performance matters more than code slimming.
+ * - **Optimized for server-side rendering (SSR)**, ensuring styles are rendered before hydration.
+ * - **Caches rendered styles**, preventing redundant re-renders across requests.
+ * - **Eliminates client-side registry tracking**, improving SSR efficiency.
  *
  * ## Behavior:
- * - **On the server**, collects styles and renders static `<style>` elements **before hydration**.
- * - **No registry tracking required** → Works directly with pre-registered styles instead.
- * - **Immediately renders styles** → Ensures styles exist in `<head>` without needing client hydration, supporting components that rely on early DOM measurement.
+ * - **On the server**, collects styles and renders static `<style>` elements immediately.
+ * - **Uses caching**, assuming non-observable styles remain unchanged.
+ * - **Ignores observable styles**, since the component subscribes once and avoids unnecessary updates.
+ * - **Prevents hydration mismatch** by ensuring styles exist in `<head>` before client-side execution.
  *
  * ## Performance Optimizations:
- * - **Async Import Handling**:
- *   - Directly awaits imports → Reduces unnecessary runtime computations.
- *   - Removes need for deferred execution → No extra complexity for render timing.
- * - **Batch Processing vs. Sequential Execution**:
- *   - `concurrentRender: true` → Uses Web Workers for faster parallel execution.
- *   - `concurrentRender: false` → Runs styles sequentially to optimize CPU usage.
+ * - **Reduces SSR workload** by storing pre-rendered styles.
+ * - **Minimizes redundant processing** for non-observable styles.
+ * - **Speeds up rendering** by ensuring styles are injected efficiently.
  *
- * ## Choosing Between `<Styles>`, `<StaticStyles>`, `<ClientStaticStyles>`, `<ServerStaticStyles>`, and `<HydrateStyles>`
+ * ## Choosing Between `<Styles>`, `<StaticStyles>`, `<ServerStaticStyles>`, and `<HydrateStyles>`
  * 
  * - **`<Styles>`** → The most dynamic but least performant choice.  
- *   - Provides **full real-time style updates**, reacting to both client & server changes.
- *   - **Best for frameworks that do not support SSR** (since it ensures styling consistency post-render).
- *   - Should be **avoided** when **server-side rendering is available** due to potential late updates.
+ *   - Provides **real-time style updates**, reacting to both client & server changes.
+ *   - **Best for frameworks without SSR support**, ensuring styling consistency post-render.
+ *   - **Should be avoided when SSR is available**, as late updates can cause flickering.
  * 
- * - **Pairing `<StaticStyles>` & `<HydrateStyles>`** → The most **performant** and **recommended approach**.  
- *   - `<StaticStyles>` (server-side) ensures **initial styles** are fully rendered **before any React lifecycle runs**.
- *   - `<HydrateStyles>` ensures **just-in-time updates** when styles dynamically change.
- *   - **If this pair is present, `<Styles>` should not be used** since hydration fully resolves styling issues.
+ * - **`<StaticStyles>`** → The recommended approach for pre-rendering styles **before hydration**.  
+ *   - **Encapsulates server-side styles**, ensuring stable rendering.
+ *   - **Uses caching** to prevent redundant processing across requests.
+ *   - **Future-proof abstraction**, allowing additional implementations beyond SSR if needed.
  * 
- * - **`<HydrateStyles>` as a standalone fallback** → Acts as a more efficient `<Styles>` replacement.  
- *   - Can function **without `<StaticStyles>`, `<ServerStaticStyles>`, or `<ClientStaticStyles>`**.
- *   - **Best suited for scenarios where only missing `<style>` elements need to be injected dynamically**.
+ * - **`<ServerStaticStyles>`** → The current internal implementation behind `<StaticStyles>`.  
+ *   - **Handles SSR rendering efficiently**, ensuring styles exist before React mounts.
+ *   - **Available for edge cases**, but **should not be used directly in most scenarios**.
+ *   - **May be replaced or extended** in future versions of `<StaticStyles>`.
  * 
- * - **`<ClientStaticStyles>` standalone usage** → Viable in frameworks without SSR.  
- *   - **Only use when no subscribeable/observable styles are required**.
- *   - `enabled` must be set as a **boolean value** (not `'auto'`).
- *   - **Does not work well if server rendering is supported** (since styles would be missing in SSR).
- * 
- * - **Pairing `<ServerStaticStyles>` & `<ClientStaticStyles>`** → Ensures full coverage of server & client styles.  
- *   - **Required if server-rendered styles need visibility in the client bundle**.
- *   - Even **better when triple-paired with `<HydrateStyles>`** for real-time dynamic styling.
- * 
- * - **`<StaticStyles>` simplifies `<ServerStaticStyles>` + `<ClientStaticStyles>` pairing**.  
- *   - Functions **identically** as using **both components together**.
- *   - **`<StaticStyles>` + `<HydrateStyles>` is equivalent to the triple pairing**.
+ * - **`<HydrateStyles>`** → The best choice for injecting styles dynamically **during hydration**.  
+ *   - Ensures **just-in-time updates** when styles dynamically change.
+ *   - **Complements `<StaticStyles>`**, fixing missing styles that weren’t pre-rendered.
+ *   - **If `<StaticStyles>` is present, `<Styles>` should not be used**, as hydration fully resolves styling issues.
+ *
+ * ### 🔥 Recommended Setup:
+ * ✅ **Use `<StaticStyles>` for SSR-pre-rendered styles.**  
+ * ✅ **Pair it with `<HydrateStyles>` for dynamic updates.**  
+ * ❌ **Avoid `<Styles>` when SSR is available**, as it may introduce late rendering inconsistencies.  
  *
  * @component
  * @param {ServerStaticStylesProps} props Component properties.
