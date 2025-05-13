@@ -207,7 +207,7 @@ export {
  *
  * ## Usage Example:
  * ```ts
- * import { styleSheetRegistry } from './styleSheetRegistry';
+ * import { styleSheetRegistry } from './styleSheetRegistry.js';
  * styleSheetRegistry.add(myStyleSheet);
  * ```
  */
