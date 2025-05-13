@@ -20,6 +20,16 @@ import {
     type Unsubscribable,
     Subject,
 }                           from 'rxjs'
+import {
+    // Tests:
+    isBrowser,
+    isJsDom,
+}                           from 'is-in-browser'
+
+
+
+// Utilities:
+const isClientSide : boolean = isBrowser || isJsDom;
 
 
 
@@ -182,14 +192,18 @@ export {
  * **Global Stylesheet Registry**
  *
  * ## Purpose:
- * - Serves as the centralized registry for managing stylesheets.
+ * - Serves as a **centralized registry** for managing stylesheets.
  * - Ensures **consistent registration and updates** across components and modules.
  * - Prevents **duplicate stylesheet instances** by tracking existing stylesheets.
+ * - Optimized for **memory efficiency**, avoiding unnecessary stylesheet recreation.
  *
  * ## Behavior:
  * - Accessible **globally** within the module.
- * - Used internally by `styleSheet()`, `styleSheets()`, `dynamicStyleSheet()`, and `dynamicStyleSheets()`.
- * - Ensures **memory efficiency**, preventing unnecessary stylesheet creation during hot module reloads.
+ * - Used internally by:
+ *   - `styleSheet()`, `styleSheets()`
+ *   - `createStyleSheetsHook()`, `createStyleSheetHook()`
+ *   - `createServerStyleSheetsHook()`, `createServerStyleSheetHook()`
+ * - Supports **hot module reloads** without redundant instantiation.
  *
  * ## Usage Example:
  * ```ts
@@ -197,4 +211,17 @@ export {
  * styleSheetRegistry.add(myStyleSheet);
  * ```
  */
-export const styleSheetRegistry = new StyleSheetRegistry();
+// export const styleSheetRegistry = new StyleSheetRegistry();
+export const styleSheetRegistry = (
+    isClientSide
+    
+    // Client-side (browser): Create a new registry for local styles.
+    ? new StyleSheetRegistry()
+    
+    // Server-side: Unify registry across SSR and client-side rendering during SSR.
+    : (
+        ('__styleSheetRegistry' in globalThis)
+        ? (globalThis as any).__styleSheetRegistry as StyleSheetRegistry
+        : ((globalThis as any).__styleSheetRegistry = new StyleSheetRegistry())
+    )
+);
