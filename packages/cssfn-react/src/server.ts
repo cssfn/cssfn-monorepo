@@ -1,4 +1,4 @@
-export *            from './styleSheetDeclarators.server.js' // Server hooks.
+export *            from './styleSheetDeclarators.server.js' // Server-like hooks.
 
 export type *       from './ServerStaticStyles.js'           // Server component.
 export {

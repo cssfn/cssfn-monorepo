@@ -1,4 +1,5 @@
-import 'server-only' // This module belongs to the server-side bundle and is never included in the client-side bundle, meaning it is restricted from running in the browser.
+// To ensure compatibility with frameworks that lack server-side rendering (SSR), the hooks must be available in both server and client environments:
+// REMOVED: import 'server-only' // This module belongs to the server-side bundle and is never included in the client-side bundle, meaning it is restricted from running in the browser.
 
 // Cssfn:
 import {
