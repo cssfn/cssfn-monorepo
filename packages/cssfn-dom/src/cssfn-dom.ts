@@ -400,3 +400,6 @@ export const hydrateStyles = (): DynamicStyles => {
     } satisfies DynamicStyles;
     return api;
 };
+
+// side effect for compatibility:
+hydrateStyles();
