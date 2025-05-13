@@ -28,7 +28,7 @@
     "tsc:watch": "tsc --watch"
   },
   "dependencies": {
-    "@cssfn/types": "^3.2.0",
+    "@cssfn/types": "^3.3.0",
     "csstype": "^3.1.3"
   }
 }
