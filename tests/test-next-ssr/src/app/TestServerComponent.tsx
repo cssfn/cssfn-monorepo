@@ -7,7 +7,7 @@ export function TestServerComponent() {
     
     return (
         <button className={styles.main}>
-            Test 2
+            Test Server Component
         </button>
     );
 }

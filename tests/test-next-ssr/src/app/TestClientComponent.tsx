@@ -7,10 +7,9 @@ import { useTestClientComponent } from './styles/client-loader'
 export function TestClientComponent() {
     const sheet2 = useTestClientComponent();
     
-    console.log('render TestClientComponent');
     return (
         <button className={sheet2.main}>
-            Test 2
+            Test Client Component
         </button>
     );
 }
