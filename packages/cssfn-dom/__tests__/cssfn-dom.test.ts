@@ -20,6 +20,9 @@ import type {
     // children as _children,
 }                           from '@cssfn/cssfn'
 import type {
+    DynamicStyles,
+}                           from '../dist/cssfn-dom.js'
+import type {
     Subject as _Subject,
 }                           from 'rxjs'
 import {
@@ -67,6 +70,7 @@ jest.isolateModules(() => {
     // let children    : typeof _children = undefined as any;
     let mainScope   : typeof _mainScope = undefined as any;
     let Subject     : typeof _Subject = undefined as any;
+    let dynamicStyles : DynamicStyles | undefined = undefined;
     beforeAll(async () => {
         simulateServerSide();
         
@@ -86,6 +90,11 @@ jest.isolateModules(() => {
         // children    = cssfnModule.children
         
         Subject     = rxjsModule.Subject
+        
+        dynamicStyles = cssfnDomModule.hydrateStyles();
+    });
+    afterAll(async () => {
+        dynamicStyles?.dehydrateStyles();
     });
     
     
@@ -236,7 +245,7 @@ jest.isolateModules(() => {
         
         await new Promise<void>((resolve, reject) => { setTimeout(() => {
             try {
-                const mainScopeClass = styleSheet4;
+                const mainScopeClass = styleSheet4.main;
                 expect(mainScopeClass).toBe('ysbco');
                 // console.log('scopeName', mainScopeClass);
                 
@@ -264,6 +273,7 @@ jest.isolateModules(() => {
     // let children    : typeof _children = undefined as any;
     let mainScope   : typeof _mainScope = undefined as any;
     let Subject     : typeof _Subject = undefined as any;
+    let dynamicStyles : DynamicStyles | undefined = undefined;
     beforeAll(async () => {
         const jsdomModule    = await import('jsdom')
         
@@ -304,6 +314,11 @@ jest.isolateModules(() => {
         // children    = cssfnModule.children
         
         Subject     = rxjsModule.Subject
+        
+        dynamicStyles = cssfnDomModule.hydrateStyles();
+    });
+    afterAll(async () => {
+        dynamicStyles?.dehydrateStyles();
     });
     
     
@@ -809,7 +824,7 @@ jest.isolateModules(() => {
                 
                 
                 expect(stylesElm?.outerHTML.includes('--sheetId: "ss4b"')).toBe(true);
-                const mainScopeClass = styleSheet4;
+                const mainScopeClass = styleSheet4.main;
                 expect(mainScopeClass).toBe('ggyis');
                 expect(stylesElm?.outerHTML.includes(`.${mainScopeClass}.${mainScopeClass}.${mainScopeClass} {`)).toBe(true);
                 // console.log('scopeName', mainScopeClass);
@@ -849,7 +864,7 @@ jest.isolateModules(() => {
                     try {
                         expect(stylesElm?.outerHTML.includes('--sheetId: "ss5b"')).toBe(true);
                         expect(stylesElm?.outerHTML.includes('--yourFavColor: yellow')).toBe(true);
-                        const mainScopeClass = styleSheet5;
+                        const mainScopeClass = styleSheet5.main;
                         expect(mainScopeClass).toBe('zfc4l');
                         expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
                         // console.log('scopeName', mainScopeClass);
@@ -864,7 +879,7 @@ jest.isolateModules(() => {
                             try {
                                 expect(stylesElm?.outerHTML.includes('--sheetId: "ss5bb"')).toBe(true);
                                 expect(stylesElm?.outerHTML.includes('--yourFavColor: purple')).toBe(true);
-                                const mainScopeClass = styleSheet5;
+                                const mainScopeClass = styleSheet5.main;
                                 expect(mainScopeClass).toBe('zfc4l');
                                 expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
                                 // console.log('scopeName', mainScopeClass);
@@ -880,7 +895,7 @@ jest.isolateModules(() => {
                                         expect(stylesElm?.outerHTML.includes('--sheetId: "ss5bc"')).toBe(true);
                                         expect(stylesElm?.outerHTML.includes('--yourFavColor: cornflowerblue')).toBe(true);
                                         // console.log(stylesElm?.outerHTML);
-                                        const mainScopeClass = styleSheet5;
+                                        const mainScopeClass = styleSheet5.main;
                                         expect(mainScopeClass).toBe('zfc4l');
                                         expect(stylesElm?.outerHTML.includes(`.${mainScopeClass} {`)).toBe(true);
                                         // console.log('scopeName', mainScopeClass);
