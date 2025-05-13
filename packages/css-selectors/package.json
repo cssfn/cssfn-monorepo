@@ -1,6 +1,6 @@
 {
   "name": "@cssfn/css-selectors",
-  "version": "3.3.0",
+  "version": "4.0.0",
   "description": "Manipulates css selector - parse, transform, calculate specificity, and more.",
   "keywords": [
     "css",
@@ -31,6 +31,6 @@
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest"
   },
   "dependencies": {
-    "@cssfn/types": "^3.3.0"
+    "@cssfn/types": "^4.0.0"
   }
 }
