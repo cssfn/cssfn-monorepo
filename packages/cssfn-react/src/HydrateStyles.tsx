@@ -36,7 +36,7 @@ export interface HydrateStylesProps {
     concurrentRender ?: boolean
     
     /**
-     * Use `concurrentRender` instead.
+     * @deprecated Use `concurrentRender` instead.
      */
     asyncRender      ?: boolean
 }

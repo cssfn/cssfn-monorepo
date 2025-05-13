@@ -53,7 +53,7 @@ export interface ServerStaticStylesProps {
     concurrentRender ?: boolean
     
     /**
-     * Use `concurrentRender` instead.
+     * @deprecated Use `concurrentRender` instead.
      */
     asyncRender      ?: boolean
     
