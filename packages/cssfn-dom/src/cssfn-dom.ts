@@ -197,7 +197,7 @@ export const hydrateStyles = (): DynamicStyles => {
         // The <style> element(s) are already in the DOM, so the operation is fast & instantly applied.
         for (const [styleElm, {renderedCss, enabled}] of batchMutateChildren) {
             styleElm.textContent = renderedCss;
-            setStyleEnabled(styleElm, enabled);
+            setStyleEnabled(styleElm, enabled); // Update enabled/disabled state.
         } // for
         
         
@@ -211,7 +211,7 @@ export const hydrateStyles = (): DynamicStyles => {
                 
                 const [styleElm, enabled] = batchAppendChildren[0];
                 headElement?.appendChild(styleElm);
-                if (!enabled) setStyleEnabled(styleElm, false); // Disabling <style> *after* mounted to DOM.
+                setStyleEnabled(styleElm, enabled); // Sync enabled/disabled state.
             }
             else {
                 // Plural append:
@@ -222,7 +222,7 @@ export const hydrateStyles = (): DynamicStyles => {
                 } // for
                 headElement?.appendChild(childrenGroup);
                 for (const [styleElm, enabled] of batchAppendChildren) {
-                    if (!enabled) setStyleEnabled(styleElm, false); // Disabling <style> *after* mounted to DOM.
+                    setStyleEnabled(styleElm, enabled); // Sync enabled/disabled state.
                 } // for
             } // if
         } // if
