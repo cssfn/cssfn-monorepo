@@ -1,6 +1,5 @@
 import { CssKnownProps } from '@cssfn/css-types';
 import {cssConfig} from '@cssfn/css-config'
-import '@cssfn/cssfn-dom'
 
 
 
@@ -9,7 +8,7 @@ export const [whatevers, whateverValues, cssWhateverConfig] = cssConfig(() => {
     
     return {
         // backgrounds:
-        backg                : 'transparent'        as CssKnownProps['background'],
+        backg                : 'pink'               as CssKnownProps['background'],
         backgGrad            : [
             ['linear-gradient(180deg, rgba(255,255,255, 0.2), rgba(0,0,0, 0.2))', 'border-box'],
         ]                                           as CssKnownProps['backgroundImage'],
@@ -17,7 +16,7 @@ export const [whatevers, whateverValues, cssWhateverConfig] = cssConfig(() => {
         
         
         // foregrounds:
-        foreg                : 'currentColor'       as CssKnownProps['foreground'],
+        foreg                : 'darkred'            as CssKnownProps['foreground'],
         
         
         

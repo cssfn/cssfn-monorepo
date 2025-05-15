@@ -1,6 +1,8 @@
 'use client'
 
-import { TestComponent } from "./TestComponent/TestComponent";
+import { TestComponent } from "../TestComponent/TestComponent";
+
+
 
 export default function Home() {
   return (

@@ -9,8 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@cssfn/core": "^4.0.0",
     "@cssfn/css-config": "^4.0.0",
-    "@cssfn/cssfn-dom": "^4.0.0",
+    "@cssfn/cssfn-react": "^4.0.2",
     "next": "15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
