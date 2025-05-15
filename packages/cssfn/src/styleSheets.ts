@@ -119,7 +119,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
     
     private /*mutable*/ _scopesFactory      : StyleSheetsFactory<TCssScopeName>
     private /*mutable*/ _scopesSubscription : Unsubscribable|undefined
-    private /*mutable*/ _scopesLive         : StyleSheetsFactoryBase<TCssScopeName>
+    private /*mutable*/ _scopesLive         : StyleSheetsFactoryBase<TCssScopeName> | undefined
     
     
     
@@ -169,7 +169,7 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
         ),
         this._scopesFactory      = scopesFactory;
         this._scopesSubscription = undefined;
-        this._scopesLive         = null;
+        this._scopesLive         = undefined; // Initially set to `undefined`, meaning no updates have occurred yet.
         
         
         
@@ -289,12 +289,19 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
                     else {
                         // Update the scopes:
                         const newScopes = update satisfies StyleSheetsFactoryBase<TCssScopeName>; // Verify the type must be StyleSheetsFactoryBase.
-                        if (this._scopesLive === newScopes) return;  // Still the same scopes => no need to update.
-                        this._scopesLive = newScopes;                // Change the scopes.
-                        this.notifyUpdated('scopesChanged');         // Trigger update notification.
+                        if (this._scopesLive === newScopes) return;                  // Still the same scopes => no need to update.
+                        const isSubsequentUpdate = (this._scopesLive !== undefined); // Check if this is a subsequent update.
+                        this._scopesLive = newScopes;                                // Change the scopes.
+                        if (isSubsequentUpdate) this.notifyUpdated('scopesChanged'); // Trigger update notification only if this isn't the initial update.
                     } // if
                 },
             });
+            
+            
+            
+            // If `subscribe()` doesn't trigger an immediate update, set `_scopesLive` to `null`,
+            // marking the next update as a subsequent one:
+            if (this._scopesLive === undefined) this._scopesLive = null;
         }
         else {
             // Update once if not Subscribable:
@@ -369,9 +376,10 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
      * @param newEnabled - The new enabled state.
      */
     protected set enabled(newEnabled: boolean) {
-        if (this._enabled === newEnabled) return;     // No change, skip update.
-        this._enabled = newEnabled satisfies boolean; // Apply state change.
-        this.notifyUpdated('enabledChanged');         // Notify listeners of update.
+        if (this._enabled === newEnabled) return;                     // No change, skip update.
+        this._enabled = newEnabled satisfies boolean;                 // Apply state change.
+        const isSubsequentUpdate = (this._scopesLive !== undefined);  // Check if this is a subsequent update.
+        if (isSubsequentUpdate) this.notifyUpdated('enabledChanged'); // Trigger update notification only if this isn't the initial update.
     }
     
     
@@ -426,8 +434,8 @@ export class StyleSheet<out TCssScopeName extends CssScopeName = CssScopeName> i
      * - If the value is **async**, it dynamically applies computed styles.
      * - If the value is **static**, it applies predefined styles.
      */
-    get scopes() {
-        return this._scopesLive;
+    get scopes(): StyleSheetsFactoryBase<TCssScopeName> {
+        return this._scopesLive ?? null;
     }
     
     /**
