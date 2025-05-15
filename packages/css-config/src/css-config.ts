@@ -1,68 +1,68 @@
-// cssfn:
-import type {
-    // lazies:
-    MaybeLazy,
+// Cssfn:
+import {
+    // Lazies:
+    type MaybeLazy,
     
     
     
-    // dictionaries/maps:
-    PartialNullish,
-    RequiredNotNullish,
-    ValueOf,
-    MapOf,
+    // Collections:
+    type PartialNullish,
+    type RequiredNotNullish,
+    type ValueOf,
+    type MapOf,
 }                           from '@cssfn/types'
-import type {
-    // css custom properties:
-    CssCustomName,
-    CssCustomSimpleRef,
-    CssCustomValue,
-    CssCustomProps,
+import {
+    // CSS custom properties:
+    type CssCustomName,
+    type CssCustomSimpleRef,
+    type CssCustomValue,
+    type CssCustomProps,
     
     
     
-    // css known (standard) properties:
-    CssKnownProps,
+    // CSS known (standard) properties:
+    type CssKnownProps,
     
     
     
-    // cssfn properties:
-    CssProps,
+    // Cssfn properties:
+    type CssProps,
     
-    CssRuleData,
-    CssFinalRuleData,
-    CssRuleMap,
+    type CssRuleData,
+    type CssFinalRuleData,
+    type CssRuleMap,
     
-    CssStyle,
-    CssStyleMap,
+    type CssStyle,
+    type CssStyleMap,
     
-    CssCustomKeyframesRef,
-    CssKeyframesRule,
-    CssKeyframesRuleMap,
+    type CssCustomKeyframesRef,
+    type CssKeyframesRule,
+    type CssKeyframesRuleMap,
     
-    CssSelector,
+    type CssSelector,
 }                           from '@cssfn/css-types'
 import {
-    // rules:
+    // Rules:
     rule,
     
     
     
-    // rule shortcuts:
+    // Rule shortcuts:
     atGlobal,
     
     
     
-    // style sheets:
+    // Style sheets:
     styleSheet,
     
     
     
-    // processors:
+    // Processors:
     mergeStyles,
     
     
     
-    // utilities:
+    // Utilities:
     isFinalSelector,
     isFinalStyleMap,
     
@@ -73,15 +73,16 @@ import {
     isKnownCssProp,
 }                           from '@cssfn/css-prop-list'
 
-// other libs:
+// Other libs:
 import {
-    Observable,
+    type Observable,
+    type Subscribable,
     Subject,
 }                           from 'rxjs'
 
 
 
-// types:
+// Types:
 export type CssConfigProps =
     & PartialNullish<{
         [name: string] : CssCustomValue
@@ -184,7 +185,7 @@ export type CssConfig<TConfigProps extends CssConfigProps> = readonly [Refs<TCon
 
 
 
-// utilities:
+// Utilities:
 const isUppercase = (test: string) => (test >= 'A') && (test <= 'Z');
 
 const defaultPropDescriptor : PropertyDescriptor = {
@@ -851,12 +852,13 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
      * Similar to `props` but some values has been partially/fully *transformed*.  
      * The duplicate values has been replaced with a `var(...)` linked to the previously existing ones.  
      */
-    private _genProps = new Map() as CssConfigCustomPropsMap; // create a blank generated props collection
+    private _genProps             : CssConfigCustomPropsMap|undefined  = undefined;
+    private _latestUpdate         : CssStyle|null|undefined            = undefined;
     
     /**
-     * The *generated css* attached on dom (by default).
+     * Event stream for notifying subscribers about config updates.
      */
-    private readonly _liveStyleSheet : Subject<CssStyle|null>;
+    private readonly _subscribers : Subject<CssStyle|null> | undefined = undefined;
     //#endregion generated data
     //#endregion private properties
     
@@ -881,11 +883,16 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         // update styleSheet:
-        this._liveStyleSheet.next({
+        this._latestUpdate = {
             ...atGlobal({
                 ...rule(this.options.selector, Object.fromEntries(this._genProps) as unknown as (CssCustomProps & CssKeyframesRule)),
             }),
-        });
+        };
+        
+        
+        
+        // notify subscribers for latest update:
+        this._subscribers?.next(this._latestUpdate); // the subscribers may not be available on first update, so we use `optional chaining operator`.
     }
     
     /**
@@ -1013,7 +1020,7 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         // ensures the `genProps` was fully generated:
         this.ensureGenerated(); // expensive op!
         
-        return this._genProps.get(propDecl);
+        return this._genProps?.get(propDecl);
     }
     
     /**
@@ -1180,12 +1187,45 @@ class CssConfigBuilder<TConfigProps extends CssConfigProps> {
         
         
         
-        this._liveStyleSheet = new Subject<CssStyle|null>();
-        styleSheet(this._liveStyleSheet, { id: `${this.options.prefix}-cfg` });
+        // Perform an initial update to ensure the latest styles are available before registering dynamic stylesheet:
+        this.update(/* immediately: */true); // Generate `genProps` before browser repaint.
         
         
         
-        this.update(); // generate the `genProps` BEFORE browser repaint
+        // Create a subscribable object for dynamic updates:
+        const subscribers = new Subject<CssStyle|null>();
+        this._subscribers = subscribers;
+        const subscriptionSource : Subscribable<CssStyle|null> = {
+            subscribe : (observer) => {
+                // Immediately push the latest update if available:
+                if (this._latestUpdate !== undefined) {
+                    // Ensure the observer is actively listening:
+                    if (observer.next) {
+                        observer.next(this._latestUpdate);
+                    } // if
+                } // if
+                
+                
+                
+                // Subscribe to future updates:
+                return subscribers.subscribe({
+                    next: (update) => {
+                        // Ensure the observer is actively listening:
+                        if (!observer.next) return;
+                        
+                        
+                        
+                        // Forward incoming updates:
+                        observer.next(update);
+                    },
+                });
+            },
+        };
+        
+        
+        
+        // Register a dynamically updatable stylesheet:
+        styleSheet(subscriptionSource, { id: `${this.options.prefix}-cfg`, enabled: true });
         
         
         
