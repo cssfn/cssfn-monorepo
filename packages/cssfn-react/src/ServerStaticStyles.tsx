@@ -160,8 +160,8 @@ const ServerStaticStyles = async (props: ServerStaticStylesProps): Promise<JSX.E
         
         
         
-        // Subscribe **once** to collect styles (avoids real-time updates after hydration):
-        styleSheetRegistry.subscribe(({ styleSheet, type }: StyleSheetUpdateEvent<CssScopeName>): void => {
+        // Subscribe **once** to collect stylesheets (avoids unnecessary updates after hydration):
+        const subscription = styleSheetRegistry.subscribe(({ styleSheet, type }: StyleSheetUpdateEvent<CssScopeName>): void => {
             // Wrap async processing inside synchronous callback:
             const updatePromise = (async (): Promise<void> => {
                 // Determine whether the update affects rendering:
@@ -246,9 +246,17 @@ const ServerStaticStyles = async (props: ServerStaticStylesProps): Promise<JSX.E
             updatePromise.then(() => {
                 pendingUpdateSet.delete(updatePromise);
             });
-        })
-        // Unsubscribe **immediately** to prevent future updates:
-        .unsubscribe();
+        });
+        
+        
+        
+        // Allow the event loop to complete pending macrotasks, ensuring all necessary stylesheets are captured before unsubscribing:
+        await new Promise<void>((resolve) => setTimeout(resolve, 0));
+        
+        
+        
+        // Unsubscribe immediately after collecting styles to prevent future updates:
+        subscription.unsubscribe();
         
         
         
