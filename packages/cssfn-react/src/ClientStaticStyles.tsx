@@ -1,12 +1,7 @@
 'use client' // This module belongs to the client-side bundle but can be imported into a server-side module, meaning it relies on client-side execution.
 
 // React:
-import {
-    // React:
-    default as React,
-    
-    
-    
+import React, {
     // Types:
     type JSX,
     
