@@ -1,7 +1,6 @@
 'use client'
 
-import {
-  default as React,
+import React, {
   type JSX,
   ReactElement,
   useReducer,
@@ -107,7 +106,7 @@ export default function Home() {
           </div>
         </article>
         <article>
-          <div className={className3}>
+          <div className={className3.main}>
             test sheet #3
           </div>
         </article>
